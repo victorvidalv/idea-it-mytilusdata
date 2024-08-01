@@ -1,0 +1,492 @@
+<%- include('../partials/header') %>
+
+<div class="min-h-screen bg-gray-100">
+    <div class="py-10">
+        <header>
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="md:flex md:items-center md:justify-between">
+                    <div class="min-w-0 flex-1">
+                        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                            <%= center.name %>
+                        </h2>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                            <%= center.location %>
+                        </p>
+                    </div>
+                    <div class="mt-4 flex md:ml-4 md:mt-0">
+                        <a href="/centers/<%= center.id %>/edit"
+                            class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Editar
+                        </a>
+                        <form action="/centers/<%= center.id %>/delete" method="POST" class="inline">
+                            <button type="submit" onclick="return confirm('¿Estás seguro de eliminar este centro?')"
+                                class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="px-4 py-8 sm:px-0">
+                    <!-- Información del Centro -->
+                    <section class="bg-white shadow-lg rounded-lg p-6 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-semibold text-gray-800">Información del Centro</h2>
+                            <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Detalles</div>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-gray-700 mb-2">Nombre del Centro</h3>
+                                <p class="text-lg text-blue-600"><%= center.name %></p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-gray-700 mb-2">Ubicación</h3>
+                                <p class="text-lg text-blue-600"><%= center.location %></p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-gray-700 mb-2">Fecha de Inicio</h3>
+                                <p class="text-lg text-blue-600">01/01/2024</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <!-- Mapa -->
+                        <div class="bg-white shadow-lg rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-2xl font-semibold text-gray-800">Ubicación</h2>
+                                <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Mapa</div>
+                            </div>
+                            <div id="map" class="h-96 rounded-lg border border-gray-300"></div>
+                        </div>
+
+                        <!-- Mediciones -->
+                        <div class="bg-white shadow-lg rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-2xl font-semibold text-gray-800">Mediciones</h2>
+                                <button type="button" onclick="toggleMeasurementForm()"
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Nueva medición
+                                </button>
+                            </div>
+
+                            <!-- Formulario de nueva medición -->
+                            <div id="measurement-form" class="hidden mb-6 p-4 bg-gray-50 rounded-lg">
+                                <form action="/centers/<%= center.id %>/measurements" method="POST" class="space-y-4">
+                                    <div>
+                                        <label for="measurement_date" class="block text-sm font-medium text-gray-700">
+                                            Fecha
+                                        </label>
+                                        <input type="date" name="measurement_date" id="measurement_date" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <p id="diaCalculado" class="mt-2 text-sm text-blue-600 font-medium"></p>
+                                    </div>
+                                    <div>
+                                        <label for="size" class="block text-sm font-medium text-gray-700">
+                                            Tamaño (mm)
+                                        </label>
+                                        <input type="number" step="0.1" name="size" id="size" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                            placeholder="Ej: 5.2">
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="submit"
+                                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            Guardar medición
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Gráfico de crecimiento -->
+                            <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                                <canvas id="growth-chart"></canvas>
+                            </div>
+
+                            <!-- Función de Crecimiento -->
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl shadow-sm mb-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-2xl font-semibold text-blue-800">Función de Crecimiento</h3>
+                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Modelo Matemático</div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-lg shadow-sm mb-4">
+                                    <div class="text-center">
+                                        <p class="text-gray-600 mb-4">Modelo Sigmoidal de Crecimiento</p>
+                                        <div id="funcionSigmoidal" class="text-3xl font-medium text-blue-900 mb-2"></div>
+                                        <div class="flex items-center justify-center space-x-4 mt-4">
+                                            <div class="text-sm text-gray-600">
+                                                donde:
+                                            </div>
+                                            <div class="grid grid-cols-3 gap-4 text-sm">
+                                                <div class="bg-gray-50 px-3 py-2 rounded">
+                                                    <span class="text-blue-600 font-semibold">L</span>: tamaño máximo
+                                                </div>
+                                                <div class="bg-gray-50 px-3 py-2 rounded">
+                                                    <span class="text-blue-600 font-semibold">k</span>: tasa de crecimiento
+                                                </div>
+                                                <div class="bg-gray-50 px-3 py-2 rounded">
+                                                    <span class="text-blue-600 font-semibold">x₀</span>: punto de inflexión
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                        <p id="rCuadrado" class="text-sm font-medium text-gray-600"></p>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        Ajuste del modelo a los datos
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Velocidad de Crecimiento -->
+                    <section class="bg-white shadow-lg rounded-lg p-6 mt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-semibold text-gray-800">Velocidad de Crecimiento</h2>
+                            <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Análisis</div>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <div class="mb-6">
+                                <label for="diaDerivada" class="block text-gray-700 font-medium mb-2">
+                                    Día seleccionado: <span id="diaSeleccionado" class="text-blue-600 font-bold">0</span>
+                                </label>
+                                <input type="range" id="diaDerivada" name="diaDerivada" min="0" 
+                                       class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <p class="text-gray-700">Velocidad de crecimiento:</p>
+                                    <p id="primeraDerivada" class="text-2xl font-bold text-blue-600"></p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <p class="text-gray-700">Aceleración:</p>
+                                    <p id="segundaDerivada" class="text-2xl font-bold text-green-600"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Predicción -->
+                    <section class="bg-white shadow-lg rounded-lg p-6 mt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-semibold text-gray-800">Predicción de Crecimiento</h2>
+                            <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Estimación</div>
+                        </div>
+                        <form id="prediccionForm" class="space-y-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <label for="tamanoObjetivo" class="block text-gray-700 font-medium mb-2">
+                                    Tamaño Objetivo: <span id="tamanoObjetivoValor" class="text-blue-600 font-bold">1.0</span> mm
+                                </label>
+                                <input type="range" 
+                                       id="tamanoObjetivo" 
+                                       name="tamanoObjetivo" 
+                                       min="1" 
+                                       max="20" 
+                                       step="0.1" 
+                                       value="1.0"
+                                       class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-sm">
+                                <h3 class="text-xl font-semibold mb-4 text-blue-800">Predicción</h3>
+                                <p id="prediccion" class="text-lg font-medium text-blue-900"></p>
+                                <div id="maxInfo" class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hidden">
+                                    <p class="text-yellow-800">
+                                        <span class="font-bold">Nota:</span> 
+                                        El tamaño máximo teórico es <span class="font-bold tamanoMax"></span> mm.
+                                        <br>
+                                        Para alcanzar el 99% de este tamaño se necesitarían aproximadamente 
+                                        <span class="font-bold diasMax"></span> días.
+                                    </p>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+
+                    <!-- Historial de Mediciones -->
+                    <section class="bg-white shadow-lg rounded-lg p-6 mt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-semibold text-gray-800">Historial de Mediciones</h2>
+                            <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Registros</div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-300">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Fecha
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Día
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tamaño (mm)
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <% measurements.forEach(function(measurement) { %>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <%= new Date(measurement.measurement_date).toLocaleDateString() %>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <%= Math.floor((new Date(measurement.measurement_date) - new Date('2024-01-01')) / (1000 * 60 * 60 * 24)) %>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <%= measurement.size.toFixed(1) %>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Fecha de inicio fija
+    const fechaInicio = new Date('2024-01-01');
+    let registros = <%- JSON.stringify(measurements) %>.map(m => ({
+        ...m,
+        dia: Math.floor((new Date(m.measurement_date) - fechaInicio) / (1000 * 60 * 60 * 24))
+    }));
+
+    // Inicializar mapa
+    const map = L.map('map').setView([<%= center.latitude %>, <%= center.longitude %>], 14);
+
+    // Agregar capa de Google Satellite
+    L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '© Google'
+    }).addTo(map);
+
+    // Agregar marcador
+    L.marker([<%= center.latitude %>, <%= center.longitude %>])
+        .addTo(map)
+        .bindPopup('<%= center.name %>');
+
+    // Función sigmoidal mejorada
+    function sigmoidal(x, L, k, x0) {
+        return L / (1 + Math.exp(-k * (x - x0)));
+    }
+
+    // Primera derivada (velocidad de crecimiento)
+    function primeraDerivada(x, L, k, x0) {
+        const exp = Math.exp(-k * (x - x0));
+        return (L * k * exp) / Math.pow(1 + exp, 2);
+    }
+
+    // Segunda derivada (aceleración)
+    function segundaDerivada(x, L, k, x0) {
+        const exp = Math.exp(-k * (x - x0));
+        return (L * k * k * exp * (exp - 1)) / Math.pow(1 + exp, 3);
+    }
+
+    // Ajuste sigmoidal
+    function ajustarSigmoidal(datos) {
+        if (!datos || datos.length === 0) return null;
+        
+        const L = Math.max(...datos.map(r => r.size)) * 1.2;
+        const k = 0.1;
+        const x0 = datos[Math.floor(datos.length / 2)].dia;
+        return { L, k, x0 };
+    }
+
+    // Predicción de días
+    function predecirDia(tamanoObjetivo, L, k, x0) {
+        if (tamanoObjetivo <= 0 || !L || !k || !x0) return null;
+        if (tamanoObjetivo >= L) return null;
+        
+        return x0 - (1/k) * Math.log(L/tamanoObjetivo - 1);
+    }
+
+    // Cálculo de R²
+    function calcularRcuadrado(datos, L, k, x0) {
+        if (!datos || datos.length < 2) return 0;
+        
+        const n = datos.length;
+        const media = datos.reduce((sum, d) => sum + d.size, 0) / n;
+        
+        let ssTot = 0, ssRes = 0;
+        datos.forEach(d => {
+            const yPred = sigmoidal(d.dia, L, k, x0);
+            ssTot += Math.pow(d.size - media, 2);
+            ssRes += Math.pow(d.size - yPred, 2);
+        });
+        
+        return ssTot === 0 ? 0 : 1 - (ssRes / ssTot);
+    }
+
+    // Calcular días para alcanzar porcentaje del máximo
+    function calcularDiasParaPorcentaje(porcentaje, L, k, x0) {
+        if (!L || !k || !x0 || porcentaje <= 0 || porcentaje >= 100) return null;
+        
+        const proporcion = porcentaje / 100;
+        return x0 - (1/k) * Math.log((1/proporcion) - 1);
+    }
+
+    // Función para mostrar/ocultar formulario de medición
+    function toggleMeasurementForm() {
+        const form = document.getElementById('measurement-form');
+        form.classList.toggle('hidden');
+    }
+
+    // Calcular días desde la fecha de inicio
+    document.getElementById('measurement_date')?.addEventListener('change', function() {
+        const dias = Math.floor((new Date(this.value) - fechaInicio) / (1000 * 60 * 60 * 24));
+        document.getElementById('diaCalculado').textContent = `Día: ${dias}`;
+    });
+
+    // Inicializar gráfico de crecimiento
+    const ctx = document.getElementById('growth-chart').getContext('2d');
+    const params = ajustarSigmoidal(registros);
+
+    new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: 'Mediciones',
+                    data: registros.map(r => ({ x: r.dia, y: r.size })),
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                },
+                params ? {
+                    label: 'Función Sigmoidal',
+                    data: Array.from({ length: 100 }, (_, i) => {
+                        const x = i * (Math.max(...registros.map(r => r.dia)) / 100);
+                        return { x, y: sigmoidal(x, params.L, params.k, params.x0) };
+                    }),
+                    type: 'line',
+                    borderColor: 'rgba(99, 102, 241, 0.8)',
+                    borderWidth: 2,
+                    fill: false,
+                    pointRadius: 0
+                } : null
+            ].filter(Boolean)
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: { display: true, text: 'Día' }
+                },
+                y: {
+                    title: { display: true, text: 'Tamaño (mm)' }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Crecimiento a lo largo del tiempo'
+                }
+            }
+        }
+    });
+
+    if (params) {
+        // Mostrar función sigmoidal con formato mejorado
+        document.getElementById('funcionSigmoidal').innerHTML =
+            `\\[ f(x) = \\frac{${params.L.toFixed(1)}}{1 + e^{-${params.k.toFixed(3)}(x - ${params.x0.toFixed(1)})}} \\]`;
+        
+        const rCuadrado = calcularRcuadrado(registros, params.L, params.k, params.x0);
+        document.getElementById('rCuadrado').textContent = `R² = ${(rCuadrado * 100).toFixed(1)}%`;
+        
+        // Configurar slider de días
+        const maxDia = Math.max(...registros.map(r => r.dia), 0);
+        const diaDerivada = document.getElementById('diaDerivada');
+        diaDerivada.max = maxDia * 2;
+        diaDerivada.value = maxDia / 2;
+        
+        // Calcular derivadas iniciales
+        calcularDerivadas(parseInt(diaDerivada.value));
+    }
+
+    // Event listener para el slider de días
+    document.getElementById('diaDerivada')?.addEventListener('input', function() {
+        calcularDerivadas(parseInt(this.value));
+    });
+
+    // Calcular derivadas
+    function calcularDerivadas(dia) {
+        document.getElementById('diaSeleccionado').textContent = dia;
+
+        if (!params) {
+            document.getElementById('primeraDerivada').textContent = 'No disponible';
+            document.getElementById('segundaDerivada').textContent = 'No disponible';
+            return;
+        }
+
+        const primera = primeraDerivada(dia, params.L, params.k, params.x0);
+        const segunda = segundaDerivada(dia, params.L, params.k, params.x0);
+
+        document.getElementById('primeraDerivada').textContent = `${primera.toFixed(2)} mm/día`;
+        document.getElementById('segundaDerivada').textContent = `${segunda.toFixed(2)} mm/día²`;
+    }
+
+    // Event listener para el slider de predicción
+    document.getElementById('tamanoObjetivo')?.addEventListener('input', function() {
+        document.getElementById('tamanoObjetivoValor').textContent = this.value;
+        realizarPrediccion(parseFloat(this.value));
+    });
+
+    // Realizar predicción
+    function realizarPrediccion(tamanoObjetivo) {
+        const maxInfo = document.getElementById('maxInfo');
+
+        if (!params) {
+            document.getElementById('prediccion').textContent = 'No hay suficientes datos para realizar predicciones';
+            return;
+        }
+
+        if (tamanoObjetivo >= params.L) {
+            const diaHipotetico = params.x0 - (1/params.k) * Math.log((params.L/tamanoObjetivo) - 1);
+            const fechaHipotetica = new Date(fechaInicio);
+            fechaHipotetica.setDate(fechaHipotetica.getDate() + Math.round(diaHipotetico));
+            
+            document.getElementById('prediccion').innerHTML = 
+                `<span class="text-red-600 font-bold">Advertencia:</span> El tamaño objetivo (${tamanoObjetivo} mm) excede el máximo teórico.<br>
+                 Hipotéticamente, se alcanzaría el día ${diaHipotetico.toFixed(0)} (${fechaHipotetica.toLocaleDateString()}).<br>
+                 <span class="text-sm text-gray-600">Nota: Este es un cálculo matemático teórico, biológicamente imposible.</span>`;
+            
+            maxInfo.querySelector('.tamanoMax').textContent = params.L.toFixed(2);
+            maxInfo.querySelector('.diasMax').textContent = 
+                calcularDiasParaPorcentaje(99, params.L, params.k, params.x0).toFixed(0);
+            maxInfo.classList.remove('hidden');
+        } else {
+            const prediccion = predecirDia(tamanoObjetivo, params.L, params.k, params.x0);
+            const fechaPrediccion = new Date(fechaInicio);
+            fechaPrediccion.setDate(fechaPrediccion.getDate() + Math.round(prediccion));
+            
+            document.getElementById('prediccion').textContent = 
+                `Día aproximado = ${prediccion.toFixed(0)} (${fechaPrediccion.toLocaleDateString()})`;
+            maxInfo.classList.add('hidden');
+        }
+    }
+
+    // Inicializar predicción
+    realizarPrediccion(parseFloat(document.getElementById('tamanoObjetivo').value));
+
+    // Inicializar MathJax
+    if (typeof MathJax !== 'undefined') {
+        MathJax.typesetPromise([document.getElementById('funcionSigmoidal')]);
+    }
+</script>
+
+<%- include('../partials/footer') %> 

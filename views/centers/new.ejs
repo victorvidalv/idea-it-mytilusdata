@@ -1,0 +1,137 @@
+<%- include('../partials/header') %>
+
+<div class="min-h-screen bg-gray-100">
+    <div class="py-10">
+        <header>
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="md:flex md:items-center md:justify-between">
+                    <div class="min-w-0 flex-1">
+                        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                            Nuevo Centro
+                        </h2>
+                    </div>
+                    <div class="mt-4 flex md:ml-4 md:mt-0">
+                        <a href="/centers"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="px-4 py-8 sm:px-0">
+                    <div class="bg-white shadow sm:rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <form action="/centers" method="POST">
+                                <div class="space-y-6">
+                                    <div>
+                                        <div>
+                                            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                                                Información del Centro
+                                            </h3>
+                                            <p class="mt-1 text-sm text-gray-500">
+                                                Ingresa los datos básicos del centro de cultivo.
+                                            </p>
+                                        </div>
+
+                                        <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                                            <div class="sm:col-span-4">
+                                                <label for="name" class="block text-sm font-medium text-gray-700">
+                                                    Nombre del centro
+                                                </label>
+                                                <div class="mt-1">
+                                                    <input type="text" name="name" id="name" required
+                                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                                        placeholder="Ej: Centro Chiloé Norte">
+                                                </div>
+                                            </div>
+
+                                            <div class="sm:col-span-4">
+                                                <label for="location" class="block text-sm font-medium text-gray-700">
+                                                    Ubicación
+                                                </label>
+                                                <div class="mt-1">
+                                                    <input type="text" name="location" id="location" required
+                                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                                        placeholder="Ej: Puerto Montt, Chile">
+                                                </div>
+                                            </div>
+
+                                            <div class="sm:col-span-6">
+                                                <label class="block text-sm font-medium text-gray-700">
+                                                    Seleccionar ubicación en el mapa
+                                                </label>
+                                                <div class="mt-1">
+                                                    <div id="map" class="h-96 w-full rounded-lg border border-gray-200 mb-4"></div>
+                                                </div>
+                                            </div>
+
+                                    <input type="hidden" name="latitude" id="latitude" required>
+                                    <input type="hidden" name="longitude" id="longitude" required>
+
+                                    <div class="flex justify-end space-x-3">
+                                        <a href="/centers"
+                                            class="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                            Cancelar
+                                        </a>
+                                        <button type="submit"
+                                            class="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                            Crear Centro
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Inicializar mapa centrado en Chile
+    const map = L.map('map').setView([-41.4720, -72.9429], 9);
+
+    // Agregar capa de Google Satellite
+    L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '© Google'
+    }).addTo(map);
+
+    let marker = null;
+
+    // Manejar clic en el mapa
+    map.on('click', function(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        
+        // Actualizar campos ocultos
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        
+        // Actualizar marcador
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+    });
+
+    // Validar formulario antes de enviar
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const lat = document.getElementById('latitude').value;
+        const lng = document.getElementById('longitude').value;
+        
+        if (!lat || !lng) {
+            e.preventDefault();
+            alert('Por favor, selecciona una ubicación en el mapa');
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %> 

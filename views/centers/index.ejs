@@ -1,0 +1,142 @@
+<%- include('../partials/header') %>
+
+<div class="min-h-screen bg-gray-100">
+    <div class="py-10">
+        <header>
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                        Mis Centros
+                    </h1>
+                    <a href="/centers/new"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Nuevo Centro
+                    </a>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="px-4 py-8 sm:px-0">
+                    <!-- Mapa de centros -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg mb-8">
+                        <div class="p-6">
+                            <h2 class="text-lg font-medium text-gray-900 mb-4">Vista General de Centros</h2>
+                            <div id="centers-map" class="h-96 w-full rounded-lg border border-gray-200"></div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de centros -->
+                    <% if (centers && centers.length > 0) { %>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            <% centers.forEach(function(center) { %>
+                                <div class="bg-white overflow-hidden shadow rounded-lg">
+                                    <div class="p-5">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-5 w-0 flex-1">
+                                                <dl>
+                                                    <dt class="text-sm font-medium text-gray-500 truncate">
+                                                        <%= center.name %>
+                                                    </dt>
+                                                    <dd class="flex items-baseline">
+                                                        <div class="text-sm text-gray-900">
+                                                            <%= center.location %>
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 px-5 py-3">
+                                        <div class="text-sm">
+                                            <a href="/centers/<%= center.id %>"
+                                                class="font-medium text-blue-600 hover:text-blue-500">
+                                                Ver detalles
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No hay centros</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Comienza creando un nuevo centro de cultivo.
+                            </p>
+                            <div class="mt-6">
+                                <a href="/centers/new"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Nuevo Centro
+                                </a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+// Esperar a que el DOM esté cargado
+window.addEventListener('DOMContentLoaded', function() {
+    try {
+        // Inicializar mapa centrado en Chile
+        const centersMap = L.map('centers-map').setView([-41.4720, -72.9429], 9);
+
+        // Agregar capa base de OpenStreetMap
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(centersMap);
+
+        // Agregar marcadores para cada centro si existen centros
+        <% if (centers && centers.length > 0) { %>
+            let markers = [];
+            
+            <% centers.forEach(function(center, index) { %>
+            markers.push(
+                L.marker([<%= center.latitude %>, <%= center.longitude %>])
+                .bindPopup(`
+                    <div style="text-align: center;">
+                        <h3 style="font-weight: 500; color: #111827; margin-bottom: 4px;"><%= center.name %></h3>
+                        <p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 8px;"><%= center.location %></p>
+                        <a href="/centers/<%= center.id %>" 
+                           style="display: inline-block; background-color: #2563EB; color: white; padding: 6px 12px; 
+                                  border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 500;">
+                            Ver detalles
+                        </a>
+                    </div>
+                `)
+                .addTo(centersMap)
+            );
+            <% }); %>
+
+            // Si hay marcadores, ajustar la vista para mostrarlos todos
+            if (markers.length > 0) {
+                const group = L.featureGroup(markers);
+                centersMap.fitBounds(group.getBounds().pad(0.1));
+            }
+        <% } %>
+    } catch (error) {
+        console.error('Error al inicializar el mapa:', error);
+    }
+});
+</script>
+
+<%- include('../partials/footer') %> 

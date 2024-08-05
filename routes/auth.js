@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
-const { generateToken, isNotAuthenticated } = require('../middleware/auth');
+const { generateToken, isNotAuthenticated, validatePassword } = require('../middleware/auth');
 
 // Ruta GET para mostrar formulario de registro
 router.get('/register', isNotAuthenticated, (req, res) => {
@@ -16,7 +16,20 @@ router.post('/register', isNotAuthenticated, async (req, res) => {
         // Validar que las contraseñas coincidan
         if (password !== confirm_password) {
             return res.render('auth/register', {
-                error: 'Las contraseñas no coinciden'
+                error: 'Las contraseñas no coinciden',
+                name,
+                email
+            });
+        }
+
+        // Validar requisitos de contraseña
+        const { isValid, requirements } = validatePassword(password);
+        if (!isValid) {
+            return res.render('auth/register', {
+                error: 'La contraseña debe contener al menos 8 caracteres, una mayúscula, un número y un carácter especial',
+                name,
+                email,
+                passwordRequirements: requirements
             });
         }
 
@@ -24,7 +37,8 @@ router.post('/register', isNotAuthenticated, async (req, res) => {
         const existingUser = await User.findByEmail(email);
         if (existingUser) {
             return res.render('auth/register', {
-                error: 'El email ya está registrado'
+                error: 'El email ya está registrado',
+                name
             });
         }
 
@@ -39,7 +53,9 @@ router.post('/register', isNotAuthenticated, async (req, res) => {
     } catch (err) {
         console.error('Error en registro:', err);
         res.render('auth/register', {
-            error: 'Error al crear el usuario'
+            error: 'Error al crear el usuario',
+            name,
+            email
         });
     }
 });
@@ -81,4 +97,4 @@ router.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-module.exports = router; 
+module.exports = router;

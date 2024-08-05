@@ -64,10 +64,25 @@ const generateToken = (userId) => {
     );
 };
 
+function validatePassword(password) {
+    const requirements = {
+        minLength: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+    
+    return {
+        isValid: Object.values(requirements).every(Boolean),
+        requirements
+    };
+}
+
 module.exports = {
     verifyToken,
     loadUser,
     isAuthenticated,
     isNotAuthenticated,
-    generateToken
-}; 
+    generateToken,
+    validatePassword
+};

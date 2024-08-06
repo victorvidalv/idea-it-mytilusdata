@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-gray-100">
+<html lang="es" class="h-full bg-gradient-to-br from-gray-50 to-gray-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,42 +19,84 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
+    <!-- Heroicons -->
+    <link href="https://unpkg.com/heroicons@2.0.18/dist/24/outline.css" rel="stylesheet">
+    
     <style>
         [x-cloak] { display: none !important; }
+        .nav-link {
+            @apply inline-flex items-center px-3 py-2 text-sm font-medium transition-all duration-200
+                   hover:text-blue-600 hover:bg-blue-50 rounded-md;
+        }
+        .nav-link.active {
+            @apply text-blue-600 bg-blue-50;
+        }
+        .nav-link-icon {
+            @apply w-5 h-5 mr-2 transition-transform duration-200 group-hover:scale-110;
+        }
     </style>
 </head>
 <body class="h-full">
     <% if (locals.user) { %>
-        <nav class="bg-white shadow">
+        <nav class="bg-white border-b border-gray-100 shadow-sm">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="flex h-16 justify-between">
-                    <div class="flex">
-                        <div class="flex flex-shrink-0 items-center">
-                            <a href="/" class="text-xl font-bold text-blue-600">Simulador</a>
-                        </div>
-                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            <a href="/centers" 
-                               class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
-                                Centros
+                <div class="flex h-16 justify-between items-center">
+                    <!-- Logo y Nombre -->
+                    <div class="flex items-center">
+                        <a href="/" class="flex items-center group">
+                            <div class="p-2 rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-all duration-200">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                          d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                                </svg>
+                            </div>
+                            <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                                Simulador
+                            </span>
+                        </a>
+
+                        <!-- Navegación Principal -->
+                        <div class="hidden sm:ml-10 sm:flex sm:space-x-4">
+                            <a href="/centers" class="nav-link group flex items-center">
+                                <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                                <span class="ml-2">Centros</span>
                             </a>
-                            <a href="/centers/compare" 
-                               class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
-                                Comparar Centros
+                            <a href="/centers/compare" class="nav-link group flex items-center">
+                                <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                                <span class="ml-2">Comparar</span>
                             </a>
                         </div>
                     </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:items-center">
-                        <div class="relative ml-3">
-                            <div class="flex items-center">
-                                <span class="text-sm text-gray-500 mr-4">
-                                    <%= user.name %>
-                                </span>
-                                <a href="/logout" 
-                                   class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                                    Cerrar sesión
-                                </a>
-                            </div>
+
+                    <!-- Perfil y Logout -->
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center px-4 py-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-all duration-200">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <span class="ml-2 text-sm font-medium text-gray-700">
+                                <%= user.name %>
+                            </span>
                         </div>
+
+                        <a href="/logout" 
+                           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 
+                                  bg-white border border-gray-200 rounded-lg shadow-sm 
+                                  hover:bg-gray-50 hover:border-gray-300 
+                                  transition-all duration-200">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            <span class="ml-2">Cerrar sesión</span>
+                        </a>
                     </div>
                 </div>
             </div>

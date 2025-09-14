@@ -1,0 +1,118 @@
+// --- SISTEMA DE REGISTRO DE MEDICIONES (V2.1) ---
+// Configuración de Prisma con SQLite
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// --- TABLA DE USUARIOS ---
+model Usuario {
+  id            Int       @id @default(autoincrement())
+  nombre        String
+  email         String    @unique
+  password_hash String
+  activo        Boolean   @default(true) // Para bloquear acceso sin borrar historial
+  created_at    DateTime  @default(now())
+
+  // Relaciones
+  unidades          Unidad[]          @relation("creador_unidad")
+  lugares           Lugar[]           @relation("creador_lugar")
+  mediciones        Medicion[]        @relation("registrador_medicion")
+  bitacora_cambios  BitacoraCambio[]  @relation("usuario_bitacora")
+
+  @@map("usuarios")
+}
+
+// --- TABLA DE UNIDADES ---
+model Unidad {
+  id            Int       @id @default(autoincrement())
+  nombre        String
+  sigla         String
+  creado_por_id Int?
+  deleted_at    DateTime? // Si tiene fecha, está borrado lógico
+
+  // Relaciones
+  creador    Usuario?   @relation("creador_unidad", fields: [creado_por_id], references: [id])
+  mediciones Medicion[] @relation("unidad_medicion")
+
+  @@map("unidades")
+}
+
+// --- TABLA DE LUGARES ---
+model Lugar {
+  id            Int       @id @default(autoincrement())
+  nombre        String
+  nota          String?
+  latitud       Decimal?
+  longitud      Decimal?
+  creado_por_id Int?
+  created_at    DateTime  @default(now())
+  deleted_at    DateTime? // Si tiene fecha, está borrado lógico
+
+  // Relaciones
+  creador    Usuario?   @relation("creador_lugar", fields: [creado_por_id], references: [id])
+  mediciones Medicion[] @relation("lugar_medicion")
+
+  @@map("lugares")
+}
+
+// --- TABLA DE TIPOS DE REGISTRO ---
+model TipoRegistro {
+  id          Int     @id @default(autoincrement())
+  codigo      String  @unique // PRUEBA, MUESTRA, DATO_PREVIO
+  descripcion String?
+
+  // Relaciones
+  mediciones Medicion[] @relation("tipo_medicion")
+
+  @@map("tipos_registro")
+}
+
+// --- TABLA DE MEDICIONES ---
+model Medicion {
+  id                Int       @id @default(autoincrement())
+  valor             Decimal
+  fecha_medicion    DateTime
+  lugar_id          Int
+  unidad_id         Int
+  tipo_id           Int
+  registrado_por_id Int
+  
+  // Auditoría básica de fila
+  created_at DateTime  @default(now())
+  updated_at DateTime?
+  deleted_at DateTime? // Crucial para soft delete. Nunca hacer DELETE FROM
+
+  // Relaciones
+  lugar          Lugar        @relation("lugar_medicion", fields: [lugar_id], references: [id])
+  unidad         Unidad       @relation("unidad_medicion", fields: [unidad_id], references: [id])
+  tipo           TipoRegistro @relation("tipo_medicion", fields: [tipo_id], references: [id])
+  registrado_por Usuario      @relation("registrador_medicion", fields: [registrado_por_id], references: [id])
+
+  @@map("mediciones")
+}
+
+// --- TABLA DE AUDITORÍA (BITÁCORA DE CAMBIOS) ---
+model BitacoraCambio {
+  id              Int      @id @default(autoincrement())
+  tabla_afectada  String
+  registro_id     Int
+  accion          String   // CREATE, UPDATE, SOFT_DELETE
+  
+  // Snapshot de datos en JSON
+  cambios String? // Guardar {campo: {anterior: x, nuevo: y}} como JSON string
+
+  usuario_id   Int?
+  fecha_evento DateTime @default(now())
+  ip_origen    String?
+
+  // Relaciones
+  usuario Usuario? @relation("usuario_bitacora", fields: [usuario_id], references: [id])
+
+  @@map("bitacora_cambios")
+}

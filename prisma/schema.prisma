@@ -82,6 +82,7 @@ model Medicion {
   unidad_id         Int
   tipo_id           Int
   registrado_por_id Int
+  notas             String?   // Campo opcional para comentarios adicionales
   
   // Auditoría básica de fila
   created_at DateTime  @default(now())

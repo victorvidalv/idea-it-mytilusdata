@@ -19,6 +19,8 @@ interface Medicion {
     lugar: { nombre: string }
     unidad: { sigla: string }
     tipo: { codigo: string }
+    notas?: string | null
+    registrado_por: { nombre: string }
 }
 
 export default function MedicionesPage() {
@@ -26,17 +28,26 @@ export default function MedicionesPage() {
     const [lugares, setLugares] = useState<any[]>([])
     const [unidades, setUnidades] = useState<any[]>([])
     const [tipos, setTipos] = useState<any[]>([])
+    const [usuarios, setUsuarios] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [showFilters, setShowFilters] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [editingMedicion, setEditingMedicion] = useState<Medicion | null>(null)
+
+    const [filters, setFilters] = useState({
+        lugar_id: "",
+        tipo_id: "",
+        autor_id: ""
+    })
 
     const [formData, setFormData] = useState({
         valor: "",
         fecha_medicion: new Date().toISOString().split("T")[0],
         lugar_id: "",
         unidad_id: "",
-        tipo_id: ""
+        tipo_id: "",
+        notas: ""
     })
 
     const fetchData = async () => {
@@ -45,19 +56,32 @@ export default function MedicionesPage() {
         const headers = { "Authorization": `Bearer ${token}` }
 
         try {
-            const [mRes, lRes, uRes, tRes] = await Promise.all([
-                fetch("/api/mediciones", { headers }),
+            const queryParams = new URLSearchParams()
+            if (filters.lugar_id) queryParams.append("lugar_id", filters.lugar_id)
+            if (filters.tipo_id) queryParams.append("tipo_id", filters.tipo_id)
+            if (filters.autor_id) queryParams.append("autor_id", filters.autor_id)
+
+            const [mRes, lRes, uRes, tRes, usRes] = await Promise.all([
+                fetch(`/api/mediciones?${queryParams.toString()}`, { headers }),
                 fetch("/api/lugares", { headers }),
                 fetch("/api/unidades", { headers }),
-                fetch("/api/tipos-registro", { headers })
+                fetch("/api/tipos-registro", { headers }),
+                fetch("/api/usuarios", { headers })
             ])
 
-            const [m, l, u, t] = await Promise.all([mRes.json(), lRes.json(), uRes.json(), tRes.json()])
+            const [m, l, u, t, us] = await Promise.all([
+                mRes.json(),
+                lRes.json(),
+                uRes.json(),
+                tRes.json(),
+                usRes.json()
+            ])
 
             if (m.success) setMediciones(m.data)
             if (l.success) setLugares(l.data)
             if (u.success) setUnidades(u.data)
             if (t.success) setTipos(t.data)
+            if (us.success) setUsuarios(us.data)
         } catch (e) {
             console.error(e)
         } finally {
@@ -65,7 +89,7 @@ export default function MedicionesPage() {
         }
     }
 
-    useEffect(() => { fetchData() }, [])
+    useEffect(() => { fetchData() }, [filters])
 
     const openCreateModal = () => {
         setEditingMedicion(null)
@@ -74,7 +98,8 @@ export default function MedicionesPage() {
             fecha_medicion: new Date().toISOString().split("T")[0],
             lugar_id: "",
             unidad_id: "",
-            tipo_id: ""
+            tipo_id: "",
+            notas: ""
         })
         setIsModalOpen(true)
     }
@@ -86,7 +111,8 @@ export default function MedicionesPage() {
             fecha_medicion: new Date(m.fecha_medicion).toISOString().split("T")[0],
             lugar_id: m.lugar_id.toString(),
             unidad_id: m.unidad_id.toString(),
-            tipo_id: m.tipo_id.toString()
+            tipo_id: m.tipo_id.toString(),
+            notas: m.notas || ""
         })
         setIsModalOpen(true)
     }
@@ -146,10 +172,68 @@ export default function MedicionesPage() {
             </div>
 
             <Card className="border-border/50">
-                <CardHeader className="p-4 border-b flex flex-row items-center gap-4">
-                    <Button variant="outline" size="sm" className="gap-2">
-                        <Filter className="w-4 h-4" /> Filtros
-                    </Button>
+                <CardHeader className="p-4 border-b flex flex-col gap-4">
+                    <div className="flex items-center gap-4">
+                        <Button
+                            variant={showFilters ? "secondary" : "outline"}
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => setShowFilters(!showFilters)}
+                        >
+                            <Filter className="w-4 h-4" /> Filtros
+                            {(filters.lugar_id || filters.tipo_id || filters.autor_id) && (
+                                <span className="flex h-2 w-2 rounded-full bg-primary" />
+                            )}
+                        </Button>
+                        {(filters.lugar_id || filters.tipo_id || filters.autor_id) && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
+                                className="text-xs text-muted-foreground"
+                            >
+                                Limpiar filtros
+                            </Button>
+                        )}
+                    </div>
+
+                    {showFilters && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 animate-in fade-in slide-in-from-top-1">
+                            <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Lugar</Label>
+                                <select
+                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                    value={filters.lugar_id}
+                                    onChange={(e) => setFilters({ ...filters, lugar_id: e.target.value })}
+                                >
+                                    <option value="">Todos los lugares</option>
+                                    {lugares.map(l => <option key={l.id} value={l.id}>{l.nombre}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Tipo de registro</Label>
+                                <select
+                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                    value={filters.tipo_id}
+                                    onChange={(e) => setFilters({ ...filters, tipo_id: e.target.value })}
+                                >
+                                    <option value="">Todos los tipos</option>
+                                    {tipos.map(t => <option key={t.id} value={t.id}>{t.codigo}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Autor</Label>
+                                <select
+                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                    value={filters.autor_id}
+                                    onChange={(e) => setFilters({ ...filters, autor_id: e.target.value })}
+                                >
+                                    <option value="">Todos los autores</option>
+                                    {usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    )}
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>
@@ -159,6 +243,8 @@ export default function MedicionesPage() {
                                 <TableHead>Lugar</TableHead>
                                 <TableHead>Valor</TableHead>
                                 <TableHead>Tipo</TableHead>
+                                <TableHead>Autor</TableHead>
+                                <TableHead>Notas</TableHead>
                                 <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -185,6 +271,19 @@ export default function MedicionesPage() {
                                     <TableCell>
                                         <span className="bg-accent px-2 py-0.5 rounded text-[10px] font-bold uppercase border">
                                             {m.tipo.codigo}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+                                                {m.registrado_por.nombre.charAt(0)}
+                                            </div>
+                                            <span className="text-sm">{m.registrado_por.nombre}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-xs text-muted-foreground line-clamp-1 italic" title={m.notas || ""}>
+                                            {m.notas || "-"}
                                         </span>
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -284,6 +383,17 @@ export default function MedicionesPage() {
                                 {tipos.map(t => <option key={t.id} value={t.id}>{t.codigo}</option>)}
                             </select>
                         </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="m-notas">Notas / Comentarios (Opcional)</Label>
+                        <textarea
+                            id="m-notas"
+                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                            placeholder="Información adicional sobre la medición..."
+                            value={formData.notas}
+                            onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
+                        />
                     </div>
 
                     <Button type="submit" className="w-full h-12 mt-4" disabled={submitting}>

@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
         const lugarId = searchParams.get("lugar_id");
         const unidadId = searchParams.get("unidad_id");
         const tipoId = searchParams.get("tipo_id");
+        const registradoPorId = searchParams.get("autor_id");
         const fechaDesde = searchParams.get("fecha_desde");
         const fechaHasta = searchParams.get("fecha_hasta");
 
@@ -47,6 +48,11 @@ export async function GET(request: NextRequest) {
         if (tipoId) {
             const id = parseInt(tipoId, 10);
             if (!isNaN(id)) where.tipo_id = id;
+        }
+
+        if (registradoPorId) {
+            const id = parseInt(registradoPorId, 10);
+            if (!isNaN(id)) where.registrado_por_id = id;
         }
 
         if (fechaDesde || fechaHasta) {
@@ -105,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { valor, fecha_medicion, lugar_id, unidad_id, tipo_id } = body;
+        const { valor, fecha_medicion, lugar_id, unidad_id, tipo_id, notas } = body;
 
         // Validaciones de campos requeridos
         if (valor === undefined || valor === null) {
@@ -210,6 +216,7 @@ export async function POST(request: NextRequest) {
                 unidad_id: unidad.id,
                 tipo_id: tipo.id,
                 registrado_por_id: auth.id,
+                notas: notas || null,
             },
             include: {
                 lugar: { select: { id: true, nombre: true } },
@@ -230,6 +237,7 @@ export async function POST(request: NextRequest) {
                 lugar_id: lugar.id,
                 unidad_id: unidad.id,
                 tipo_id: tipo.id,
+                notas: notas || null,
             }),
             auth.id,
             getClientIp(request)

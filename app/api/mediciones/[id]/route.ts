@@ -89,7 +89,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
 
         const body = await request.json();
-        const { valor, fecha_medicion, lugar_id, unidad_id, tipo_id } = body;
+        const { valor, fecha_medicion, lugar_id, unidad_id, tipo_id, notas } = body;
 
         // Buscar medición existente
         const medicionExistente = await prisma.medicion.findFirst({
@@ -187,6 +187,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             }
             datosActualizados.tipo_id = tipoIdNum;
             datosAnteriores.tipo_id = medicionExistente.tipo_id;
+        }
+
+        // Validar notas
+        if (notas !== undefined) {
+            datosActualizados.notas = notas;
+            datosAnteriores.notas = medicionExistente.notas;
         }
 
         if (Object.keys(datosActualizados).length === 0) {

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Modal } from "@/components/ui/modal"
-import { Plus, Database, Calendar, MapPin, Gauge, Loader2, Filter, Trash2, Edit2 } from "lucide-react"
+import { Plus, Database, Calendar, MapPin, Gauge, Loader2, Filter, Trash2, Edit2, Download } from "lucide-react"
 
 interface Medicion {
     id: number
@@ -159,6 +159,37 @@ export default function MedicionesPage() {
         finally { setSubmitting(false) }
     }
 
+    const handleExportCSV = async () => {
+        const token = localStorage.getItem("token")
+        const queryParams = new URLSearchParams()
+        if (filters.lugar_id) queryParams.append("lugar_id", filters.lugar_id)
+        if (filters.tipo_id) queryParams.append("tipo_id", filters.tipo_id)
+        if (filters.autor_id) queryParams.append("autor_id", filters.autor_id)
+
+        const url = `/api/mediciones/export?${queryParams.toString()}`
+
+        try {
+            const res = await fetch(url, {
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+            if (res.ok) {
+                const blob = await res.blob()
+                const downloadUrl = window.URL.createObjectURL(blob)
+                const a = document.createElement("a")
+                a.href = downloadUrl
+                a.download = `mediciones_${new Date().toISOString().split("T")[0]}.csv`
+                document.body.appendChild(a)
+                a.click()
+                a.remove()
+            } else {
+                alert("Error al descargar el CSV")
+            }
+        } catch (e) {
+            console.error(e)
+            alert("Error al conectar con el servidor")
+        }
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -166,9 +197,14 @@ export default function MedicionesPage() {
                     <h2 className="text-3xl font-bold tracking-tight font-outfit">Historial de Mediciones</h2>
                     <p className="text-muted-foreground">Registro centralizado de todos los datos recolectados.</p>
                 </div>
-                <Button onClick={openCreateModal} className="gap-2 shadow-lg shadow-primary/20">
-                    <Plus className="w-4 h-4" /> Registrar Medición
-                </Button>
+                <div className="flex items-center gap-3">
+                    <Button variant="outline" onClick={handleExportCSV} className="gap-2">
+                        <Download className="w-4 h-4" /> Exportar CSV
+                    </Button>
+                    <Button onClick={openCreateModal} className="gap-2 shadow-lg shadow-primary/20">
+                        <Plus className="w-4 h-4" /> Registrar Medición
+                    </Button>
+                </div>
             </div>
 
             <Card className="border-border/50">

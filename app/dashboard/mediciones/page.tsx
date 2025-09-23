@@ -1,34 +1,22 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Modal } from "@/components/ui/modal"
-import { Plus, Database, Calendar, MapPin, Gauge, Loader2, Filter, Trash2, Edit2, Download } from "lucide-react"
-
-interface Medicion {
-    id: number
-    valor: string
-    fecha_medicion: string
-    lugar_id: number
-    unidad_id: number
-    tipo_id: number
-    lugar: { nombre: string }
-    unidad: { sigla: string }
-    tipo: { codigo: string }
-    notas?: string | null
-    registrado_por: { nombre: string }
-}
+import { Button } from "@/components/ui/button"
+import { Filter } from "lucide-react"
+import { Medicion, Lugar, Unidad, TipoRegistro, Usuario } from "@/lib/types"
+import { MedicionesTable } from "@/components/dashboard/mediciones/mediciones-table"
+import { MedicionesFilters } from "@/components/dashboard/mediciones/mediciones-filters"
+import { MedicionesForm } from "@/components/dashboard/mediciones/mediciones-form"
+import { MedicionesHeader } from "@/components/dashboard/mediciones/mediciones-header"
 
 export default function MedicionesPage() {
     const [mediciones, setMediciones] = useState<Medicion[]>([])
-    const [lugares, setLugares] = useState<any[]>([])
-    const [unidades, setUnidades] = useState<any[]>([])
-    const [tipos, setTipos] = useState<any[]>([])
-    const [usuarios, setUsuarios] = useState<any[]>([])
+    const [lugares, setLugares] = useState<Lugar[]>([])
+    const [unidades, setUnidades] = useState<Unidad[]>([])
+    const [tipos, setTipos] = useState<TipoRegistro[]>([])
+    const [usuarios, setUsuarios] = useState<Usuario[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [showFilters, setShowFilters] = useState(false)
@@ -109,9 +97,9 @@ export default function MedicionesPage() {
         setFormData({
             valor: m.valor.toString(),
             fecha_medicion: new Date(m.fecha_medicion).toISOString().split("T")[0],
-            lugar_id: m.lugar_id.toString(),
-            unidad_id: m.unidad_id.toString(),
-            tipo_id: m.tipo_id.toString(),
+            lugar_id: m.lugar.id.toString(),
+            unidad_id: m.unidad.id.toString(),
+            tipo_id: m.tipo.id.toString(),
             notas: m.notas || ""
         })
         setIsModalOpen(true)
@@ -190,25 +178,20 @@ export default function MedicionesPage() {
         }
     }
 
+    const hasActiveFilters = filters.lugar_id || filters.tipo_id || filters.autor_id
+
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight font-outfit">Historial de Mediciones</h2>
-                    <p className="text-muted-foreground">Registro centralizado de todos los datos recolectados.</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" onClick={handleExportCSV} className="gap-2">
-                        <Download className="w-4 h-4" /> Exportar CSV
-                    </Button>
-                    <Button onClick={openCreateModal} className="gap-2 shadow-lg shadow-primary/20">
-                        <Plus className="w-4 h-4" /> Registrar Medición
-                    </Button>
-                </div>
-            </div>
+            <MedicionesHeader
+                onCreate={openCreateModal}
+                onExport={handleExportCSV}
+                hasFilters={!!hasActiveFilters}
+                onToggleFilters={() => setShowFilters(!showFilters)}
+                onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
+            />
 
             <Card className="border-border/50">
-                <CardHeader className="p-4 border-b flex flex-col gap-4">
+                <CardHeader className="p-4 border-b">
                     <div className="flex items-center gap-4">
                         <Button
                             variant={showFilters ? "secondary" : "outline"}
@@ -217,11 +200,11 @@ export default function MedicionesPage() {
                             onClick={() => setShowFilters(!showFilters)}
                         >
                             <Filter className="w-4 h-4" /> Filtros
-                            {(filters.lugar_id || filters.tipo_id || filters.autor_id) && (
+                            {hasActiveFilters && (
                                 <span className="flex h-2 w-2 rounded-full bg-primary" />
                             )}
                         </Button>
-                        {(filters.lugar_id || filters.tipo_id || filters.autor_id) && (
+                        {hasActiveFilters && (
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -234,118 +217,23 @@ export default function MedicionesPage() {
                     </div>
 
                     {showFilters && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 animate-in fade-in slide-in-from-top-1">
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Lugar</Label>
-                                <select
-                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                    value={filters.lugar_id}
-                                    onChange={(e) => setFilters({ ...filters, lugar_id: e.target.value })}
-                                >
-                                    <option value="">Todos los lugares</option>
-                                    {lugares.map(l => <option key={l.id} value={l.id}>{l.nombre}</option>)}
-                                </select>
-                            </div>
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Tipo de registro</Label>
-                                <select
-                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                    value={filters.tipo_id}
-                                    onChange={(e) => setFilters({ ...filters, tipo_id: e.target.value })}
-                                >
-                                    <option value="">Todos los tipos</option>
-                                    {tipos.map(t => <option key={t.id} value={t.id}>{t.codigo}</option>)}
-                                </select>
-                            </div>
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Autor</Label>
-                                <select
-                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                    value={filters.autor_id}
-                                    onChange={(e) => setFilters({ ...filters, autor_id: e.target.value })}
-                                >
-                                    <option value="">Todos los autores</option>
-                                    {usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
-                                </select>
-                            </div>
-                        </div>
+                        <MedicionesFilters
+                            filters={filters}
+                            lugares={lugares}
+                            tipos={tipos}
+                            usuarios={usuarios}
+                            onFilterChange={setFilters}
+                            onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
+                        />
                     )}
                 </CardHeader>
                 <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="bg-muted/30">
-                                <TableHead>Fecha</TableHead>
-                                <TableHead>Lugar</TableHead>
-                                <TableHead>Valor</TableHead>
-                                <TableHead>Tipo</TableHead>
-                                <TableHead>Autor</TableHead>
-                                <TableHead>Notas</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {loading ? (
-                                <TableRow><TableCell colSpan={5} className="h-40 text-center"><Loader2 className="animate-spin inline mr-2" /> Cargando...</TableCell></TableRow>
-                            ) : mediciones.map((m) => (
-                                <TableRow key={m.id} className="group hover:bg-muted/10 transition-colors">
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                                            {new Date(m.fecha_medicion).toLocaleDateString()}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <MapPin className="w-4 h-4 text-primary/70" />
-                                            {m.lugar.nombre}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="font-bold text-lg">
-                                        {m.valor} <span className="text-sm font-medium text-muted-foreground">{m.unidad.sigla}</span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className="bg-accent px-2 py-0.5 rounded text-[10px] font-bold uppercase border">
-                                            {m.tipo.codigo}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
-                                                {m.registrado_por.nombre.charAt(0)}
-                                            </div>
-                                            <span className="text-sm">{m.registrado_por.nombre}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className="text-xs text-muted-foreground line-clamp-1 italic" title={m.notas || ""}>
-                                            {m.notas || "-"}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
-                                                onClick={() => openEditModal(m)}
-                                            >
-                                                <Edit2 className="w-4 h-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                onClick={() => handleDelete(m.id)}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    <MedicionesTable
+                        mediciones={mediciones}
+                        loading={loading}
+                        onEdit={openEditModal}
+                        onDelete={handleDelete}
+                    />
                 </CardContent>
             </Card>
 
@@ -355,88 +243,16 @@ export default function MedicionesPage() {
                 title={editingMedicion ? "Editar Medición" : "Registrar Medición"}
                 description={editingMedicion ? "Actualiza los datos de esta medición" : "Ingresa los datos para una nueva toma de muestra"}
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="m-fecha">Fecha</Label>
-                            <Input
-                                id="m-fecha"
-                                type="date"
-                                required
-                                value={formData.fecha_medicion}
-                                onChange={(e) => setFormData({ ...formData, fecha_medicion: e.target.value })}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="m-valor">Valor</Label>
-                            <Input
-                                id="m-valor"
-                                type="number"
-                                step="any"
-                                placeholder="0.00"
-                                required
-                                value={formData.valor}
-                                onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>Lugar de Control</Label>
-                        <select
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            required
-                            value={formData.lugar_id}
-                            onChange={(e) => setFormData({ ...formData, lugar_id: e.target.value })}
-                        >
-                            <option value="">Selecciona un lugar...</option>
-                            {lugares.map(l => <option key={l.id} value={l.id}>{l.nombre}</option>)}
-                        </select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Unidad</Label>
-                            <select
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                required
-                                value={formData.unidad_id}
-                                onChange={(e) => setFormData({ ...formData, unidad_id: e.target.value })}
-                            >
-                                <option value="">Uni...</option>
-                                {unidades.map(u => <option key={u.id} value={u.id}>{u.sigla}</option>)}
-                            </select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Tipo de Registro</Label>
-                            <select
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                required
-                                value={formData.tipo_id}
-                                onChange={(e) => setFormData({ ...formData, tipo_id: e.target.value })}
-                            >
-                                <option value="">Tipo...</option>
-                                {tipos.map(t => <option key={t.id} value={t.id}>{t.codigo}</option>)}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="m-notas">Notas / Comentarios (Opcional)</Label>
-                        <textarea
-                            id="m-notas"
-                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                            placeholder="Información adicional sobre la medición..."
-                            value={formData.notas}
-                            onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
-                        />
-                    </div>
-
-                    <Button type="submit" className="w-full h-12 mt-4" disabled={submitting}>
-                        {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                        {editingMedicion ? "Actualizar" : "Registrar"} Ahora
-                    </Button>
-                </form>
+                <MedicionesForm
+                    formData={formData}
+                    lugares={lugares}
+                    unidades={unidades}
+                    tipos={tipos}
+                    onChange={setFormData}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    isEditing={!!editingMedicion}
+                />
             </Modal>
         </div>
     )

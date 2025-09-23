@@ -1,72 +1,80 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyPassword, generateToken, AuthResponse } from "@/lib/auth";
+import { withRateLimit } from "@/lib/middleware";
+import { withCSRFProtection } from "@/lib/middleware";
+import { loginSchema } from "@/lib/validators";
+import { handleApiError } from "@/lib/utils/errors";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * POST /api/auth/login
- * Autenticar usuario existente
+ * Autenticar usuario existente con protecciones de seguridad
  */
-export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-        const { email, password } = body;
+export const POST = withRateLimit(
+    withCSRFProtection(async (request: NextRequest): Promise<NextResponse> => {
+        try {
+            const body = await request.json();
+            const validatedData = loginSchema.parse(body);
+            const { email, password } = validatedData;
 
-        // Validar campos requeridos
-        if (!email || !password) {
-            return NextResponse.json<AuthResponse>(
-                {
-                    success: false,
-                    message: "Email y contraseña son requeridos",
-                },
-                { status: 400 }
-            );
-        }
+            logger.info("Intento de login", {
+                email: email.toLowerCase().trim(),
+                action: "login_attempt",
+            });
 
-        // Buscar usuario por email
-        const usuario = await prisma.usuario.findUnique({
-            where: { email: email.toLowerCase().trim() },
-        });
+            // Buscar usuario por email
+            const usuario = await prisma.usuario.findUnique({
+                where: { email: email.toLowerCase().trim() },
+            });
 
-        // Verificar existencia del usuario
-        if (!usuario) {
-            return NextResponse.json<AuthResponse>(
-                {
-                    success: false,
-                    message: "Credenciales inválidas",
-                },
-                { status: 401 }
-            );
-        }
+            // Verificar existencia del usuario
+            if (!usuario) {
+                logger.warn("Login fallido: usuario no encontrado", {
+                    email: email.toLowerCase().trim(),
+                    action: "login_failed",
+                    reason: "user_not_found",
+                });
 
-        // Verificar si el usuario está activo
-        if (!usuario.activo) {
-            return NextResponse.json<AuthResponse>(
-                {
-                    success: false,
-                    message: "Cuenta desactivada. Contacte al administrador",
-                },
-                { status: 403 }
-            );
-        }
+                throw new Error("Credenciales inválidas");
+            }
 
-        // Verificar contraseña
-        const passwordValida = await verifyPassword(password, usuario.password_hash);
+            // Verificar si el usuario está activo
+            if (!usuario.activo) {
+                logger.warn("Login fallido: cuenta desactivada", {
+                    email: email.toLowerCase().trim(),
+                    userId: usuario.id,
+                    action: "login_failed",
+                    reason: "account_deactivated",
+                });
 
-        if (!passwordValida) {
-            return NextResponse.json<AuthResponse>(
-                {
-                    success: false,
-                    message: "Credenciales inválidas",
-                },
-                { status: 401 }
-            );
-        }
+                throw new Error("Cuenta desactivada. Contacte al administrador");
+            }
 
-        // Generar token JWT
-        const token = generateToken(usuario.id, usuario.email);
+            // Verificar contraseña
+            const passwordValida = await verifyPassword(password, usuario.password_hash);
 
-        return NextResponse.json<AuthResponse>(
-            {
+            if (!passwordValida) {
+                logger.warn("Login fallido: contraseña incorrecta", {
+                    email: email.toLowerCase().trim(),
+                    userId: usuario.id,
+                    action: "login_failed",
+                    reason: "invalid_password",
+                });
+
+                throw new Error("Credenciales inválidas");
+            }
+
+            // Generar token JWT
+            const token = generateToken(usuario.id, usuario.email);
+
+            logger.info("Login exitoso", {
+                userId: usuario.id,
+                email: usuario.email,
+                action: "login_success",
+            });
+
+            return NextResponse.json<AuthResponse>({
                 success: true,
                 message: "Inicio de sesión exitoso",
                 token,
@@ -75,17 +83,19 @@ export async function POST(request: NextRequest) {
                     nombre: usuario.nombre,
                     email: usuario.email,
                 },
-            },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Error en login:", error);
-        return NextResponse.json<AuthResponse>(
-            {
-                success: false,
-                message: "Error interno del servidor",
-            },
-            { status: 500 }
-        );
+            });
+        } catch (error) {
+            return handleApiError(error, {
+                action: "login",
+                path: "/api/auth/login",
+                method: "POST",
+            });
+        }
+    }) as (...args: unknown[]) => Promise<NextResponse>,
+    {
+        windowMs: 15 * 60 * 1000, // 15 minutos
+        maxRequests: 5,
+        skipSuccessfulRequests: false,
+        skipFailedRequests: false,
     }
-}
+);

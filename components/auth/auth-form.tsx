@@ -8,11 +8,13 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, LogIn, UserPlus } from "lucide-react"
+import { fetchWithCSRF } from "@/lib/middleware/csrf-helpers"
 
 export function AuthForm() {
     const router = useRouter()
     const [isLoading, setIsLoading] = React.useState(false)
     const [error, setError] = React.useState<string | null>(null)
+    const [csrfReady, setCsrfReady] = React.useState(false)
 
     // Login States
     const [loginEmail, setLoginEmail] = React.useState("")
@@ -23,19 +25,48 @@ export function AuthForm() {
     const [regEmail, setRegEmail] = React.useState("")
     const [regPassword, setRegPassword] = React.useState("")
 
+    // Obtener token CSRF al montar el componente
+    React.useEffect(() => {
+        const fetchCSRFToken = async () => {
+            try {
+                const response = await fetch("/api/auth/csrf-token", {
+                    method: "GET",
+                    credentials: "include",
+                })
+                
+                if (response.ok) {
+                    setCsrfReady(true)
+                } else {
+                    setError("No se pudo inicializar la sesión. Por favor, recarga la página.")
+                }
+            } catch (err) {
+                setError("Error de conexión. Por favor, verifica tu conexión a internet.")
+            }
+        }
+
+        fetchCSRFToken()
+    }, [])
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
+        
+        if (!csrfReady) {
+            setError("Inicializando sesión. Por favor, espera un momento...")
+            return
+        }
+        
         setIsLoading(true)
         setError(null)
+        let response: Response | null = null
 
         try {
-            const res = await fetch("/api/auth/login", {
+            response = await fetchWithCSRF("/api/auth/login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+                headers: { "Content-Type": "application/json" },
             })
 
-            const data = await res.json()
+            const data = await response.json()
 
             if (!data.success) {
                 throw new Error(data.message || "Error al iniciar sesión")
@@ -47,8 +78,25 @@ export function AuthForm() {
 
             router.push("/dashboard")
             router.refresh()
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : "Error al iniciar sesión"
+            
+            // Manejar errores de CSRF específicamente
+            if (response?.status === 403 || errorMessage.includes("CSRF")) {
+                setError("Error de seguridad. Por favor, recarga la página e intenta nuevamente.")
+                setCsrfReady(false)
+                // Intentar obtener un nuevo token CSRF
+                fetch("/api/auth/csrf-token", {
+                    method: "GET",
+                    credentials: "include",
+                }).then(res => {
+                    if (res.ok) {
+                        setCsrfReady(true)
+                    }
+                })
+            } else {
+                setError(errorMessage)
+            }
         } finally {
             setIsLoading(false)
         }
@@ -56,17 +104,24 @@ export function AuthForm() {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault()
+        
+        if (!csrfReady) {
+            setError("Inicializando sesión. Por favor, espera un momento...")
+            return
+        }
+        
         setIsLoading(true)
         setError(null)
+        let response: Response | null = null
 
         try {
-            const res = await fetch("/api/auth/registro", {
+            response = await fetchWithCSRF("/api/auth/registro", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nombre: regName, email: regEmail, password: regPassword }),
+                headers: { "Content-Type": "application/json" },
             })
 
-            const data = await res.json()
+            const data = await response.json()
 
             if (!data.success) {
                 throw new Error(data.message || "Error al registrarse")
@@ -78,8 +133,25 @@ export function AuthForm() {
 
             router.push("/dashboard")
             router.refresh()
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : "Error al registrarse"
+            
+            // Manejar errores de CSRF específicamente
+            if (response?.status === 403 || errorMessage.includes("CSRF")) {
+                setError("Error de seguridad. Por favor, recarga la página e intenta nuevamente.")
+                setCsrfReady(false)
+                // Intentar obtener un nuevo token CSRF
+                fetch("/api/auth/csrf-token", {
+                    method: "GET",
+                    credentials: "include",
+                }).then(res => {
+                    if (res.ok) {
+                        setCsrfReady(true)
+                    }
+                })
+            } else {
+                setError(errorMessage)
+            }
         } finally {
             setIsLoading(false)
         }
@@ -140,8 +212,16 @@ export function AuthForm() {
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button className="w-full h-11 bg-primary hover:bg-primary/90 transition-all font-semibold" disabled={isLoading}>
-                                    {isLoading ? (
+                                <Button
+                                    className="w-full h-11 bg-primary hover:bg-primary/90 transition-all font-semibold"
+                                    disabled={isLoading || !csrfReady}
+                                >
+                                    {!csrfReady ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Inicializando...
+                                        </>
+                                    ) : isLoading ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             Iniciando sesión...
@@ -207,8 +287,16 @@ export function AuthForm() {
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button className="w-full h-11 bg-primary hover:bg-primary/90 transition-all font-semibold" disabled={isLoading}>
-                                    {isLoading ? (
+                                <Button
+                                    className="w-full h-11 bg-primary hover:bg-primary/90 transition-all font-semibold"
+                                    disabled={isLoading || !csrfReady}
+                                >
+                                    {!csrfReady ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Inicializando...
+                                        </>
+                                    ) : isLoading ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             Registrando...

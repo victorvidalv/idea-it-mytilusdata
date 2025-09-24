@@ -30,15 +30,15 @@ function getCookie(name: string): string | null {
     if (typeof document === 'undefined') {
         return null;
     }
-    
+
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    
+
     if (parts.length === 2) {
         const cookieValue = parts.pop()?.split(';').shift();
         return cookieValue || null;
     }
-    
+
     return null;
 }
 
@@ -61,24 +61,24 @@ function setCookie(
     if (typeof document === 'undefined') {
         return;
     }
-    
+
     const {
         path = '/',
         maxAge = 60 * 60 * 24, // 24 horas
         secure = process.env.NODE_ENV === 'production',
         sameSite = 'strict',
     } = options;
-    
+
     let cookieString = `${name}=${value}; path=${path}; max-age=${maxAge}`;
-    
+
     if (secure) {
         cookieString += '; secure';
     }
-    
+
     if (sameSite) {
         cookieString += `; samesite=${sameSite}`;
     }
-    
+
     document.cookie = cookieString;
 }
 
@@ -91,7 +91,7 @@ function deleteCookie(name: string, path: string = '/'): void {
     if (typeof document === 'undefined') {
         return;
     }
-    
+
     document.cookie = `${name}=; path=${path}; max-age=0`;
 }
 
@@ -123,7 +123,7 @@ export function hasCSRFToken(): boolean {
  */
 export function setCSRFTokenHeader(headers: HeadersInit = {}): HeadersInit {
     const token = getCSRFToken();
-    
+
     if (token) {
         if (headers instanceof Headers) {
             headers.set(CSRF_HEADER_NAME, token);
@@ -133,7 +133,7 @@ export function setCSRFTokenHeader(headers: HeadersInit = {}): HeadersInit {
             headers[CSRF_HEADER_NAME as keyof HeadersInit] = token as string & number & readonly string[];
         }
     }
-    
+
     return headers;
 }
 
@@ -148,7 +148,7 @@ export function createCSRFHeaders(
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
     };
-    
+
     // Agregar headers adicionales
     if (additionalHeaders) {
         if (additionalHeaders instanceof Headers) {
@@ -163,13 +163,13 @@ export function createCSRFHeaders(
             Object.assign(headers, additionalHeaders);
         }
     }
-    
+
     // Agregar token CSRF
     const token = getCSRFToken();
     if (token) {
         headers[CSRF_HEADER_NAME] = token;
     }
-    
+
     return headers;
 }
 
@@ -186,7 +186,7 @@ export interface FetchWithCSRFOptions extends RequestInit {
      * Default: false
      */
     skipCSRF?: boolean;
-    
+
     /**
      * Headers adicionales a incluir
      */
@@ -204,14 +204,14 @@ export async function fetchWithCSRF(
     options: FetchWithCSRFOptions = {}
 ): Promise<Response> {
     const { skipCSRF = false, headers = {}, ...restOptions } = options;
-    
+
     // Determinar si el método requiere CSRF
     const method = (options.method || 'GET').toUpperCase();
     const requiresCSRF = !skipCSRF && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method);
-    
+
     // Crear headers
     const finalHeaders: Record<string, string> = {};
-    
+
     // Agregar headers proporcionados
     if (headers instanceof Headers) {
         headers.forEach((value, key) => {
@@ -224,20 +224,21 @@ export async function fetchWithCSRF(
     } else {
         Object.assign(finalHeaders, headers);
     }
-    
+
     // Agregar token CSRF si es necesario
     if (requiresCSRF) {
         const token = getCSRFToken();
-        
+
         if (!token) {
             console.warn('CSRF token not found. Request may fail.');
         } else {
             finalHeaders[CSRF_HEADER_NAME] = token;
         }
     }
-    
+
     // Ejecutar fetch
     return fetch(url, {
+        credentials: 'include', // Asegurar que las cookies se envíen
         ...restOptions,
         headers: finalHeaders,
     });
@@ -372,7 +373,7 @@ export async function fetchWithCSRFPatch<T = unknown>(
 export function useCSRF() {
     const token = getCSRFToken();
     const hasToken = hasCSRFToken();
-    
+
     return {
         token,
         hasToken,

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,6 +12,11 @@ import { fetchWithCSRF } from "@/lib/middleware/csrf-helpers"
 
 export function AuthForm() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+
+    // Validar tab inicial desde la URL
+    const initialTab = searchParams.get("tab") === "register" ? "register" : "login"
+    const [activeTab, setActiveTab] = React.useState(initialTab)
     const [isLoading, setIsLoading] = React.useState(false)
     const [error, setError] = React.useState<string | null>(null)
     const [csrfReady, setCsrfReady] = React.useState(false)
@@ -33,7 +38,7 @@ export function AuthForm() {
                     method: "GET",
                     credentials: "include",
                 })
-                
+
                 if (response.ok) {
                     setCsrfReady(true)
                 } else {
@@ -49,12 +54,12 @@ export function AuthForm() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         if (!csrfReady) {
             setError("Inicializando sesión. Por favor, espera un momento...")
             return
         }
-        
+
         setIsLoading(true)
         setError(null)
         let response: Response | null = null
@@ -80,7 +85,7 @@ export function AuthForm() {
             router.refresh()
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : "Error al iniciar sesión"
-            
+
             // Manejar errores de CSRF específicamente
             if (response?.status === 403 || errorMessage.includes("CSRF")) {
                 setError("Error de seguridad. Por favor, recarga la página e intenta nuevamente.")
@@ -104,12 +109,12 @@ export function AuthForm() {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         if (!csrfReady) {
             setError("Inicializando sesión. Por favor, espera un momento...")
             return
         }
-        
+
         setIsLoading(true)
         setError(null)
         let response: Response | null = null
@@ -135,7 +140,7 @@ export function AuthForm() {
             router.refresh()
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : "Error al registrarse"
-            
+
             // Manejar errores de CSRF específicamente
             if (response?.status === 403 || errorMessage.includes("CSRF")) {
                 setError("Error de seguridad. Por favor, recarga la página e intenta nuevamente.")
@@ -164,7 +169,7 @@ export function AuthForm() {
                 <p className="text-muted-foreground">Ingresa a tu cuenta para gestionar mediciones</p>
             </div>
 
-            <Tabs defaultValue="login" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 h-11">
                     <TabsTrigger value="login" className="text-sm">Iniciar Sesión</TabsTrigger>
                     <TabsTrigger value="register" className="text-sm">Registro</TabsTrigger>

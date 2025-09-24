@@ -22,9 +22,6 @@ import {
   cambiosSoftDelete,
 } from '@/lib/bitacora';
 import type { Prisma } from '@prisma/client';
-import { createObjectCsvWriter } from 'csv-writer';
-import * as fs from 'fs';
-import * as path from 'path';
 
 /**
  * Tipo para el resultado paginado de mediciones
@@ -432,7 +429,7 @@ export class MedicionesService {
   }
 
   /**
-   * Exportar mediciones a CSV usando csv-writer
+   * Exportar mediciones a CSV directamente en memoria (sin escribir a disco)
    */
   static async exportToCSV(
     filters: FilterMedicionesInput
@@ -455,55 +452,39 @@ export class MedicionesService {
         },
       });
 
-      // Crear archivo temporal en el directorio generated/
-      const timestamp = Date.now();
-      const tempFileName = `mediciones_${timestamp}.csv`;
-      const tempFilePath = path.join(process.cwd(), 'generated', tempFileName);
+      // Definir headers del CSV
+      const headers = ['id', 'valor', 'fecha', 'unidad', 'lugar', 'tipoRegistro', 'observaciones', 'createdAt'];
 
-      // Preparar datos para el CSV
-      const records = mediciones.map((m) => ({
-        id: m.id,
-        valor: m.valor,
-        fecha: m.fecha_medicion.toISOString(),
-        unidad: m.unidad.nombre,
-        lugar: m.lugar.nombre,
-        tipoRegistro: m.tipo.descripcion || m.tipo.codigo,
-        observaciones: m.notas || '',
-        createdAt: m.created_at.toISOString(),
-      }));
+      // Función para escapar valores CSV (manejar comas, comillas y saltos de línea)
+      const escapeCSV = (value: string | number | null | undefined): string => {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        // Escapar si contiene comas, comillas o saltos de línea
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      };
 
-      // Configurar csv-writer
-      const csvWriter = createObjectCsvWriter({
-        path: tempFilePath,
-        header: [
-          { id: 'id', title: 'id' },
-          { id: 'valor', title: 'valor' },
-          { id: 'fecha', title: 'fecha' },
-          { id: 'unidad', title: 'unidad' },
-          { id: 'lugar', title: 'lugar' },
-          { id: 'tipoRegistro', title: 'tipoRegistro' },
-          { id: 'observaciones', title: 'observaciones' },
-          { id: 'createdAt', title: 'createdAt' },
-        ],
-        encoding: 'utf8',
-      });
+      // Generar filas del CSV
+      const rows = mediciones.map((m) => [
+        escapeCSV(m.id),
+        escapeCSV(m.valor.toString()),
+        escapeCSV(m.fecha_medicion.toISOString()),
+        escapeCSV(m.unidad.nombre),
+        escapeCSV(m.lugar.nombre),
+        escapeCSV(m.tipo.descripcion || m.tipo.codigo),
+        escapeCSV(m.notas || ''),
+        escapeCSV(m.created_at.toISOString()),
+      ].join(','));
 
-      // Escribir el CSV
-      await csvWriter.writeRecords(records);
+      // Combinar headers y filas
+      const csvContent = [headers.join(','), ...rows].join('\n');
 
-      // Leer el archivo y agregar BOM para compatibilidad con Excel
-      const fileContent = fs.readFileSync(tempFilePath, 'utf8');
-      const csvContentWithBOM = '\uFEFF' + fileContent;
+      // Agregar BOM para compatibilidad con Excel
+      const csvContentWithBOM = '\uFEFF' + csvContent;
 
-      // Eliminar el archivo temporal
-      try {
-        fs.unlinkSync(tempFilePath);
-        logger.info('Archivo temporal eliminado', { tempFilePath });
-      } catch (error) {
-        logger.warn('No se pudo eliminar el archivo temporal', { error });
-      }
-
-      logger.info('CSV generado exitosamente', {
+      logger.info('CSV generado exitosamente en memoria', {
         totalRegistros: mediciones.length,
       });
 

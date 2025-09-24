@@ -76,7 +76,7 @@ const DEFAULT_HEADER_NAME = 'x-csrf-token';
 const DEFAULT_TOKEN_LENGTH = 32;
 
 const DEFAULT_COOKIE_OPTIONS: CSRFTokenCookieOptions = {
-    httpOnly: true,
+    httpOnly: false, // IMPORTANTE: false para que JS pueda leer la cookie y enviarla como header
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/',
@@ -94,7 +94,7 @@ const DEFAULT_COOKIE_OPTIONS: CSRFTokenCookieOptions = {
  */
 export function generateCSRFToken(length: number = DEFAULT_TOKEN_LENGTH): string {
     const array = new Uint8Array(length);
-    
+
     // Usar crypto.randomBytes si está disponible (Node.js)
     if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
         crypto.getRandomValues(array);
@@ -104,7 +104,7 @@ export function generateCSRFToken(length: number = DEFAULT_TOKEN_LENGTH): string
             array[i] = Math.floor(Math.random() * 256);
         }
     }
-    
+
     // Convertir a string hexadecimal
     return Array.from(array)
         .map((byte) => byte.toString(16).padStart(2, '0'))
@@ -122,27 +122,27 @@ export function verifyCSRFToken(token: string, secret: string): boolean {
     if (!token || typeof token !== 'string') {
         return false;
     }
-    
+
     // Verificar que el token tenga formato hexadecimal válido
     const hexRegex = /^[0-9a-f]+$/i;
     if (!hexRegex.test(token)) {
         return false;
     }
-    
+
     // Verificar longitud mínima (al menos 16 caracteres = 8 bytes)
     if (token.length < 16) {
         return false;
     }
-    
+
     // Verificar que el secret sea válido
     if (!secret || typeof secret !== 'string') {
         return false;
     }
-    
+
     // En una implementación más robusta, podríamos verificar
     // que el token fue firmado con el secret
     // Por ahora, verificamos que el token tenga el formato correcto
-    
+
     return true;
 }
 
@@ -160,22 +160,29 @@ export function getCSRFTokenFromCookie(
     request: NextRequest,
     cookieName: string = DEFAULT_COOKIE_NAME
 ): string | null {
-    const cookieHeader = request.headers.get('cookie');
-    
-    if (!cookieHeader) {
-        return null;
-    }
-    
-    // Parsear cookies
-    const cookies = cookieHeader.split(';').reduce<Record<string, string>>((acc, cookie) => {
-        const [name, value] = cookie.trim().split('=');
-        if (name && value) {
-            acc[name] = value;
+    try {
+        // En Next.js NextRequest, podemos usar request.cookies.get()
+        return request.cookies.get(cookieName)?.value || null;
+    } catch (error) {
+        // Fallback al parseo manual si request.cookies falla
+        const cookieHeader = request.headers.get('cookie');
+
+        if (!cookieHeader) {
+            return null;
         }
-        return acc;
-    }, {});
-    
-    return cookies[cookieName] || null;
+
+        const cookies = cookieHeader.split(';').reduce<Record<string, string>>((acc, cookie) => {
+            const parts = cookie.trim().split('=');
+            if (parts.length >= 2) {
+                const name = parts[0];
+                const value = parts.slice(1).join('=');
+                acc[name] = value;
+            }
+            return acc;
+        }, {});
+
+        return cookies[cookieName] || null;
+    }
 }
 
 /**
@@ -211,19 +218,19 @@ export function createCSRFMiddleware(config?: CSRFConfig) {
             ...config?.cookieOptions,
         },
     };
-    
+
     return async function csrfMiddleware(
         request: NextRequest
     ): Promise<NextResponse> {
         const method = request.method;
         const isSafeMethod = SAFE_METHODS.includes(method as any);
-        
+
         // Para métodos seguros (GET, HEAD, OPTIONS): generar y enviar token
         if (isSafeMethod) {
             const token = generateCSRFToken(finalConfig.tokenLength);
-            
+
             const response = NextResponse.next();
-            
+
             // Establecer cookie con el token
             response.cookies.set(finalConfig.cookieName, token, {
                 httpOnly: finalConfig.cookieOptions.httpOnly,
@@ -232,25 +239,25 @@ export function createCSRFMiddleware(config?: CSRFConfig) {
                 path: finalConfig.cookieOptions.path,
                 maxAge: finalConfig.cookieOptions.maxAge,
             });
-            
+
             logger.debug('CSRF token generated', {
                 method,
                 cookieName: finalConfig.cookieName,
             });
-            
+
             return response as NextResponse;
         }
-        
+
         // Para métodos no seguros (POST, PUT, DELETE, PATCH): verificar token
         const isUnsafeMethod = UNSAFE_METHODS.includes(method as any);
-        
+
         if (isUnsafeMethod) {
             // Obtener token de cookie
             const cookieToken = getCSRFTokenFromCookie(request, finalConfig.cookieName);
-            
+
             // Obtener token de header
             const headerToken = getCSRFTokenFromHeader(request, finalConfig.headerName);
-            
+
             // Verificar que ambos tokens existan
             if (!cookieToken) {
                 logger.warn('CSRF token missing from cookie', {
@@ -258,7 +265,7 @@ export function createCSRFMiddleware(config?: CSRFConfig) {
                     path: request.nextUrl.pathname,
                     cookieName: finalConfig.cookieName,
                 });
-                
+
                 return NextResponse.json<ApiResponse>(
                     {
                         success: false,
@@ -270,14 +277,14 @@ export function createCSRFMiddleware(config?: CSRFConfig) {
                     { status: 403 }
                 );
             }
-            
+
             if (!headerToken) {
                 logger.warn('CSRF token missing from header', {
                     method,
                     path: request.nextUrl.pathname,
                     headerName: finalConfig.headerName,
                 });
-                
+
                 return NextResponse.json<ApiResponse>(
                     {
                         success: false,
@@ -289,14 +296,14 @@ export function createCSRFMiddleware(config?: CSRFConfig) {
                     { status: 403 }
                 );
             }
-            
+
             // Verificar que los tokens coincidan
             if (cookieToken !== headerToken) {
                 logger.warn('CSRF token mismatch', {
                     method,
                     path: request.nextUrl.pathname,
                 });
-                
+
                 return NextResponse.json<ApiResponse>(
                     {
                         success: false,
@@ -308,14 +315,14 @@ export function createCSRFMiddleware(config?: CSRFConfig) {
                     { status: 403 }
                 );
             }
-            
+
             // Verificar que el token sea válido
             if (!verifyCSRFToken(headerToken, finalConfig.secret)) {
                 logger.warn('CSRF token invalid', {
                     method,
                     path: request.nextUrl.pathname,
                 });
-                
+
                 return NextResponse.json<ApiResponse>(
                     {
                         success: false,
@@ -327,15 +334,15 @@ export function createCSRFMiddleware(config?: CSRFConfig) {
                     { status: 403 }
                 );
             }
-            
+
             logger.debug('CSRF token verified', {
                 method,
                 path: request.nextUrl.pathname,
             });
-            
+
             return NextResponse.next() as NextResponse;
         }
-        
+
         // Otros métodos no soportados
         return NextResponse.next() as NextResponse;
     };
@@ -365,7 +372,7 @@ export function withCSRFProtection(
             ...config?.cookieOptions,
         },
     };
-    
+
     return async function protectedHandler(
         request: NextRequest,
         ...args: unknown[]
@@ -373,13 +380,13 @@ export function withCSRFProtection(
         const method = request.method;
         const isSafeMethod = SAFE_METHODS.includes(method as any);
         const isUnsafeMethod = UNSAFE_METHODS.includes(method as any);
-        
+
         // Para métodos seguros: generar token y agregar a respuesta
         if (isSafeMethod) {
             const token = generateCSRFToken(finalConfig.tokenLength);
-            
+
             const response = await handler(request, ...args as []);
-            
+
             // Establecer cookie con el token
             response.cookies.set(finalConfig.cookieName, token, {
                 httpOnly: finalConfig.cookieOptions.httpOnly,
@@ -388,23 +395,23 @@ export function withCSRFProtection(
                 path: finalConfig.cookieOptions.path,
                 maxAge: finalConfig.cookieOptions.maxAge,
             });
-            
+
             logger.debug('CSRF token added to response', {
                 method,
                 path: request.nextUrl.pathname,
             });
-            
+
             return response;
         }
-        
+
         // Para métodos no seguros: verificar token
         if (isUnsafeMethod) {
             // Obtener token de cookie
             const cookieToken = getCSRFTokenFromCookie(request, finalConfig.cookieName);
-            
+
             // Obtener token de header
             const headerToken = getCSRFTokenFromHeader(request, finalConfig.headerName);
-            
+
             // Verificar que ambos tokens existan
             if (!cookieToken) {
                 logger.warn('CSRF token missing from cookie', {
@@ -412,7 +419,7 @@ export function withCSRFProtection(
                     path: request.nextUrl.pathname,
                     cookieName: finalConfig.cookieName,
                 });
-                
+
                 return NextResponse.json<ApiResponse>(
                     {
                         success: false,
@@ -424,14 +431,14 @@ export function withCSRFProtection(
                     { status: 403 }
                 );
             }
-            
+
             if (!headerToken) {
                 logger.warn('CSRF token missing from header', {
                     method,
                     path: request.nextUrl.pathname,
                     headerName: finalConfig.headerName,
                 });
-                
+
                 return NextResponse.json<ApiResponse>(
                     {
                         success: false,
@@ -443,14 +450,14 @@ export function withCSRFProtection(
                     { status: 403 }
                 );
             }
-            
+
             // Verificar que los tokens coincidan
             if (cookieToken !== headerToken) {
                 logger.warn('CSRF token mismatch', {
                     method,
                     path: request.nextUrl.pathname,
                 });
-                
+
                 return NextResponse.json<ApiResponse>(
                     {
                         success: false,
@@ -462,14 +469,14 @@ export function withCSRFProtection(
                     { status: 403 }
                 );
             }
-            
+
             // Verificar que el token sea válido
             if (!verifyCSRFToken(headerToken, finalConfig.secret)) {
                 logger.warn('CSRF token invalid', {
                     method,
                     path: request.nextUrl.pathname,
                 });
-                
+
                 return NextResponse.json<ApiResponse>(
                     {
                         success: false,
@@ -481,13 +488,13 @@ export function withCSRFProtection(
                     { status: 403 }
                 );
             }
-            
+
             logger.debug('CSRF token verified', {
                 method,
                 path: request.nextUrl.pathname,
             });
         }
-        
+
         // Ejecutar el handler original
         return handler(request, ...args as []);
     };

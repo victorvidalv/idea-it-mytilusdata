@@ -11,7 +11,8 @@ import {
     History,
     Users,
     LogOut,
-    Calculator
+    Calculator,
+    TrendingUp
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
@@ -19,6 +20,7 @@ import { useAuth } from "@/hooks/use-auth"
 const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Mediciones", href: "/dashboard/mediciones", icon: Database },
+    { name: "Análisis", href: "/dashboard/analisis", icon: TrendingUp },
     { name: "Lugares", href: "/dashboard/lugares", icon: MapPin },
     { name: "Unidades", href: "/dashboard/unidades", icon: Ruler },
     { name: "Auditoría", href: "/dashboard/bitacora", icon: History },

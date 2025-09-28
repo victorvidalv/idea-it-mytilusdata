@@ -1,0 +1,46 @@
+# Dependencias
+node_modules
+npm-debug.log
+
+# Build de Next.js
+.next
+
+# Git
+.git
+.gitignore
+
+# Variables de entorno locales
+.env
+.env.local
+.env.development
+.env.production
+
+# Base de datos SQLite local
+*.db
+*.db-journal
+data/
+
+# Archivos de desarrollo
+.vscode
+.idea
+*.md
+!README.md
+
+# Tests
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage
+
+# Scripts de desarrollo
+scripts/
+
+# Logs
+logs
+*.log
+
+# Archivos temporales
+.DS_Store
+Thumbs.db

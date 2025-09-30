@@ -1,9 +1,5 @@
-// Configuración de Prisma para SQLite
-import path from "path";
+// Configuración de Prisma para PostgreSQL (Neon)
 import { defineConfig } from "prisma/config";
-
-// Ruta absoluta a la base de datos SQLite
-const dbPath = path.resolve(__dirname, "prisma", "dev.db");
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -12,7 +8,7 @@ export default defineConfig({
     seed: "npx tsx prisma/seed.ts",
   },
   datasource: {
-    url: `file:${dbPath}`,
+    // URL de conexión (Neon)
+    url: process.env.DATABASE_URL,
   },
 });
-

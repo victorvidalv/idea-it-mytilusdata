@@ -1,70 +1,109 @@
-import { PrismaLibSql } from "@prisma/adapter-libsql";
-import { PrismaClient } from "../generated/prisma";
-import path from "path";
+import prisma from '../lib/prisma';
 
-// Ruta a la base de datos SQLite
-const dbPath = path.resolve(__dirname, "dev.db");
+async function seed() {
+    console.log('🌱 Iniciando seed de base de datos...');
 
-// Crear adapter con la nueva API de Prisma 6.6.0+
-const adapter = new PrismaLibSql({
-    url: `file:${dbPath}`,
-});
+    // Crear usuario de prueba
+    const usuario = await prisma.usuario.upsert({
+        where: { email: 'admin@test.com' },
+        update: {},
+        create: {
+            nombre: 'Administrador',
+            email: 'admin@test.com',
+            password_hash: '$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u', // password123
+            activo: true,
+        },
+    });
+    console.log('👤 Usuario:', usuario.email);
 
-// Crear cliente Prisma
-const prisma = new PrismaClient({ adapter });
+    // Crear tipos de registro
+    const tipos = ['PRB', 'MST', 'REG'];
+    const descripciones = ['Medición de prueba o calibración', 'Muestra oficial', 'Registro estándar'];
 
-/**
- * Script de seed para poblar datos iniciales
- * Ejecutar con: npx prisma db seed
- */
-async function main() {
-    console.log("🌱 Iniciando seed de la base de datos...");
-
-    // Crear tipos de registro predeterminados
-    const tiposRegistro = [
-        { codigo: "PRUEBA", descripcion: "Medición de prueba o calibración" },
-        { codigo: "MUESTRA", descripcion: "Medición de muestra oficial" },
-        { codigo: "DATO_PREVIO", descripcion: "Dato histórico o preexistente" },
-    ];
-
-    for (const tipo of tiposRegistro) {
+    for (let i = 0; i < tipos.length; i++) {
         await prisma.tipoRegistro.upsert({
-            where: { codigo: tipo.codigo },
+            where: { codigo: tipos[i] },
             update: {},
-            create: tipo,
+            create: { codigo: tipos[i], descripcion: descripciones[i] },
         });
-        console.log(`✅ Tipo de registro creado: ${tipo.codigo}`);
     }
+    console.log('📋 Tipos de registro creados');
 
-    // Crear unidades de medida básicas
-    const unidades = [
-        { nombre: "Kilogramo", sigla: "kg" },
-        { nombre: "Gramo", sigla: "g" },
-        { nombre: "Litro", sigla: "L" },
-        { nombre: "Mililitro", sigla: "mL" },
-        { nombre: "Metro", sigla: "m" },
-        { nombre: "Centímetro", sigla: "cm" },
-        { nombre: "Celsius", sigla: "°C" },
-        { nombre: "Porcentaje", sigla: "%" },
+    // Crear unidades
+    const unidadesData = [
+        { nombre: 'Kilogramo', sigla: 'kg' },
+        { nombre: 'Gramo', sigla: 'g' },
+        { nombre: 'Litro', sigla: 'L' },
+        { nombre: 'Mililitro', sigla: 'mL' },
+        { nombre: 'Metro', sigla: 'm' },
+        { nombre: 'Centímetro', sigla: 'cm' },
+        { nombre: 'Celsius', sigla: '°C' },
+        { nombre: 'Porcentaje', sigla: '%' },
     ];
+
+    for (const u of unidadesData) {
+        await prisma.unidad.upsert({
+            where: { id: unidadesData.indexOf(u) + 1 },
+            update: {},
+            create: { nombre: u.nombre, sigla: u.sigla, creado_por_id: usuario.id },
+        });
+    }
+    console.log('📏 Unidades creadas');
+
+    // Crear lugar de prueba
+    const lugar = await prisma.lugar.upsert({
+        where: { id: 1 },
+        update: {},
+        create: { nombre: 'Centro de Pruebas', creado_por_id: usuario.id },
+    });
+    console.log('📍 Lugar:', lugar.nombre);
+
+    // Crear mediciones con curva sigmoide
+    const tipo = await prisma.tipoRegistro.findFirst();
+    const unidades = await prisma.unidad.findMany();
+    const fechaInicio = new Date('2025-01-01');
+
+    console.log('📊 Creando mediciones con curva sigmoide...');
 
     for (const unidad of unidades) {
-        const existente = await prisma.unidad.findFirst({
-            where: { sigla: unidad.sigla, deleted_at: null },
-        });
+        const registros = [];
+        const minVal = 5;
+        const maxVal = 95;
+        const amplitude = maxVal - minVal;
+        const k = 0.28;
+        const x0 = 25;
 
-        if (!existente) {
-            await prisma.unidad.create({ data: unidad });
-            console.log(`✅ Unidad creada: ${unidad.nombre} (${unidad.sigla})`);
+        for (let i = 0; i < 50; i++) {
+            const valorPerfecto = minVal + amplitude / (1 + Math.exp(-k * (i - x0)));
+            const ruido = (Math.random() - 0.5) * 0.8;
+            const valor = Math.max(minVal, Math.min(maxVal, valorPerfecto + ruido));
+
+            const fecha = new Date(fechaInicio);
+            fecha.setDate(fechaInicio.getDate() + i);
+
+            registros.push({
+                valor: parseFloat(valor.toFixed(2)),
+                fecha_medicion: fecha,
+                lugar_id: lugar.id,
+                unidad_id: unidad.id,
+                tipo_id: tipo!.id,
+                registrado_por_id: usuario.id,
+                notas: `Prueba día ${i + 1}`,
+                created_at: new Date(),
+                updated_at: new Date(),
+            });
         }
+
+        await prisma.medicion.createMany({ data: registros });
+        console.log(`  ${unidad.sigla}: 50 ✓`);
     }
 
-    console.log("🌱 Seed completado exitosamente");
+    console.log('✅ Seed completado');
 }
 
-main()
+seed()
     .catch((e) => {
-        console.error("❌ Error en seed:", e);
+        console.error('❌ Error:', e);
         process.exit(1);
     })
     .finally(async () => {

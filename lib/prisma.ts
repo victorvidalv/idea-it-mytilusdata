@@ -1,6 +1,6 @@
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma";
-import path from "path";
 
 // Declarar tipo global para evitar múltiples instancias en desarrollo
 declare global {
@@ -8,15 +8,19 @@ declare global {
     var prisma: PrismaClient | undefined;
 }
 
-// Ruta a la base de datos SQLite
-const dbPath = path.resolve(process.cwd(), "prisma", "dev.db");
+// Configuración para Neon (PostgreSQL) usando Driver Adapter
+const connectionString = process.env.DATABASE_URL;
 
-// Crear adapter con la nueva API de Prisma 6.6.0+
-const adapter = new PrismaLibSql({
-    url: `file:${dbPath}`,
-});
+if (!connectionString) {
+    if (process.env.NODE_ENV === "production" || process.env.DATABASE_URL !== undefined) {
+        console.warn("DATABASE_URL no está definido");
+    }
+}
 
-// Crear instancia singleton de Prisma Client
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+
+// Crear instancia singleton de Prisma Client con el adaptador
 const prisma = global.prisma || new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") {

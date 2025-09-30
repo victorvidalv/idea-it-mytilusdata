@@ -1,5 +1,5 @@
 // --- SISTEMA DE REGISTRO DE MEDICIONES (V2.1) ---
-// Configuración de Prisma con SQLite
+// Configuración de Prisma con PostgreSQL (Neon)
 
 generator client {
   provider = "prisma-client-js"
@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // --- TABLA DE USUARIOS ---

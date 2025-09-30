@@ -34,6 +34,7 @@ RUN npx prisma generate
 # Construir la aplicación
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV DOCKER_BUILD=true
 
 RUN npm run build
 

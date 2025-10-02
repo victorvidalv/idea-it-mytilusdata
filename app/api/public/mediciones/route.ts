@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
         const total = await prisma.medicion.count({ where });
 
         // Formatear respuesta
-        const data = mediciones.map((m) => ({
+        const data = mediciones.map((m: any) => ({
             id: m.id,
             valor: Number(m.valor),
             fecha_medicion: m.fecha_medicion.toISOString(),

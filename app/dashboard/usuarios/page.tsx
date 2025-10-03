@@ -1,16 +1,17 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, Users, Search, UserCheck, UserMinus } from "lucide-react"
+import { Loader2, Search, UserCheck, UserMinus, Shield, User as UserIcon, Microscope } from "lucide-react"
 
 interface Usuario {
     id: number
     nombre: string
     email: string
+    rol: "ADMIN" | "INVESTIGADOR" | "PUBLICO"
     activo: boolean
     created_at: string
     _count: {
@@ -45,7 +46,7 @@ export default function UsuariosPage() {
         fetchUsuarios()
     }, [search])
 
-    const toggleStatus = async (id: number, currentStatus: boolean) => {
+    const updateUsuario = async (id: number, data: Partial<Usuario>) => {
         try {
             const token = localStorage.getItem("token")
             const res = await fetch(`/api/usuarios/${id}`, {
@@ -54,16 +55,27 @@ export default function UsuariosPage() {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ activo: !currentStatus })
+                body: JSON.stringify(data)
             })
-            const data = await res.json()
-            if (data.success) {
+            const result = await res.json()
+            if (result.success) {
                 fetchUsuarios()
             } else {
-                alert(data.message)
+                alert(result.message)
             }
         } catch (error) {
             console.error(error)
+        }
+    }
+
+    const RoleBadge = ({ rol }: { rol: string }) => {
+        switch (rol) {
+            case "ADMIN":
+                return <span className="flex items-center gap-1.5 text-violet-500 font-bold"><Shield className="w-3 h-3" /> ADMIN</span>
+            case "INVESTIGADOR":
+                return <span className="flex items-center gap-1.5 text-blue-500 font-bold"><Microscope className="w-3 h-3" /> INVESTIGADOR</span>
+            default:
+                return <span className="flex items-center gap-1.5 text-slate-500 font-bold"><UserIcon className="w-3 h-3" /> PÚBLICO</span>
         }
     }
 
@@ -71,7 +83,7 @@ export default function UsuariosPage() {
         <div className="space-y-6">
             <div>
                 <h2 className="text-3xl font-bold tracking-tight font-outfit">Gestión de Usuarios</h2>
-                <p className="text-muted-foreground">Administra los accesos y permisos del personal.</p>
+                <p className="text-muted-foreground">Administra los accesos y roles del personal.</p>
             </div>
 
             <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
@@ -91,9 +103,9 @@ export default function UsuariosPage() {
                         <TableHeader>
                             <TableRow className="bg-muted/30">
                                 <TableHead>Usuario</TableHead>
+                                <TableHead>Rol</TableHead>
                                 <TableHead>Estado</TableHead>
-                                <TableHead>Registros</TableHead>
-                                <TableHead>Fecha Registro</TableHead>
+                                <TableHead>Actividad</TableHead>
                                 <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -112,7 +124,7 @@ export default function UsuariosPage() {
                                 </TableRow>
                             ) : (
                                 usuarios.map((u) => (
-                                    <TableRow key={u.id}>
+                                    <TableRow key={u.id} className="group transition-colors hover:bg-muted/30">
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -125,6 +137,22 @@ export default function UsuariosPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <select
+                                                    className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer border-b border-transparent hover:border-primary/30 transition-colors py-1"
+                                                    value={u.rol}
+                                                    onChange={(e) => updateUsuario(u.id, { rol: e.target.value as any })}
+                                                >
+                                                    <option value="ADMIN">ADMIN</option>
+                                                    <option value="INVESTIGADOR">INVESTIGADOR</option>
+                                                    <option value="PUBLICO">PÚBLICO</option>
+                                                </select>
+                                                <div className="opacity-50 group-hover:opacity-100 transition-opacity">
+                                                    <RoleBadge rol={u.rol} />
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
                                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold border ${u.activo ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'}`}>
                                                 {u.activo ? 'ACTIVO' : 'INACTIVO'}
                                             </span>
@@ -132,18 +160,15 @@ export default function UsuariosPage() {
                                         <TableCell>
                                             <div className="flex flex-col text-[11px] text-muted-foreground">
                                                 <span>{u._count.mediciones} Mediciones</span>
-                                                <span>{u._count.lugares} Lugares</span>
+                                                <span className="text-[10px] opacity-60">ID: {u.id}</span>
                                             </div>
-                                        </TableCell>
-                                        <TableCell className="text-xs text-muted-foreground">
-                                            {new Date(u.created_at).toLocaleDateString()}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 className={`gap-2 ${u.activo ? 'hover:text-rose-500 hover:bg-rose-500/10' : 'hover:text-emerald-500 hover:bg-emerald-500/10'}`}
-                                                onClick={() => toggleStatus(u.id, u.activo)}
+                                                onClick={() => updateUsuario(u.id, { activo: !u.activo })}
                                             >
                                                 {u.activo ? (
                                                     <><UserMinus className="w-4 h-4" /> Desactivar</>

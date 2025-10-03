@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAuth, isAuthError, getClientIp } from "@/lib/middleware/auth";
+import { withRole } from "@/lib/middleware";
 import { MedicionesService } from "@/lib/services";
 import {
   updateMedicionSchema,
@@ -7,6 +7,7 @@ import {
 } from "@/lib/validators";
 import { handleApiError } from "@/lib/utils/errors";
 import { logger } from "@/lib/utils/logger";
+import { getClientIp } from "@/lib/middleware/auth";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -14,19 +15,13 @@ interface RouteParams {
 
 /**
  * GET /api/mediciones/[id]
- * Obtener medición por ID
+ * Obtener medición por ID (ADMIN e INVESTIGADOR)
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
-  const auth = await verifyAuth(request);
-  if (isAuthError(auth)) return auth;
-
+export const GET = withRole(async (request: NextRequest, { params }: RouteParams) => {
+  const user = (request as any).user;
   try {
     const { id } = await params;
-
-    // Validar ID usando Zod
     const validatedId = medicionIdSchema.parse({ id });
-
-    // Usar el servicio para obtener la medición
     const medicion = await MedicionesService.findById(validatedId.id);
 
     if (!medicion) {
@@ -37,39 +32,32 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     logger.info("Medición obtenida exitosamente", {
-      userId: auth.id,
+      userId: user.userId,
       medicionId: medicion.id,
     });
 
     return NextResponse.json({ success: true, data: medicion });
   } catch (error) {
     return handleApiError(error, {
-      userId: auth.id,
+      userId: user.userId,
       path: request.url,
       method: "GET",
     });
   }
-}
+}, ["ADMIN", "INVESTIGADOR"]);
 
 /**
  * PUT /api/mediciones/[id]
- * Actualizar medición
+ * Actualizar medición (ADMIN e INVESTIGADOR)
  */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  const auth = await verifyAuth(request);
-  if (isAuthError(auth)) return auth;
-
+export const PUT = withRole(async (request: NextRequest, { params }: RouteParams) => {
+  const user = (request as any).user;
   try {
     const { id } = await params;
     const body = await request.json();
-
-    // Validar ID usando Zod
     const validatedId = medicionIdSchema.parse({ id });
-
-    // Validar datos de actualización usando Zod
     const validatedData = updateMedicionSchema.parse(body);
 
-    // Verificar que haya datos para actualizar
     if (Object.keys(validatedData).length === 0) {
       return NextResponse.json(
         { success: false, message: "No hay datos para actualizar" },
@@ -77,16 +65,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Usar el servicio para actualizar la medición
     const medicionActualizada = await MedicionesService.update(
       validatedId.id,
       validatedData,
-      auth.id,
+      user.userId,
       getClientIp(request)
     );
 
     logger.info("Medición actualizada exitosamente", {
-      userId: auth.id,
+      userId: user.userId,
       medicionId: medicionActualizada.id,
     });
 
@@ -97,36 +84,31 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     return handleApiError(error, {
-      userId: auth.id,
+      userId: user.userId,
       path: request.url,
       method: "PUT",
     });
   }
-}
+}, ["ADMIN", "INVESTIGADOR"]);
 
 /**
  * DELETE /api/mediciones/[id]
- * Eliminar medición (soft delete)
+ * Eliminar medición (soft delete) (Solo ADMIN e INVESTIGADOR)
  */
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  const auth = await verifyAuth(request);
-  if (isAuthError(auth)) return auth;
-
+export const DELETE = withRole(async (request: NextRequest, { params }: RouteParams) => {
+  const user = (request as any).user;
   try {
     const { id } = await params;
-
-    // Validar ID usando Zod
     const validatedId = medicionIdSchema.parse({ id });
 
-    // Usar el servicio para eliminar la medición
     await MedicionesService.softDelete(
       validatedId.id,
-      auth.id,
+      user.userId,
       getClientIp(request)
     );
 
     logger.info("Medición eliminada exitosamente", {
-      userId: auth.id,
+      userId: user.userId,
       medicionId: validatedId.id,
     });
 
@@ -136,9 +118,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     return handleApiError(error, {
-      userId: auth.id,
+      userId: user.userId,
       path: request.url,
       method: "DELETE",
     });
   }
-}
+}, ["ADMIN", "INVESTIGADOR"]);

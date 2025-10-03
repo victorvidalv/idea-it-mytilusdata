@@ -12,19 +12,21 @@ import {
     Users,
     LogOut,
     Calculator,
-    TrendingUp
+    TrendingUp,
+    Rocket
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
 
 const menuItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Mediciones", href: "/dashboard/mediciones", icon: Database },
-    { name: "Análisis", href: "/dashboard/analisis", icon: TrendingUp },
-    { name: "Lugares", href: "/dashboard/lugares", icon: MapPin },
-    { name: "Unidades", href: "/dashboard/unidades", icon: Ruler },
-    { name: "Auditoría", href: "/dashboard/bitacora", icon: History },
-    { name: "Usuarios", href: "/dashboard/usuarios", icon: Users },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "INVESTIGADOR"] },
+    { name: "Mediciones", href: "/dashboard/mediciones", icon: Database, roles: ["ADMIN", "INVESTIGADOR"] },
+    { name: "Análisis", href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "INVESTIGADOR"] },
+    { name: "Lugares", href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "INVESTIGADOR"] },
+    { name: "Unidades", href: "/dashboard/unidades", icon: Ruler, roles: ["ADMIN", "INVESTIGADOR"] },
+    { name: "Auditoría", href: "/dashboard/bitacora", icon: History, roles: ["ADMIN"] },
+    { name: "Usuarios", href: "/dashboard/usuarios", icon: Users, roles: ["ADMIN"] },
+    { name: "En Desarrollo", href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },
 ]
 
 export function Sidebar() {
@@ -41,24 +43,26 @@ export function Sidebar() {
             </div>
 
             <nav className="flex-1 px-4 space-y-1 mt-4">
-                {menuItems.map((item) => {
-                    const isActive = pathname === item.href
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group",
-                                isActive
-                                    ? "bg-primary text-primary-foreground"
-                                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                            )}
-                        >
-                            <item.icon className={cn("w-5 h-5", isActive ? "" : "group-hover:text-primary")} />
-                            {item.name}
-                        </Link>
-                    )
-                })}
+                {menuItems
+                    .filter(item => !user?.rol || item.roles.includes(user.rol))
+                    .map((item) => {
+                        const isActive = pathname === item.href
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={cn(
+                                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group",
+                                    isActive
+                                        ? "bg-primary text-primary-foreground"
+                                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                )}
+                            >
+                                <item.icon className={cn("w-5 h-5", isActive ? "" : "group-hover:text-primary")} />
+                                {item.name}
+                            </Link>
+                        )
+                    })}
             </nav>
 
             <div className="p-4 border-t bg-muted/20">

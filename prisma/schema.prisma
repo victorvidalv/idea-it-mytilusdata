@@ -9,12 +9,19 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Rol {
+  ADMIN
+  INVESTIGADOR
+  PUBLICO
+}
+
 // --- TABLA DE USUARIOS ---
 model Usuario {
   id            Int       @id @default(autoincrement())
   nombre        String
   email         String    @unique
   password_hash String
+  rol           Rol       @default(PUBLICO)
   activo        Boolean   @default(true) // Para bloquear acceso sin borrar historial
   created_at    DateTime  @default(now())
 

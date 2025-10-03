@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyAuth, isAuthError } from "@/lib/middleware/auth";
+import { withRole } from "@/lib/middleware";
 
 /**
  * GET /api/usuarios
- * Listar usuarios activos (sin información sensible)
+ * Listar usuarios activos (solo para ADMIN)
  */
-export async function GET(request: NextRequest) {
-    const auth = await verifyAuth(request);
-    if (isAuthError(auth)) return auth;
-
+export const GET = withRole(async (request: NextRequest) => {
     try {
         const { searchParams } = new URL(request.url);
         const busqueda = searchParams.get("q");
@@ -24,8 +21,8 @@ export async function GET(request: NextRequest) {
 
         if (busqueda) {
             where.OR = [
-                { nombre: { contains: busqueda } },
-                { email: { contains: busqueda } },
+                { nombre: { contains: busqueda, mode: 'insensitive' } },
+                { email: { contains: busqueda, mode: 'insensitive' } },
             ];
         }
 
@@ -35,6 +32,7 @@ export async function GET(request: NextRequest) {
                 id: true,
                 nombre: true,
                 email: true,
+                rol: true,
                 activo: true,
                 created_at: true,
                 _count: {
@@ -60,4 +58,4 @@ export async function GET(request: NextRequest) {
             { status: 500 }
         );
     }
-}
+}, ["ADMIN"]);

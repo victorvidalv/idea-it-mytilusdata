@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAuth, isAuthError, getClientIp } from "@/lib/middleware/auth";
+import { withRole } from "@/lib/middleware";
 import { MedicionesService } from "@/lib/services";
 import {
   createMedicionSchema,
@@ -7,19 +7,17 @@ import {
 } from "@/lib/validators";
 import { handleApiError } from "@/lib/utils/errors";
 import { logger } from "@/lib/utils/logger";
+import { getClientIp } from "@/lib/middleware/auth";
 
 /**
  * GET /api/mediciones
- * Listar mediciones con filtros opcionales
+ * Listar mediciones con filtros opcionales (ADMIN e INVESTIGADOR)
  */
-export async function GET(request: NextRequest) {
-  const auth = await verifyAuth(request);
-  if (isAuthError(auth)) return auth;
-
+export const GET = withRole(async (request: NextRequest) => {
+  const user = (request as any).user;
   try {
     const { searchParams } = new URL(request.url);
 
-    // Extraer parámetros de consulta
     const filters = {
       page: searchParams.get("page"),
       limit: searchParams.get("limit"),
@@ -31,18 +29,14 @@ export async function GET(request: NextRequest) {
       fecha_hasta: searchParams.get("fecha_hasta"),
     };
 
-    // Validar filtros usando Zod
     const validatedFilters = filterMedicionesSchema.parse(filters);
-
-    // Obtener página y límite con valores por defecto
     const page = validatedFilters.page || 1;
     const limit = validatedFilters.limit || 20;
 
-    // Usar el servicio para obtener mediciones
     const result = await MedicionesService.findAll(validatedFilters, page, limit);
 
     logger.info("Mediciones listadas exitosamente", {
-      userId: auth.id,
+      userId: user.userId,
       total: result.pagination.total,
       page: result.pagination.page,
     });
@@ -61,36 +55,31 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     return handleApiError(error, {
-      userId: auth.id,
+      userId: user.userId,
       path: request.url,
       method: "GET",
     });
   }
-}
+}, ["ADMIN", "INVESTIGADOR"]);
 
 /**
  * POST /api/mediciones
- * Crear nueva medición
+ * Crear nueva medición (ADMIN e INVESTIGADOR)
  */
-export async function POST(request: NextRequest) {
-  const auth = await verifyAuth(request);
-  if (isAuthError(auth)) return auth;
-
+export const POST = withRole(async (request: NextRequest) => {
+  const user = (request as any).user;
   try {
     const body = await request.json();
-
-    // Validar datos usando Zod
     const validatedData = createMedicionSchema.parse(body);
 
-    // Usar el servicio para crear la medición
     const nuevaMedicion = await MedicionesService.create(
       validatedData,
-      auth.id,
+      user.userId,
       getClientIp(request)
     );
 
     logger.info("Medición creada exitosamente", {
-      userId: auth.id,
+      userId: user.userId,
       medicionId: nuevaMedicion.id,
     });
 
@@ -104,9 +93,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     return handleApiError(error, {
-      userId: auth.id,
+      userId: user.userId,
       path: request.url,
       method: "POST",
     });
   }
-}
+}, ["ADMIN", "INVESTIGADOR"]);

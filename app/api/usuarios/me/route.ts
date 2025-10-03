@@ -1,22 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyAuth, isAuthError } from "@/lib/middleware/auth";
+import { withRole } from "@/lib/middleware";
 
 /**
  * GET /api/usuarios/me
- * Obtener perfil del usuario autenticado
+ * Obtener perfil del usuario autenticado (Disponible para todos los roles)
  */
-export async function GET(request: NextRequest) {
-    const auth = await verifyAuth(request);
-    if (isAuthError(auth)) return auth;
-
+export const GET = withRole(async (request: NextRequest) => {
+    const userToken = (request as any).user;
     try {
         const usuario = await prisma.usuario.findUnique({
-            where: { id: auth.id },
+            where: { id: userToken.userId },
             select: {
                 id: true,
                 nombre: true,
                 email: true,
+                rol: true,
                 activo: true,
                 created_at: true,
                 _count: {
@@ -44,4 +43,4 @@ export async function GET(request: NextRequest) {
             { status: 500 }
         );
     }
-}
+}, ["ADMIN", "INVESTIGADOR", "PUBLICO"]);

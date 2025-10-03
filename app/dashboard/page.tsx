@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Database, MapPin, Ruler, Users, Plus, History, Activity, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 
 interface Log {
     id: number
@@ -15,6 +17,9 @@ interface Log {
 }
 
 export default function DashboardPage() {
+    const { user, loading: authLoading } = useAuth()
+    const router = useRouter()
+
     const [stats, setStats] = useState({
         mediciones: 0,
         lugares: 0,
@@ -23,6 +28,12 @@ export default function DashboardPage() {
     })
     const [recentLogs, setRecentLogs] = useState<Log[]>([])
     const [loadingLogs, setLoadingLogs] = useState(true)
+
+    useEffect(() => {
+        if (!authLoading && user?.rol === "PUBLICO") {
+            router.replace("/dashboard/en-desarrollo")
+        }
+    }, [user, authLoading, router])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -110,7 +121,7 @@ export default function DashboardPage() {
                                     {recentLogs.map((log) => (
                                         <div key={log.id} className="flex items-center gap-4 p-3 rounded-lg border bg-background/50 text-sm">
                                             <div className={`w-2 h-2 rounded-full ${log.accion === 'CREATE' ? 'bg-emerald-500' :
-                                                    log.accion === 'UPDATE' ? 'bg-blue-500' : 'bg-rose-500'
+                                                log.accion === 'UPDATE' ? 'bg-blue-500' : 'bg-rose-500'
                                                 }`} />
                                             <div className="flex-1">
                                                 <span className="font-semibold text-primary">{log.usuario.nombre}</span>

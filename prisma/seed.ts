@@ -3,18 +3,44 @@ import prisma from '../lib/prisma';
 async function seed() {
     console.log('🌱 Iniciando seed de base de datos...');
 
-    // Crear usuario de prueba
-    const usuario = await prisma.usuario.upsert({
+    // Crear usuarios de prueba por rol
+    const admin = await prisma.usuario.upsert({
         where: { email: 'admin@test.com' },
-        update: {},
+        update: { rol: 'ADMIN' },
         create: {
             nombre: 'Administrador',
             email: 'admin@test.com',
             password_hash: '$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u', // password123
             activo: true,
+            rol: 'ADMIN',
         },
     });
-    console.log('👤 Usuario:', usuario.email);
+
+    const investigador = await prisma.usuario.upsert({
+        where: { email: 'investigador@test.com' },
+        update: { rol: 'INVESTIGADOR' },
+        create: {
+            nombre: 'Investigador de Planta',
+            email: 'investigador@test.com',
+            password_hash: '$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u', // password123
+            activo: true,
+            rol: 'INVESTIGADOR',
+        },
+    });
+
+    const publico = await prisma.usuario.upsert({
+        where: { email: 'publico@test.com' },
+        update: { rol: 'PUBLICO' },
+        create: {
+            nombre: 'Usuario Público',
+            email: 'publico@test.com',
+            password_hash: '$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u', // password123
+            activo: true,
+            rol: 'PUBLICO',
+        },
+    });
+
+    console.log('👤 Usuarios creados: admin, investigador, publico');
 
     // Crear tipos de registro
     const tipos = ['PRB', 'MST', 'REG'];
@@ -45,7 +71,7 @@ async function seed() {
         await prisma.unidad.upsert({
             where: { id: unidadesData.indexOf(u) + 1 },
             update: {},
-            create: { nombre: u.nombre, sigla: u.sigla, creado_por_id: usuario.id },
+            create: { nombre: u.nombre, sigla: u.sigla, creado_por_id: admin.id },
         });
     }
     console.log('📏 Unidades creadas');
@@ -54,7 +80,7 @@ async function seed() {
     const lugar = await prisma.lugar.upsert({
         where: { id: 1 },
         update: {},
-        create: { nombre: 'Centro de Pruebas', creado_por_id: usuario.id },
+        create: { nombre: 'Centro de Pruebas', creado_por_id: admin.id },
     });
     console.log('📍 Lugar:', lugar.nombre);
 
@@ -87,7 +113,7 @@ async function seed() {
                 lugar_id: lugar.id,
                 unidad_id: unidad.id,
                 tipo_id: tipo!.id,
-                registrado_por_id: usuario.id,
+                registrado_por_id: admin.id,
                 notas: `Prueba día ${i + 1}`,
                 created_at: new Date(),
                 updated_at: new Date(),

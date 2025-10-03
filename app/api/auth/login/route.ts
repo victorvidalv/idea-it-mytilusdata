@@ -66,11 +66,13 @@ export const POST = withRateLimit(
             }
 
             // Generar token JWT
-            const token = generateToken(usuario.id, usuario.email);
+            const userAny = usuario as any;
+            const token = generateToken(usuario.id, usuario.email, userAny.rol);
 
             logger.info("Login exitoso", {
                 userId: usuario.id,
                 email: usuario.email,
+                rol: userAny.rol,
                 action: "login_success",
             });
 
@@ -82,6 +84,7 @@ export const POST = withRateLimit(
                     id: usuario.id,
                     nombre: usuario.nombre,
                     email: usuario.email,
+                    rol: userAny.rol,
                 },
             });
         } catch (error) {

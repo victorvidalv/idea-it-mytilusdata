@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyAuth, isAuthError } from "@/lib/middleware/auth";
+import { withRole } from "@/lib/middleware";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -8,12 +8,9 @@ interface RouteParams {
 
 /**
  * GET /api/usuarios/[id]
- * Obtener usuario por ID
+ * Obtener usuario por ID (solo para ADMIN)
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
-    const auth = await verifyAuth(request);
-    if (isAuthError(auth)) return auth;
-
+export const GET = withRole(async (request: NextRequest, { params }: RouteParams) => {
     try {
         const { id } = await params;
         const usuarioId = parseInt(id, 10);
@@ -31,6 +28,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 id: true,
                 nombre: true,
                 email: true,
+                rol: true,
                 activo: true,
                 created_at: true,
                 _count: {
@@ -58,19 +56,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             { status: 500 }
         );
     }
-}
+}, ["ADMIN"]);
 
 /**
  * PATCH /api/usuarios/[id]
- * Desactivar/activar usuario (solo administración)
+ * Actualizar usuario (solo ADMIN)
  */
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
-    const auth = await verifyAuth(request);
-    if (isAuthError(auth)) return auth;
-
+export const PATCH = withRole(async (request: NextRequest, { params }: RouteParams) => {
     try {
         const { id } = await params;
         const usuarioId = parseInt(id, 10);
+        const currentUser = (request as any).user;
 
         if (isNaN(usuarioId)) {
             return NextResponse.json(
@@ -79,22 +75,39 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             );
         }
 
-        // No permitir desactivarse a sí mismo
-        if (usuarioId === auth.id) {
+        const body = await request.json();
+        const { activo, rol } = body;
+
+        // Validaciones básicas
+        if (activo !== undefined && typeof activo !== "boolean") {
             return NextResponse.json(
-                { success: false, message: "No puede desactivar su propia cuenta" },
+                { success: false, message: "El campo 'activo' debe ser boolean" },
                 { status: 400 }
             );
         }
 
-        const body = await request.json();
-        const { activo } = body;
-
-        if (activo === undefined || typeof activo !== "boolean") {
+        const rolesValidos = ["ADMIN", "INVESTIGADOR", "PUBLICO"];
+        if (rol !== undefined && !rolesValidos.includes(rol)) {
             return NextResponse.json(
-                { success: false, message: "El campo 'activo' (boolean) es requerido" },
+                { success: false, message: "Rol inválido" },
                 { status: 400 }
             );
+        }
+
+        // Impedir que un admin se quite su propio rol de admin o se desactive
+        if (usuarioId === currentUser.userId) {
+            if (activo === false) {
+                return NextResponse.json(
+                    { success: false, message: "No puede desactivar su propia cuenta" },
+                    { status: 400 }
+                );
+            }
+            if (rol && rol !== "ADMIN") {
+                return NextResponse.json(
+                    { success: false, message: "No puede quitarse el rol de administrador a sí mismo" },
+                    { status: 400 }
+                );
+            }
         }
 
         const usuario = await prisma.usuario.findUnique({
@@ -108,20 +121,26 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             );
         }
 
+        // Construir data para update
+        const updateData: any = {};
+        if (activo !== undefined) updateData.activo = activo;
+        if (rol !== undefined) updateData.rol = rol;
+
         const usuarioActualizado = await prisma.usuario.update({
             where: { id: usuarioId },
-            data: { activo },
+            data: updateData,
             select: {
                 id: true,
                 nombre: true,
                 email: true,
+                rol: true,
                 activo: true,
             },
         });
 
         return NextResponse.json({
             success: true,
-            message: activo ? "Usuario activado" : "Usuario desactivado",
+            message: "Usuario actualizado correctamente",
             data: usuarioActualizado,
         });
     } catch (error) {
@@ -131,4 +150,4 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             { status: 500 }
         );
     }
-}
+}, ["ADMIN"]);

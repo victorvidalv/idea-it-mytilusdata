@@ -29,11 +29,12 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
  * Generar token JWT para usuario autenticado
  * @param userId - ID del usuario
  * @param email - Email del usuario
+ * @param rol - Rol del usuario (ADMIN, INVESTIGADOR, PUBLICO)
  * @returns Token JWT firmado
  */
-export function generateToken(userId: number, email: string): string {
+export function generateToken(userId: number, email: string, rol: string): string {
     return jwt.sign(
-        { userId, email },
+        { userId, email, rol },
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
     );
@@ -44,9 +45,9 @@ export function generateToken(userId: number, email: string): string {
  * @param token - Token JWT a verificar
  * @returns Payload decodificado o null si es inválido
  */
-export function verifyToken(token: string): { userId: number; email: string } | null {
+export function verifyToken(token: string): { userId: number; email: string; rol: string } | null {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string };
+        const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string; rol: string };
         return decoded;
     } catch {
         return null;
@@ -64,5 +65,6 @@ export interface AuthResponse {
         id: number;
         nombre: string;
         email: string;
+        rol: string;
     };
 }

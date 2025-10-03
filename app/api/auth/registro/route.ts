@@ -68,12 +68,14 @@ export const POST = withRateLimit(
             });
 
             // Generar token JWT
-            const token = generateToken(nuevoUsuario.id, nuevoUsuario.email);
+            const userAny = nuevoUsuario as any;
+            const token = generateToken(nuevoUsuario.id, nuevoUsuario.email, userAny.rol);
 
             logger.info("Registro exitoso", {
                 userId: nuevoUsuario.id,
                 email: nuevoUsuario.email,
                 nombre: nuevoUsuario.nombre,
+                rol: userAny.rol,
                 action: "registro_success",
             });
 
@@ -85,6 +87,7 @@ export const POST = withRateLimit(
                     id: nuevoUsuario.id,
                     nombre: nuevoUsuario.nombre,
                     email: nuevoUsuario.email,
+                    rol: userAny.rol,
                 },
             }, { status: 201 });
         } catch (error) {

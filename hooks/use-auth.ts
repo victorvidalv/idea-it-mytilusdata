@@ -7,6 +7,7 @@ interface User {
     id: number
     nombre: string
     email: string
+    rol: string
 }
 
 export function useAuth() {

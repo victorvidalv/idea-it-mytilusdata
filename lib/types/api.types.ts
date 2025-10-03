@@ -48,6 +48,7 @@ export interface AuthenticatedUser {
   id: number;
   nombre: string;
   email: string;
+  rol: string;
   activo: boolean;
   created_at: Date;
 }
@@ -93,6 +94,7 @@ export interface Usuario {
   id: number;
   nombre: string;
   email: string;
+  rol: string;
   activo: boolean;
   created_at: Date;
 }
@@ -108,7 +110,7 @@ export interface Medicion {
   created_at: Date;
   updated_at?: Date | null;
   deleted_at?: Date | null;
-  
+
   // Relaciones
   lugar: Lugar;
   unidad: Unidad;
@@ -125,21 +127,21 @@ export enum ErrorCode {
   INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
   TOKEN_EXPIRED = 'TOKEN_EXPIRED',
   TOKEN_INVALID = 'TOKEN_INVALID',
-  
+
   // Errores de validación
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   INVALID_INPUT = 'INVALID_INPUT',
-  
+
   // Errores de recursos
   NOT_FOUND = 'NOT_FOUND',
   ALREADY_EXISTS = 'ALREADY_EXISTS',
   CONFLICT = 'CONFLICT',
-  
+
   // Errores del servidor
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   DATABASE_ERROR = 'DATABASE_ERROR',
   EXTERNAL_SERVICE_ERROR = 'EXTERNAL_SERVICE_ERROR',
-  
+
   // Errores de permisos
   FORBIDDEN = 'FORBIDDEN',
   INSUFFICIENT_PERMISSIONS = 'INSUFFICIENT_PERMISSIONS',

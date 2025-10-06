@@ -40,7 +40,19 @@ async function seed() {
         },
     });
 
-    console.log('👤 Usuarios creados: admin, investigador, publico');
+    const victor = await prisma.usuario.upsert({
+        where: { email: 'victorvidalv@gmail.com' },
+        update: { rol: 'ADMIN' },
+        create: {
+            nombre: 'Victor Vidal',
+            email: 'victorvidalv@gmail.com',
+            password_hash: '$2b$10$b5rEEn5bA9Yh51S5zgL/ye8Zdm/XEa/qhiWsEoSCdW1bR64RyMWSK', // aveces123
+            activo: true,
+            rol: 'ADMIN',
+        },
+    });
+
+    console.log('👤 Usuarios creados: victor, admin, investigador, publico');
 
     // Crear tipos de registro
     const tipos = ['PRB', 'MST', 'REG'];

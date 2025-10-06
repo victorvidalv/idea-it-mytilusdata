@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, Search, UserCheck, UserMinus, Shield, User as UserIcon, Microscope } from "lucide-react"
+import { Loader2, Search, UserCheck, UserMinus, Shield, User as UserIcon, Microscope, UserPlus } from "lucide-react"
+import { Modal } from "@/components/ui/modal"
+import { Label } from "@/components/ui/label"
 
 interface Usuario {
     id: number
@@ -26,11 +28,21 @@ export default function UsuariosPage() {
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState("")
 
+    // Modal state
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [formData, setFormData] = useState({
+        nombre: "",
+        email: "",
+        password: "",
+        rol: "PUBLICO"
+    })
+
     const fetchUsuarios = async () => {
         setLoading(true)
         try {
             const token = localStorage.getItem("token")
-            const res = await fetch(`/api/usuarios?q=${search}`, {
+            const res = await fetch(`/api/usuarios?q=${search}&inactivos=true`, {
                 headers: { "Authorization": `Bearer ${token}` }
             })
             const data = await res.json()
@@ -68,6 +80,35 @@ export default function UsuariosPage() {
         }
     }
 
+    const handleCreateUser = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setIsSubmitting(true)
+        try {
+            const token = localStorage.getItem("token")
+            const res = await fetch("/api/usuarios", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            const data = await res.json()
+            if (data.success) {
+                setIsModalOpen(false)
+                setFormData({ nombre: "", email: "", password: "", rol: "PUBLICO" })
+                fetchUsuarios()
+            } else {
+                alert(data.message)
+            }
+        } catch (error) {
+            console.error(error)
+            alert("Error al crear usuario")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
     const RoleBadge = ({ rol }: { rol: string }) => {
         switch (rol) {
             case "ADMIN":
@@ -81,9 +122,15 @@ export default function UsuariosPage() {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h2 className="text-3xl font-bold tracking-tight font-outfit">Gestión de Usuarios</h2>
-                <p className="text-muted-foreground">Administra los accesos y roles del personal.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 className="text-3xl font-bold tracking-tight font-outfit">Gestión de Usuarios</h2>
+                    <p className="text-muted-foreground">Administra los accesos y roles del personal.</p>
+                </div>
+                <Button onClick={() => setIsModalOpen(true)} className="gap-2 shadow-lg shadow-primary/20">
+                    <UserPlus className="w-4 h-4" />
+                    Nuevo Usuario
+                </Button>
             </div>
 
             <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
@@ -110,7 +157,7 @@ export default function UsuariosPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {loading ? (
+                            {loading && usuarios.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-40 text-center">
                                         <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary opacity-50" />
@@ -184,6 +231,71 @@ export default function UsuariosPage() {
                     </Table>
                 </CardContent>
             </Card>
+
+            {/* Modal para Nuevo Usuario */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Crear Nuevo Usuario"
+                description="Ingresa los datos del nuevo miembro del equipo."
+            >
+                <form onSubmit={handleCreateUser} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="nombre">Nombre Completo</Label>
+                        <Input
+                            id="nombre"
+                            placeholder="Ej. Juan Pérez"
+                            required
+                            value={formData.nombre}
+                            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Correo Electrónico</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="usuario@ejemplo.com"
+                            required
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="password">Contraseña</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            required
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="rol">Rol del Usuario</Label>
+                        <select
+                            id="rol"
+                            className="w-full flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            value={formData.rol}
+                            onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
+                        >
+                            <option value="PUBLICO">Público (Acceso limitado)</option>
+                            <option value="INVESTIGADOR">Investigador (Mediciones y Análisis)</option>
+                            <option value="ADMIN">Administrador (Control total)</option>
+                        </select>
+                    </div>
+                    <div className="flex justify-end gap-3 pt-4">
+                        <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
+                            Cancelar
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <UserPlus className="w-4 h-4 mr-2" />}
+                            Crear Usuario
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     )
 }

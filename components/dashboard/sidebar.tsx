@@ -24,6 +24,7 @@ const menuItems = [
     { name: "Análisis", href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "INVESTIGADOR"] },
     { name: "Lugares", href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "INVESTIGADOR"] },
     { name: "Unidades", href: "/dashboard/unidades", icon: Ruler, roles: ["ADMIN", "INVESTIGADOR"] },
+    { name: "Orígenes", href: "/dashboard/origenes", icon: Database, roles: ["ADMIN", "INVESTIGADOR"] },
     { name: "Auditoría", href: "/dashboard/bitacora", icon: History, roles: ["ADMIN"] },
     { name: "Usuarios", href: "/dashboard/usuarios", icon: Users, roles: ["ADMIN"] },
     { name: "En Desarrollo", href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },

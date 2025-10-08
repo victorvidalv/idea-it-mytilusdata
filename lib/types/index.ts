@@ -14,6 +14,7 @@ export type {
   Unidad,
   Lugar,
   TipoRegistro,
+  OrigenDato,
   Usuario,
   Medicion,
 } from './api.types';
@@ -30,27 +31,27 @@ export type {
   MedicionSortOptions,
   MedicionPaginationOptions,
   MedicionQueryOptions,
-  
+
   // DTOs de mediciones
   CreateMedicionDto,
   UpdateMedicionDto,
-  
+
   // DTOs de unidades
   CreateUnidadDto,
   UpdateUnidadDto,
-  
+
   // DTOs de lugares
   CreateLugarDto,
   UpdateLugarDto,
-  
+
   // DTOs de tipos de registro
   CreateTipoRegistroDto,
   UpdateTipoRegistroDto,
-  
+
   // DTOs de usuarios
   CreateUsuarioDto,
   UpdateUsuarioDto,
-  
+
   // Bitácora
   BitacoraCambio,
   BitacoraFilters,
@@ -58,12 +59,12 @@ export type {
   BitacoraPaginationOptions,
   BitacoraQueryOptions,
   CreateBitacoraCambioDto,
-  
+
   // Autenticación
   LoginDto,
   RegistroDto,
   AuthResponse,
-  
+
   // Exportación
   ExportMedicionesOptions,
   ExportResult,

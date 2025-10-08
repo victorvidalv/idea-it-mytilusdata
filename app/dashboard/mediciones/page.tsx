@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { Filter } from "lucide-react"
-import { Medicion, Lugar, Unidad, TipoRegistro, Usuario } from "@/lib/types"
+import { Medicion, Lugar, Unidad, TipoRegistro, Usuario, OrigenDato } from "@/lib/types"
 import { MedicionesTable } from "@/components/dashboard/mediciones/mediciones-table"
 import { MedicionesFilters } from "@/components/dashboard/mediciones/mediciones-filters"
 import { MedicionesForm } from "@/components/dashboard/mediciones/mediciones-form"
@@ -16,6 +16,7 @@ export default function MedicionesPage() {
     const [lugares, setLugares] = useState<Lugar[]>([])
     const [unidades, setUnidades] = useState<Unidad[]>([])
     const [tipos, setTipos] = useState<TipoRegistro[]>([])
+    const [origenes, setOrigenes] = useState<OrigenDato[]>([])
     const [usuarios, setUsuarios] = useState<Usuario[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -35,6 +36,7 @@ export default function MedicionesPage() {
         lugar_id: "",
         unidad_id: "",
         tipo_id: "",
+        origen_id: "",
         notas: ""
     })
 
@@ -49,19 +51,21 @@ export default function MedicionesPage() {
             if (filters.tipo_id) queryParams.append("tipo_id", filters.tipo_id)
             if (filters.autor_id) queryParams.append("autor_id", filters.autor_id)
 
-            const [mRes, lRes, uRes, tRes, usRes] = await Promise.all([
+            const [mRes, lRes, uRes, tRes, oRes, usRes] = await Promise.all([
                 fetch(`/api/mediciones?${queryParams.toString()}`, { headers }),
                 fetch("/api/lugares", { headers }),
                 fetch("/api/unidades", { headers }),
                 fetch("/api/tipos-registro", { headers }),
+                fetch("/api/origenes", { headers }),
                 fetch("/api/usuarios", { headers })
             ])
 
-            const [m, l, u, t, us] = await Promise.all([
+            const [m, l, u, t, o, us] = await Promise.all([
                 mRes.json(),
                 lRes.json(),
                 uRes.json(),
                 tRes.json(),
+                oRes.json(),
                 usRes.json()
             ])
 
@@ -69,6 +73,7 @@ export default function MedicionesPage() {
             if (l.success) setLugares(l.data)
             if (u.success) setUnidades(u.data)
             if (t.success) setTipos(t.data)
+            if (o.success) setOrigenes(o.data)
             if (us.success) setUsuarios(us.data)
         } catch (e) {
             console.error(e)
@@ -87,6 +92,7 @@ export default function MedicionesPage() {
             lugar_id: "",
             unidad_id: "",
             tipo_id: "",
+            origen_id: "",
             notas: ""
         })
         setIsModalOpen(true)
@@ -100,6 +106,7 @@ export default function MedicionesPage() {
             lugar_id: m.lugar.id.toString(),
             unidad_id: m.unidad.id.toString(),
             tipo_id: m.tipo.id.toString(),
+            origen_id: m.origen.id.toString(),
             notas: m.notas || ""
         })
         setIsModalOpen(true)
@@ -248,6 +255,7 @@ export default function MedicionesPage() {
                     lugares={lugares}
                     unidades={unidades}
                     tipos={tipos}
+                    origenes={origenes}
                     onChange={setFormData}
                     onSubmit={handleSubmit}
                     submitting={submitting}

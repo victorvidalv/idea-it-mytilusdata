@@ -28,6 +28,7 @@ model Usuario {
   // Relaciones
   unidades          Unidad[]          @relation("creador_unidad")
   lugares           Lugar[]           @relation("creador_lugar")
+  origenes          OrigenDato[]      @relation("creador_origen")
   mediciones        Medicion[]        @relation("registrador_medicion")
   bitacora_cambios  BitacoraCambio[]  @relation("usuario_bitacora")
 
@@ -79,6 +80,21 @@ model TipoRegistro {
   @@map("tipos_registro")
 }
 
+// --- TABLA DE ORÍGENES DE DATOS ---
+model OrigenDato {
+  id            Int       @id @default(autoincrement())
+  nombre        String
+  descripcion   String?
+  creado_por_id Int?
+  deleted_at    DateTime?
+
+  // Relaciones
+  creador    Usuario?   @relation("creador_origen", fields: [creado_por_id], references: [id])
+  mediciones Medicion[] @relation("origen_medicion")
+
+  @@map("origen_datos")
+}
+
 // --- TABLA DE MEDICIONES ---
 model Medicion {
   id                Int       @id @default(autoincrement())
@@ -87,6 +103,7 @@ model Medicion {
   lugar_id          Int
   unidad_id         Int
   tipo_id           Int
+  origen_id         Int
   registrado_por_id Int
   notas             String?   // Campo opcional para comentarios adicionales
   
@@ -99,6 +116,7 @@ model Medicion {
   lugar          Lugar        @relation("lugar_medicion", fields: [lugar_id], references: [id])
   unidad         Unidad       @relation("unidad_medicion", fields: [unidad_id], references: [id])
   tipo           TipoRegistro @relation("tipo_medicion", fields: [tipo_id], references: [id])
+  origen         OrigenDato   @relation("origen_medicion", fields: [origen_id], references: [id])
   registrado_por Usuario      @relation("registrador_medicion", fields: [registrado_por_id], references: [id])
 
   @@map("mediciones")

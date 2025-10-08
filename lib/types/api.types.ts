@@ -88,6 +88,17 @@ export interface TipoRegistro {
 }
 
 /**
+ * Origen de datos
+ */
+export interface OrigenDato {
+  id: number;
+  nombre: string;
+  descripcion?: string | null;
+  creado_por_id?: number | null;
+  deleted_at?: Date | null;
+}
+
+/**
  * Usuario básico
  */
 export interface Usuario {
@@ -115,6 +126,7 @@ export interface Medicion {
   lugar: Lugar;
   unidad: Unidad;
   tipo: TipoRegistro;
+  origen: OrigenDato;
   registrado_por: Usuario;
 }
 
@@ -165,5 +177,6 @@ export enum BitacoraTabla {
   UNIDADES = 'unidades',
   LUGARES = 'lugares',
   TIPOS_REGISTRO = 'tipos_registro',
+  ORIGEN_DATOS = 'origen_datos',
   MEDICIONES = 'mediciones',
 }

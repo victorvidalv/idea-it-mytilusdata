@@ -204,6 +204,21 @@ export class MedicionesService {
       );
     }
 
+    // Validar que el origen exista y no esté eliminado
+    const origen = await prisma.origenDato.findFirst({
+      where: {
+        id: validatedData.origen_id,
+        deleted_at: null,
+      },
+    });
+
+    if (!origen) {
+      logger.error('Origen no encontrado o eliminado');
+      throw new Error(
+        `Origen con ID ${validatedData.origen_id} no encontrado o eliminado`
+      );
+    }
+
     // Crear medición
     const medicion = await prisma.medicion.create({
       data: {
@@ -212,6 +227,7 @@ export class MedicionesService {
         lugar_id: validatedData.lugar_id,
         unidad_id: validatedData.unidad_id,
         tipo_id: validatedData.tipo_id,
+        origen_id: validatedData.origen_id,
         registrado_por_id: userId,
         notas: validatedData.notas,
       },
@@ -548,6 +564,7 @@ export class MedicionesService {
       lugar: true,
       unidad: true,
       tipo: true,
+      origen: true,
       registrado_por: true,
     };
   }

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
-import { Lugar, Unidad, TipoRegistro } from "@/lib/types"
+import { Lugar, Unidad, TipoRegistro, OrigenDato } from "@/lib/types"
 
 interface MedicionesFormProps {
     formData: {
@@ -13,17 +13,20 @@ interface MedicionesFormProps {
         lugar_id: string
         unidad_id: string
         tipo_id: string
+        origen_id: string
         notas: string
     }
     lugares: Lugar[]
     unidades: Unidad[]
     tipos: TipoRegistro[]
+    origenes: OrigenDato[]
     onChange: (formData: {
         valor: string
         fecha_medicion: string
         lugar_id: string
         unidad_id: string
         tipo_id: string
+        origen_id: string
         notas: string
     }) => void
     onSubmit: (e: React.FormEvent) => void
@@ -36,6 +39,7 @@ export function MedicionesForm({
     lugares,
     unidades,
     tipos,
+    origenes,
     onChange,
     onSubmit,
     submitting,
@@ -78,6 +82,19 @@ export function MedicionesForm({
                 >
                     <option value="">Selecciona un lugar...</option>
                     {lugares.map(l => <option key={l.id} value={l.id.toString()}>{l.nombre}</option>)}
+                </select>
+            </div>
+
+            <div className="space-y-2">
+                <Label>Origen de Datos</Label>
+                <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    required
+                    value={formData.origen_id}
+                    onChange={(e) => onChange({ ...formData, origen_id: e.target.value })}
+                >
+                    <option value="">Selecciona un origen...</option>
+                    {origenes.map(o => <option key={o.id} value={o.id.toString()}>{o.nombre}</option>)}
                 </select>
             </div>
 

@@ -88,6 +88,23 @@ async function seed() {
     }
     console.log('📏 Unidades creadas');
 
+    // Crear orígenes de datos
+    const origenesData = [
+        { nombre: 'Laboratorio Central', descripcion: 'Datos provenientes del laboratorio principal' },
+        { nombre: 'Estación de Campo', descripcion: 'Mediciones tomadas en terreno' },
+        { nombre: 'Sensor Automático', descripcion: 'Datos capturados por sensores IoT' },
+        { nombre: 'Base de Datos Externa', descripcion: 'Importación de fuentes externas' },
+    ];
+
+    for (const o of origenesData) {
+        await prisma.origenDato.upsert({
+            where: { id: origenesData.indexOf(o) + 1 },
+            update: {},
+            create: { nombre: o.nombre, descripcion: o.descripcion, creado_por_id: admin.id },
+        });
+    }
+    console.log('🔗 Orígenes de datos creados');
+
     // Crear lugar de prueba
     const lugar = await prisma.lugar.upsert({
         where: { id: 1 },
@@ -125,6 +142,7 @@ async function seed() {
                 lugar_id: lugar.id,
                 unidad_id: unidad.id,
                 tipo_id: tipo!.id,
+                origen_id: (i % 4) + 1, // Distribuir entre los 4 orígenes
                 registrado_por_id: admin.id,
                 notas: `Prueba día ${i + 1}`,
                 created_at: new Date(),

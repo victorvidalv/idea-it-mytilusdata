@@ -35,6 +35,11 @@ export const createMedicionSchema = z.object({
   }).int('El tipo debe ser un entero')
     .positive('El tipo debe ser positivo')
     .refine((val) => !isNaN(val), 'El tipo debe ser un número válido'),
+  origen_id: z.coerce.number({
+    message: 'El origen debe ser un número'
+  }).int('El origen debe ser un entero')
+    .positive('El origen debe ser positivo')
+    .refine((val) => !isNaN(val), 'El origen debe ser un número válido'),
   notas: z.string({
     message: 'Las notas deben ser un texto'
   }).max(1000, 'Las notas no pueden exceder los 1000 caracteres')

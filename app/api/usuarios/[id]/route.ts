@@ -86,7 +86,7 @@ export const PATCH = withRole(async (request: NextRequest, { params }: RoutePara
             );
         }
 
-        const rolesValidos = ["ADMIN", "INVESTIGADOR", "PUBLICO"];
+        const rolesValidos = ["ADMIN", "EQUIPO", "PUBLICO"];
         if (rol !== undefined && !rolesValidos.includes(rol)) {
             return NextResponse.json(
                 { success: false, message: "Rol inválido" },

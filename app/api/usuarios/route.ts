@@ -77,7 +77,7 @@ export const POST = withRole(async (request: NextRequest) => {
             );
         }
 
-        const rolesValidos = ["ADMIN", "INVESTIGADOR", "PUBLICO"];
+        const rolesValidos = ["ADMIN", "EQUIPO", "PUBLICO"];
         if (!rolesValidos.includes(rol)) {
             return NextResponse.json(
                 { success: false, message: "Rol inválido" },

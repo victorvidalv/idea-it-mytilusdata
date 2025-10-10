@@ -29,7 +29,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
  * Generar token JWT para usuario autenticado
  * @param userId - ID del usuario
  * @param email - Email del usuario
- * @param rol - Rol del usuario (ADMIN, INVESTIGADOR, PUBLICO)
+ * @param rol - Rol del usuario (ADMIN, EQUIPO, PUBLICO)
  * @returns Token JWT firmado
  */
 export function generateToken(userId: number, email: string, rol: string): string {

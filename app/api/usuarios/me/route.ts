@@ -43,4 +43,4 @@ export const GET = withRole(async (request: NextRequest) => {
             { status: 500 }
         );
     }
-}, ["ADMIN", "INVESTIGADOR", "PUBLICO"]);
+}, ["ADMIN", "EQUIPO", "PUBLICO"]);

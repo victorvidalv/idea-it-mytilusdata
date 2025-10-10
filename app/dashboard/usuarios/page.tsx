@@ -13,7 +13,7 @@ interface Usuario {
     id: number
     nombre: string
     email: string
-    rol: "ADMIN" | "INVESTIGADOR" | "PUBLICO"
+    rol: "ADMIN" | "EQUIPO" | "PUBLICO"
     activo: boolean
     created_at: string
     _count: {
@@ -113,8 +113,8 @@ export default function UsuariosPage() {
         switch (rol) {
             case "ADMIN":
                 return <span className="flex items-center gap-1.5 text-violet-500 font-bold"><Shield className="w-3 h-3" /> ADMIN</span>
-            case "INVESTIGADOR":
-                return <span className="flex items-center gap-1.5 text-blue-500 font-bold"><Microscope className="w-3 h-3" /> INVESTIGADOR</span>
+            case "EQUIPO":
+                return <span className="flex items-center gap-1.5 text-blue-500 font-bold"><Microscope className="w-3 h-3" /> EQUIPO</span>
             default:
                 return <span className="flex items-center gap-1.5 text-slate-500 font-bold"><UserIcon className="w-3 h-3" /> PÚBLICO</span>
         }
@@ -191,7 +191,7 @@ export default function UsuariosPage() {
                                                     onChange={(e) => updateUsuario(u.id, { rol: e.target.value as any })}
                                                 >
                                                     <option value="ADMIN">ADMIN</option>
-                                                    <option value="INVESTIGADOR">INVESTIGADOR</option>
+                                                    <option value="EQUIPO">EQUIPO</option>
                                                     <option value="PUBLICO">PÚBLICO</option>
                                                 </select>
                                                 <div className="opacity-50 group-hover:opacity-100 transition-opacity">
@@ -281,7 +281,7 @@ export default function UsuariosPage() {
                             onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
                         >
                             <option value="PUBLICO">Público (Acceso limitado)</option>
-                            <option value="INVESTIGADOR">Investigador (Mediciones y Análisis)</option>
+                            <option value="EQUIPO">Equipo (Mediciones y Análisis)</option>
                             <option value="ADMIN">Administrador (Control total)</option>
                         </select>
                     </div>

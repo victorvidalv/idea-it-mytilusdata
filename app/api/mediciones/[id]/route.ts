@@ -15,7 +15,7 @@ interface RouteParams {
 
 /**
  * GET /api/mediciones/[id]
- * Obtener medición por ID (ADMIN e INVESTIGADOR)
+ * Obtener medición por ID (ADMIN y EQUIPO)
  */
 export const GET = withRole(async (request: NextRequest, { params }: RouteParams) => {
   const user = (request as any).user;
@@ -44,11 +44,11 @@ export const GET = withRole(async (request: NextRequest, { params }: RouteParams
       method: "GET",
     });
   }
-}, ["ADMIN", "INVESTIGADOR"]);
+}, ["ADMIN", "EQUIPO"]);
 
 /**
  * PUT /api/mediciones/[id]
- * Actualizar medición (ADMIN e INVESTIGADOR)
+ * Actualizar medición (ADMIN y EQUIPO)
  */
 export const PUT = withRole(async (request: NextRequest, { params }: RouteParams) => {
   const user = (request as any).user;
@@ -89,11 +89,11 @@ export const PUT = withRole(async (request: NextRequest, { params }: RouteParams
       method: "PUT",
     });
   }
-}, ["ADMIN", "INVESTIGADOR"]);
+}, ["ADMIN", "EQUIPO"]);
 
 /**
  * DELETE /api/mediciones/[id]
- * Eliminar medición (soft delete) (Solo ADMIN e INVESTIGADOR)
+ * Eliminar medición (soft delete) (Solo ADMIN y EQUIPO)
  */
 export const DELETE = withRole(async (request: NextRequest, { params }: RouteParams) => {
   const user = (request as any).user;
@@ -123,4 +123,4 @@ export const DELETE = withRole(async (request: NextRequest, { params }: RoutePar
       method: "DELETE",
     });
   }
-}, ["ADMIN", "INVESTIGADOR"]);
+}, ["ADMIN", "EQUIPO"]);

@@ -19,12 +19,12 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
 
 const menuItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "INVESTIGADOR"] },
-    { name: "Mediciones", href: "/dashboard/mediciones", icon: Database, roles: ["ADMIN", "INVESTIGADOR"] },
-    { name: "Análisis", href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "INVESTIGADOR"] },
-    { name: "Lugares", href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "INVESTIGADOR"] },
-    { name: "Unidades", href: "/dashboard/unidades", icon: Ruler, roles: ["ADMIN", "INVESTIGADOR"] },
-    { name: "Orígenes", href: "/dashboard/origenes", icon: Database, roles: ["ADMIN", "INVESTIGADOR"] },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "EQUIPO"] },
+    { name: "Mediciones", href: "/dashboard/mediciones", icon: Database, roles: ["ADMIN", "EQUIPO"] },
+    { name: "Análisis", href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "EQUIPO"] },
+    { name: "Lugares", href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "EQUIPO"] },
+    { name: "Unidades", href: "/dashboard/unidades", icon: Ruler, roles: ["ADMIN", "EQUIPO"] },
+    { name: "Orígenes", href: "/dashboard/origenes", icon: Database, roles: ["ADMIN", "EQUIPO"] },
     { name: "Auditoría", href: "/dashboard/bitacora", icon: History, roles: ["ADMIN"] },
     { name: "Usuarios", href: "/dashboard/usuarios", icon: Users, roles: ["ADMIN"] },
     { name: "En Desarrollo", href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },

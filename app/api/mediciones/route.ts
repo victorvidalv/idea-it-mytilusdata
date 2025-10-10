@@ -11,7 +11,7 @@ import { getClientIp } from "@/lib/middleware/auth";
 
 /**
  * GET /api/mediciones
- * Listar mediciones con filtros opcionales (ADMIN e INVESTIGADOR)
+ * Listar mediciones con filtros opcionales (ADMIN y EQUIPO)
  */
 export const GET = withRole(async (request: NextRequest) => {
   const user = (request as any).user;
@@ -60,11 +60,11 @@ export const GET = withRole(async (request: NextRequest) => {
       method: "GET",
     });
   }
-}, ["ADMIN", "INVESTIGADOR"]);
+}, ["ADMIN", "EQUIPO"]);
 
 /**
  * POST /api/mediciones
- * Crear nueva medición (ADMIN e INVESTIGADOR)
+ * Crear nueva medición (ADMIN y EQUIPO)
  */
 export const POST = withRole(async (request: NextRequest) => {
   const user = (request as any).user;
@@ -98,4 +98,4 @@ export const POST = withRole(async (request: NextRequest) => {
       method: "POST",
     });
   }
-}, ["ADMIN", "INVESTIGADOR"]);
+}, ["ADMIN", "EQUIPO"]);

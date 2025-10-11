@@ -85,7 +85,49 @@ async function seed() {
     });
     console.log('📍 Lugar:', lugar.nombre);
 
-    console.log('✅ Seed completado - Solo admin: victorvidalv@gmail.com / aveces123');
+    // Crear mediciones con curva sigmoide
+    const tipo = await prisma.tipoRegistro.findFirst();
+    const unidades = await prisma.unidad.findMany();
+    const origenes = await prisma.origenDato.findMany();
+    const fechaInicio = new Date('2025-01-01');
+
+    console.log('📊 Creando mediciones con curva sigmoide...');
+
+    for (const unidad of unidades) {
+        const registros = [];
+        const minVal = 5;
+        const maxVal = 95;
+        const amplitude = maxVal - minVal;
+        const k = 0.28;
+        const x0 = 25;
+
+        for (let i = 0; i < 50; i++) {
+            const valorPerfecto = minVal + amplitude / (1 + Math.exp(-k * (i - x0)));
+            const ruido = (Math.random() - 0.5) * 0.8;
+            const valor = Math.max(minVal, Math.min(maxVal, valorPerfecto + ruido));
+
+            const fecha = new Date(fechaInicio);
+            fecha.setDate(fechaInicio.getDate() + i);
+
+            registros.push({
+                valor: parseFloat(valor.toFixed(2)),
+                fecha_medicion: fecha,
+                lugar_id: lugar.id,
+                unidad_id: unidad.id,
+                tipo_id: tipo!.id,
+                origen_id: origenes[i % origenes.length].id,
+                registrado_por_id: admin.id,
+                notas: `Prueba día ${i + 1}`,
+                created_at: new Date(),
+                updated_at: new Date(),
+            });
+        }
+
+        await prisma.medicion.createMany({ data: registros });
+        console.log(`  ${unidad.sigla}: 50 ✓`);
+    }
+
+    console.log('✅ Seed completado - Admin: victorvidalv@gmail.com / aveces123');
 }
 
 seed()

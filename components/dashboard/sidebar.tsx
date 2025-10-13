@@ -7,13 +7,12 @@ import {
     LayoutDashboard,
     Database,
     MapPin,
-    Ruler,
-    History,
     Users,
     LogOut,
     Calculator,
     TrendingUp,
-    Rocket
+    Rocket,
+    Settings
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
@@ -23,9 +22,7 @@ const menuItems = [
     { name: "Mediciones", href: "/dashboard/mediciones", icon: Database, roles: ["ADMIN", "EQUIPO"] },
     { name: "Análisis", href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "EQUIPO"] },
     { name: "Lugares", href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "EQUIPO"] },
-    { name: "Unidades", href: "/dashboard/unidades", icon: Ruler, roles: ["ADMIN", "EQUIPO"] },
-    { name: "Orígenes", href: "/dashboard/origenes", icon: Database, roles: ["ADMIN", "EQUIPO"] },
-    { name: "Auditoría", href: "/dashboard/bitacora", icon: History, roles: ["ADMIN"] },
+    { name: "Configuración", href: "/dashboard/configuracion", icon: Settings, roles: ["ADMIN", "EQUIPO"] },
     { name: "Usuarios", href: "/dashboard/usuarios", icon: Users, roles: ["ADMIN"] },
     { name: "En Desarrollo", href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },
 ]

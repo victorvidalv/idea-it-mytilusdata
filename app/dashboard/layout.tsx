@@ -1,9 +1,11 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { Loader2 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { UserMenu } from "@/components/dashboard/user-menu"
 
 export default function DashboardLayout({
     children,
@@ -11,6 +13,23 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     const { loading } = useAuth()
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+    // Persistir el estado del sidebar en localStorage
+    useEffect(() => {
+        const saved = localStorage.getItem("sidebar-collapsed")
+        if (saved !== null) {
+            setSidebarCollapsed(saved === "true")
+        }
+    }, [])
+
+    const toggleSidebar = () => {
+        setSidebarCollapsed(prev => {
+            const newValue = !prev
+            localStorage.setItem("sidebar-collapsed", String(newValue))
+            return newValue
+        })
+    }
 
     if (loading) {
         return (
@@ -25,10 +44,11 @@ export default function DashboardLayout({
 
     return (
         <div className="flex min-h-screen bg-background text-foreground transition-colors duration-300">
-            <Sidebar />
+            <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <header className="h-16 border-b border-border/40 flex items-center justify-end px-8 gap-4 bg-background/50 backdrop-blur-md sticky top-0 z-10">
+                <header className="h-16 border-b border-border/40 flex items-center justify-end px-8 gap-3 bg-background/50 backdrop-blur-md sticky top-0 z-10">
                     <ThemeToggle />
+                    <UserMenu />
                 </header>
                 <div className="flex-1 overflow-y-auto p-8">
                     <div className="max-w-7xl mx-auto space-y-8">

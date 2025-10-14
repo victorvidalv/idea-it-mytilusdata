@@ -8,14 +8,15 @@ import {
     Database,
     MapPin,
     Users,
-    LogOut,
     Calculator,
     TrendingUp,
     Rocket,
-    Settings
+    Settings,
+    ChevronLeft,
+    ChevronRight
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
+import { Button } from "@/components/ui/button"
 
 const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "EQUIPO"] },
@@ -27,20 +28,40 @@ const menuItems = [
     { name: "En Desarrollo", href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+    collapsed: boolean
+    onToggle: () => void
+}
+
+export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     const pathname = usePathname()
-    const { user, logout } = useAuth()
+    const { user } = useAuth()
 
     return (
-        <div className="flex flex-col w-64 bg-card border-r h-screen sticky top-0">
-            <div className="p-6 flex items-center gap-3">
-                <div className="bg-primary p-2 rounded-lg text-primary-foreground">
+        <div
+            className={cn(
+                "flex flex-col bg-card border-r h-screen sticky top-0 transition-all duration-300",
+                collapsed ? "w-[72px]" : "w-64"
+            )}
+        >
+            <div className={cn(
+                "p-4 flex items-center gap-3",
+                collapsed ? "justify-center" : "px-6"
+            )}>
+                <div className="bg-primary p-2 rounded-lg text-primary-foreground shrink-0">
                     <Calculator className="w-6 h-6" />
                 </div>
-                <span className="font-outfit font-bold text-xl tracking-tight">IT25I0032</span>
+                {!collapsed && (
+                    <span className="font-outfit font-bold text-xl tracking-tight whitespace-nowrap">
+                        IT25I0032
+                    </span>
+                )}
             </div>
 
-            <nav className="flex-1 px-4 space-y-1 mt-4">
+            <nav className={cn(
+                "flex-1 space-y-1 mt-4",
+                collapsed ? "px-2" : "px-4"
+            )}>
                 {menuItems
                     .filter(item => !user?.rol || item.roles.includes(user.rol))
                     .map((item) => {
@@ -49,37 +70,49 @@ export function Sidebar() {
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                title={collapsed ? item.name : undefined}
                                 className={cn(
-                                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group",
+                                    "flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group",
+                                    collapsed ? "px-3 py-2.5 justify-center" : "px-3 py-2.5",
                                     isActive
                                         ? "bg-primary text-primary-foreground"
                                         : "text-muted-foreground hover:bg-accent hover:text-foreground"
                                 )}
                             >
-                                <item.icon className={cn("w-5 h-5", isActive ? "" : "group-hover:text-primary")} />
-                                {item.name}
+                                <item.icon className={cn(
+                                    "w-5 h-5 shrink-0",
+                                    isActive ? "" : "group-hover:text-primary"
+                                )} />
+                                {!collapsed && (
+                                    <span className="whitespace-nowrap">{item.name}</span>
+                                )}
                             </Link>
                         )
                     })}
             </nav>
 
-            <div className="p-4 border-t bg-muted/20">
-                <div className="flex items-center gap-3 mb-4 px-2">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/10">
-                        <span className="font-bold text-primary">{user?.nombre?.[0].toUpperCase()}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{user?.nombre}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                    </div>
-                </div>
+            {/* Botón para colapsar/expandir */}
+            <div className={cn(
+                "p-4 border-t",
+                collapsed ? "flex justify-center" : ""
+            )}>
                 <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20"
-                    onClick={logout}
+                    variant="ghost"
+                    size="sm"
+                    onClick={onToggle}
+                    className={cn(
+                        "gap-2 text-muted-foreground hover:text-foreground",
+                        collapsed ? "w-10 h-10 p-0" : "w-full justify-start"
+                    )}
                 >
-                    <LogOut className="w-4 h-4" />
-                    Cerrar Sesión
+                    {collapsed ? (
+                        <ChevronRight className="w-4 h-4" />
+                    ) : (
+                        <>
+                            <ChevronLeft className="w-4 h-4" />
+                            <span>Colapsar</span>
+                        </>
+                    )}
                 </Button>
             </div>
         </div>

@@ -71,6 +71,40 @@ export const PATCH = withRole(async (request: NextRequest) => {
         }
 
         if (password && typeof password === "string") {
+            const { passwordActual } = body;
+
+            // Verificar contraseña actual
+            if (!passwordActual) {
+                return NextResponse.json(
+                    { success: false, message: "Debes ingresar tu contraseña actual" },
+                    { status: 400 }
+                );
+            }
+
+            // Obtener usuario con hash de contraseña
+            const usuario = await prisma.usuario.findUnique({
+                where: { id: userToken.userId },
+                select: { password_hash: true }
+            });
+
+            if (!usuario) {
+                return NextResponse.json(
+                    { success: false, message: "Usuario no encontrado" },
+                    { status: 404 }
+                );
+            }
+
+            // Verificar contraseña actual
+            const { verifyPassword } = await import("@/lib/auth");
+            const isValid = await verifyPassword(passwordActual, usuario.password_hash);
+
+            if (!isValid) {
+                return NextResponse.json(
+                    { success: false, message: "La contraseña actual es incorrecta" },
+                    { status: 401 }
+                );
+            }
+
             if (password.length < 6) {
                 return NextResponse.json(
                     { success: false, message: "La contraseña debe tener al menos 6 caracteres" },

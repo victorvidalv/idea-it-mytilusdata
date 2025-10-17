@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Modal } from "@/components/ui/modal"
 import { Plus, Tag, Loader2, Trash2, Edit2, Database } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface TipoRegistro {
     id: number
@@ -19,6 +20,10 @@ interface TipoRegistro {
 }
 
 export default function TiposRegistroPage() {
+    const t = useTranslations('recordTypes')
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+    
     const [tipos, setTipos] = useState<TipoRegistro[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -58,7 +63,7 @@ export default function TiposRegistroPage() {
     }
 
     const handleDelete = async (id: number) => {
-        if (!confirm("¿Estás seguro de que deseas eliminar este tipo de registro?")) return
+        if (!confirm(tMessages('confirm.delete'))) return
         try {
             const token = localStorage.getItem("token")
             const res = await fetch(`/api/tipos-registro/${id}`, {
@@ -117,11 +122,11 @@ export default function TiposRegistroPage() {
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight font-outfit">Tipos de Registro</h2>
-                    <p className="text-muted-foreground">Clasifica tus mediciones por categoría.</p>
+                    <h2 className="text-3xl font-bold tracking-tight font-outfit">{t('title')}</h2>
+                    <p className="text-muted-foreground">{t('description')}</p>
                 </div>
                 <Button onClick={openCreateModal} className="gap-2">
-                    <Plus className="w-4 h-4" /> Nuevo Tipo
+                    <Plus className="w-4 h-4" /> {t('newRecordType')}
                 </Button>
             </div>
 
@@ -130,10 +135,10 @@ export default function TiposRegistroPage() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Código</TableHead>
-                                <TableHead>Descripción</TableHead>
-                                <TableHead className="text-center">Mediciones</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{t('fields.name')}</TableHead>
+                                <TableHead>{t('fields.description')}</TableHead>
+                                <TableHead className="text-center">{tCommon('measurements')}</TableHead>
+                                <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -146,24 +151,24 @@ export default function TiposRegistroPage() {
                             ) : tipos.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={4} className="h-40 text-center text-muted-foreground">
-                                        No hay tipos de registro definidos.
+                                        No record types defined.
                                     </TableCell>
                                 </TableRow>
-                            ) : tipos.map((t) => (
-                                <TableRow key={t.id} className="group">
+                            ) : tipos.map((tipo) => (
+                                <TableRow key={tipo.id} className="group">
                                     <TableCell>
                                         <code className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold flex items-center gap-2 w-fit">
                                             <Tag className="w-3 h-3" />
-                                            {t.codigo}
+                                            {tipo.codigo}
                                         </code>
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">
-                                        {t.descripcion || <span className="italic opacity-50">Sin descripción</span>}
+                                        {tipo.descripcion || <span className="italic opacity-50">{t('fields.description')}</span>}
                                     </TableCell>
                                     <TableCell className="text-center">
                                         <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                                             <Database className="w-3 h-3" />
-                                            {t._count.mediciones}
+                                            {tipo._count.mediciones}
                                         </span>
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -172,7 +177,7 @@ export default function TiposRegistroPage() {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
-                                                onClick={() => openEditModal(t)}
+                                                onClick={() => openEditModal(tipo)}
                                             >
                                                 <Edit2 className="w-4 h-4" />
                                             </Button>
@@ -180,9 +185,9 @@ export default function TiposRegistroPage() {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                onClick={() => handleDelete(t.id)}
-                                                disabled={t._count.mediciones > 0}
-                                                title={t._count.mediciones > 0 ? "No se puede eliminar: tiene mediciones" : "Eliminar"}
+                                                onClick={() => handleDelete(tipo.id)}
+                                                disabled={tipo._count.mediciones > 0}
+                                                title={tipo._count.mediciones > 0 ? "Cannot delete: has measurements" : tCommon('delete')}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
@@ -198,37 +203,37 @@ export default function TiposRegistroPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingTipo ? "Editar Tipo de Registro" : "Agregar Tipo de Registro"}
-                description={editingTipo ? "Solo puedes editar la descripción" : "Define un nuevo tipo para clasificar mediciones"}
+                title={editingTipo ? t('editRecordType') : t('newRecordType')}
+                description={editingTipo ? "Only description can be edited" : "Define a new type to classify measurements"}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="t-codigo">Código (ej: PRB, MST)</Label>
+                        <Label htmlFor="t-codigo">{t('fields.name')}</Label>
                         <Input
                             id="t-codigo"
                             required={!editingTipo}
                             disabled={!!editingTipo}
-                            placeholder="Ej: PRUEBA"
+                            placeholder={t('placeholders.name')}
                             value={formData.codigo}
                             onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })}
                             className={editingTipo ? "bg-muted" : ""}
                         />
                         {editingTipo && (
-                            <p className="text-xs text-muted-foreground">El código no se puede modificar</p>
+                            <p className="text-xs text-muted-foreground">Code cannot be modified</p>
                         )}
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="t-descripcion">Descripción</Label>
+                        <Label htmlFor="t-descripcion">{t('fields.description')}</Label>
                         <Input
                             id="t-descripcion"
-                            placeholder="Descripción del tipo de registro"
+                            placeholder={t('placeholders.description')}
                             value={formData.descripcion}
                             onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                         />
                     </div>
                     <Button type="submit" className="w-full mt-4" disabled={submitting}>
                         {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                        {editingTipo ? "Actualizar" : "Guardar"} Tipo
+                        {editingTipo ? tCommon('update') : tCommon('save')} {t('title')}
                     </Button>
                 </form>
             </Modal>

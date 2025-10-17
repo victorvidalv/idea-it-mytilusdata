@@ -4,6 +4,7 @@ import { Calendar, MapPin, Loader2, Edit2, Trash2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Medicion } from "@/lib/types"
+import { useTranslations } from "next-intl"
 
 interface MedicionesTableProps {
     mediciones: Medicion[]
@@ -13,24 +14,27 @@ interface MedicionesTableProps {
 }
 
 export function MedicionesTable({ mediciones, loading, onEdit, onDelete }: MedicionesTableProps) {
+    const t = useTranslations('measurements')
+    const tCommon = useTranslations('common')
+    
     if (loading) {
         return (
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted/30">
-                        <TableHead>Fecha</TableHead>
-                        <TableHead>Lugar</TableHead>
-                        <TableHead>Valor</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Autor</TableHead>
-                        <TableHead>Notas</TableHead>
-                        <TableHead className="text-right">Acciones</TableHead>
+                        <TableHead>{t('fields.date')}</TableHead>
+                        <TableHead>{t('fields.place')}</TableHead>
+                        <TableHead>{t('fields.value')}</TableHead>
+                        <TableHead>{t('fields.recordType')}</TableHead>
+                        <TableHead>{tCommon('users')}</TableHead>
+                        <TableHead>{t('fields.notes')}</TableHead>
+                        <TableHead className="text-right">{tCommon('actions')}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     <TableRow>
                         <TableCell colSpan={7} className="h-40 text-center">
-                            <Loader2 className="animate-spin inline mr-2" /> Cargando...
+                            <Loader2 className="animate-spin inline mr-2" /> {tCommon('loading')}
                         </TableCell>
                     </TableRow>
                 </TableBody>
@@ -42,13 +46,13 @@ export function MedicionesTable({ mediciones, loading, onEdit, onDelete }: Medic
         <Table>
             <TableHeader>
                 <TableRow className="bg-muted/30">
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Lugar</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Autor</TableHead>
-                    <TableHead>Notas</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
+                    <TableHead>{t('fields.date')}</TableHead>
+                    <TableHead>{t('fields.place')}</TableHead>
+                    <TableHead>{t('fields.value')}</TableHead>
+                    <TableHead>{t('fields.recordType')}</TableHead>
+                    <TableHead>{tCommon('users')}</TableHead>
+                    <TableHead>{t('fields.notes')}</TableHead>
+                    <TableHead className="text-right">{tCommon('actions')}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>

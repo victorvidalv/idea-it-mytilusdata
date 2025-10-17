@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Activity, BarChart3, RefreshCw, TrendingUp } from "lucide-react"
 import { Medicion, Lugar, Unidad, TipoRegistro } from "@/lib/types"
+import { useTranslations } from "next-intl"
 
 // Importar componentes de análisis
 import {
@@ -21,6 +22,9 @@ import {
 } from "@/components/analisis"
 
 export default function AnalisisPage() {
+    const t = useTranslations('analysis')
+    const tCommon = useTranslations('common')
+    
     // Estado de datos base
     const [lugares, setLugares] = useState<Lugar[]>([])
     const [unidades, setUnidades] = useState<Unidad[]>([])
@@ -198,10 +202,10 @@ export default function AnalisisPage() {
                     <div className="p-2 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600">
                         <Activity className="w-6 h-6 text-white" />
                     </div>
-                    Análisis de Datos
+                    {t('title')}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                    Crea hasta 5 series de datos combinando lugar, tipo y unidad
+                    {t('description')}
                 </p>
             </div>
 
@@ -210,10 +214,10 @@ export default function AnalisisPage() {
                 <CardHeader className="pb-4">
                     <CardTitle className="text-lg flex items-center gap-2">
                         <BarChart3 className="w-5 h-5 text-primary" />
-                        Configurar Series de Datos
+                        {t('configureChart')}
                     </CardTitle>
                     <CardDescription>
-                        Agrega combinaciones de filtros para comparar en el gráfico
+                        {t('selectSeries')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -241,7 +245,7 @@ export default function AnalisisPage() {
                         ) : (
                             <TrendingUp className="w-5 h-5 mr-2" />
                         )}
-                        Generar Análisis ({series.length} serie{series.length !== 1 ? "s" : ""})
+                        {tCommon('update')} ({series.length} serie{series.length !== 1 ? "s" : ""})
                     </Button>
                 </CardContent>
             </Card>

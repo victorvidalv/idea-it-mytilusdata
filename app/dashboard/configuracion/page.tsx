@@ -12,6 +12,7 @@ import {
     Plus, Ruler, Loader2, Trash2, Edit2, Tag, Database, History,
     User, Activity, Settings
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 // ================================
 // INTERFACES
@@ -50,6 +51,10 @@ interface Bitacora {
 // COMPONENTE UNIDADES
 // ================================
 function UnidadesTab() {
+    const t = useTranslations('units')
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+    
     const [unidades, setUnidades] = useState<Unidad[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -85,7 +90,7 @@ function UnidadesTab() {
     }
 
     const handleDelete = async (id: number) => {
-        if (!confirm("¿Eliminar esta unidad?")) return
+        if (!confirm(tMessages('confirm.delete'))) return
         const token = localStorage.getItem("token")
         const res = await fetch(`/api/unidades/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
         const data = await res.json()
@@ -112,9 +117,9 @@ function UnidadesTab() {
     return (
         <>
             <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-muted-foreground">Define las unidades de medida para tus registros.</p>
+                <p className="text-sm text-muted-foreground">{t('description')}</p>
                 <Button onClick={openCreateModal} size="sm" className="gap-2">
-                    <Plus className="w-4 h-4" /> Nueva Unidad
+                    <Plus className="w-4 h-4" /> {t('newUnit')}
                 </Button>
             </div>
             <Card className="border-border/50">
@@ -122,9 +127,9 @@ function UnidadesTab() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Nombre</TableHead>
-                                <TableHead>Sigla</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{t('fields.name')}</TableHead>
+                                <TableHead>{t('fields.symbol')}</TableHead>
+                                <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -146,11 +151,11 @@ function UnidadesTab() {
                     </Table>
                 </CardContent>
             </Card>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingUnidad ? "Editar Unidad" : "Nueva Unidad"}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingUnidad ? t('editUnit') : t('newUnit')}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2"><Label>Nombre</Label><Input required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>Sigla</Label><Input required value={formData.sigla} onChange={(e) => setFormData({ ...formData, sigla: e.target.value })} /></div>
-                    <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}Guardar</Button>
+                    <div className="space-y-2"><Label>{t('fields.name')}</Label><Input required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} /></div>
+                    <div className="space-y-2"><Label>{t('fields.symbol')}</Label><Input required value={formData.sigla} onChange={(e) => setFormData({ ...formData, sigla: e.target.value })} /></div>
+                    <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}{tCommon('save')}</Button>
                 </form>
             </Modal>
         </>
@@ -161,6 +166,10 @@ function UnidadesTab() {
 // COMPONENTE TIPOS
 // ================================
 function TiposTab() {
+    const tRecordTypes = useTranslations('recordTypes')
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+    
     const [tipos, setTipos] = useState<TipoRegistro[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -185,7 +194,7 @@ function TiposTab() {
     const openEditModal = (t: TipoRegistro) => { setEditingTipo(t); setFormData({ codigo: t.codigo, descripcion: t.descripcion || "" }); setIsModalOpen(true) }
 
     const handleDelete = async (id: number) => {
-        if (!confirm("¿Eliminar este tipo?")) return
+        if (!confirm(tMessages('confirm.delete'))) return
         const token = localStorage.getItem("token")
         const res = await fetch(`/api/tipos-registro/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
         const data = await res.json()
@@ -214,18 +223,18 @@ function TiposTab() {
     return (
         <>
             <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-muted-foreground">Clasifica tus mediciones por categoría.</p>
-                <Button onClick={openCreateModal} size="sm" className="gap-2"><Plus className="w-4 h-4" /> Nuevo Tipo</Button>
+                <p className="text-sm text-muted-foreground">{tRecordTypes('description')}</p>
+                <Button onClick={openCreateModal} size="sm" className="gap-2"><Plus className="w-4 h-4" /> {tRecordTypes('newRecordType')}</Button>
             </div>
             <Card className="border-border/50">
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Código</TableHead>
-                                <TableHead>Descripción</TableHead>
-                                <TableHead className="text-center">Mediciones</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{tRecordTypes('fields.name')}</TableHead>
+                                <TableHead>{tRecordTypes('fields.description')}</TableHead>
+                                <TableHead className="text-center">{tCommon('measurements')}</TableHead>
+                                <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -234,7 +243,7 @@ function TiposTab() {
                             ) : tipos.map((t) => (
                                 <TableRow key={t.id} className="group">
                                     <TableCell><code className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs font-bold flex items-center gap-1 w-fit"><Tag className="w-3 h-3" />{t.codigo}</code></TableCell>
-                                    <TableCell className="text-muted-foreground text-sm">{t.descripcion || <span className="italic opacity-50">Sin descripción</span>}</TableCell>
+                                    <TableCell className="text-muted-foreground text-sm">{t.descripcion || <span className="italic opacity-50">{tRecordTypes('fields.description')}</span>}</TableCell>
                                     <TableCell className="text-center text-xs text-muted-foreground">{t._count.mediciones}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -248,14 +257,14 @@ function TiposTab() {
                     </Table>
                 </CardContent>
             </Card>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingTipo ? "Editar Tipo" : "Nuevo Tipo"}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingTipo ? tRecordTypes('editRecordType') : tRecordTypes('newRecordType')}>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Código</Label>
+                        <Label>{tRecordTypes('fields.name')}</Label>
                         <Input required={!editingTipo} disabled={!!editingTipo} value={formData.codigo} onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })} className={editingTipo ? "bg-muted" : ""} />
                     </div>
-                    <div className="space-y-2"><Label>Descripción</Label><Input value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} /></div>
-                    <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}Guardar</Button>
+                    <div className="space-y-2"><Label>{tRecordTypes('fields.description')}</Label><Input value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} /></div>
+                    <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}{tCommon('save')}</Button>
                 </form>
             </Modal>
         </>
@@ -266,6 +275,10 @@ function TiposTab() {
 // COMPONENTE ORIGENES
 // ================================
 function OrigenesTab() {
+    const t = useTranslations('origins')
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+    
     const [origenes, setOrigenes] = useState<OrigenDato[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -290,7 +303,7 @@ function OrigenesTab() {
     const openEditModal = (o: OrigenDato) => { setEditingOrigen(o); setFormData({ nombre: o.nombre, descripcion: o.descripcion || "" }); setIsModalOpen(true) }
 
     const handleDelete = async (id: number) => {
-        if (!confirm("¿Eliminar este origen?")) return
+        if (!confirm(tMessages('confirm.delete'))) return
         const token = localStorage.getItem("token")
         const res = await fetch(`/api/origenes/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
         const data = await res.json()
@@ -317,17 +330,17 @@ function OrigenesTab() {
     return (
         <>
             <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-muted-foreground">Define los orígenes de donde provienen los datos.</p>
-                <Button onClick={openCreateModal} size="sm" className="gap-2"><Plus className="w-4 h-4" /> Nuevo Origen</Button>
+                <p className="text-sm text-muted-foreground">{t('description')}</p>
+                <Button onClick={openCreateModal} size="sm" className="gap-2"><Plus className="w-4 h-4" /> {t('newOrigin')}</Button>
             </div>
             <Card className="border-border/50">
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Nombre</TableHead>
-                                <TableHead>Descripción</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{t('fields.name')}</TableHead>
+                                <TableHead>{t('fields.description')}</TableHead>
+                                <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -336,7 +349,7 @@ function OrigenesTab() {
                             ) : origenes.map((o) => (
                                 <TableRow key={o.id} className="group">
                                     <TableCell className="font-medium flex items-center gap-2"><Database className="w-4 h-4 text-primary" />{o.nombre}</TableCell>
-                                    <TableCell className="text-muted-foreground text-sm">{o.descripcion || <span className="italic">Sin descripción</span>}</TableCell>
+                                    <TableCell className="text-muted-foreground text-sm">{o.descripcion || <span className="italic">{t('fields.description')}</span>}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditModal(o)}><Edit2 className="w-3.5 h-3.5" /></Button>
@@ -349,11 +362,11 @@ function OrigenesTab() {
                     </Table>
                 </CardContent>
             </Card>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingOrigen ? "Editar Origen" : "Nuevo Origen"}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingOrigen ? t('editOrigin') : t('newOrigin')}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2"><Label>Nombre</Label><Input required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>Descripción</Label><Input value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} /></div>
-                    <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}Guardar</Button>
+                    <div className="space-y-2"><Label>{t('fields.name')}</Label><Input required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} /></div>
+                    <div className="space-y-2"><Label>{t('fields.description')}</Label><Input value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} /></div>
+                    <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}{tCommon('save')}</Button>
                 </form>
             </Modal>
         </>
@@ -364,6 +377,9 @@ function OrigenesTab() {
 // COMPONENTE AUDITORIA
 // ================================
 function AuditoriaTab() {
+    const t = useTranslations('auditLog')
+    const tCommon = useTranslations('common')
+    
     const [logs, setLogs] = useState<Bitacora[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -391,16 +407,16 @@ function AuditoriaTab() {
 
     return (
         <>
-            <p className="text-sm text-muted-foreground mb-4">Log de todas las acciones realizadas en el sistema.</p>
+            <p className="text-sm text-muted-foreground mb-4">{t('description')}</p>
             <Card className="border-border/50">
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Fecha</TableHead>
-                                <TableHead>Usuario</TableHead>
-                                <TableHead>Acción</TableHead>
-                                <TableHead>Tabla</TableHead>
+                                <TableHead>{t('fields.date')}</TableHead>
+                                <TableHead>{t('fields.user')}</TableHead>
+                                <TableHead>{t('fields.action')}</TableHead>
+                                <TableHead>{t('fields.table')}</TableHead>
                                 <TableHead className="text-right">IP</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -416,7 +432,7 @@ function AuditoriaTab() {
                                         </div>
                                     </TableCell>
                                     <TableCell className="flex items-center gap-2 text-sm"><User className="w-3.5 h-3.5 text-muted-foreground" />{log.usuario.nombre}</TableCell>
-                                    <TableCell><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getAccionColor(log.accion)}`}>{log.accion}</span></TableCell>
+                                    <TableCell><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getAccionColor(log.accion)}`}>{t('actions.' + log.accion)}</span></TableCell>
                                     <TableCell className="flex items-center gap-2 text-sm capitalize"><Activity className="w-3.5 h-3.5 text-primary/70" />{log.tabla_afectada}</TableCell>
                                     <TableCell className="text-right text-[10px] font-mono text-muted-foreground">{log.ip_origen}</TableCell>
                                 </TableRow>
@@ -433,29 +449,32 @@ function AuditoriaTab() {
 // PÁGINA PRINCIPAL
 // ================================
 export default function ConfiguracionPage() {
+    const t = useTranslations('configuration')
+    const tNavigation = useTranslations('navigation')
+    
     return (
         <div className="space-y-6">
             <div>
                 <h2 className="text-3xl font-bold tracking-tight font-outfit flex items-center gap-3">
                     <Settings className="w-8 h-8 text-primary" />
-                    Configuración
+                    {t('title')}
                 </h2>
-                <p className="text-muted-foreground">Administra los catálogos y parámetros del sistema.</p>
+                <p className="text-muted-foreground">{t('description')}</p>
             </div>
 
             <Tabs defaultValue="unidades" className="space-y-4">
                 <TabsList className="bg-muted/50 border border-border/50">
                     <TabsTrigger value="unidades" className="gap-2">
-                        <Ruler className="w-4 h-4" /> Unidades
+                        <Ruler className="w-4 h-4" /> {tNavigation('units')}
                     </TabsTrigger>
                     <TabsTrigger value="tipos" className="gap-2">
-                        <Tag className="w-4 h-4" /> Tipos
+                        <Tag className="w-4 h-4" /> {tNavigation('recordTypes')}
                     </TabsTrigger>
                     <TabsTrigger value="origenes" className="gap-2">
-                        <Database className="w-4 h-4" /> Orígenes
+                        <Database className="w-4 h-4" /> {tNavigation('origins')}
                     </TabsTrigger>
                     <TabsTrigger value="auditoria" className="gap-2">
-                        <History className="w-4 h-4" /> Auditoría
+                        <History className="w-4 h-4" /> {tNavigation('auditLog')}
                     </TabsTrigger>
                 </TabsList>
 

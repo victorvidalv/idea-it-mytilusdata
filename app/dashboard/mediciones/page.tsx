@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { Filter } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Medicion, Lugar, Unidad, TipoRegistro, Usuario, OrigenDato } from "@/lib/types"
 import { MedicionesTable } from "@/components/dashboard/mediciones/mediciones-table"
 import { MedicionesFilters } from "@/components/dashboard/mediciones/mediciones-filters"
@@ -12,6 +13,10 @@ import { MedicionesForm } from "@/components/dashboard/mediciones/mediciones-for
 import { MedicionesHeader } from "@/components/dashboard/mediciones/mediciones-header"
 
 export default function MedicionesPage() {
+    const t = useTranslations('measurements')
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+    
     const [mediciones, setMediciones] = useState<Medicion[]>([])
     const [lugares, setLugares] = useState<Lugar[]>([])
     const [unidades, setUnidades] = useState<Unidad[]>([])
@@ -113,7 +118,7 @@ export default function MedicionesPage() {
     }
 
     const handleDelete = async (id: number) => {
-        if (!confirm("¿Estás seguro de que deseas eliminar esta medición?")) return
+        if (!confirm(tMessages('confirm.deleteMeasurement'))) return
         try {
             const token = localStorage.getItem("token")
             const res = await fetch(`/api/mediciones/${id}`, {
@@ -177,11 +182,11 @@ export default function MedicionesPage() {
                 a.click()
                 a.remove()
             } else {
-                alert("Error al descargar el CSV")
+                alert(tMessages('error.downloadCSV'))
             }
         } catch (e) {
             console.error(e)
-            alert("Error al conectar con el servidor")
+            alert(tMessages('error.serverConnection'))
         }
     }
 
@@ -206,7 +211,7 @@ export default function MedicionesPage() {
                             className="gap-2"
                             onClick={() => setShowFilters(!showFilters)}
                         >
-                            <Filter className="w-4 h-4" /> Filtros
+                            <Filter className="w-4 h-4" /> {tCommon('filter')}
                             {hasActiveFilters && (
                                 <span className="flex h-2 w-2 rounded-full bg-primary" />
                             )}
@@ -218,7 +223,7 @@ export default function MedicionesPage() {
                                 onClick={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
                                 className="text-xs text-muted-foreground"
                             >
-                                Limpiar filtros
+                                {tCommon('clear')} {tCommon('filter')}
                             </Button>
                         )}
                     </div>
@@ -247,8 +252,8 @@ export default function MedicionesPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingMedicion ? "Editar Medición" : "Registrar Medición"}
-                description={editingMedicion ? "Actualiza los datos de esta medición" : "Ingresa los datos para una nueva toma de muestra"}
+                title={editingMedicion ? t('editMeasurement') : t('registerMeasurement')}
+                description={editingMedicion ? t('updateMeasurementDescription') : t('createMeasurementDescription')}
             >
                 <MedicionesForm
                     formData={formData}

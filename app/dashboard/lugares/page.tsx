@@ -13,11 +13,22 @@ import dynamic from "next/dynamic"
 import { MapContainer, TileLayer, Marker, Polyline, Popup, Tooltip } from "react-leaflet"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
+import { useTranslations } from "next-intl"
+
+// Componente de carga para el mapa
+function MapLoadingFallback() {
+    const t = useTranslations('places')
+    return (
+        <div className="h-[300px] w-full bg-muted animate-pulse flex items-center justify-center rounded-lg border">
+            {t('loadingMap')}
+        </div>
+    )
+}
 
 // Cargar el mapa dinámicamente para evitar errores de SSR
 const MapPicker = dynamic(() => import("@/components/ui/map-picker"), {
     ssr: false,
-    loading: () => <div className="h-[300px] w-full bg-muted animate-pulse flex items-center justify-center rounded-lg border">Cargando mapa...</div>
+    loading: () => <MapLoadingFallback />
 })
 
 // Corregir problema de iconos de Leaflet en Next.js
@@ -52,7 +63,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 // Componente para mostrar el mapa con todos los lugares y líneas de distancia
-function LugaresMap({ lugares }: { lugares: Lugar[] }) {
+function LugaresMap({ lugares, t }: { lugares: Lugar[], t: any }) {
     const lugaresConCoordenadas = lugares.filter(l => l.latitud && l.longitud)
     const center: [number, number] = [-41.4693, -72.9424] // Puerto Montt
     
@@ -136,7 +147,7 @@ function LugaresMap({ lugares }: { lugares: Lugar[] }) {
             
             {lugaresConCoordenadas.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-[1000]">
-                    <p className="text-muted-foreground text-sm">No hay lugares con coordenadas para mostrar en el mapa</p>
+                    <p className="text-muted-foreground text-sm">{t('noPlacesWithCoordinates')}</p>
                 </div>
             )}
         </div>
@@ -144,6 +155,10 @@ function LugaresMap({ lugares }: { lugares: Lugar[] }) {
 }
 
 export default function LugaresPage() {
+    const t = useTranslations('places')
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+    
     const [lugares, setLugares] = useState<Lugar[]>([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState("")
@@ -235,7 +250,7 @@ export default function LugaresPage() {
     }
 
     const handleDelete = async (id: number) => {
-        if (!confirm("¿Estás seguro de que deseas eliminar este lugar?")) return
+        if (!confirm(tMessages('confirm.delete'))) return
 
         try {
             const token = localStorage.getItem("token")
@@ -258,11 +273,11 @@ export default function LugaresPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight font-outfit text-primary">Lugares de Control</h2>
-                    <p className="text-muted-foreground italic">Referenciación geográfica de puntos de toma de muestra.</p>
+                    <h2 className="text-3xl font-bold tracking-tight font-outfit text-primary">{t('title')}</h2>
+                    <p className="text-muted-foreground italic">{t('description')}</p>
                 </div>
                 <Button onClick={openCreateModal} className="gap-2 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
-                    <Plus className="w-4 h-4" /> Nuevo Punto de Control
+                    <Plus className="w-4 h-4" /> {t('newPlace')}
                 </Button>
             </div>
 
@@ -270,11 +285,11 @@ export default function LugaresPage() {
                 <TabsList className="bg-muted/50 border border-border/50">
                     <TabsTrigger value="tabla" className="gap-2">
                         <LayoutList className="w-4 h-4" />
-                        Tabla
+                        {t('table')}
                     </TabsTrigger>
                     <TabsTrigger value="mapa" className="gap-2">
                         <Map className="w-4 h-4" />
-                        Mapa
+                        {t('map')}
                     </TabsTrigger>
                 </TabsList>
 
@@ -284,7 +299,7 @@ export default function LugaresPage() {
                             <div className="relative max-w-md">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Filtrar lugares..."
+                                    placeholder={tCommon('search')}
                                     className="pl-10 h-10 border-none bg-background/50 focus-visible:ring-1"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
@@ -295,11 +310,11 @@ export default function LugaresPage() {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-muted/30">
-                                        <TableHead className="font-bold">Ubicación</TableHead>
-                                        <TableHead className="font-bold">Coordenadas</TableHead>
-                                        <TableHead className="font-bold">Actividad</TableHead>
-                                        <TableHead className="font-bold">Observaciones</TableHead>
-                                        <TableHead className="text-right font-bold">Gestión</TableHead>
+                                        <TableHead className="font-bold">{t('fields.name')}</TableHead>
+                                        <TableHead className="font-bold">{t('fields.latitude')} / {t('fields.longitude')}</TableHead>
+                                        <TableHead className="font-bold">{t('records')}</TableHead>
+                                        <TableHead className="font-bold">{t('fields.description')}</TableHead>
+                                        <TableHead className="text-right font-bold">{tCommon('actions')}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -312,7 +327,7 @@ export default function LugaresPage() {
                                     ) : lugares.length === 0 ? (
                                         <TableRow>
                                             <TableCell colSpan={5} className="h-40 text-center text-muted-foreground italic">
-                                                No hay puntos de control registrados aún.
+                                                {tCommon('loading')}
                                             </TableCell>
                                         </TableRow>
                                     ) : (
@@ -333,14 +348,14 @@ export default function LugaresPage() {
                                                             {parseFloat(lugar.latitud).toFixed(4)}, {parseFloat(lugar.longitud!).toFixed(4)}
                                                         </div>
                                                     ) : (
-                                                        <span className="text-muted-foreground text-xs italic">Sin referencia</span>
+                                                        <span className="text-muted-foreground text-xs italic">{t('noCoordinates')}</span>
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex items-center gap-2">
                                                         <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                                         <span className="text-xs font-medium text-muted-foreground">
-                                                            {lugar._count?.mediciones || 0} registros
+                                                            {lugar._count?.mediciones || 0} {t('records')}
                                                         </span>
                                                     </div>
                                                 </TableCell>
@@ -371,21 +386,21 @@ export default function LugaresPage() {
                         <CardHeader className="p-4 border-b bg-muted/20">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-lg font-bold">Vista Geográfica</h3>
+                                    <h3 className="text-lg font-bold">{t('geographicView')}</h3>
                                     <p className="text-sm text-muted-foreground">
-                                        {lugares.filter(l => l.latitud && l.longitud).length} lugares con coordenadas
+                                        {lugares.filter(l => l.latitud && l.longitud).length} {t('placesWithCoordinates')}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                     <div className="flex items-center gap-1">
                                         <div className="w-3 h-0.5 bg-blue-500" />
-                                        <span>Líneas de distancia</span>
+                                        <span>{t('distanceLines')}</span>
                                     </div>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="p-4">
-                            <LugaresMap lugares={lugares} />
+                            <LugaresMap lugares={lugares} t={t} />
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -394,13 +409,13 @@ export default function LugaresPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingLugar ? "Actualizar Ubicación" : "Nueva Referencia Geográfica"}
-                description="Selecciona el punto exacto en el mapa para el registro de mediciones"
+                title={editingLugar ? t('editPlace') : t('newPlace')}
+                description={t('selectPointOnMap')}
             >
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label className="uppercase text-[10px] font-black tracking-widest text-primary">Punto de Control en Puerto Montt</Label>
+                            <Label className="uppercase text-[10px] font-black tracking-widest text-primary">{t('controlPointLabel')}</Label>
                             <MapPicker
                                 lat={formData.latitud}
                                 lng={formData.longitud}
@@ -410,10 +425,10 @@ export default function LugaresPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="nombre" className="text-xs font-bold">Identificador</Label>
+                                <Label htmlFor="nombre" className="text-xs font-bold">{t('fields.name')}</Label>
                                 <Input
                                     id="nombre"
-                                    placeholder="Nombre de la estación"
+                                    placeholder={t('stationNamePlaceholder')}
                                     required
                                     className="font-bold"
                                     value={formData.nombre}
@@ -421,10 +436,10 @@ export default function LugaresPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="nota" className="text-xs font-bold">Observación</Label>
+                                <Label htmlFor="nota" className="text-xs font-bold">{t('observationLabel')}</Label>
                                 <Input
                                     id="nota"
-                                    placeholder="Detalles adicionales"
+                                    placeholder={t('observationPlaceholder')}
                                     value={formData.nota}
                                     onChange={(e) => setFormData({ ...formData, nota: e.target.value })}
                                 />
@@ -433,21 +448,21 @@ export default function LugaresPage() {
 
                         <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-lg border border-dashed border-primary/20">
                             <div className="space-y-1">
-                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Latitud</Label>
-                                <p className="text-sm font-mono font-bold text-primary">{formData.latitud || "Pending..."}</p>
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t('fields.latitude')}</Label>
+                                <p className="text-sm font-mono font-bold text-primary">{formData.latitud || t('pendingCoordinates')}</p>
                             </div>
                             <div className="space-y-1">
-                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Longitud</Label>
-                                <p className="text-sm font-mono font-bold text-primary">{formData.longitud || "Pending..."}</p>
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t('fields.longitude')}</Label>
+                                <p className="text-sm font-mono font-bold text-primary">{formData.longitud || t('pendingCoordinates')}</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex gap-3 pt-2">
-                        <Button variant="ghost" type="button" className="flex-1 font-bold text-xs uppercase" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+                        <Button variant="ghost" type="button" className="flex-1 font-bold text-xs uppercase" onClick={() => setIsModalOpen(false)}>{tCommon('cancel')}</Button>
                         <Button type="submit" className="flex-1 font-bold text-xs uppercase shadow-lg shadow-primary/30" disabled={submitting}>
                             {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                            Confirmar Ubicación
+                            {tCommon('confirm')}
                         </Button>
                     </div>
                 </form>

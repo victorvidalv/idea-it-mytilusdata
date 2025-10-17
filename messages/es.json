@@ -1,0 +1,358 @@
+{
+  "common": {
+    "appName": "IT25I0032",
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "actions": "Acciones",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "close": "Cerrar",
+    "open": "Abrir",
+    "view": "Ver",
+    "select": "Seleccionar",
+    "clear": "Limpiar",
+    "submit": "Enviar",
+    "reset": "Restablecer",
+    "refresh": "Actualizar"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "measurements": "Mediciones",
+    "analysis": "Análisis",
+    "places": "Lugares",
+    "configuration": "Configuración",
+    "users": "Usuarios",
+    "inDevelopment": "En Desarrollo",
+    "profile": "Perfil",
+    "auditLog": "Bitácora",
+    "origins": "Orígenes",
+    "units": "Unidades",
+    "recordTypes": "Tipos de Registro",
+    "collapse": "Colapsar"
+  },
+  "auth": {
+    "welcome": "Bienvenido",
+    "login": "Iniciar Sesión",
+    "register": "Registro",
+    "logout": "Cerrar Sesión",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "email": "Email",
+    "password": "Contraseña",
+    "fullName": "Nombre Completo",
+    "confirmPassword": "Confirmar Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme",
+    "loginTitle": "Acceso",
+    "loginDescription": "Introduce tus credenciales para continuar",
+    "registerTitle": "Crear Cuenta",
+    "registerDescription": "Regístrate para comenzar a registrar mediciones",
+    "enterSystem": "Entrar al Sistema",
+    "createAccount": "Crear mi Cuenta",
+    "initializing": "Inicializando...",
+    "loggingIn": "Iniciando sesión...",
+    "registering": "Registrando...",
+    "error": {
+      "invalidCredentials": "Email o contraseña inválidos",
+      "emailRequired": "El email es requerido",
+      "passwordRequired": "La contraseña es requerida",
+      "nameRequired": "El nombre es requerido",
+      "emailInvalid": "Formato de email inválido",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+      "passwordsNotMatch": "Las contraseñas no coinciden",
+      "emailExists": "Ya existe una cuenta con este email",
+      "sessionInitFailed": "No se pudo inicializar la sesión. Por favor, recarga la página.",
+      "connectionError": "Error de conexión. Por favor, verifica tu conexión a internet.",
+      "securityError": "Error de seguridad. Por favor, recarga la página e intenta nuevamente."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard General",
+    "description": "Resumen global de tu sistema de mediciones IT25I0032.",
+    "measurements": "Mediciones",
+    "measurementsDesc": "Registros realizados",
+    "places": "Lugares",
+    "placesDesc": "Puntos de control",
+    "units": "Unidades",
+    "unitsDesc": "Sistemas de medida",
+    "users": "Usuarios",
+    "usersDesc": "Cuentas activas",
+    "recentActivity": "Actividad Reciente",
+    "noActivity": "No hay actividad registrada aún.",
+    "viewFullAudit": "Ver auditoría completa",
+    "quickAccess": "Accesos Directos",
+    "newMeasurement": "Nueva Medición",
+    "registerPlace": "Registrar Lugar",
+    "viewAudit": "Ver Auditoría"
+  },
+  "measurements": {
+    "title": "Mediciones",
+    "description": "Gestiona tus registros de mediciones",
+    "newMeasurement": "Nueva Medición",
+    "editMeasurement": "Editar Medición",
+    "deleteMeasurement": "Eliminar Medición",
+    "viewMeasurement": "Ver Medición",
+    "exportMeasurements": "Exportar Mediciones",
+    "registerMeasurement": "Registrar Medición",
+    "updateMeasurementDescription": "Actualiza los datos de esta medición",
+    "createMeasurementDescription": "Ingresa los datos para una nueva toma de muestra",
+    "fields": {
+      "value": "Valor",
+      "date": "Fecha",
+      "time": "Hora",
+      "place": "Lugar",
+      "origin": "Origen",
+      "unit": "Unidad",
+      "recordType": "Tipo de Registro",
+      "notes": "Notas",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "altitude": "Altitud",
+      "accuracy": "Precisión"
+    },
+    "placeholders": {
+      "value": "Ingresa el valor",
+      "date": "Selecciona la fecha",
+      "time": "Selecciona la hora",
+      "place": "Selecciona el lugar",
+      "origin": "Selecciona el origen",
+      "unit": "Selecciona la unidad",
+      "recordType": "Selecciona el tipo de registro",
+      "notes": "Ingresa notas (opcional)",
+      "latitude": "Ingresa la latitud",
+      "longitude": "Ingresa la longitud",
+      "altitude": "Ingresa la altitud",
+      "accuracy": "Ingresa la precisión"
+    }
+  },
+  "places": {
+    "title": "Lugares",
+    "description": "Gestiona los puntos de control",
+    "newPlace": "Nuevo Lugar",
+    "editPlace": "Editar Lugar",
+    "deletePlace": "Eliminar Lugar",
+    "loadingMap": "Cargando mapa...",
+    "noPlacesWithCoordinates": "No hay lugares con coordenadas para mostrar en el mapa",
+    "table": "Tabla",
+    "map": "Mapa",
+    "geographicView": "Vista Geográfica",
+    "placesWithCoordinates": "lugares con coordenadas",
+    "distanceLines": "Líneas de distancia",
+    "selectPointOnMap": "Selecciona el punto exacto en el mapa para el registro de mediciones",
+    "controlPointLabel": "Punto de Control en Puerto Montt",
+    "stationNamePlaceholder": "Nombre de la estación",
+    "observationLabel": "Observación",
+    "observationPlaceholder": "Detalles adicionales",
+    "pendingCoordinates": "Pendiente...",
+    "records": "registros",
+    "noCoordinates": "Sin coordenadas",
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "altitude": "Altitud"
+    },
+    "placeholders": {
+      "name": "Ingresa el nombre del lugar",
+      "description": "Ingresa la descripción (opcional)",
+      "latitude": "Ingresa la latitud",
+      "longitude": "Ingresa la longitud",
+      "altitude": "Ingresa la altitud"
+    }
+  },
+  "origins": {
+    "title": "Orígenes",
+    "description": "Gestiona los orígenes de datos",
+    "newOrigin": "Nuevo Origen",
+    "editOrigin": "Editar Origen",
+    "deleteOrigin": "Eliminar Origen",
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción"
+    },
+    "placeholders": {
+      "name": "Ingresa el nombre del origen",
+      "description": "Ingresa la descripción (opcional)"
+    }
+  },
+  "units": {
+    "title": "Unidades",
+    "description": "Gestiona las unidades de medida",
+    "newUnit": "Nueva Unidad",
+    "editUnit": "Editar Unidad",
+    "deleteUnit": "Eliminar Unidad",
+    "fields": {
+      "name": "Nombre",
+      "symbol": "Símbolo",
+      "description": "Descripción"
+    },
+    "placeholders": {
+      "name": "Ingresa el nombre de la unidad",
+      "symbol": "Ingresa el símbolo (ej. m, kg)",
+      "description": "Ingresa la descripción (opcional)"
+    }
+  },
+  "recordTypes": {
+    "title": "Tipos de Registro",
+    "description": "Gestiona los tipos de registro",
+    "newRecordType": "Nuevo Tipo de Registro",
+    "editRecordType": "Editar Tipo de Registro",
+    "deleteRecordType": "Eliminar Tipo de Registro",
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción"
+    },
+    "placeholders": {
+      "name": "Ingresa el nombre del tipo de registro",
+      "description": "Ingresa la descripción (opcional)"
+    }
+  },
+  "users": {
+    "title": "Usuarios",
+    "description": "Gestiona los usuarios del sistema",
+    "newUser": "Nuevo Usuario",
+    "editUser": "Editar Usuario",
+    "deleteUser": "Eliminar Usuario",
+    "fields": {
+      "name": "Nombre",
+      "email": "Email",
+      "role": "Rol",
+      "createdAt": "Creado en",
+      "updatedAt": "Actualizado en"
+    },
+    "roles": {
+      "ADMIN": "Administrador",
+      "EQUIPO": "Miembro del Equipo",
+      "PUBLICO": "Público"
+    },
+    "placeholders": {
+      "name": "Ingresa el nombre del usuario",
+      "email": "Ingresa el email del usuario",
+      "role": "Selecciona el rol"
+    }
+  },
+  "auditLog": {
+    "title": "Bitácora",
+    "description": "Ver el historial de actividad del sistema",
+    "fields": {
+      "action": "Acción",
+      "table": "Tabla Afectada",
+      "date": "Fecha",
+      "time": "Hora",
+      "user": "Usuario",
+      "details": "Detalles"
+    },
+    "actions": {
+      "CREATE": "Creó",
+      "UPDATE": "Actualizó",
+      "DELETE": "Eliminó"
+    },
+    "filter": {
+      "allActions": "Todas las Acciones",
+      "allTables": "Todas las Tablas",
+      "dateRange": "Rango de Fechas"
+    }
+  },
+  "analysis": {
+    "title": "Análisis",
+    "description": "Analiza los datos de mediciones",
+    "selectSeries": "Seleccionar Series",
+    "configureChart": "Configurar Gráfico",
+    "sigmoidModel": "Modelo Sigmoide",
+    "statistics": "Estadísticas",
+    "exportChart": "Exportar Gráfico",
+    "fields": {
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "place": "Lugar",
+      "unit": "Unidad",
+      "recordType": "Tipo de Registro"
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "description": "Gestiona la configuración de tu cuenta",
+    "editProfile": "Editar Perfil",
+    "changePassword": "Cambiar Contraseña",
+    "fields": {
+      "name": "Nombre",
+      "email": "Email",
+      "currentPassword": "Contraseña Actual",
+      "newPassword": "Nueva Contraseña",
+      "confirmPassword": "Confirmar Nueva Contraseña"
+    },
+    "placeholders": {
+      "name": "Ingresa tu nombre",
+      "email": "Ingresa tu email",
+      "currentPassword": "Ingresa tu contraseña actual",
+      "newPassword": "Ingresa tu nueva contraseña",
+      "confirmPassword": "Confirma tu nueva contraseña"
+    }
+  },
+  "configuration": {
+    "title": "Configuración",
+    "description": "Configuración del sistema",
+    "general": "General",
+    "security": "Seguridad",
+    "notifications": "Notificaciones",
+    "language": "Idioma",
+    "theme": "Tema"
+  },
+  "validation": {
+    "required": "Este campo es requerido",
+    "invalidEmail": "Formato de email inválido",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "passwordsNotMatch": "Las contraseñas no coinciden",
+    "invalidNumber": "Debe ser un número válido",
+    "invalidDate": "Fecha inválida",
+    "minValue": "Debe ser al menos {min}",
+    "maxValue": "Debe ser como máximo {max}",
+    "minLength": "Debe tener al menos {min} caracteres",
+    "maxLength": "Debe tener como máximo {max} caracteres"
+  },
+  "messages": {
+    "success": {
+      "created": "Creado exitosamente",
+      "updated": "Actualizado exitosamente",
+      "deleted": "Eliminado exitosamente",
+      "saved": "Guardado exitosamente"
+    },
+    "error": {
+      "generic": "Ocurrió un error",
+      "notFound": "No encontrado",
+      "unauthorized": "Acceso no autorizado",
+      "forbidden": "Acceso prohibido",
+      "serverError": "Error del servidor",
+      "networkError": "Error de red",
+      "downloadCSV": "Error al descargar el CSV",
+      "serverConnection": "Error al conectar con el servidor"
+    },
+    "confirm": {
+      "delete": "¿Estás seguro de que deseas eliminar este elemento?",
+      "deleteMeasurement": "¿Estás seguro de que deseas eliminar esta medición?",
+      "unsavedChanges": "Tienes cambios sin guardar. ¿Estás seguro de que deseas salir?"
+    }
+  },
+  "home": {
+    "access": "Acceder"
+  },
+  "inDevelopment": {
+    "title": "En Desarrollo",
+    "description": "Esta función está actualmente en desarrollo. Por favor, vuelve más tarde."
+  }
+}

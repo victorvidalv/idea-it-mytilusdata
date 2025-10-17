@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Modal } from "@/components/ui/modal"
 import { Plus, Database, Loader2, Trash2, Edit2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface OrigenDato {
     id: number
@@ -16,6 +17,10 @@ interface OrigenDato {
 }
 
 export default function OrigenesPage() {
+    const t = useTranslations('origins')
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+    
     const [origenes, setOrigenes] = useState<OrigenDato[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -55,7 +60,7 @@ export default function OrigenesPage() {
     }
 
     const handleDelete = async (id: number) => {
-        if (!confirm("¿Estás seguro de que deseas eliminar este origen?")) return
+        if (!confirm(tMessages('confirm.delete'))) return
         try {
             const token = localStorage.getItem("token")
             const res = await fetch(`/api/origenes/${id}`, {
@@ -103,11 +108,11 @@ export default function OrigenesPage() {
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight font-outfit">Orígenes de Datos</h2>
-                    <p className="text-muted-foreground">Configura los orígenes para clasificar tus mediciones.</p>
+                    <h2 className="text-3xl font-bold tracking-tight font-outfit">{t('title')}</h2>
+                    <p className="text-muted-foreground">{t('description')}</p>
                 </div>
                 <Button onClick={openCreateModal} className="gap-2">
-                    <Plus className="w-4 h-4" /> Nuevo Origen
+                    <Plus className="w-4 h-4" /> {t('newOrigin')}
                 </Button>
             </div>
 
@@ -116,16 +121,16 @@ export default function OrigenesPage() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Nombre</TableHead>
-                                <TableHead>Descripción</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{t('fields.name')}</TableHead>
+                                <TableHead>{t('fields.description')}</TableHead>
+                                <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
-                                <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">Cargando...</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">{tCommon('loading')}</TableCell></TableRow>
                             ) : origenes.length === 0 ? (
-                                <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">No hay orígenes registrados</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">No origins registered</TableCell></TableRow>
                             ) : origenes.map((o) => (
                                 <TableRow key={o.id} className="group">
                                     <TableCell className="font-medium">
@@ -135,8 +140,7 @@ export default function OrigenesPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">
-                                        {o.descripcion || <span className="italic">Sin descripción</span>}
-                                    </TableCell>
+                                        {o.descripcion || <span className="italic">{t('fields.description')}</span>}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Button
@@ -167,12 +171,12 @@ export default function OrigenesPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingOrigen ? "Editar Origen" : "Agregar Origen"}
-                description={editingOrigen ? "Actualiza los datos de este origen" : "Define un nuevo origen para clasificar mediciones"}
+                title={editingOrigen ? t('editOrigin') : t('newOrigin')}
+                description={editingOrigen ? "Update origin data" : "Define a new origin to classify measurements"}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="o-nombre">Nombre (ej: Laboratorio Central)</Label>
+                        <Label htmlFor="o-nombre">{t('fields.name')}</Label>
                         <Input
                             id="o-nombre"
                             required
@@ -181,18 +185,18 @@ export default function OrigenesPage() {
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="o-descripcion">Descripción (opcional)</Label>
+                        <Label htmlFor="o-descripcion">{t('fields.description')}</Label>
                         <textarea
                             id="o-descripcion"
                             className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                            placeholder="Información adicional sobre este origen..."
+                            placeholder={t('placeholders.description')}
                             value={formData.descripcion}
                             onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                         />
                     </div>
                     <Button type="submit" className="w-full mt-4" disabled={submitting}>
                         {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                        {editingOrigen ? "Actualizar" : "Guardar"} Origen
+                        {editingOrigen ? tCommon('update') : tCommon('save')} {t('title')}
                     </Button>
                 </form>
             </Modal>

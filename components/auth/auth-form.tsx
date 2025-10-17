@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +14,7 @@ import { fetchWithCSRF } from "@/lib/middleware/csrf-helpers"
 export function AuthForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const t = useTranslations('auth')
 
     // Validar tab inicial desde la URL
     const initialTab = searchParams.get("tab") === "register" ? "register" : "login"
@@ -42,10 +44,10 @@ export function AuthForm() {
                 if (response.ok) {
                     setCsrfReady(true)
                 } else {
-                    setError("No se pudo inicializar la sesión. Por favor, recarga la página.")
+                    setError(t('error.sessionInitFailed'))
                 }
             } catch (err) {
-                setError("Error de conexión. Por favor, verifica tu conexión a internet.")
+                setError(t('error.connectionError'))
             }
         }
 
@@ -56,7 +58,7 @@ export function AuthForm() {
         e.preventDefault()
 
         if (!csrfReady) {
-            setError("Inicializando sesión. Por favor, espera un momento...")
+            setError(t('initializing'))
             return
         }
 
@@ -74,7 +76,7 @@ export function AuthForm() {
             const data = await response.json()
 
             if (!data.success) {
-                throw new Error(data.message || "Error al iniciar sesión")
+                throw new Error(data.message || t('error.invalidCredentials'))
             }
 
             // Guardar token en localStorage
@@ -84,11 +86,11 @@ export function AuthForm() {
             router.push("/dashboard")
             router.refresh()
         } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : "Error al iniciar sesión"
+            const errorMessage = err instanceof Error ? err.message : t('error.invalidCredentials')
 
             // Manejar errores de CSRF específicamente
             if (response?.status === 403 || errorMessage.includes("CSRF")) {
-                setError("Error de seguridad. Por favor, recarga la página e intenta nuevamente.")
+                setError(t('error.securityError'))
                 setCsrfReady(false)
                 // Intentar obtener un nuevo token CSRF
                 fetch("/api/auth/csrf-token", {
@@ -111,7 +113,7 @@ export function AuthForm() {
         e.preventDefault()
 
         if (!csrfReady) {
-            setError("Inicializando sesión. Por favor, espera un momento...")
+            setError(t('initializing'))
             return
         }
 
@@ -129,7 +131,7 @@ export function AuthForm() {
             const data = await response.json()
 
             if (!data.success) {
-                throw new Error(data.message || "Error al registrarse")
+                throw new Error(data.message || t('error.invalidCredentials'))
             }
 
             // Guardar token en localStorage
@@ -139,11 +141,11 @@ export function AuthForm() {
             router.push("/dashboard")
             router.refresh()
         } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : "Error al registrarse"
+            const errorMessage = err instanceof Error ? err.message : t('error.invalidCredentials')
 
             // Manejar errores de CSRF específicamente
             if (response?.status === 403 || errorMessage.includes("CSRF")) {
-                setError("Error de seguridad. Por favor, recarga la página e intenta nuevamente.")
+                setError(t('error.securityError'))
                 setCsrfReady(false)
                 // Intentar obtener un nuevo token CSRF
                 fetch("/api/auth/csrf-token", {
@@ -165,24 +167,24 @@ export function AuthForm() {
     return (
         <div className="w-full max-w-md mx-auto space-y-6">
             <div className="text-center space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight font-outfit">Bienvenido</h1>
-                <p className="text-muted-foreground">Ingresa a tu cuenta para gestionar mediciones</p>
+                <h1 className="text-3xl font-bold tracking-tight font-outfit">{t('welcome')}</h1>
+                <p className="text-muted-foreground">{t('loginDescription')}</p>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 h-11">
-                    <TabsTrigger value="login" className="text-sm">Iniciar Sesión</TabsTrigger>
-                    <TabsTrigger value="register" className="text-sm">Registro</TabsTrigger>
+                    <TabsTrigger value="login" className="text-sm">{t('signIn')}</TabsTrigger>
+                    <TabsTrigger value="register" className="text-sm">{t('signUp')}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="login">
                     <Card className="border-border shadow-lg">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <LogIn className="w-5 h-5" /> Acceso
+                                <LogIn className="w-5 h-5" /> {t('loginTitle')}
                             </CardTitle>
                             <CardDescription>
-                                Introduce tus credenciales para continuar
+                                {t('loginDescription')}
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleLogin}>
@@ -193,7 +195,7 @@ export function AuthForm() {
                                     </div>
                                 )}
                                 <div className="space-y-2">
-                                    <Label htmlFor="login-email">Email</Label>
+                                    <Label htmlFor="login-email">{t('email')}</Label>
                                     <Input
                                         id="login-email"
                                         type="email"
@@ -205,7 +207,7 @@ export function AuthForm() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="login-password">Contraseña</Label>
+                                    <Label htmlFor="login-password">{t('password')}</Label>
                                     <Input
                                         id="login-password"
                                         type="password"
@@ -224,15 +226,15 @@ export function AuthForm() {
                                     {!csrfReady ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Inicializando...
+                                            {t('initializing')}
                                         </>
                                     ) : isLoading ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Iniciando sesión...
+                                            {t('loggingIn')}
                                         </>
                                     ) : (
-                                        "Entrar al Sistema"
+                                        t('enterSystem')
                                     )}
                                 </Button>
                             </CardFooter>
@@ -244,10 +246,10 @@ export function AuthForm() {
                     <Card className="border-border shadow-lg">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <UserPlus className="w-5 h-5" /> Crear Cuenta
+                                <UserPlus className="w-5 h-5" /> {t('registerTitle')}
                             </CardTitle>
                             <CardDescription>
-                                Regístrate para comenzar a registrar mediciones
+                                {t('registerDescription')}
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleRegister}>
@@ -258,7 +260,7 @@ export function AuthForm() {
                                     </div>
                                 )}
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Nombre Completo</Label>
+                                    <Label htmlFor="name">{t('fullName')}</Label>
                                     <Input
                                         id="name"
                                         placeholder="Juan Pérez"
@@ -268,7 +270,7 @@ export function AuthForm() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="reg-email">Email</Label>
+                                    <Label htmlFor="reg-email">{t('email')}</Label>
                                     <Input
                                         id="reg-email"
                                         type="email"
@@ -280,7 +282,7 @@ export function AuthForm() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="reg-password">Contraseña</Label>
+                                    <Label htmlFor="reg-password">{t('password')}</Label>
                                     <Input
                                         id="reg-password"
                                         type="password"
@@ -299,15 +301,15 @@ export function AuthForm() {
                                     {!csrfReady ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Inicializando...
+                                            {t('initializing')}
                                         </>
                                     ) : isLoading ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Registrando...
+                                            {t('registering')}
                                         </>
                                     ) : (
-                                        "Crear mi Cuenta"
+                                        t('createAccount')
                                     )}
                                 </Button>
                             </CardFooter>

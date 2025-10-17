@@ -17,25 +17,23 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "next-intl"
 
-const menuItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "EQUIPO"] },
-    { name: "Mediciones", href: "/dashboard/mediciones", icon: Database, roles: ["ADMIN", "EQUIPO"] },
-    { name: "Análisis", href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "EQUIPO"] },
-    { name: "Lugares", href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "EQUIPO"] },
-    { name: "Configuración", href: "/dashboard/configuracion", icon: Settings, roles: ["ADMIN", "EQUIPO"] },
-    { name: "Usuarios", href: "/dashboard/usuarios", icon: Users, roles: ["ADMIN"] },
-    { name: "En Desarrollo", href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },
-]
-
-interface SidebarProps {
-    collapsed: boolean
-    onToggle: () => void
-}
-
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle }: { collapsed: boolean, onToggle: () => void }) {
+    const t = useTranslations('navigation')
+    const tCommon = useTranslations('common')
     const pathname = usePathname()
     const { user } = useAuth()
+
+    const menuItems = [
+        { name: t('dashboard'), href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "EQUIPO"] },
+        { name: t('measurements'), href: "/dashboard/mediciones", icon: Database, roles: ["ADMIN", "EQUIPO"] },
+        { name: t('analysis'), href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "EQUIPO"] },
+        { name: t('places'), href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "EQUIPO"] },
+        { name: t('configuration'), href: "/dashboard/configuracion", icon: Settings, roles: ["ADMIN", "EQUIPO"] },
+        { name: t('users'), href: "/dashboard/usuarios", icon: Users, roles: ["ADMIN"] },
+        { name: t('inDevelopment'), href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },
+    ]
 
     return (
         <div
@@ -91,10 +89,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     })}
             </nav>
 
-            {/* Botón para colapsar/expandir */}
+            {/* Language toggle and collapse button */}
             <div className={cn(
-                "p-4 border-t",
-                collapsed ? "flex justify-center" : ""
+                "p-4 border-t space-y-3",
+                collapsed ? "flex flex-col items-center" : ""
             )}>
                 <Button
                     variant="ghost"
@@ -110,7 +108,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     ) : (
                         <>
                             <ChevronLeft className="w-4 h-4" />
-                            <span>Colapsar</span>
+                            <span>{t('collapse')}</span>
                         </>
                     )}
                 </Button>

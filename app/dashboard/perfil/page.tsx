@@ -10,6 +10,7 @@ import {
     User, KeyRound, Loader2, Calendar, Database, MapPin, Ruler,
     CheckCircle, AlertCircle, Shield
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface UserStats {
     id: number
@@ -25,6 +26,12 @@ interface UserStats {
 }
 
 export default function PerfilPage() {
+    const t = useTranslations('profile')
+    const tCommon = useTranslations('common')
+    const tUsers = useTranslations('users')
+    const tValidation = useTranslations('validation')
+    const tMessages = useTranslations('messages')
+    
     const { user } = useAuth()
     const [stats, setStats] = useState<UserStats | null>(null)
     const [loading, setLoading] = useState(true)
@@ -66,15 +73,15 @@ export default function PerfilPage() {
         // Validar contraseñas si se quiere cambiar
         if (formData.passwordNueva) {
             if (!formData.passwordActual) {
-                setMessage({ type: "error", text: "Debes ingresar tu contraseña actual" })
+                setMessage({ type: "error", text: tValidation('required') })
                 return
             }
             if (formData.passwordNueva !== formData.passwordConfirm) {
-                setMessage({ type: "error", text: "Las contraseñas nuevas no coinciden" })
+                setMessage({ type: "error", text: tValidation('passwordsNotMatch') })
                 return
             }
             if (formData.passwordNueva.length < 6) {
-                setMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres" })
+                setMessage({ type: "error", text: tValidation('passwordTooShort') })
                 return
             }
         }
@@ -93,7 +100,7 @@ export default function PerfilPage() {
             }
 
             if (Object.keys(body).length === 0) {
-                setMessage({ type: "error", text: "No hay cambios para guardar" })
+                setMessage({ type: "error", text: "No changes to save" })
                 setSubmitting(false)
                 return
             }
@@ -109,7 +116,7 @@ export default function PerfilPage() {
             const data = await res.json()
 
             if (data.success) {
-                setMessage({ type: "success", text: "Perfil actualizado exitosamente" })
+                setMessage({ type: "success", text: tMessages('success.updated') })
                 setFormData(prev => ({
                     ...prev,
                     passwordActual: "",
@@ -125,7 +132,7 @@ export default function PerfilPage() {
             }
         } catch (error) {
             console.error(error)
-            setMessage({ type: "error", text: "Error al actualizar perfil" })
+            setMessage({ type: "error", text: tMessages('error.generic') })
         } finally {
             setSubmitting(false)
         }
@@ -134,11 +141,11 @@ export default function PerfilPage() {
     const getRolBadge = (rol: string) => {
         switch (rol) {
             case "ADMIN":
-                return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-violet-500/10 text-violet-500 border border-violet-500/20"><Shield className="w-3 h-3" />Administrador</span>
+                return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-violet-500/10 text-violet-500 border border-violet-500/20"><Shield className="w-3 h-3" />{tUsers('roles.ADMIN')}</span>
             case "EQUIPO":
-                return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20"><User className="w-3 h-3" />Equipo</span>
+                return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20"><User className="w-3 h-3" />{tUsers('roles.EQUIPO')}</span>
             default:
-                return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-slate-500/10 text-slate-500 border border-slate-500/20"><User className="w-3 h-3" />Público</span>
+                return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-slate-500/10 text-slate-500 border border-slate-500/20"><User className="w-3 h-3" />{tUsers('roles.PUBLICO')}</span>
         }
     }
 
@@ -155,9 +162,9 @@ export default function PerfilPage() {
             <div>
                 <h2 className="text-3xl font-bold tracking-tight font-outfit flex items-center gap-3">
                     <User className="w-8 h-8 text-primary" />
-                    Mi Perfil
+                    {t('title')}
                 </h2>
-                <p className="text-muted-foreground">Administra tu información personal y seguridad.</p>
+                <p className="text-muted-foreground">{t('description')}</p>
             </div>
 
             {/* Estadísticas */}
@@ -169,7 +176,7 @@ export default function PerfilPage() {
                                 <Calendar className="w-5 h-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Miembro desde</p>
+                                <p className="text-xs text-muted-foreground">Member since</p>
                                 <p className="font-bold text-sm">
                                     {stats?.created_at ? new Date(stats.created_at).toLocaleDateString('es-CL', {
                                         year: 'numeric',
@@ -189,7 +196,7 @@ export default function PerfilPage() {
                                 <Database className="w-5 h-5 text-emerald-500" />
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Mediciones</p>
+                                <p className="text-xs text-muted-foreground">{tCommon('measurements')}</p>
                                 <p className="font-bold text-lg">{stats?._count.mediciones || 0}</p>
                             </div>
                         </div>
@@ -203,7 +210,7 @@ export default function PerfilPage() {
                                 <MapPin className="w-5 h-5 text-blue-500" />
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Lugares</p>
+                                <p className="text-xs text-muted-foreground">{tCommon('places')}</p>
                                 <p className="font-bold text-lg">{stats?._count.lugares || 0}</p>
                             </div>
                         </div>
@@ -217,7 +224,7 @@ export default function PerfilPage() {
                                 <Ruler className="w-5 h-5 text-orange-500" />
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Unidades</p>
+                                <p className="text-xs text-muted-foreground">{tCommon('units')}</p>
                                 <p className="font-bold text-lg">{stats?._count.unidades || 0}</p>
                             </div>
                         </div>
@@ -228,7 +235,7 @@ export default function PerfilPage() {
             {/* Formulario de edición */}
             <Card className="border-border/50">
                 <CardHeader>
-                    <CardTitle className="text-lg">Información de cuenta</CardTitle>
+                    <CardTitle className="text-lg">Account Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -246,7 +253,7 @@ export default function PerfilPage() {
                         {/* Info básica */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Nombre</Label>
+                                <Label>{t('fields.name')}</Label>
                                 <Input
                                     value={formData.nombre}
                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
@@ -254,14 +261,14 @@ export default function PerfilPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Correo electrónico</Label>
+                                <Label>{t('fields.email')}</Label>
                                 <Input value={stats?.email || ""} disabled className="bg-muted" />
-                                <p className="text-xs text-muted-foreground">El email no se puede modificar</p>
+                                <p className="text-xs text-muted-foreground">Email cannot be modified</p>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Rol</Label>
+                            <Label>{tUsers('fields.role')}</Label>
                             <div>{stats && getRolBadge(stats.rol)}</div>
                         </div>
 
@@ -269,7 +276,7 @@ export default function PerfilPage() {
                         <div className="pt-6 border-t">
                             <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
                                 <KeyRound className="w-4 h-4 text-primary" />
-                                Cambiar contraseña
+                                {t('changePassword')}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
@@ -301,14 +308,14 @@ export default function PerfilPage() {
                                 </div>
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
-                                Deja los campos vacíos si no deseas cambiar la contraseña.
+                                Leave fields empty if you don't want to change password.
                             </p>
                         </div>
 
                         <div className="flex justify-end pt-4">
                             <Button type="submit" disabled={submitting} className="gap-2">
                                 {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Guardar cambios
+                                {tCommon('save')}
                             </Button>
                         </div>
                     </form>

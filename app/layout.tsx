@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { cookies } from "next/headers";
+import { locales, defaultLocale } from "@/i18n";
 import "./globals.css";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -18,29 +22,39 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get locale from cookie (set by middleware)
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get('NEXT_LOCALE');
+  const locale = (localeCookie?.value && locales.includes(localeCookie.value as any)) 
+    ? localeCookie.value 
+    : defaultLocale;
+
+  // Import messages directly based on locale
+  const messages = (await import(`@/messages/${locale}.json`)).default;
+
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html suppressHydrationWarning lang={locale}>
       <body
         className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-background text-foreground min-h-screen flex flex-col`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <main className="flex-1 flex flex-col">
-            {children}
-          </main>
-        </ThemeProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <main className="flex-1 flex flex-col">
+              {children}
+            </main>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
 }
-
-

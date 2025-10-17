@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { History, User, Activity, Monitor, Calendar, Search } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface Bitacora {
     id: number
@@ -18,6 +19,8 @@ interface Bitacora {
 }
 
 export default function BitacoraPage() {
+    const t = useTranslations('auditLog')
+    const tCommon = useTranslations('common')
     const [logs, setLogs] = useState<Bitacora[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -50,8 +53,8 @@ export default function BitacoraPage() {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-3xl font-bold tracking-tight font-outfit">Auditoría de Cambios</h2>
-                <p className="text-muted-foreground">Log detallado de todas las acciones sobre la base de datos.</p>
+                <h2 className="text-3xl font-bold tracking-tight font-outfit">{t('title')}</h2>
+                <p className="text-muted-foreground">{t('description')}</p>
             </div>
 
             <Card className="border-border/60 shadow-xl overflow-hidden">
@@ -59,17 +62,17 @@ export default function BitacoraPage() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/50">
-                                <TableHead className="w-[180px]">Fecha / Hora</TableHead>
-                                <TableHead>Usuario</TableHead>
-                                <TableHead>Acción</TableHead>
-                                <TableHead>Tabla</TableHead>
-                                <TableHead>Cambios</TableHead>
+                                <TableHead className="w-[180px]">{t('fields.date')} / {t('fields.time')}</TableHead>
+                                <TableHead>{t('fields.user')}</TableHead>
+                                <TableHead>{t('fields.action')}</TableHead>
+                                <TableHead>{t('fields.table')}</TableHead>
+                                <TableHead>{t('fields.details')}</TableHead>
                                 <TableHead className="text-right">IP</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
-                                <TableRow><TableCell colSpan={6} className="h-60 text-center text-muted-foreground">Cargando bitácora...</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={6} className="h-60 text-center text-muted-foreground">{tCommon('loading')}</TableCell></TableRow>
                             ) : logs.map((log) => (
                                 <TableRow key={log.id} className="hover:bg-muted/30">
                                     <TableCell className="text-xs font-mono">
@@ -86,7 +89,7 @@ export default function BitacoraPage() {
                                     </TableCell>
                                     <TableCell>
                                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-black border ${getAccionColor(log.accion)}`}>
-                                            {log.accion}
+                                            {t('actions.' + log.accion)}
                                         </span>
                                     </TableCell>
                                     <TableCell>

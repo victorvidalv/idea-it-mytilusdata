@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Loader2, Search, UserCheck, UserMinus, Shield, User as UserIcon, Microscope, UserPlus } from "lucide-react"
 import { Modal } from "@/components/ui/modal"
 import { Label } from "@/components/ui/label"
+import { useTranslations } from "next-intl"
 
 interface Usuario {
     id: number
@@ -24,6 +25,9 @@ interface Usuario {
 }
 
 export default function UsuariosPage() {
+    const t = useTranslations('users')
+    const tCommon = useTranslations('common')
+    
     const [usuarios, setUsuarios] = useState<Usuario[]>([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState("")
@@ -103,7 +107,7 @@ export default function UsuariosPage() {
             }
         } catch (error) {
             console.error(error)
-            alert("Error al crear usuario")
+            alert(tCommon('save'))
         } finally {
             setIsSubmitting(false)
         }
@@ -112,11 +116,11 @@ export default function UsuariosPage() {
     const RoleBadge = ({ rol }: { rol: string }) => {
         switch (rol) {
             case "ADMIN":
-                return <span className="flex items-center gap-1.5 text-violet-500 font-bold"><Shield className="w-3 h-3" /> ADMIN</span>
+                return <span className="flex items-center gap-1.5 text-violet-500 font-bold"><Shield className="w-3 h-3" /> {t('roles.ADMIN')}</span>
             case "EQUIPO":
-                return <span className="flex items-center gap-1.5 text-blue-500 font-bold"><Microscope className="w-3 h-3" /> EQUIPO</span>
+                return <span className="flex items-center gap-1.5 text-blue-500 font-bold"><Microscope className="w-3 h-3" /> {t('roles.EQUIPO')}</span>
             default:
-                return <span className="flex items-center gap-1.5 text-slate-500 font-bold"><UserIcon className="w-3 h-3" /> PÚBLICO</span>
+                return <span className="flex items-center gap-1.5 text-slate-500 font-bold"><UserIcon className="w-3 h-3" /> {t('roles.PUBLICO')}</span>
         }
     }
 
@@ -124,12 +128,12 @@ export default function UsuariosPage() {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight font-outfit">Gestión de Usuarios</h2>
-                    <p className="text-muted-foreground">Administra los accesos y roles del personal.</p>
+                    <h2 className="text-3xl font-bold tracking-tight font-outfit">{t('title')}</h2>
+                    <p className="text-muted-foreground">{t('description')}</p>
                 </div>
                 <Button onClick={() => setIsModalOpen(true)} className="gap-2 shadow-lg shadow-primary/20">
                     <UserPlus className="w-4 h-4" />
-                    Nuevo Usuario
+                    {t('newUser')}
                 </Button>
             </div>
 
@@ -138,7 +142,7 @@ export default function UsuariosPage() {
                     <div className="relative max-w-sm">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
-                            placeholder="Buscar por nombre o email..."
+                            placeholder={tCommon('search')}
                             className="pl-10"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -149,11 +153,11 @@ export default function UsuariosPage() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Usuario</TableHead>
-                                <TableHead>Rol</TableHead>
-                                <TableHead>Estado</TableHead>
-                                <TableHead>Actividad</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{t('fields.name')}</TableHead>
+                                <TableHead>{t('fields.role')}</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>{tCommon('measurements')}</TableHead>
+                                <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -166,7 +170,7 @@ export default function UsuariosPage() {
                             ) : usuarios.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-40 text-center text-muted-foreground">
-                                        No se encontraron usuarios.
+                                        No users found.
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -190,9 +194,9 @@ export default function UsuariosPage() {
                                                     value={u.rol}
                                                     onChange={(e) => updateUsuario(u.id, { rol: e.target.value as any })}
                                                 >
-                                                    <option value="ADMIN">ADMIN</option>
-                                                    <option value="EQUIPO">EQUIPO</option>
-                                                    <option value="PUBLICO">PÚBLICO</option>
+                                                    <option value="ADMIN">{t('roles.ADMIN')}</option>
+                                                    <option value="EQUIPO">{t('roles.EQUIPO')}</option>
+                                                    <option value="PUBLICO">{t('roles.PUBLICO')}</option>
                                                 </select>
                                                 <div className="opacity-50 group-hover:opacity-100 transition-opacity">
                                                     <RoleBadge rol={u.rol} />
@@ -201,12 +205,12 @@ export default function UsuariosPage() {
                                         </TableCell>
                                         <TableCell>
                                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold border ${u.activo ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'}`}>
-                                                {u.activo ? 'ACTIVO' : 'INACTIVO'}
+                                                {u.activo ? 'ACTIVE' : 'INACTIVE'}
                                             </span>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-col text-[11px] text-muted-foreground">
-                                                <span>{u._count.mediciones} Mediciones</span>
+                                                <span>{u._count.mediciones} {tCommon('measurements')}</span>
                                                 <span className="text-[10px] opacity-60">ID: {u.id}</span>
                                             </div>
                                         </TableCell>
@@ -218,9 +222,9 @@ export default function UsuariosPage() {
                                                 onClick={() => updateUsuario(u.id, { activo: !u.activo })}
                                             >
                                                 {u.activo ? (
-                                                    <><UserMinus className="w-4 h-4" /> Desactivar</>
+                                                    <><UserMinus className="w-4 h-4" /> Deactivate</>
                                                 ) : (
-                                                    <><UserCheck className="w-4 h-4" /> Activar</>
+                                                    <><UserCheck className="w-4 h-4" /> Activate</>
                                                 )}
                                             </Button>
                                         </TableCell>
@@ -236,62 +240,62 @@ export default function UsuariosPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Crear Nuevo Usuario"
-                description="Ingresa los datos del nuevo miembro del equipo."
+                title={t('newUser')}
+                description="Enter new team member data."
             >
                 <form onSubmit={handleCreateUser} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="nombre">Nombre Completo</Label>
+                        <Label htmlFor="nombre">{t('fields.name')}</Label>
                         <Input
                             id="nombre"
-                            placeholder="Ej. Juan Pérez"
+                            placeholder={t('placeholders.name')}
                             required
                             value={formData.nombre}
                             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="email">Correo Electrónico</Label>
+                        <Label htmlFor="email">{t('fields.email')}</Label>
                         <Input
                             id="email"
                             type="email"
-                            placeholder="usuario@ejemplo.com"
+                            placeholder={t('placeholders.email')}
                             required
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="password">Contraseña</Label>
+                        <Label htmlFor="password">{t('fields.password')}</Label>
                         <Input
                             id="password"
                             type="password"
-                            placeholder="••••••••"
+                            placeholder="••••••"
                             required
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="rol">Rol del Usuario</Label>
+                        <Label htmlFor="rol">{t('fields.role')}</Label>
                         <select
                             id="rol"
                             className="w-full flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             value={formData.rol}
                             onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
                         >
-                            <option value="PUBLICO">Público (Acceso limitado)</option>
-                            <option value="EQUIPO">Equipo (Mediciones y Análisis)</option>
-                            <option value="ADMIN">Administrador (Control total)</option>
+                            <option value="PUBLICO">{t('roles.PUBLICO')}</option>
+                            <option value="EQUIPO">{t('roles.EQUIPO')}</option>
+                            <option value="ADMIN">{t('roles.ADMIN')}</option>
                         </select>
                     </div>
                     <div className="flex justify-end gap-3 pt-4">
                         <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
-                            Cancelar
+                            {tCommon('cancel')}
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <UserPlus className="w-4 h-4 mr-2" />}
-                            Crear Usuario
+                            {tCommon('create')}
                         </Button>
                     </div>
                 </form>

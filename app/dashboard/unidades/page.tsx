@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Modal } from "@/components/ui/modal"
 import { Plus, Ruler, Loader2, Trash2, Edit2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface Unidad {
     id: number
@@ -16,6 +17,10 @@ interface Unidad {
 }
 
 export default function UnidadesPage() {
+    const t = useTranslations('units')
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+    
     const [unidades, setUnidades] = useState<Unidad[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -55,7 +60,7 @@ export default function UnidadesPage() {
     }
 
     const handleDelete = async (id: number) => {
-        if (!confirm("¿Estás seguro de que deseas eliminar esta unidad?")) return
+        if (!confirm(tMessages('confirm.delete'))) return
         try {
             const token = localStorage.getItem("token")
             const res = await fetch(`/api/unidades/${id}`, {
@@ -103,11 +108,11 @@ export default function UnidadesPage() {
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight font-outfit">Unidades de Medida</h2>
-                    <p className="text-muted-foreground">Configura las unidades para tus registros.</p>
+                    <h2 className="text-3xl font-bold tracking-tight font-outfit">{t('title')}</h2>
+                    <p className="text-muted-foreground">{t('description')}</p>
                 </div>
                 <Button onClick={openCreateModal} className="gap-2">
-                    <Plus className="w-4 h-4" /> Nueva Unidad
+                    <Plus className="w-4 h-4" /> {t('newUnit')}
                 </Button>
             </div>
 
@@ -116,14 +121,14 @@ export default function UnidadesPage() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Nombre Completo</TableHead>
-                                <TableHead>Sigla / Símbolo</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead>{t('fields.name')}</TableHead>
+                                <TableHead>{t('fields.symbol')}</TableHead>
+                                <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
-                                <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">Cargando...</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">{tCommon('loading')}</TableCell></TableRow>
                             ) : unidades.map((u) => (
                                 <TableRow key={u.id} className="group">
                                     <TableCell className="font-medium">{u.nombre}</TableCell>
@@ -160,31 +165,33 @@ export default function UnidadesPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingUnidad ? "Editar Unidad" : "Agregar Unidad"}
-                description={editingUnidad ? "Actualiza los datos de esta unidad de medida" : "Define una nueva unidad para las mediciones"}
+                title={editingUnidad ? t('editUnit') : t('newUnit')}
+                description={editingUnidad ? "Update measurement unit data" : "Define a new measurement unit"}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="u-nombre">Nombre (ej: Kilogramo)</Label>
+                        <Label htmlFor="u-nombre">{t('fields.name')}</Label>
                         <Input
                             id="u-nombre"
                             required
+                            placeholder={t('placeholders.name')}
                             value={formData.nombre}
                             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="u-sigla">Sigla (ej: kg)</Label>
+                        <Label htmlFor="u-sigla">{t('fields.symbol')}</Label>
                         <Input
                             id="u-sigla"
                             required
+                            placeholder={t('placeholders.symbol')}
                             value={formData.sigla}
                             onChange={(e) => setFormData({ ...formData, sigla: e.target.value })}
                         />
                     </div>
                     <Button type="submit" className="w-full mt-4" disabled={submitting}>
                         {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                        {editingUnidad ? "Actualizar" : "Guardar"} Unidad
+                        {editingUnidad ? tCommon('update') : tCommon('save')} {t('title')}
                     </Button>
                 </form>
             </Modal>

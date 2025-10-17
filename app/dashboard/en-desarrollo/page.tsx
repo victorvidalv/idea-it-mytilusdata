@@ -2,8 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Construction, Sparkles, Rocket, Heart } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export default function EnDesarrolloPage() {
+    const t = useTranslations('inDevelopment')
+    
     return (
         <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
             <div className="relative mb-8">
@@ -15,11 +18,11 @@ export default function EnDesarrolloPage() {
 
             <div className="text-center max-w-2xl space-y-6">
                 <h1 className="text-4xl md:text-5xl font-bold font-outfit tracking-tight bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                    Experiencia en Construcción
+                    {t('title')}
                 </h1>
 
                 <p className="text-xl text-muted-foreground font-light leading-relaxed">
-                    Estamos diseñando un panel personalizado para tu perfil. Pronto podrás visualizar tus estadísticas y reportes exclusivos aquí.
+                    {t('description')}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">

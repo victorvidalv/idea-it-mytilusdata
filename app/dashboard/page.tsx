@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
+import { useTranslations } from "next-intl"
 
 interface Log {
     id: number
@@ -17,6 +18,9 @@ interface Log {
 }
 
 export default function DashboardPage() {
+    const t = useTranslations('dashboard')
+    const tCommon = useTranslations('common')
+    const tAuditLog = useTranslations('auditLog')
     const { user, loading: authLoading } = useAuth()
     const router = useRouter()
 
@@ -72,16 +76,16 @@ export default function DashboardPage() {
     return (
         <div className="space-y-8">
             <div className="flex flex-col gap-1">
-                <h2 className="text-3xl font-bold tracking-tight font-outfit">Dashboard General</h2>
-                <p className="text-muted-foreground">Resumen global de tu sistema de mediciones IT25I0032.</p>
+                <h2 className="text-3xl font-bold tracking-tight font-outfit">{t('title')}</h2>
+                <p className="text-muted-foreground">{t('description')}</p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {[
-                    { title: "Mediciones", value: stats.mediciones, icon: Database, href: "/dashboard/mediciones", desc: "Registros realizados" },
-                    { title: "Lugares", value: stats.lugares, icon: MapPin, href: "/dashboard/lugares", desc: "Puntos de control" },
-                    { title: "Unidades", value: stats.unidades, icon: Ruler, href: "/dashboard/unidades", desc: "Sistemas de medida" },
-                    { title: "Usuarios", value: stats.usuarios, icon: Users, href: "/dashboard/usuarios", desc: "Cuentas activas" },
+                    { title: t('measurements'), value: stats.mediciones, icon: Database, href: "/dashboard/mediciones", desc: t('measurementsDesc') },
+                    { title: t('places'), value: stats.lugares, icon: MapPin, href: "/dashboard/lugares", desc: t('placesDesc') },
+                    { title: t('units'), value: stats.unidades, icon: Ruler, href: "/dashboard/unidades", desc: t('unitsDesc') },
+                    { title: t('users'), value: stats.usuarios, icon: Users, href: "/dashboard/usuarios", desc: t('usersDesc') },
                 ].map((stat) => (
                     <Link key={stat.title} href={stat.href}>
                         <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-primary/5 transition-colors cursor-pointer group">
@@ -103,7 +107,7 @@ export default function DashboardPage() {
                     <CardHeader>
                         <CardTitle className="font-outfit flex items-center gap-2">
                             <Activity className="w-5 h-5 text-primary" />
-                            Actividad Reciente
+                            {t('recentActivity')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -114,7 +118,7 @@ export default function DashboardPage() {
                                 </div>
                             ) : recentLogs.length === 0 ? (
                                 <p className="text-sm text-muted-foreground text-center py-8 border border-dashed rounded-lg">
-                                    No hay actividad registrada aún.
+                                    {t('noActivity')}
                                 </p>
                             ) : (
                                 <div className="space-y-4">
@@ -125,9 +129,8 @@ export default function DashboardPage() {
                                                 }`} />
                                             <div className="flex-1">
                                                 <span className="font-semibold text-primary">{log.usuario.nombre}</span>
-                                                <span className="text-muted-foreground"> realizó un </span>
-                                                <span className="font-bold">{log.accion}</span>
-                                                <span className="text-muted-foreground"> en </span>
+                                                <span className="text-muted-foreground"> {tAuditLog('actions.' + log.accion)} </span>
+                                                <span className="text-muted-foreground">{tAuditLog('fields.table')}: </span>
                                                 <span className="italic">{log.tabla_afectada}</span>
                                             </div>
                                             <div className="text-[10px] text-muted-foreground font-mono">
@@ -136,7 +139,7 @@ export default function DashboardPage() {
                                         </div>
                                     ))}
                                     <Button variant="ghost" size="sm" className="w-full text-xs" asChild>
-                                        <Link href="/dashboard/bitacora">Ver auditoría completa</Link>
+                                        <Link href="/dashboard/bitacora">{t('viewFullAudit')}</Link>
                                     </Button>
                                 </div>
                             )}
@@ -146,25 +149,25 @@ export default function DashboardPage() {
 
                 <Card className="col-span-3 border-border/50">
                     <CardHeader>
-                        <CardTitle className="font-outfit">Accesos Directos</CardTitle>
+                        <CardTitle className="font-outfit">{t('quickAccess')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
                         <Button variant="outline" className="w-full justify-start gap-3 h-12 hover:bg-primary/10" asChild>
                             <Link href="/dashboard/mediciones">
                                 <Plus className="w-4 h-4 text-primary" />
-                                Nueva Medición
+                                {t('newMeasurement')}
                             </Link>
                         </Button>
                         <Button variant="outline" className="w-full justify-start gap-3 h-12 hover:bg-primary/10" asChild>
                             <Link href="/dashboard/lugares">
                                 <MapPin className="w-4 h-4 text-primary" />
-                                Registrar Lugar
+                                {t('registerPlace')}
                             </Link>
                         </Button>
                         <Button variant="outline" className="w-full justify-start gap-3 h-12 hover:bg-primary/10" asChild>
                             <Link href="/dashboard/bitacora">
                                 <History className="w-4 h-4 text-primary" />
-                                Ver Auditoría
+                                {t('viewAudit')}
                             </Link>
                         </Button>
                     </CardContent>

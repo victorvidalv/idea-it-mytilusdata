@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { Loader2 } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { UserMenu } from "@/components/dashboard/user-menu"
+import { useTranslations } from "next-intl"
 
 export default function DashboardLayout({
     children,
@@ -31,12 +31,15 @@ export default function DashboardLayout({
         })
     }
 
+    const t = useTranslations('common')
+    const tDashboard = useTranslations('dashboard')
+
     if (loading) {
         return (
             <div className="h-screen w-full flex items-center justify-center bg-background">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                    <p className="text-muted-foreground font-medium animate-pulse">Cargando sistema...</p>
+                    <p className="text-muted-foreground font-medium animate-pulse">{t('loading')}</p>
                 </div>
             </div>
         )
@@ -47,7 +50,6 @@ export default function DashboardLayout({
             <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <header className="h-16 border-b border-border/40 flex items-center justify-end px-8 gap-3 bg-background/50 backdrop-blur-md sticky top-0 z-10">
-                    <ThemeToggle />
                     <UserMenu />
                 </header>
                 <div className="flex-1 overflow-y-auto p-8">

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Plus, Trash2 } from "lucide-react"
 import { SeriesConfig, SERIES_COLORS, getSerieNombre, FilterData } from "./types"
+import { useTranslations } from "next-intl"
 
 interface SeriesConfigPanelProps {
     series: SeriesConfig[]
@@ -30,6 +31,11 @@ export function SeriesConfigPanel({
     onNewTipoChange,
     onNewUnidadChange,
 }: SeriesConfigPanelProps) {
+    const t = useTranslations('analysis')
+    const tCommon = useTranslations('common')
+    const tPlaces = useTranslations('places')
+    const tUnits = useTranslations('units')
+    const tRecordTypes = useTranslations('recordTypes')
 
     const handleAddSerie = () => {
         if (series.length >= 5) return
@@ -48,7 +54,7 @@ export function SeriesConfigPanel({
             {/* Series existentes */}
             {series.length > 0 && (
                 <div className="space-y-2">
-                    <Label className="text-sm font-medium">Series configuradas:</Label>
+                    <Label className="text-sm font-medium">{t('selectSeries')}</Label>
                     <div className="space-y-2">
                         {series.map((s, idx) => (
                             <div
@@ -68,7 +74,7 @@ export function SeriesConfigPanel({
                                         {getSerieNombre(s, filters.lugares, filters.unidades, filters.tipos)}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        Serie {idx + 1} {idx === 0 && "(Principal)"}
+                                        Series {idx + 1} {idx === 0 && "(Principal)"}
                                     </p>
                                 </div>
                                 <Button
@@ -90,30 +96,30 @@ export function SeriesConfigPanel({
                 <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
                     <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
                         <Plus className="w-4 h-4" />
-                        Agregar Serie {series.length + 1}
+                        Add Series {series.length + 1}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div className="space-y-2">
-                            <Label className="text-xs">Lugar</Label>
+                            <Label className="text-xs">{t('fields.place')}</Label>
                             <select
                                 value={newLugar}
                                 onChange={(e) => onNewLugarChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">Todos los lugares</option>
+                                <option value="">{tCommon('places')}</option>
                                 {filters.lugares.map((l) => (
                                     <option key={l.id} value={l.id.toString()}>{l.nombre}</option>
                                 ))}
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-xs">Unidad</Label>
+                            <Label className="text-xs">{t('fields.unit')}</Label>
                             <select
                                 value={newUnidad}
                                 onChange={(e) => onNewUnidadChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">Todas las unidades</option>
+                                <option value="">{tCommon('units')}</option>
                                 {filters.unidades.map((u) => (
                                     <option key={u.id} value={u.id.toString()}>
                                         {u.nombre} ({u.sigla})
@@ -122,13 +128,13 @@ export function SeriesConfigPanel({
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-xs">Tipo</Label>
+                            <Label className="text-xs">{t('fields.recordType')}</Label>
                             <select
                                 value={newTipo}
                                 onChange={(e) => onNewTipoChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">Todos los tipos</option>
+                                <option value="">{tCommon('recordTypes')}</option>
                                 {filters.tipos.map((t) => (
                                     <option key={t.id} value={t.id.toString()}>
                                         {t.descripcion || t.codigo}
@@ -144,7 +150,7 @@ export function SeriesConfigPanel({
                         disabled={!newLugar && !newTipo && !newUnidad}
                     >
                         <Plus className="w-4 h-4 mr-2" />
-                        Agregar Serie
+                        {tCommon('add')} Series
                     </Button>
                 </div>
             )}

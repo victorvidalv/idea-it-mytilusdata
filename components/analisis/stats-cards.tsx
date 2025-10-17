@@ -2,12 +2,15 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { SeriesStats } from "./types"
+import { useTranslations } from "next-intl"
 
 interface StatsCardsProps {
     stats: SeriesStats | null
 }
 
 export function StatsCards({ stats }: StatsCardsProps) {
+    const t = useTranslations('analysis')
+    
     if (!stats) return null
 
     return (
@@ -20,25 +23,25 @@ export function StatsCards({ stats }: StatsCardsProps) {
             </Card>
             <Card className="border-border/50 bg-gradient-to-br from-green-500/10 to-emerald-500/10">
                 <CardContent className="pt-4">
-                    <p className="text-xs text-muted-foreground uppercase">Mínimo</p>
+                    <p className="text-xs text-muted-foreground uppercase">Minimum</p>
                     <p className="text-2xl font-bold text-green-600">{stats.min.toFixed(2)}</p>
                 </CardContent>
             </Card>
             <Card className="border-border/50 bg-gradient-to-br from-orange-500/10 to-amber-500/10">
                 <CardContent className="pt-4">
-                    <p className="text-xs text-muted-foreground uppercase">Máximo</p>
+                    <p className="text-xs text-muted-foreground uppercase">Maximum</p>
                     <p className="text-2xl font-bold text-orange-600">{stats.max.toFixed(2)}</p>
                 </CardContent>
             </Card>
             <Card className="border-border/50 bg-gradient-to-br from-violet-500/10 to-purple-500/10">
                 <CardContent className="pt-4">
-                    <p className="text-xs text-muted-foreground uppercase">Promedio</p>
+                    <p className="text-xs text-muted-foreground uppercase">Average</p>
                     <p className="text-2xl font-bold text-violet-600">{stats.promedio.toFixed(2)}</p>
                 </CardContent>
             </Card>
             <Card className="border-border/50 bg-gradient-to-br from-pink-500/10 to-rose-500/10">
                 <CardContent className="pt-4">
-                    <p className="text-xs text-muted-foreground uppercase">Días</p>
+                    <p className="text-xs text-muted-foreground uppercase">Days</p>
                     <p className="text-2xl font-bold text-pink-600">{stats.diasTotales}</p>
                 </CardContent>
             </Card>

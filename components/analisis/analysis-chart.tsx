@@ -13,6 +13,7 @@ import {
     Legend,
     ResponsiveContainer,
 } from "recharts"
+import { useTranslations } from "next-intl"
 
 interface AnalysisChartProps {
     seriesData: SeriesData[]
@@ -20,17 +21,19 @@ interface AnalysisChartProps {
 }
 
 export function AnalysisChart({ seriesData, chartData }: AnalysisChartProps) {
+    const t = useTranslations('analysis')
+    
     return (
         <Card className="border-border/50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-primary" />
-                    Comparación de Series
+                    {t('selectSeries')}
                 </CardTitle>
                 <CardDescription>
                     {seriesData.length > 0
-                        ? `Mostrando ${seriesData.length} serie(s) - Día 0 = primera medición`
-                        : "Configura series y genera el análisis"
+                        ? `Showing ${seriesData.length} series - Day 0 = first measurement`
+                        : "Configure series and generate analysis"
                     }
                 </CardDescription>
             </CardHeader>
@@ -43,7 +46,7 @@ export function AnalysisChart({ seriesData, chartData }: AnalysisChartProps) {
                                 <XAxis
                                     dataKey="dia"
                                     tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                                    label={{ value: "Días transcurridos", position: "insideBottom", offset: -10, fontSize: 12 }}
+                                    label={{ value: "Days elapsed", position: "insideBottom", offset: -10, fontSize: 12 }}
                                 />
                                 <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
                                 <Tooltip
@@ -51,7 +54,7 @@ export function AnalysisChart({ seriesData, chartData }: AnalysisChartProps) {
                                         if (active && payload && payload.length) {
                                             return (
                                                 <div className="bg-background/95 backdrop-blur-sm border rounded-lg p-3 shadow-lg max-w-xs">
-                                                    <p className="font-semibold text-primary mb-2">Día {label}</p>
+                                                    <p className="font-semibold text-primary mb-2">Day {label}</p>
                                                     {payload.map((p, idx) => (
                                                         p.value !== null && (
                                                             <p key={idx} className="text-sm flex items-center gap-2">
@@ -91,9 +94,9 @@ export function AnalysisChart({ seriesData, chartData }: AnalysisChartProps) {
                         <div className="p-4 rounded-full bg-muted/50 mb-4">
                             <BarChart3 className="w-12 h-12 text-muted-foreground/50" />
                         </div>
-                        <h3 className="text-lg font-semibold text-muted-foreground">Sin datos</h3>
+                        <h3 className="text-lg font-semibold text-muted-foreground">No data</h3>
                         <p className="text-sm text-muted-foreground/70 mt-1 max-w-sm">
-                            Agrega series con combinaciones de lugar, tipo y unidad
+                            Add series with combinations of place, type and unit
                         </p>
                     </div>
                 )}

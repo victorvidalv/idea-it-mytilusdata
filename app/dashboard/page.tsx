@@ -24,12 +24,6 @@ export default function DashboardPage() {
     const { user, loading: authLoading } = useAuth()
     const router = useRouter()
 
-    const [stats, setStats] = useState({
-        mediciones: 0,
-        lugares: 0,
-        unidades: 0,
-        usuarios: 0,
-    })
     const [recentLogs, setRecentLogs] = useState<Log[]>([])
     const [loadingLogs, setLoadingLogs] = useState(true)
 
@@ -45,18 +39,6 @@ export default function DashboardPage() {
             const headers = { "Authorization": `Bearer ${token}` }
 
             try {
-                // Fetch stats
-                const statsRes = await fetch("/api/usuarios/me", { headers })
-                const statsData = await statsRes.json()
-                if (statsData.success) {
-                    setStats({
-                        mediciones: statsData.data._count.mediciones,
-                        lugares: statsData.data._count.lugares,
-                        unidades: statsData.data._count.unidades,
-                        usuarios: 1,
-                    })
-                }
-
                 // Fetch recent logs
                 setLoadingLogs(true)
                 const logsRes = await fetch("/api/bitacora?limit=5", { headers })
@@ -80,30 +62,8 @@ export default function DashboardPage() {
                 <p className="text-muted-foreground">{t('description')}</p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {[
-                    { title: t('measurements'), value: stats.mediciones, icon: Database, href: "/dashboard/mediciones", desc: t('measurementsDesc') },
-                    { title: t('places'), value: stats.lugares, icon: MapPin, href: "/dashboard/lugares", desc: t('placesDesc') },
-                    { title: t('units'), value: stats.unidades, icon: Ruler, href: "/dashboard/unidades", desc: t('unitsDesc') },
-                    { title: t('users'), value: stats.usuarios, icon: Users, href: "/dashboard/usuarios", desc: t('usersDesc') },
-                ].map((stat) => (
-                    <Link key={stat.title} href={stat.href}>
-                        <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-primary/5 transition-colors cursor-pointer group">
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                                <stat.icon className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{stat.value}</div>
-                                <p className="text-xs text-muted-foreground mt-1">{stat.desc}</p>
-                            </CardContent>
-                        </Card>
-                    </Link>
-                ))}
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4 border-border/50 bg-card/30">
+            <div className="grid gap-6 md:grid-cols-12">
+                <Card className="md:col-span-7 border-border/50 bg-card/30">
                     <CardHeader>
                         <CardTitle className="font-outfit flex items-center gap-2">
                             <Activity className="w-5 h-5 text-primary" />
@@ -147,27 +107,27 @@ export default function DashboardPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="col-span-3 border-border/50">
+                <Card className="md:col-span-5 border-border/50">
                     <CardHeader>
                         <CardTitle className="font-outfit">{t('quickAccess')}</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-2">
-                        <Button variant="outline" className="w-full justify-start gap-3 h-12 hover:bg-primary/10" asChild>
+                    <CardContent className="space-y-3">
+                        <Button variant="outline" className="w-full justify-start gap-3 h-14 hover:bg-primary/10 rounded-xl transition-all" asChild>
                             <Link href="/dashboard/mediciones">
-                                <Plus className="w-4 h-4 text-primary" />
-                                {t('newMeasurement')}
+                                <Plus className="w-5 h-5 text-primary" />
+                                <span className="font-medium">{t('newMeasurement')}</span>
                             </Link>
                         </Button>
-                        <Button variant="outline" className="w-full justify-start gap-3 h-12 hover:bg-primary/10" asChild>
+                        <Button variant="outline" className="w-full justify-start gap-3 h-14 hover:bg-primary/10 rounded-xl transition-all" asChild>
                             <Link href="/dashboard/lugares">
-                                <MapPin className="w-4 h-4 text-primary" />
-                                {t('registerPlace')}
+                                <MapPin className="w-5 h-5 text-primary" />
+                                <span className="font-medium">{t('registerPlace')}</span>
                             </Link>
                         </Button>
-                        <Button variant="outline" className="w-full justify-start gap-3 h-12 hover:bg-primary/10" asChild>
+                        <Button variant="outline" className="w-full justify-start gap-3 h-14 hover:bg-primary/10 rounded-xl transition-all" asChild>
                             <Link href="/dashboard/bitacora">
-                                <History className="w-4 h-4 text-primary" />
-                                {t('viewAudit')}
+                                <History className="w-5 h-5 text-primary" />
+                                <span className="font-medium">{t('viewAudit')}</span>
                             </Link>
                         </Button>
                     </CardContent>

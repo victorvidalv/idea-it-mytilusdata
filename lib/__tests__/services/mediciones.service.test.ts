@@ -1,4 +1,4 @@
-import { MedicionesService } from '../../services/mediciones.service';
+import { MedicionesService, MedicionesExportService } from '../../services';
 import prisma from '../../prisma';
 import { logger } from '../../utils/logger';
 import { registrarCambio } from '../../bitacora';
@@ -23,6 +23,9 @@ jest.mock('../../prisma', () => ({
     tipoRegistro: {
       findUnique: jest.fn(),
     },
+    origenDato: {
+      findFirst: jest.fn(),
+    },
   },
 }));
 
@@ -46,20 +49,6 @@ jest.mock('../../bitacora', () => ({
   cambiosSoftDelete: jest.fn(() => ({})),
 }));
 
-// Mock de fs
-jest.mock('fs', () => ({
-  __esModule: true,
-  readFileSync: jest.fn(),
-  unlinkSync: jest.fn(),
-}));
-
-// Mock de csv-writer
-jest.mock('csv-writer', () => ({
-  __esModule: true,
-  createObjectCsvWriter: jest.fn(() => ({
-    writeRecords: jest.fn().mockResolvedValue(undefined),
-  })),
-}));
 
 describe('MedicionesService - findAll', () => {
   beforeEach(() => {
@@ -327,12 +316,14 @@ describe('MedicionesService - create', () => {
       lugar_id: 1,
       unidad_id: 2,
       tipo_id: 3,
+      origen_id: 4,
       notas: 'Medición de prueba',
     };
 
     (prisma.lugar.findFirst as jest.Mock).mockResolvedValue({ id: 1, nombre: 'Lugar 1' });
     (prisma.unidad.findFirst as jest.Mock).mockResolvedValue({ id: 2, nombre: 'Unidad 1' });
     (prisma.tipoRegistro.findUnique as jest.Mock).mockResolvedValue({ id: 3, codigo: 'TIPO1' });
+    (prisma.origenDato.findFirst as jest.Mock).mockResolvedValue({ id: 4, nombre: 'Origen 1' });
     (prisma.medicion.create as jest.Mock).mockResolvedValue(mockMedicion);
     (registrarCambio as jest.Mock).mockResolvedValue(undefined);
 
@@ -357,6 +348,7 @@ describe('MedicionesService - create', () => {
       lugar_id: 1,
       unidad_id: 999,
       tipo_id: 3,
+      origen_id: 4,
     };
 
     (prisma.lugar.findFirst as jest.Mock).mockResolvedValue({ id: 1, nombre: 'Lugar 1' });
@@ -374,6 +366,7 @@ describe('MedicionesService - create', () => {
       lugar_id: 999,
       unidad_id: 2,
       tipo_id: 3,
+      origen_id: 4,
     };
 
     (prisma.lugar.findFirst as jest.Mock).mockResolvedValue(null);
@@ -390,6 +383,7 @@ describe('MedicionesService - create', () => {
       lugar_id: 1,
       unidad_id: 2,
       tipo_id: 999,
+      origen_id: 4,
     };
 
     (prisma.lugar.findFirst as jest.Mock).mockResolvedValue({ id: 1, nombre: 'Lugar 1' });
@@ -408,11 +402,13 @@ describe('MedicionesService - create', () => {
       lugar_id: 1,
       unidad_id: 2,
       tipo_id: 3,
+      origen_id: 4,
     };
 
     (prisma.lugar.findFirst as jest.Mock).mockResolvedValue({ id: 1, nombre: 'Lugar 1' });
     (prisma.unidad.findFirst as jest.Mock).mockResolvedValue({ id: 2, nombre: 'Unidad 1' });
     (prisma.tipoRegistro.findUnique as jest.Mock).mockResolvedValue({ id: 3, codigo: 'TIPO1' });
+    (prisma.origenDato.findFirst as jest.Mock).mockResolvedValue({ id: 4, nombre: 'Origen 1' });
     (prisma.medicion.create as jest.Mock).mockRejectedValue(
       new Error('Foreign key constraint failed')
     );
@@ -653,90 +649,44 @@ describe('MedicionesService - exportToCSV', () => {
         lugar: { id: 1, nombre: 'Lugar 1' },
         unidad: { id: 2, nombre: 'Unidad 1' },
         tipo: { id: 3, codigo: 'TIPO1', descripcion: 'Tipo 1' },
+        origen: { id: 1, nombre: 'Origen 1' },
         registrado_por: { id: 1, nombre: 'Usuario 1' },
       },
     ];
 
-    const { createObjectCsvWriter } = require('csv-writer');
-    const mockCsvWriter = {
-      writeRecords: jest.fn().mockResolvedValue(undefined),
-    };
-    createObjectCsvWriter.mockReturnValue(mockCsvWriter);
-
-    const fs = require('fs');
-    fs.readFileSync.mockReturnValue('id,valor,fecha\n1,25.5,2024-01-15\n');
-
     (prisma.medicion.findMany as jest.Mock).mockResolvedValue(mockMediciones);
 
-    const result = await MedicionesService.exportToCSV({});
+    const result = await MedicionesExportService.exportToCSV({});
 
     expect(result).toContain('\uFEFF');
-    expect(result).toContain('id');
-    expect(result).toContain('valor');
-    expect(mockCsvWriter.writeRecords).toHaveBeenCalled();
+    expect(result).toContain('id,valor,fecha,unidad,lugar,tipoRegistro,observaciones,createdAt');
+    expect(result).toContain('1,25.5');
   });
 
   it('debe incluir headers correctos', async () => {
-    const mockMediciones = [];
-
-    const { createObjectCsvWriter } = require('csv-writer');
-    const mockCsvWriter = {
-      writeRecords: jest.fn().mockResolvedValue(undefined),
-    };
-    createObjectCsvWriter.mockReturnValue(mockCsvWriter);
-
-    const fs = require('fs');
-    fs.readFileSync.mockReturnValue('id,valor,fecha,unidad,lugar,tipoRegistro,observaciones,createdAt\n');
+    const mockMediciones: any[] = [];
 
     (prisma.medicion.findMany as jest.Mock).mockResolvedValue(mockMediciones);
 
-    await MedicionesService.exportToCSV({});
+    const result = await MedicionesExportService.exportToCSV({});
 
-    expect(createObjectCsvWriter).toHaveBeenCalledWith(
-      expect.objectContaining({
-        header: expect.arrayContaining([
-          { id: 'id', title: 'id' },
-          { id: 'valor', title: 'valor' },
-          { id: 'fecha', title: 'fecha' },
-          { id: 'unidad', title: 'unidad' },
-          { id: 'lugar', title: 'lugar' },
-          { id: 'tipoRegistro', title: 'tipoRegistro' },
-          { id: 'observaciones', title: 'observaciones' },
-          { id: 'createdAt', title: 'createdAt' },
-        ]),
-      })
-    );
+    expect(result).toContain('id,valor,fecha,unidad,lugar,tipoRegistro,observaciones,createdAt');
   });
 
   it('debe manejar lista vacía', async () => {
-    const mockMediciones = [];
-
-    const { createObjectCsvWriter } = require('csv-writer');
-    const mockCsvWriter = {
-      writeRecords: jest.fn().mockResolvedValue(undefined),
-    };
-    createObjectCsvWriter.mockReturnValue(mockCsvWriter);
-
-    const fs = require('fs');
-    fs.readFileSync.mockReturnValue('id,valor,fecha,unidad,lugar,tipoRegistro,observaciones,createdAt\n');
+    const mockMediciones: any[] = [];
 
     (prisma.medicion.findMany as jest.Mock).mockResolvedValue(mockMediciones);
 
-    const result = await MedicionesService.exportToCSV({});
+    const result = await MedicionesExportService.exportToCSV({});
 
     expect(result).toContain('\uFEFF');
-    expect(mockCsvWriter.writeRecords).toHaveBeenCalledWith([]);
+    expect(result).toContain('id,valor,fecha,unidad,lugar,tipoRegistro,observaciones,createdAt');
   });
 
   it('debe manejar errores de escritura', async () => {
-    const { createObjectCsvWriter } = require('csv-writer');
-    const mockCsvWriter = {
-      writeRecords: jest.fn().mockRejectedValue(new Error('Write error')),
-    };
-    createObjectCsvWriter.mockReturnValue(mockCsvWriter);
+    (prisma.medicion.findMany as jest.Mock).mockRejectedValue(new Error('Database error'));
 
-    (prisma.medicion.findMany as jest.Mock).mockResolvedValue([]);
-
-    await expect(MedicionesService.exportToCSV({})).rejects.toThrow('Error al generar el archivo CSV');
+    await expect(MedicionesExportService.exportToCSV({})).rejects.toThrow('Error al generar el archivo CSV');
   });
 });

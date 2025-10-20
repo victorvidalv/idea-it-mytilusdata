@@ -27,7 +27,7 @@ interface Usuario {
 export default function UsuariosPage() {
     const t = useTranslations('users')
     const tCommon = useTranslations('common')
-    
+
     const [usuarios, setUsuarios] = useState<Usuario[]>([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState("")
@@ -155,7 +155,7 @@ export default function UsuariosPage() {
                             <TableRow className="bg-muted/30">
                                 <TableHead>{t('fields.name')}</TableHead>
                                 <TableHead>{t('fields.role')}</TableHead>
-                                <TableHead>Status</TableHead>
+                                <TableHead>{tCommon('status')}</TableHead>
                                 <TableHead>{tCommon('measurements')}</TableHead>
                                 <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
@@ -205,7 +205,7 @@ export default function UsuariosPage() {
                                         </TableCell>
                                         <TableCell>
                                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold border ${u.activo ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'}`}>
-                                                {u.activo ? 'ACTIVE' : 'INACTIVE'}
+                                                {u.activo ? tCommon('active').toUpperCase() : tCommon('inactive').toUpperCase()}
                                             </span>
                                         </TableCell>
                                         <TableCell>
@@ -222,9 +222,9 @@ export default function UsuariosPage() {
                                                 onClick={() => updateUsuario(u.id, { activo: !u.activo })}
                                             >
                                                 {u.activo ? (
-                                                    <><UserMinus className="w-4 h-4" /> Deactivate</>
+                                                    <><UserMinus className="w-4 h-4" /> {tCommon('deactivate')}</>
                                                 ) : (
-                                                    <><UserCheck className="w-4 h-4" /> Activate</>
+                                                    <><UserCheck className="w-4 h-4" /> {tCommon('activate')}</>
                                                 )}
                                             </Button>
                                         </TableCell>

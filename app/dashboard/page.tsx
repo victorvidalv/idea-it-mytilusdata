@@ -91,7 +91,7 @@ export default function DashboardPage() {
                                                 <span className="font-semibold text-primary">{log.usuario.nombre}</span>
                                                 <span className="text-muted-foreground"> {tAuditLog('actions.' + log.accion)} </span>
                                                 <span className="text-muted-foreground">{tAuditLog('fields.table')}: </span>
-                                                <span className="italic">{log.tabla_afectada}</span>
+                                                <span className="italic">{tAuditLog(`tables.${log.tabla_afectada}`)}</span>
                                             </div>
                                             <div className="text-[10px] text-muted-foreground font-mono">
                                                 {new Date(log.fecha_evento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

@@ -27,7 +27,17 @@
     "clear": "Clear",
     "submit": "Submit",
     "reset": "Reset",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "places": "Places",
+    "units": "Units",
+    "recordTypes": "Record Types",
+    "users": "Users",
+    "measurements": "Measurements",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -260,12 +270,21 @@
     "actions": {
       "CREATE": "Created",
       "UPDATE": "Updated",
-      "DELETE": "Deleted"
+      "DELETE": "Deleted",
+      "SOFT_DELETE": "Soft Deleted"
     },
     "filter": {
       "allActions": "All Actions",
       "allTables": "All Tables",
       "dateRange": "Date Range"
+    },
+    "tables": {
+      "Mediciones": "Measurements",
+      "Lugares": "Places",
+      "Unidades": "Units",
+      "Origen_datos": "Origins",
+      "Tipo_registro": "Record Types",
+      "Usuarios": "Users"
     }
   },
   "analysis": {

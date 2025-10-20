@@ -95,7 +95,7 @@ export default function BitacoraPage() {
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <Activity className="w-3.5 h-3.5 text-primary/70" />
-                                            <span className="capitalize">{log.tabla_afectada}</span>
+                                            <span className="capitalize">{t(`tables.${log.tabla_afectada}`)}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell className="max-w-xs">

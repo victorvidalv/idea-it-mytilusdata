@@ -1,210 +1,95 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { Filter } from "lucide-react"
-import { useTranslations } from "next-intl"
-import { Medicion, Lugar, Unidad, TipoRegistro, Usuario, OrigenDato } from "@/lib/types"
 import { MedicionesTable } from "@/components/dashboard/mediciones/mediciones-table"
 import { MedicionesFilters } from "@/components/dashboard/mediciones/mediciones-filters"
 import { MedicionesForm } from "@/components/dashboard/mediciones/mediciones-form"
 import { MedicionesHeader } from "@/components/dashboard/mediciones/mediciones-header"
+import { useMedicionesData } from "./hooks/use-mediciones-data"
+import { useMedicionesCrud } from "./hooks/use-mediciones-crud"
+import { useMedicionesExport } from "./hooks/use-mediciones-export"
 
+// Página principal de mediciones
 export default function MedicionesPage() {
+    // Obtener traducciones
     const t = useTranslations('measurements')
     const tCommon = useTranslations('common')
     const tMessages = useTranslations('messages')
     
-    const [mediciones, setMediciones] = useState<Medicion[]>([])
-    const [lugares, setLugares] = useState<Lugar[]>([])
-    const [unidades, setUnidades] = useState<Unidad[]>([])
-    const [tipos, setTipos] = useState<TipoRegistro[]>([])
-    const [origenes, setOrigenes] = useState<OrigenDato[]>([])
-    const [usuarios, setUsuarios] = useState<Usuario[]>([])
-    const [loading, setLoading] = useState(true)
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    // Estado para mostrar/ocultar filtros
     const [showFilters, setShowFilters] = useState(false)
-    const [submitting, setSubmitting] = useState(false)
-    const [editingMedicion, setEditingMedicion] = useState<Medicion | null>(null)
+    
+    // Usar hook personalizado para datos
+    const {
+        mediciones,
+        lugares,
+        unidades,
+        tipos,
+        origenes,
+        usuarios,
+        loading,
+        filters,
+        setFilters,
+        fetchData
+    } = useMedicionesData()
 
-    const [filters, setFilters] = useState({
-        lugar_id: "",
-        tipo_id: "",
-        autor_id: ""
-    })
+    // Usar hook personalizado para operaciones CRUD
+    const {
+        isModalOpen,
+        editingMedicion,
+        formData,
+        submitting,
+        openCreateModal,
+        openEditModal,
+        closeModal,
+        handleDelete,
+        handleSubmit,
+        setFormData
+    } = useMedicionesCrud()
 
-    const [formData, setFormData] = useState({
-        valor: "",
-        fecha_medicion: new Date().toISOString().split("T")[0],
-        lugar_id: "",
-        unidad_id: "",
-        tipo_id: "",
-        origen_id: "",
-        notas: ""
-    })
+    // Usar hook personalizado para exportación
+    const { handleExportCSV } = useMedicionesExport()
 
-    const fetchData = async () => {
-        setLoading(true)
-        const token = localStorage.getItem("token")
-        const headers = { "Authorization": `Bearer ${token}` }
-
-        try {
-            const queryParams = new URLSearchParams()
-            if (filters.lugar_id) queryParams.append("lugar_id", filters.lugar_id)
-            if (filters.tipo_id) queryParams.append("tipo_id", filters.tipo_id)
-            if (filters.autor_id) queryParams.append("autor_id", filters.autor_id)
-
-            const [mRes, lRes, uRes, tRes, oRes, usRes] = await Promise.all([
-                fetch(`/api/mediciones?${queryParams.toString()}`, { headers }),
-                fetch("/api/lugares", { headers }),
-                fetch("/api/unidades", { headers }),
-                fetch("/api/tipos-registro", { headers }),
-                fetch("/api/origenes", { headers }),
-                fetch("/api/usuarios", { headers })
-            ])
-
-            const [m, l, u, t, o, us] = await Promise.all([
-                mRes.json(),
-                lRes.json(),
-                uRes.json(),
-                tRes.json(),
-                oRes.json(),
-                usRes.json()
-            ])
-
-            if (m.success) setMediciones(m.data)
-            if (l.success) setLugares(l.data)
-            if (u.success) setUnidades(u.data)
-            if (t.success) setTipos(t.data)
-            if (o.success) setOrigenes(o.data)
-            if (us.success) setUsuarios(us.data)
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => { fetchData() }, [filters])
-
-    const openCreateModal = () => {
-        setEditingMedicion(null)
-        setFormData({
-            valor: "",
-            fecha_medicion: new Date().toISOString().split("T")[0],
-            lugar_id: "",
-            unidad_id: "",
-            tipo_id: "",
-            origen_id: "",
-            notas: ""
-        })
-        setIsModalOpen(true)
-    }
-
-    const openEditModal = (m: Medicion) => {
-        setEditingMedicion(m)
-        setFormData({
-            valor: m.valor.toString(),
-            fecha_medicion: new Date(m.fecha_medicion).toISOString().split("T")[0],
-            lugar_id: m.lugar.id.toString(),
-            unidad_id: m.unidad.id.toString(),
-            tipo_id: m.tipo.id.toString(),
-            origen_id: m.origen.id.toString(),
-            notas: m.notas || ""
-        })
-        setIsModalOpen(true)
-    }
-
-    const handleDelete = async (id: number) => {
-        if (!confirm(tMessages('confirm.deleteMeasurement'))) return
-        try {
-            const token = localStorage.getItem("token")
-            const res = await fetch(`/api/mediciones/${id}`, {
-                method: "DELETE",
-                headers: { "Authorization": `Bearer ${token}` }
-            })
-            const data = await res.json()
-            if (data.success) {
-                fetchData()
-            } else {
-                alert(data.message)
-            }
-        } catch (e) { console.error(e) }
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setSubmitting(true)
-        try {
-            const token = localStorage.getItem("token")
-            const url = editingMedicion ? `/api/mediciones/${editingMedicion.id}` : "/api/mediciones"
-            const method = editingMedicion ? "PUT" : "POST"
-
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formData)
-            })
-            const data = await res.json()
-            if (data.success) {
-                setIsModalOpen(false)
-                fetchData()
-            } else { alert(data.message) }
-        } catch (e) { console.error(e) }
-        finally { setSubmitting(false) }
-    }
-
-    const handleExportCSV = async () => {
-        const token = localStorage.getItem("token")
-        const queryParams = new URLSearchParams()
-        if (filters.lugar_id) queryParams.append("lugar_id", filters.lugar_id)
-        if (filters.tipo_id) queryParams.append("tipo_id", filters.tipo_id)
-        if (filters.autor_id) queryParams.append("autor_id", filters.autor_id)
-
-        const url = `/api/mediciones/export?${queryParams.toString()}`
-
-        try {
-            const res = await fetch(url, {
-                headers: { "Authorization": `Bearer ${token}` }
-            })
-            if (res.ok) {
-                const blob = await res.blob()
-                const downloadUrl = window.URL.createObjectURL(blob)
-                const a = document.createElement("a")
-                a.href = downloadUrl
-                a.download = `mediciones_${new Date().toISOString().split("T")[0]}.csv`
-                document.body.appendChild(a)
-                a.click()
-                a.remove()
-            } else {
-                alert(tMessages('error.downloadCSV'))
-            }
-        } catch (e) {
-            console.error(e)
-            alert(tMessages('error.serverConnection'))
-        }
-    }
-
+    // Verificar si hay filtros activos
     const hasActiveFilters = filters.lugar_id || filters.tipo_id || filters.autor_id
+
+    // Manejar eliminación de medición
+    const handleDeleteMedicion = async (id: number) => {
+        await handleDelete(id, fetchData, tMessages)
+    }
+
+    // Manejar envío de formulario
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        await handleSubmit(e, fetchData)
+    }
+
+    // Manejar exportación a CSV
+    const handleExport = async () => {
+        await handleExportCSV(filters, tMessages)
+    }
 
     return (
         <div className="space-y-6">
+            {/* Header con acciones principales */}
             <MedicionesHeader
                 onCreate={openCreateModal}
-                onExport={handleExportCSV}
+                onExport={handleExport}
                 hasFilters={!!hasActiveFilters}
                 onToggleFilters={() => setShowFilters(!showFilters)}
                 onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
             />
 
+            {/* Tarjeta principal con tabla de mediciones */}
             <Card className="border-border/50">
                 <CardHeader className="p-4 border-b">
+                    {/* Barra de acciones para filtros */}
                     <div className="flex items-center gap-4">
+                        {/* Botón para mostrar/ocultar filtros */}
                         <Button
                             variant={showFilters ? "secondary" : "outline"}
                             size="sm"
@@ -216,6 +101,8 @@ export default function MedicionesPage() {
                                 <span className="flex h-2 w-2 rounded-full bg-primary" />
                             )}
                         </Button>
+                        
+                        {/* Botón para limpiar filtros activos */}
                         {hasActiveFilters && (
                             <Button
                                 variant="ghost"
@@ -228,6 +115,7 @@ export default function MedicionesPage() {
                         )}
                     </div>
 
+                    {/* Filtros de mediciones (condicional) */}
                     {showFilters && (
                         <MedicionesFilters
                             filters={filters}
@@ -240,18 +128,20 @@ export default function MedicionesPage() {
                     )}
                 </CardHeader>
                 <CardContent className="p-0">
+                    {/* Tabla de mediciones */}
                     <MedicionesTable
                         mediciones={mediciones}
                         loading={loading}
                         onEdit={openEditModal}
-                        onDelete={handleDelete}
+                        onDelete={handleDeleteMedicion}
                     />
                 </CardContent>
             </Card>
 
+            {/* Modal para crear/editar mediciones */}
             <Modal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={closeModal}
                 title={editingMedicion ? t('editMeasurement') : t('registerMeasurement')}
                 description={editingMedicion ? t('updateMeasurementDescription') : t('createMeasurementDescription')}
             >
@@ -262,7 +152,7 @@ export default function MedicionesPage() {
                     tipos={tipos}
                     origenes={origenes}
                     onChange={setFormData}
-                    onSubmit={handleSubmit}
+                    onSubmit={handleFormSubmit}
                     submitting={submitting}
                     isEditing={!!editingMedicion}
                 />

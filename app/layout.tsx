@@ -30,8 +30,8 @@ export default async function RootLayout({
   // Get locale from cookie (set by middleware)
   const cookieStore = await cookies();
   const localeCookie = cookieStore.get('NEXT_LOCALE');
-  const locale = (localeCookie?.value && locales.includes(localeCookie.value as any)) 
-    ? localeCookie.value 
+  const locale = (localeCookie?.value && locales.includes(localeCookie.value as any))
+    ? localeCookie.value
     : defaultLocale;
 
   // Import messages directly based on locale
@@ -40,6 +40,7 @@ export default async function RootLayout({
   return (
     <html suppressHydrationWarning lang={locale}>
       <body
+        suppressHydrationWarning
         className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-background text-foreground min-h-screen flex flex-col`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>

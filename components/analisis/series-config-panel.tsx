@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Plus, Trash2 } from "lucide-react"
-import { SeriesConfig, SERIES_COLORS, getSerieNombre, FilterData } from "./types"
+import { SeriesConfig, SERIES_COLORS, getSerieNombre, FilterData } from "."
 import { useTranslations } from "next-intl"
 
 interface SeriesConfigPanelProps {

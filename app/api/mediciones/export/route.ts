@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth, isAuthError } from "@/lib/middleware/auth";
-import { MedicionesService } from "@/lib/services/mediciones.service";
+import { MedicionesExportService } from "@/lib/services";
 import { handleApiError } from "@/lib/utils/errors";
 
 /**
@@ -51,8 +51,8 @@ export async function GET(request: NextRequest) {
             filters.fecha_hasta = new Date(fechaHasta);
         }
 
-        // Generar CSV usando el servicio
-        const csvContent = await MedicionesService.exportToCSV(filters);
+        // Generar CSV usando el servicio de exportación
+        const csvContent = await MedicionesExportService.exportToCSV(filters);
 
         // Retornar archivo CSV
         const filename = `mediciones_export_${new Date().toISOString().split("T")[0]}.csv`;

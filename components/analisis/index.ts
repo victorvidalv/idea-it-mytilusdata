@@ -4,14 +4,7 @@ export { StatsCards } from "./stats-cards"
 export { AnalysisChart } from "./analysis-chart"
 export { SigmoidModelCard } from "./sigmoid-model-card"
 
-// Exportar tipos y utilidades
-export {
-    SERIES_COLORS,
-    getSerieNombre,
-    calculateStats,
-    calculateSigmoid,
-} from "./types"
-
+// Exportar tipos
 export type {
     SeriesConfig,
     SeriesData,
@@ -19,3 +12,11 @@ export type {
     SigmoidParams,
     FilterData,
 } from "./types"
+
+// Exportar constantes
+export { SERIES_COLORS } from "./constants"
+
+// Exportar funciones de utilidad
+export { getSerieNombre } from "./utils/series-helpers"
+export { calculateStats } from "./utils/stats-calculator"
+export { calculateSigmoid } from "./utils/sigmoid-calculator"

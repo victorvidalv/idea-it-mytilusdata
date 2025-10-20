@@ -27,7 +27,17 @@
     "clear": "Limpiar",
     "submit": "Enviar",
     "reset": "Restablecer",
-    "refresh": "Actualizar"
+    "refresh": "Actualizar",
+    "places": "Lugares",
+    "units": "Unidades",
+    "recordTypes": "Tipos de Registro",
+    "users": "Usuarios",
+    "measurements": "Mediciones",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "activate": "Activar",
+    "deactivate": "Desactivar"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -260,12 +270,21 @@
     "actions": {
       "CREATE": "Creó",
       "UPDATE": "Actualizó",
-      "DELETE": "Eliminó"
+      "DELETE": "Eliminó",
+      "SOFT_DELETE": "Eliminó (Lógico)"
     },
     "filter": {
       "allActions": "Todas las Acciones",
       "allTables": "Todas las Tablas",
       "dateRange": "Rango de Fechas"
+    },
+    "tables": {
+      "Mediciones": "Mediciones",
+      "Lugares": "Lugares",
+      "Unidades": "Unidades",
+      "Origen_datos": "Orígenes",
+      "Tipo_registro": "Tipos de Registro",
+      "Usuarios": "Usuarios"
     }
   },
   "analysis": {

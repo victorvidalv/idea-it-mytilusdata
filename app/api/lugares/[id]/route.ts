@@ -5,11 +5,7 @@ import {
     isAuthError,
     getClientIp,
 } from "@/lib/middleware/auth";
-import {
-    registrarCambio,
-    cambiosUpdate,
-    cambiosSoftDelete,
-} from "@/lib/bitacora";
+
 import { Prisma } from "@/generated/prisma";
 
 interface RouteParams {
@@ -169,28 +165,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             },
         });
 
-        // Registrar en bitácora
-        await registrarCambio(
-            "lugares",
-            lugarId,
-            "UPDATE",
-            cambiosUpdate(
-                {
-                    nombre: lugarExistente.nombre,
-                    nota: lugarExistente.nota,
-                    latitud: lugarExistente.latitud?.toString(),
-                    longitud: lugarExistente.longitud?.toString(),
-                },
-                {
-                    nombre: datosActualizados.nombre as string | undefined,
-                    nota: datosActualizados.nota as string | null | undefined,
-                    latitud: datosActualizados.latitud?.toString(),
-                    longitud: datosActualizados.longitud?.toString(),
-                }
-            ),
-            auth.id,
-            getClientIp(request)
-        );
+
 
         return NextResponse.json({
             success: true,
@@ -258,15 +233,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
             data: { deleted_at: new Date() },
         });
 
-        // Registrar en bitácora
-        await registrarCambio(
-            "lugares",
-            lugarId,
-            "SOFT_DELETE",
-            cambiosSoftDelete(),
-            auth.id,
-            getClientIp(request)
-        );
+
 
         return NextResponse.json({
             success: true,

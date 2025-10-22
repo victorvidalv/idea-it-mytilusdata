@@ -15,13 +15,6 @@ import {
   type FilterMedicionesInput,
 } from '@/lib/validators/mediciones.validator';
 import {
-  registrarCambio,
-  cambiosCreate,
-  cambiosUpdate,
-  cambiosSoftDelete,
-} from '@/lib/bitacora';
-import type { Prisma } from '@prisma/client';
-import {
   validarLugar,
   validarUnidad,
   validarTipo,
@@ -187,15 +180,7 @@ export class MedicionesService {
       include: getIncludes(),
     });
 
-    // Registrar en bitácora
-    await registrarCambio(
-      'mediciones',
-      medicion.id,
-      'CREATE',
-      cambiosCreate(validatedData),
-      userId,
-      clientIp
-    );
+
 
     logger.info('Medición creada exitosamente', { id: medicion.id });
 
@@ -284,17 +269,7 @@ export class MedicionesService {
       include: getIncludes(),
     });
 
-    // Registrar en bitácora si hubo cambios
-    if (Object.keys(cambios).length > 0) {
-      await registrarCambio(
-        'mediciones',
-        medicion.id,
-        'UPDATE',
-        cambios,
-        userId,
-        clientIp
-      );
-    }
+
 
     logger.info('Medición actualizada exitosamente', { id: medicion.id });
 
@@ -347,15 +322,7 @@ export class MedicionesService {
       include: getIncludes(),
     });
 
-    // Registrar en bitácora
-    await registrarCambio(
-      'mediciones',
-      medicion.id,
-      'SOFT_DELETE',
-      cambiosSoftDelete(),
-      userId,
-      clientIp
-    );
+
 
     logger.info('Medición eliminada exitosamente (soft delete)', { id: medicion.id });
 

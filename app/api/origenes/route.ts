@@ -5,10 +5,7 @@ import {
     isAuthError,
     getClientIp,
 } from "@/lib/middleware/auth";
-import {
-    registrarCambio,
-    cambiosCreate,
-} from "@/lib/bitacora";
+
 
 /**
  * GET /api/origenes
@@ -90,16 +87,6 @@ export async function POST(request: NextRequest) {
                 },
             },
         });
-
-        // Registrar en bitácora
-        await registrarCambio(
-            "origen_datos",
-            nuevoOrigen.id,
-            "CREATE",
-            cambiosCreate({ nombre: nuevoOrigen.nombre, descripcion: nuevoOrigen.descripcion }),
-            auth.id,
-            getClientIp(request)
-        );
 
         return NextResponse.json(
             {

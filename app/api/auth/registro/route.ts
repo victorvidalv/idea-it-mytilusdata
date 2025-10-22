@@ -52,20 +52,7 @@ export const POST = withRateLimit(
                 },
             });
 
-            // Registrar en bitácora
-            await prisma.bitacoraCambio.create({
-                data: {
-                    tabla_afectada: "usuarios",
-                    registro_id: nuevoUsuario.id,
-                    accion: "CREATE",
-                    cambios: JSON.stringify({
-                        nombre: { anterior: null, nuevo: nuevoUsuario.nombre },
-                        email: { anterior: null, nuevo: nuevoUsuario.email },
-                    }),
-                    usuario_id: nuevoUsuario.id,
-                    ip_origen: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown",
-                },
-            });
+
 
             // Generar token JWT
             const userAny = nuevoUsuario as any;

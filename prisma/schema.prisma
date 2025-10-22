@@ -30,7 +30,6 @@ model Usuario {
   lugares           Lugar[]           @relation("creador_lugar")
   origenes          OrigenDato[]      @relation("creador_origen")
   mediciones        Medicion[]        @relation("registrador_medicion")
-  bitacora_cambios  BitacoraCambio[]  @relation("usuario_bitacora")
 
   @@map("usuarios")
 }
@@ -122,22 +121,4 @@ model Medicion {
   @@map("mediciones")
 }
 
-// --- TABLA DE AUDITORÍA (BITÁCORA DE CAMBIOS) ---
-model BitacoraCambio {
-  id              Int      @id @default(autoincrement())
-  tabla_afectada  String
-  registro_id     Int
-  accion          String   // CREATE, UPDATE, SOFT_DELETE
-  
-  // Snapshot de datos en JSON
-  cambios String? // Guardar {campo: {anterior: x, nuevo: y}} como JSON string
 
-  usuario_id   Int?
-  fecha_evento DateTime @default(now())
-  ip_origen    String?
-
-  // Relaciones
-  usuario Usuario? @relation("usuario_bitacora", fields: [usuario_id], references: [id])
-
-  @@map("bitacora_cambios")
-}

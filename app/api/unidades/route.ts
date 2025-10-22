@@ -5,11 +5,7 @@ import {
     isAuthError,
     getClientIp,
 } from "@/lib/middleware/auth";
-import {
-    registrarCambio,
-    cambiosCreate,
-    cambiosSoftDelete,
-} from "@/lib/bitacora";
+
 
 /**
  * GET /api/unidades
@@ -98,16 +94,6 @@ export async function POST(request: NextRequest) {
                 },
             },
         });
-
-        // Registrar en bitácora
-        await registrarCambio(
-            "unidades",
-            nuevaUnidad.id,
-            "CREATE",
-            cambiosCreate({ nombre: nuevaUnidad.nombre, sigla: nuevaUnidad.sigla }),
-            auth.id,
-            getClientIp(request)
-        );
 
         return NextResponse.json(
             {

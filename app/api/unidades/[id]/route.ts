@@ -5,11 +5,7 @@ import {
     isAuthError,
     getClientIp,
 } from "@/lib/middleware/auth";
-import {
-    registrarCambio,
-    cambiosUpdate,
-    cambiosSoftDelete,
-} from "@/lib/bitacora";
+
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -156,18 +152,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             },
         });
 
-        // Registrar en bitácora
-        await registrarCambio(
-            "unidades",
-            unidadId,
-            "UPDATE",
-            cambiosUpdate(
-                { nombre: unidadExistente.nombre, sigla: unidadExistente.sigla },
-                datosActualizados
-            ),
-            auth.id,
-            getClientIp(request)
-        );
+
 
         return NextResponse.json({
             success: true,
@@ -235,15 +220,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
             data: { deleted_at: new Date() },
         });
 
-        // Registrar en bitácora
-        await registrarCambio(
-            "unidades",
-            unidadId,
-            "SOFT_DELETE",
-            cambiosSoftDelete(),
-            auth.id,
-            getClientIp(request)
-        );
+
 
         return NextResponse.json({
             success: true,

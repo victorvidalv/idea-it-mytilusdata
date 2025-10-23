@@ -15,69 +15,85 @@ import { buildWhereClause, getIncludes } from './queries/mediciones-queries';
  */
 export class MedicionesExportService {
   /**
-   * Exportar mediciones a CSV directamente en memoria
+   * Exportar mediciones a CSV usando streaming para eficiencia de memoria
    * @param filters - Filtros de búsqueda de mediciones
-   * @returns Contenido del CSV como string con BOM para Excel
+   * @returns ReadableStream que emite el contenido del CSV
    */
-  static async exportToCSV(
+  static exportToCSVStream(
     filters: FilterMedicionesInput
-  ): Promise<string> {
-    logger.info('Exportando mediciones a CSV', { filters });
+  ): ReadableStream {
+    logger.info('Iniciando exportación de mediciones a CSV vía stream', { filters });
 
-    try {
-      // Construir cláusula where
-      const where = buildWhereClause(filters);
+    const encoder = new TextEncoder();
+    const where = buildWhereClause(filters);
+    const BATCH_SIZE = 1000;
 
-      // Obtener todas las mediciones sin paginación
-      const mediciones = await prisma.medicion.findMany({
-        where,
-        include: getIncludes(),
-        orderBy: {
-          fecha_medicion: 'desc',
-        },
-      });
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          // Agregar BOM para compatibilidad con Excel (al inicio del stream)
+          controller.enqueue(encoder.encode('\uFEFF'));
 
-      // Definir headers del CSV
-      const headers = ['id', 'valor', 'fecha', 'unidad', 'lugar', 'tipoRegistro', 'observaciones', 'createdAt'];
+          // Definir headers del CSV
+          const headers = ['id', 'valor', 'fecha', 'unidad', 'lugar', 'tipoRegistro', 'observaciones', 'createdAt'];
+          controller.enqueue(encoder.encode(headers.join(',') + '\n'));
 
-      // Función para escapar valores CSV (manejar comas, comillas y saltos de línea)
-      const escapeCSV = (value: string | number | null | undefined): string => {
-        if (value === null || value === undefined) return '';
-        const stringValue = String(value);
-        // Escapar si contiene comas, comillas o saltos de línea
-        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-          return `"${stringValue.replace(/"/g, '""')}"`;
+          let skip = 0;
+          let hasMore = true;
+
+          while (hasMore) {
+            // Obtener lote de mediciones
+            const mediciones = await prisma.medicion.findMany({
+              where,
+              include: getIncludes(),
+              orderBy: { fecha_medicion: 'desc' },
+              skip,
+              take: BATCH_SIZE,
+            });
+
+            if (mediciones.length === 0) {
+              hasMore = false;
+              break;
+            }
+
+            // Procesar lote y convertir a líneas CSV
+            const csvLines = mediciones.map((m) => {
+              const escapeCSV = (value: string | number | null | undefined): string => {
+                if (value === null || value === undefined) return '';
+                const stringValue = String(value);
+                if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                  return `"${stringValue.replace(/"/g, '""')}"`;
+                }
+                return stringValue;
+              };
+
+              return [
+                escapeCSV(m.id),
+                escapeCSV(m.valor.toString()),
+                escapeCSV(m.fecha_medicion.toISOString()),
+                escapeCSV(m.unidad.nombre),
+                escapeCSV(m.lugar.nombre),
+                escapeCSV(m.tipo.descripcion || m.tipo.codigo),
+                escapeCSV(m.notas || ''),
+                escapeCSV(m.created_at.toISOString()),
+              ].join(',');
+            }).join('\n') + '\n';
+
+            controller.enqueue(encoder.encode(csvLines));
+
+            skip += BATCH_SIZE;
+            if (mediciones.length < BATCH_SIZE) {
+              hasMore = false;
+            }
+          }
+
+          logger.info('Stream de CSV completado exitosamente');
+          controller.close();
+        } catch (error) {
+          logger.error('Error durante el stream del CSV', error as Error);
+          controller.error(error);
         }
-        return stringValue;
-      };
-
-      // Generar filas del CSV
-      const rows = mediciones.map((m) => [
-        escapeCSV(m.id),
-        escapeCSV(m.valor.toString()),
-        escapeCSV(m.fecha_medicion.toISOString()),
-        escapeCSV(m.unidad.nombre),
-        escapeCSV(m.lugar.nombre),
-        escapeCSV(m.tipo.descripcion || m.tipo.codigo),
-        escapeCSV(m.notas || ''),
-        escapeCSV(m.created_at.toISOString()),
-      ].join(','));
-
-      // Combinar headers y filas
-      const csvContent = [headers.join(','), ...rows].join('\n');
-
-      // Agregar BOM para compatibilidad con Excel
-      const csvContentWithBOM = '\uFEFF' + csvContent;
-
-      logger.info('CSV generado exitosamente en memoria', {
-        totalRegistros: mediciones.length,
-      });
-
-      return csvContentWithBOM;
-    } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error(String(error));
-      logger.error('Error al exportar mediciones a CSV', errorObj);
-      throw ApiError.internal('Error al generar el archivo CSV');
-    }
+      }
+    });
   }
 }

@@ -236,26 +236,7 @@ export class MedicionesService {
       await validarTipo(validatedData.tipo_id);
     }
 
-    // Calcular cambios - solo incluir campos que se están actualizando
-    const cambios: Record<string, { anterior: unknown; nuevo: unknown }> = {};
-    if (validatedData.valor !== undefined) {
-      cambios.valor = { anterior: medicionExistente.valor, nuevo: validatedData.valor };
-    }
-    if (validatedData.fecha_medicion !== undefined) {
-      cambios.fecha_medicion = { anterior: medicionExistente.fecha_medicion, nuevo: validatedData.fecha_medicion };
-    }
-    if (validatedData.lugar_id !== undefined) {
-      cambios.lugar_id = { anterior: medicionExistente.lugar_id, nuevo: validatedData.lugar_id };
-    }
-    if (validatedData.unidad_id !== undefined) {
-      cambios.unidad_id = { anterior: medicionExistente.unidad_id, nuevo: validatedData.unidad_id };
-    }
-    if (validatedData.tipo_id !== undefined) {
-      cambios.tipo_id = { anterior: medicionExistente.tipo_id, nuevo: validatedData.tipo_id };
-    }
-    if (validatedData.notas !== undefined) {
-      cambios.notas = { anterior: medicionExistente.notas, nuevo: validatedData.notas };
-    }
+
 
     // Actualizar medición
     const medicion = await prisma.medicion.update({

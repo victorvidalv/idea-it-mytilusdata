@@ -51,15 +51,16 @@ export async function GET(request: NextRequest) {
             filters.fecha_hasta = new Date(fechaHasta);
         }
 
-        // Generar CSV usando el servicio de exportación
-        const csvContent = await MedicionesExportService.exportToCSV(filters);
+        // Generar stream del CSV usando el servicio de exportación
+        const csvStream = MedicionesExportService.exportToCSVStream(filters);
 
-        // Retornar archivo CSV
+        // Retornar archivo CSV como stream
         const filename = `mediciones_export_${new Date().toISOString().split("T")[0]}.csv`;
-        return new NextResponse(csvContent, {
+        return new NextResponse(csvStream, {
             headers: {
                 "Content-Type": "text/csv; charset=utf-8",
                 "Content-Disposition": `attachment; filename="${filename}"`,
+                "Transfer-Encoding": "chunked",
             },
         });
     } catch (error) {

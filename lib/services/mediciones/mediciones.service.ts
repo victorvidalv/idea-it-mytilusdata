@@ -15,10 +15,7 @@ import {
   type FilterMedicionesInput,
 } from '@/lib/validators/mediciones.validator';
 import {
-  validarLugar,
-  validarUnidad,
-  validarTipo,
-  validarOrigen,
+  validarRelacionesBatch,
 } from './validators/mediciones-relations.validator';
 import { buildWhereClause, getIncludes } from './queries/mediciones-queries';
 
@@ -159,11 +156,13 @@ export class MedicionesService {
     // Validar datos
     const validatedData = createMedicionSchema.parse(data);
 
-    // Validar relaciones
-    await validarLugar(validatedData.lugar_id);
-    await validarUnidad(validatedData.unidad_id);
-    await validarTipo(validatedData.tipo_id);
-    await validarOrigen(validatedData.origen_id);
+    // Validar relaciones en lote
+    await validarRelacionesBatch({
+      lugar_id: validatedData.lugar_id,
+      unidad_id: validatedData.unidad_id,
+      tipo_id: validatedData.tipo_id,
+      origen_id: validatedData.origen_id,
+    });
 
     // Crear medición
     const medicion = await prisma.medicion.create({

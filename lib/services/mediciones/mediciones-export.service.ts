@@ -42,10 +42,10 @@ export class MedicionesExportService {
           let hasMore = true;
 
           while (hasMore) {
-            // Obtener lote de mediciones
+            // Obtener lote de mediciones con fetching selectivo
             const mediciones = await prisma.medicion.findMany({
               where,
-              include: getIncludes(),
+              include: getIncludes(true),
               orderBy: { fecha_medicion: 'desc' },
               skip,
               take: BATCH_SIZE,
@@ -67,13 +67,18 @@ export class MedicionesExportService {
                 return stringValue;
               };
 
+              // Safely access nested properties
+              const unidadSigla = ('unidad' in m && m.unidad) ? (m.unidad as any).sigla : '';
+              const lugarNombre = ('lugar' in m && m.lugar) ? (m.lugar as any).nombre : '';
+              const tipoDesc = ('tipo' in m && m.tipo) ? ((m.tipo as any).descripcion || (m.tipo as any).codigo) : '';
+
               return [
                 escapeCSV(m.id),
                 escapeCSV(m.valor.toString()),
                 escapeCSV(m.fecha_medicion.toISOString()),
-                escapeCSV(m.unidad.nombre),
-                escapeCSV(m.lugar.nombre),
-                escapeCSV(m.tipo.descripcion || m.tipo.codigo),
+                escapeCSV(unidadSigla),
+                escapeCSV(lugarNombre),
+                escapeCSV(tipoDesc),
                 escapeCSV(m.notas || ''),
                 escapeCSV(m.created_at.toISOString()),
               ].join(',');

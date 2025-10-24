@@ -118,6 +118,10 @@ model Medicion {
   origen         OrigenDato   @relation("origen_medicion", fields: [origen_id], references: [id])
   registrado_por Usuario      @relation("registrador_medicion", fields: [registrado_por_id], references: [id])
 
+  @@index([fecha_medicion])
+  @@index([lugar_id])
+  @@index([tipo_id])
+  @@index([deleted_at])
   @@map("mediciones")
 }
 

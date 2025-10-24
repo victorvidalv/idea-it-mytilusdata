@@ -88,3 +88,25 @@ export async function validarOrigen(origen_id: number): Promise<void> {
     );
   }
 }
+
+/**
+ * Validar relaciones en lote para optimizar rendimiento
+ * @param ids - Objeto con los IDs de las relaciones a validar
+ * @throws Error si alguna relación no existe o está eliminada
+ */
+export async function validarRelacionesBatch(ids: {
+  lugar_id: number;
+  unidad_id: number;
+  tipo_id: number;
+  origen_id: number;
+}): Promise<void> {
+  logger.info('Validando relaciones en lote', ids);
+
+  // Ejecutar validaciones en paralelo para no bloquear secuencialmente
+  await Promise.all([
+    validarLugar(ids.lugar_id),
+    validarUnidad(ids.unidad_id),
+    validarTipo(ids.tipo_id),
+    validarOrigen(ids.origen_id),
+  ]);
+}

@@ -56,7 +56,15 @@ export function buildWhereClause(
  * Obtener objeto de includes para relaciones
  * @returns Objeto de includes para Prisma
  */
-export function getIncludes() {
+export function getIncludes(minimal = false) {
+  if (minimal) {
+    return {
+      unidad: { select: { nombre: true, sigla: true } },
+      lugar: { select: { nombre: true } },
+      tipo: { select: { codigo: true, descripcion: true } },
+    } as const;
+  }
+
   return {
     lugar: true,
     unidad: true,

@@ -23,14 +23,16 @@ import { buildWhereClause, getIncludes } from './queries/mediciones-queries';
  * Tipo para el resultado paginado de mediciones
  */
 export interface MedicionesPaginadas {
-  data: Prisma.MedicionGetPayload<{
+  data: (Prisma.MedicionGetPayload<{
     include: {
       lugar: true;
       unidad: true;
       tipo: true;
       registrado_por: true;
     };
-  }>[];
+  }> | Prisma.MedicionGetPayload<{
+    include: ReturnType<typeof getIncludes>;
+  }>)[];
   pagination: {
     page: number;
     limit: number;
@@ -52,7 +54,8 @@ export class MedicionesService {
   static async findAll(
     filters: FilterMedicionesInput,
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
+    minimal: boolean = false
   ): Promise<MedicionesPaginadas> {
     logger.info('Iniciando búsqueda de mediciones', { filters, page, limit });
 
@@ -76,7 +79,7 @@ export class MedicionesService {
         where,
         skip,
         take: validatedFilters.limit,
-        include: getIncludes(),
+        include: getIncludes(minimal),
         orderBy: {
           fecha_medicion: 'desc',
         },
@@ -106,13 +109,8 @@ export class MedicionesService {
   /**
    * Obtener medición por ID
    */
-  static async findById(id: number): Promise<Prisma.MedicionGetPayload<{
-    include: {
-      lugar: true;
-      unidad: true;
-      tipo: true;
-      registrado_por: true;
-    };
+  static async findById(id: number, minimal: boolean = false): Promise<Prisma.MedicionGetPayload<{
+    include: ReturnType<typeof getIncludes>;
   }> | null> {
     logger.info('Buscando medición por ID', { id });
 
@@ -124,7 +122,7 @@ export class MedicionesService {
         id: validated.id,
         deleted_at: null,
       },
-      include: getIncludes(),
+      include: getIncludes(minimal),
     });
 
     if (medicion) {
@@ -142,14 +140,10 @@ export class MedicionesService {
   static async create(
     data: CreateMedicionInput,
     userId: number,
-    clientIp: string
+    clientIp: string,
+    minimal: boolean = false
   ): Promise<Prisma.MedicionGetPayload<{
-    include: {
-      lugar: true;
-      unidad: true;
-      tipo: true;
-      registrado_por: true;
-    };
+    include: ReturnType<typeof getIncludes>;
   }>> {
     logger.info('Creando nueva medición', { data, userId });
 
@@ -176,7 +170,7 @@ export class MedicionesService {
         registrado_por_id: userId,
         notas: validatedData.notas,
       },
-      include: getIncludes(),
+      include: getIncludes(minimal),
     });
 
 
@@ -193,14 +187,10 @@ export class MedicionesService {
     id: number,
     data: UpdateMedicionInput,
     userId: number,
-    clientIp: string
+    clientIp: string,
+    minimal: boolean = false
   ): Promise<Prisma.MedicionGetPayload<{
-    include: {
-      lugar: true;
-      unidad: true;
-      tipo: true;
-      registrado_por: true;
-    };
+    include: ReturnType<typeof getIncludes>;
   }>> {
     logger.info('Actualizando medición', { id, data, userId });
 
@@ -214,7 +204,7 @@ export class MedicionesService {
         id: validatedId.id,
         deleted_at: null,
       },
-      include: getIncludes(),
+      include: getIncludes(true),
     });
 
     if (!medicionExistente) {
@@ -246,7 +236,7 @@ export class MedicionesService {
         ...validatedData,
         updated_at: new Date(),
       },
-      include: getIncludes(),
+      include: getIncludes(minimal),
     });
 
 
@@ -262,14 +252,10 @@ export class MedicionesService {
   static async softDelete(
     id: number,
     userId: number,
-    clientIp: string
+    clientIp: string,
+    minimal: boolean = false
   ): Promise<Prisma.MedicionGetPayload<{
-    include: {
-      lugar: true;
-      unidad: true;
-      tipo: true;
-      registrado_por: true;
-    };
+    include: ReturnType<typeof getIncludes>;
   }>> {
     logger.info('Eliminando medición (soft delete)', { id, userId });
 
@@ -282,7 +268,7 @@ export class MedicionesService {
         id: validatedId.id,
         deleted_at: null,
       },
-      include: getIncludes(),
+      include: getIncludes(true),
     });
 
     if (!medicionExistente) {
@@ -299,7 +285,7 @@ export class MedicionesService {
         deleted_at: new Date(),
         updated_at: new Date(),
       },
-      include: getIncludes(),
+      include: getIncludes(minimal),
     });
 
 

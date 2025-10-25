@@ -8,91 +8,66 @@ import { logger } from '@/lib/utils/logger';
 
 /**
  * Validar que el lugar exista y no esté eliminado
- * @param lugar_id - ID del lugar a validar
- * @throws Error si el lugar no existe o está eliminado
  */
 export async function validarLugar(lugar_id: number): Promise<void> {
   const lugar = await prisma.lugar.findFirst({
-    where: {
-      id: lugar_id,
-      deleted_at: null,
-    },
+    where: { id: lugar_id, deleted_at: null },
+    select: { id: true },
   });
 
   if (!lugar) {
     logger.error('Lugar no encontrado o eliminado', { lugar_id });
-    throw new Error(
-      `Lugar con ID ${lugar_id} no encontrado o eliminado`
-    );
+    throw new Error(`Lugar con ID ${lugar_id} no encontrado o eliminado`);
   }
 }
 
 /**
  * Validar que la unidad exista y no esté eliminada
- * @param unidad_id - ID de la unidad a validar
- * @throws Error si la unidad no existe o está eliminada
  */
 export async function validarUnidad(unidad_id: number): Promise<void> {
   const unidad = await prisma.unidad.findFirst({
-    where: {
-      id: unidad_id,
-      deleted_at: null,
-    },
+    where: { id: unidad_id, deleted_at: null },
+    select: { id: true },
   });
 
   if (!unidad) {
     logger.error('Unidad no encontrada o eliminada', { unidad_id });
-    throw new Error(
-      `Unidad con ID ${unidad_id} no encontrada o eliminada`
-    );
+    throw new Error(`Unidad con ID ${unidad_id} no encontrada o eliminada`);
   }
 }
 
 /**
  * Validar que el tipo de registro exista
- * @param tipo_id - ID del tipo de registro a validar
- * @throws Error si el tipo de registro no existe
  */
 export async function validarTipo(tipo_id: number): Promise<void> {
   const tipo = await prisma.tipoRegistro.findUnique({
-    where: {
-      id: tipo_id,
-    },
+    where: { id: tipo_id },
+    select: { id: true },
   });
 
   if (!tipo) {
     logger.error('Tipo de registro no encontrado', { tipo_id });
-    throw new Error(
-      `Tipo de registro con ID ${tipo_id} no encontrado`
-    );
+    throw new Error(`Tipo de registro con ID ${tipo_id} no encontrado`);
   }
 }
 
 /**
  * Validar que el origen de datos exista y no esté eliminado
- * @param origen_id - ID del origen de datos a validar
- * @throws Error si el origen no existe o está eliminado
  */
 export async function validarOrigen(origen_id: number): Promise<void> {
   const origen = await prisma.origenDato.findFirst({
-    where: {
-      id: origen_id,
-      deleted_at: null,
-    },
+    where: { id: origen_id, deleted_at: null },
+    select: { id: true },
   });
 
   if (!origen) {
     logger.error('Origen no encontrado o eliminado', { origen_id });
-    throw new Error(
-      `Origen con ID ${origen_id} no encontrado o eliminado`
-    );
+    throw new Error(`Origen con ID ${origen_id} no encontrado o eliminado`);
   }
 }
 
 /**
- * Validar relaciones en lote para optimizar rendimiento
- * @param ids - Objeto con los IDs de las relaciones a validar
- * @throws Error si alguna relación no existe o está eliminada
+ * Validar relaciones en lote para optimizar rendimiento (Ultra-eficiente)
  */
 export async function validarRelacionesBatch(ids: {
   lugar_id: number;
@@ -100,9 +75,9 @@ export async function validarRelacionesBatch(ids: {
   tipo_id: number;
   origen_id: number;
 }): Promise<void> {
-  logger.info('Validando relaciones en lote', ids);
+  logger.info('Validando relaciones en lote (Minimal Fetch)', ids);
 
-  // Ejecutar validaciones en paralelo para no bloquear secuencialmente
+  // Ejecutar validaciones en paralelo con selección minimalista de campos
   await Promise.all([
     validarLugar(ids.lugar_id),
     validarUnidad(ids.unidad_id),

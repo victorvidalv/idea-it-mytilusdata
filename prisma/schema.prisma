@@ -120,7 +120,10 @@ model Medicion {
 
   @@index([fecha_medicion])
   @@index([lugar_id])
+  @@index([unidad_id])
   @@index([tipo_id])
+  @@index([origen_id])
+  @@index([registrado_por_id])
   @@index([deleted_at])
   @@map("mediciones")
 }

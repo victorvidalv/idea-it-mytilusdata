@@ -42,7 +42,7 @@ export class MedicionesExportService {
           let hasMore = true;
 
           while (hasMore) {
-            // Obtener lote de mediciones con fetching selectivo
+            // Obtener lote de mediciones con fetching selectivo (All relations for names)
             const mediciones = await prisma.medicion.findMany({
               where,
               include: getIncludes(true),

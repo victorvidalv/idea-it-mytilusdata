@@ -55,7 +55,7 @@ export class MedicionesService {
     filters: FilterMedicionesInput,
     page: number = 1,
     limit: number = 20,
-    minimal: boolean = false
+    includeAll: boolean = true
   ): Promise<MedicionesPaginadas> {
     logger.info('Iniciando búsqueda de mediciones', { filters, page, limit });
 
@@ -79,7 +79,7 @@ export class MedicionesService {
         where,
         skip,
         take: validatedFilters.limit,
-        include: getIncludes(minimal),
+        include: getIncludes(includeAll),
         orderBy: {
           fecha_medicion: 'desc',
         },
@@ -122,7 +122,7 @@ export class MedicionesService {
         id: validated.id,
         deleted_at: null,
       },
-      include: getIncludes(minimal),
+      include: getIncludes(includeAll),
     });
 
     if (medicion) {
@@ -141,7 +141,7 @@ export class MedicionesService {
     data: CreateMedicionInput,
     userId: number,
     clientIp: string,
-    minimal: boolean = false
+    includeAll: boolean = true
   ): Promise<Prisma.MedicionGetPayload<{
     include: ReturnType<typeof getIncludes>;
   }>> {
@@ -170,7 +170,7 @@ export class MedicionesService {
         registrado_por_id: userId,
         notas: validatedData.notas,
       },
-      include: getIncludes(minimal),
+      include: getIncludes(includeAll),
     });
 
 
@@ -188,7 +188,7 @@ export class MedicionesService {
     data: UpdateMedicionInput,
     userId: number,
     clientIp: string,
-    minimal: boolean = false
+    includeAll: boolean = true
   ): Promise<Prisma.MedicionGetPayload<{
     include: ReturnType<typeof getIncludes>;
   }>> {
@@ -204,7 +204,7 @@ export class MedicionesService {
         id: validatedId.id,
         deleted_at: null,
       },
-      include: getIncludes(true),
+      include: getIncludes(false),
     });
 
     if (!medicionExistente) {
@@ -236,7 +236,7 @@ export class MedicionesService {
         ...validatedData,
         updated_at: new Date(),
       },
-      include: getIncludes(minimal),
+      include: getIncludes(includeAll),
     });
 
 
@@ -253,7 +253,7 @@ export class MedicionesService {
     id: number,
     userId: number,
     clientIp: string,
-    minimal: boolean = false
+    includeAll: boolean = true
   ): Promise<Prisma.MedicionGetPayload<{
     include: ReturnType<typeof getIncludes>;
   }>> {
@@ -268,7 +268,7 @@ export class MedicionesService {
         id: validatedId.id,
         deleted_at: null,
       },
-      include: getIncludes(true),
+      include: getIncludes(false),
     });
 
     if (!medicionExistente) {
@@ -285,7 +285,7 @@ export class MedicionesService {
         deleted_at: new Date(),
         updated_at: new Date(),
       },
-      include: getIncludes(minimal),
+      include: getIncludes(includeAll),
     });
 
 

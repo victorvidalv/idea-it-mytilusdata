@@ -53,23 +53,18 @@ export function buildWhereClause(
 }
 
 /**
- * Obtener objeto de includes para relaciones
- * @returns Objeto de includes para Prisma
+ * Obtener objeto de includes para relaciones (Dynamic Fetching)
+ * @param includeAll - Si se deben incluir todas las relaciones
+ * @returns Objeto de includes o vacío para carga liviana
  */
-export function getIncludes(minimal = false) {
-  if (minimal) {
-    return {
-      unidad: { select: { nombre: true, sigla: true } },
-      lugar: { select: { nombre: true } },
-      tipo: { select: { codigo: true, descripcion: true } },
-    } as const;
-  }
+export function getIncludes(includeAll = false) {
+  if (!includeAll) return {};
 
   return {
-    lugar: true,
-    unidad: true,
-    tipo: true,
-    origen: true,
-    registrado_por: true,
+    lugar: { select: { id: true, nombre: true } },
+    unidad: { select: { id: true, nombre: true, sigla: true } },
+    tipo: { select: { id: true, codigo: true, descripcion: true } },
+    origen: { select: { id: true, nombre: true } },
+    registrado_por: { select: { id: true, nombre: true, email: true } },
   };
 }

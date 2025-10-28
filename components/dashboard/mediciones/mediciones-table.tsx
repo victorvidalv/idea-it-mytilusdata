@@ -6,17 +6,35 @@ import { Button } from "@/components/ui/button"
 import { Medicion } from "@/lib/types"
 import { useTranslations } from "next-intl"
 
+interface Pagination {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNext: boolean
+    hasPrevious: boolean
+}
+
 interface MedicionesTableProps {
     mediciones: Medicion[]
     loading: boolean
+    pagination: Pagination
     onEdit: (medicion: Medicion) => void
     onDelete: (id: number) => void
+    onPageChange: (page: number) => void
 }
 
-export function MedicionesTable({ mediciones, loading, onEdit, onDelete }: MedicionesTableProps) {
+export function MedicionesTable({
+    mediciones,
+    loading,
+    pagination,
+    onEdit,
+    onDelete,
+    onPageChange
+}: MedicionesTableProps) {
     const t = useTranslations('measurements')
     const tCommon = useTranslations('common')
-    
+
     if (loading) {
         return (
             <Table>
@@ -114,6 +132,40 @@ export function MedicionesTable({ mediciones, loading, onEdit, onDelete }: Medic
                     </TableRow>
                 ))}
             </TableBody>
+            <tfoot className="border-t bg-muted/5">
+                <tr>
+                    <td colSpan={7} className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm text-muted-foreground">
+                                {tCommon('total')}: <span className="font-medium text-foreground">{pagination.total}</span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="text-sm text-muted-foreground">
+                                    {t('fields.page')} <span className="font-medium text-foreground">{pagination.page}</span> / {pagination.totalPages}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={!pagination.hasPrevious || loading}
+                                        onClick={() => onPageChange(pagination.page - 1)}
+                                    >
+                                        {tCommon('previous')}
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={!pagination.hasNext || loading}
+                                        onClick={() => onPageChange(pagination.page + 1)}
+                                    >
+                                        {tCommon('next')}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
         </Table>
     )
 }

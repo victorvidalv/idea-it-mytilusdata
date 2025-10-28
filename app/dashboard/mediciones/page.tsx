@@ -20,10 +20,10 @@ export default function MedicionesPage() {
     const t = useTranslations('measurements')
     const tCommon = useTranslations('common')
     const tMessages = useTranslations('messages')
-    
+
     // Estado para mostrar/ocultar filtros
     const [showFilters, setShowFilters] = useState(false)
-    
+
     // Usar hook personalizado para datos
     const {
         mediciones,
@@ -34,7 +34,9 @@ export default function MedicionesPage() {
         usuarios,
         loading,
         filters,
+        pagination,
         setFilters,
+        setPage,
         fetchData
     } = useMedicionesData()
 
@@ -101,7 +103,7 @@ export default function MedicionesPage() {
                                 <span className="flex h-2 w-2 rounded-full bg-primary" />
                             )}
                         </Button>
-                        
+
                         {/* Botón para limpiar filtros activos */}
                         {hasActiveFilters && (
                             <Button
@@ -132,8 +134,10 @@ export default function MedicionesPage() {
                     <MedicionesTable
                         mediciones={mediciones}
                         loading={loading}
+                        pagination={pagination}
                         onEdit={openEditModal}
                         onDelete={handleDeleteMedicion}
+                        onPageChange={setPage}
                     />
                 </CardContent>
             </Card>

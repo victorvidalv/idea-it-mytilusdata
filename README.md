@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Registro de Mediciones
 
-## Getting Started
+Este proyecto es una aplicación web robusta diseñada para el registro, gestión y exportación de mediciones ambientales o técnicas. Construido con tecnologías de vanguardia para garantizar escalabilidad, seguridad y una excelente experiencia de usuario.
 
-First, run the development server:
+## Características Principales
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Gestión Integral**: Registro de mediciones vinculadas a lugares, unidades, orígenes y tipos específicos.
+- **Seguridad por Roles**: Control de acceso granular (Admin, Equipo, Público).
+- **Internacionalización**: Soporte completo para múltiples idiomas (Español/Inglés).
+- **Exportación de Datos**: Generación automática de reportes en formatos PDF y Excel.
+- **Integridad de Datos**: Sistema de borrado lógico (Soft Delete) y auditoría de cambios.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Documentación Detallada
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Para comprender a fondo el funcionamiento del sistema, consulte las siguientes secciones:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [📐 Arquitectura del Sistema](file:///Users/victor/work/calculadora/docs/ARQUITECTURA.md): Decisiones técnicas y patrones de diseño.
+- [🗄️ Base de Datos](file:///Users/victor/work/calculadora/docs/BASE_DE_DATOS.md): Modelo de datos, relaciones y optimizaciones.
+- [🔐 Autenticación y Seguridad](file:///Users/victor/work/calculadora/docs/AUTENTICACION.md): Gestión de roles y protección de rutas.
+- [🛠️ Capa de Servicios](file:///Users/victor/work/calculadora/docs/SERVICIOS.md): Lógica de negocio y abstracción de datos.
+- [🔌 Documentación de la API](file:///Users/victor/work/calculadora/docs/API.md): Guía de endpoints y convenciones de respuesta.
 
-## Learn More
+## Comenzando
 
-To learn more about Next.js, take a look at the following resources:
+### Requisitos Previos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Node.js 18.x o superior.
+- Una instancia de PostgreSQL (se recomienda Neon).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Instalación
 
-## Deploy on Vercel
+1. Clonar el repositorio.
+2. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+3. Configurar las variables de entorno (`.env`).
+4. Ejecutar migraciones de Prisma:
+   ```bash
+   npx prisma migrate dev
+   ```
+5. Iniciar el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Visite [http://localhost:3000](http://localhost:3000) para ver el resultado.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Desarrollado con ❤️ para la gestión eficiente de datos.

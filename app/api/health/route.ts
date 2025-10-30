@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 
 /**
  * GET /api/health
- * Endpoint de health check para Docker/Kubernetes
+ * Endpoint de monitoreo de estado para el despliegue en Vercel
  */
 export async function GET() {
     try {

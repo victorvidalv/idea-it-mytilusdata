@@ -36,6 +36,11 @@
 - **Gráficos**: Recharts
 - **Despliegue**: Vercel
 
+## 🔌 Model Context Protocol (MCP)
+
+Este proyecto cuenta con un MCP dedicado para facilitar la inspección y consulta de la base de datos:
+- **mcp-base-datos-mytilusdata**: Permite revisar tablas, esquemas y registros directamente desde asistentes de IA compatibles con este protocolo.
+
 ## 📚 Documentación
 
 | Documento | Descripción |

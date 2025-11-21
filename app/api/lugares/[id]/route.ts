@@ -6,7 +6,7 @@ import {
     getClientIp,
 } from "@/lib/middleware/auth";
 
-import { Prisma } from "@/generated/prisma";
+import { Prisma } from "@prisma/client";
 
 interface RouteParams {
     params: Promise<{ id: string }>;

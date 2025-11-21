@@ -5,7 +5,6 @@ async function seed() {
     console.log('🌱 Limpiando base de datos...');
 
     // Eliminar todos los datos existentes en orden para respetar FK
-    await prisma.bitacoraCambio.deleteMany();
     await prisma.medicion.deleteMany();
     await prisma.lugar.deleteMany();
     await prisma.origenDato.deleteMany();

@@ -4,6 +4,7 @@
  */
 
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { logger } from '@/lib/utils/logger';
 import {
   createMedicionSchema,
@@ -16,6 +17,9 @@ import {
 } from '@/lib/validators/mediciones.validator';
 import {
   validarRelacionesBatch,
+  validarLugar,
+  validarUnidad,
+  validarTipo,
 } from './validators/mediciones-relations.validator';
 import { buildWhereClause, getIncludes } from './queries/mediciones-queries';
 
@@ -122,7 +126,7 @@ export class MedicionesService {
         id: validated.id,
         deleted_at: null,
       },
-      include: getIncludes(includeAll),
+      include: getIncludes(!minimal),
     });
 
     if (medicion) {

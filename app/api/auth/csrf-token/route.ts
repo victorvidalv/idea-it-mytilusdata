@@ -18,15 +18,16 @@ export const GET = withCSRFProtection(
 
             // El middleware withCSRFProtection ya genera y establece el token en la cookie
             // Solo retornamos una respuesta de éxito
-            return NextResponse.json<ApiResponse>({
+            return NextResponse.json<ApiResponse<{ generated: boolean }>>({
                 success: true,
-                message: "CSRF token generated",
+                data: { generated: true },
             });
-        } catch (error) {
-            logger.error("Error al generar token CSRF", {
-                error: error instanceof Error ? error.message : "Unknown error",
-                path: "/api/auth/csrf-token",
-            });
+        } catch (err) {
+            logger.error(
+                "Error al generar token CSRF",
+                err instanceof Error ? err : new Error(String(err)),
+                { path: "/api/auth/csrf-token" }
+            );
 
             return NextResponse.json<ApiResponse>(
                 {

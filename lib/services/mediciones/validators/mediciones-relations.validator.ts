@@ -16,7 +16,7 @@ export async function validarLugar(lugar_id: number): Promise<void> {
   });
 
   if (!lugar) {
-    logger.error('Lugar no encontrado o eliminado', { lugar_id });
+    logger.warn('Lugar no encontrado o eliminado', { lugar_id });
     throw new Error(`Lugar con ID ${lugar_id} no encontrado o eliminado`);
   }
 }
@@ -31,7 +31,7 @@ export async function validarUnidad(unidad_id: number): Promise<void> {
   });
 
   if (!unidad) {
-    logger.error('Unidad no encontrada o eliminada', { unidad_id });
+    logger.warn('Unidad no encontrada o eliminada', { unidad_id });
     throw new Error(`Unidad con ID ${unidad_id} no encontrada o eliminada`);
   }
 }
@@ -46,7 +46,7 @@ export async function validarTipo(tipo_id: number): Promise<void> {
   });
 
   if (!tipo) {
-    logger.error('Tipo de registro no encontrado', { tipo_id });
+    logger.warn('Tipo de registro no encontrado', { tipo_id });
     throw new Error(`Tipo de registro con ID ${tipo_id} no encontrado`);
   }
 }
@@ -61,7 +61,7 @@ export async function validarOrigen(origen_id: number): Promise<void> {
   });
 
   if (!origen) {
-    logger.error('Origen no encontrado o eliminado', { origen_id });
+    logger.warn('Origen no encontrado o eliminado', { origen_id });
     throw new Error(`Origen con ID ${origen_id} no encontrado o eliminado`);
   }
 }

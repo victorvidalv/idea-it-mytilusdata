@@ -70,7 +70,30 @@ const UNSAFE_METHODS = ['POST', 'PUT', 'DELETE', 'PATCH'] as const;
 // DEFAULT VALUES
 // ============================================================================
 
-const DEFAULT_CSRF_SECRET = process.env.CSRF_SECRET || 'default-csrf-secret-change-in-production';
+/**
+ * Obtener CSRF_SECRET de forma segura
+ * Valida en el primer acceso, no al cargar el módulo (permite build)
+ */
+let _csrfSecretCache: string | null = null;
+
+function getCsrfSecret(): string {
+    if (_csrfSecretCache) return _csrfSecretCache;
+
+    const secret = process.env.CSRF_SECRET;
+    if (!secret) {
+        throw new Error(
+            "[SEGURIDAD CRÍTICA] CSRF_SECRET no está definido. " +
+            "Configure la variable de entorno antes de iniciar el servidor."
+        );
+    }
+    if (secret.length < 32) {
+        throw new Error(
+            "[SEGURIDAD] CSRF_SECRET debe tener al menos 32 caracteres para seguridad adecuada."
+        );
+    }
+    _csrfSecretCache = secret;
+    return secret;
+}
 const DEFAULT_COOKIE_NAME = 'csrf-token';
 const DEFAULT_HEADER_NAME = 'x-csrf-token';
 const DEFAULT_TOKEN_LENGTH = 32;
@@ -208,20 +231,21 @@ export function getCSRFTokenFromHeader(
  * @returns Función middleware de Next.js
  */
 export function createCSRFMiddleware(config?: CSRFConfig) {
-    const finalConfig: Required<CSRFConfig> & { cookieOptions: CSRFTokenCookieOptions } = {
-        secret: config?.secret || DEFAULT_CSRF_SECRET,
-        cookieName: config?.cookieName || DEFAULT_COOKIE_NAME,
-        headerName: config?.headerName || DEFAULT_HEADER_NAME,
-        tokenLength: config?.tokenLength || DEFAULT_TOKEN_LENGTH,
-        cookieOptions: {
-            ...DEFAULT_COOKIE_OPTIONS,
-            ...config?.cookieOptions,
-        },
-    };
-
     return async function csrfMiddleware(
         request: NextRequest
     ): Promise<NextResponse> {
+        // Construir configuración de forma diferida (permite build sin variables de entorno)
+        const finalConfig: Required<CSRFConfig> & { cookieOptions: CSRFTokenCookieOptions } = {
+            secret: config?.secret || getCsrfSecret(),
+            cookieName: config?.cookieName || DEFAULT_COOKIE_NAME,
+            headerName: config?.headerName || DEFAULT_HEADER_NAME,
+            tokenLength: config?.tokenLength || DEFAULT_TOKEN_LENGTH,
+            cookieOptions: {
+                ...DEFAULT_COOKIE_OPTIONS,
+                ...config?.cookieOptions,
+            },
+        };
+
         const method = request.method;
         const isSafeMethod = SAFE_METHODS.includes(method as any);
 
@@ -362,21 +386,22 @@ export function withCSRFProtection(
     handler: (request: NextRequest, ...args: unknown[]) => Promise<NextResponse>,
     config?: CSRFConfig
 ) {
-    const finalConfig: Required<CSRFConfig> & { cookieOptions: CSRFTokenCookieOptions } = {
-        secret: config?.secret || DEFAULT_CSRF_SECRET,
-        cookieName: config?.cookieName || DEFAULT_COOKIE_NAME,
-        headerName: config?.headerName || DEFAULT_HEADER_NAME,
-        tokenLength: config?.tokenLength || DEFAULT_TOKEN_LENGTH,
-        cookieOptions: {
-            ...DEFAULT_COOKIE_OPTIONS,
-            ...config?.cookieOptions,
-        },
-    };
-
     return async function protectedHandler(
         request: NextRequest,
         ...args: unknown[]
     ): Promise<NextResponse> {
+        // Construir configuración de forma diferida (permite build sin variables de entorno)
+        const finalConfig: Required<CSRFConfig> & { cookieOptions: CSRFTokenCookieOptions } = {
+            secret: config?.secret || getCsrfSecret(),
+            cookieName: config?.cookieName || DEFAULT_COOKIE_NAME,
+            headerName: config?.headerName || DEFAULT_HEADER_NAME,
+            tokenLength: config?.tokenLength || DEFAULT_TOKEN_LENGTH,
+            cookieOptions: {
+                ...DEFAULT_COOKIE_OPTIONS,
+                ...config?.cookieOptions,
+            },
+        };
+
         const method = request.method;
         const isSafeMethod = SAFE_METHODS.includes(method as any);
         const isUnsafeMethod = UNSAFE_METHODS.includes(method as any);

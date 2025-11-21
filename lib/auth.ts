@@ -1,8 +1,30 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// Clave secreta para JWT (en producción usar variable de entorno segura)
-const JWT_SECRET = process.env.JWT_SECRET || "clave_secreta_desarrollo_cambiar_en_produccion";
+/**
+ * Obtener JWT_SECRET de forma segura
+ * Valida en el primer acceso, no al cargar el módulo (permite build)
+ */
+let _jwtSecretCache: string | null = null;
+
+function getJwtSecret(): string {
+    if (_jwtSecretCache) return _jwtSecretCache;
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        throw new Error(
+            "[SEGURIDAD CRÍTICA] JWT_SECRET no está definido. " +
+            "Configure la variable de entorno antes de iniciar el servidor."
+        );
+    }
+    if (secret.length < 32) {
+        throw new Error(
+            "[SEGURIDAD] JWT_SECRET debe tener al menos 32 caracteres para seguridad adecuada."
+        );
+    }
+    _jwtSecretCache = secret;
+    return secret;
+}
 const JWT_EXPIRES_IN = "7d";
 
 /**
@@ -35,7 +57,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 export function generateToken(userId: number, email: string, rol: string): string {
     return jwt.sign(
         { userId, email, rol },
-        JWT_SECRET,
+        getJwtSecret(),
         { expiresIn: JWT_EXPIRES_IN }
     );
 }
@@ -47,7 +69,7 @@ export function generateToken(userId: number, email: string, rol: string): strin
  */
 export function verifyToken(token: string): { userId: number; email: string; rol: string } | null {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string; rol: string };
+        const decoded = jwt.verify(token, getJwtSecret()) as { userId: number; email: string; rol: string };
         return decoded;
     } catch {
         return null;

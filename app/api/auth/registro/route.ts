@@ -4,7 +4,8 @@ import { hashPassword, generateToken, AuthResponse } from "@/lib/auth";
 import { withRateLimit } from "@/lib/middleware";
 import { withCSRFProtection } from "@/lib/middleware";
 import { registroSchema } from "@/lib/validators";
-import { handleApiError } from "@/lib/utils/errors";
+import { handleApiError, ApiError } from "@/lib/utils/errors";
+
 import { logger } from "@/lib/utils/logger";
 
 /**
@@ -36,7 +37,7 @@ export const POST = withRateLimit(
                     reason: "email_already_registered",
                 });
 
-                throw new Error("El email ya está registrado");
+                throw ApiError.badRequest("El email ya está registrado");
             }
 
             // Crear hash de contraseña

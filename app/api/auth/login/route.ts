@@ -4,7 +4,8 @@ import { verifyPassword, generateToken, AuthResponse } from "@/lib/auth";
 import { withRateLimit } from "@/lib/middleware";
 import { withCSRFProtection } from "@/lib/middleware";
 import { loginSchema } from "@/lib/validators";
-import { handleApiError } from "@/lib/utils/errors";
+import { handleApiError, ApiError } from "@/lib/utils/errors";
+
 import { logger } from "@/lib/utils/logger";
 
 /**
@@ -36,7 +37,7 @@ export const POST = withRateLimit(
                     reason: "user_not_found",
                 });
 
-                throw new Error("Credenciales inválidas");
+                throw ApiError.badRequest("Credenciales inválidas");
             }
 
             // Verificar si el usuario está activo
@@ -48,7 +49,7 @@ export const POST = withRateLimit(
                     reason: "account_deactivated",
                 });
 
-                throw new Error("Cuenta desactivada. Contacte al administrador");
+                throw ApiError.badRequest("Cuenta desactivada. Contacte al administrador");
             }
 
             // Verificar contraseña
@@ -62,7 +63,7 @@ export const POST = withRateLimit(
                     reason: "invalid_password",
                 });
 
-                throw new Error("Credenciales inválidas");
+                throw ApiError.badRequest("Credenciales inválidas");
             }
 
             // Generar token JWT

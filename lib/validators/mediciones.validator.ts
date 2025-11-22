@@ -43,6 +43,11 @@ export const createMedicionSchema = z.object({
   notas: z.string({
     message: 'Las notas deben ser un texto'
   }).max(1000, 'Las notas no pueden exceder los 1000 caracteres')
+    .optional(),
+  ciclo_id: z.coerce.number({
+    message: 'El ciclo debe ser un número'
+  }).int('El ciclo debe ser un entero')
+    .positive('El ciclo debe ser positivo')
     .optional()
 });
 
@@ -97,6 +102,14 @@ export const filterMedicionesSchema = z.object({
       message: 'El tipo debe ser un número'
     }).int('El tipo debe ser un entero')
       .positive('El tipo debe ser positivo')
+      .optional()
+  ),
+  ciclo_id: z.preprocess(
+    (val) => (val === null || val === '' ? undefined : val),
+    z.coerce.number({
+      message: 'El ciclo debe ser un número'
+    }).int('El ciclo debe ser un entero')
+      .positive('El ciclo debe ser positivo')
       .optional()
   ),
   autor_id: z.preprocess(

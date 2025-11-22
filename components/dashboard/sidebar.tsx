@@ -13,7 +13,8 @@ import {
     Rocket,
     Settings,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    History
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
@@ -27,9 +28,10 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean, onToggle:
 
     const menuItems = [
         { name: t('dashboard'), href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "EQUIPO"] },
+        { name: t('places'), href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "EQUIPO"] },
+        { name: t('cycles'), href: "/dashboard/ciclos", icon: History, roles: ["ADMIN", "EQUIPO"] },
         { name: t('measurements'), href: "/dashboard/mediciones", icon: Database, roles: ["ADMIN", "EQUIPO"] },
         { name: t('analysis'), href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "EQUIPO"] },
-        { name: t('places'), href: "/dashboard/lugares", icon: MapPin, roles: ["ADMIN", "EQUIPO"] },
         { name: t('configuration'), href: "/dashboard/configuracion", icon: Settings, roles: ["ADMIN", "EQUIPO"] },
         { name: t('users'), href: "/dashboard/usuarios", icon: Users, roles: ["ADMIN"] },
         { name: t('inDevelopment'), href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },

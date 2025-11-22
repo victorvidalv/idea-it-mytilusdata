@@ -15,6 +15,8 @@ import {
   type UpdateMedicionInput,
   type FilterMedicionesInput,
 } from '@/lib/validators/mediciones.validator';
+import { CiclosService } from '../ciclos';
+import { calcularDiasDesdeSiembra } from '@/lib/utils/cultivo';
 import {
   validarRelacionesBatch,
   validarLugar,
@@ -27,16 +29,7 @@ import { buildWhereClause, getIncludes } from './queries/mediciones-queries';
  * Tipo para el resultado paginado de mediciones
  */
 export interface MedicionesPaginadas {
-  data: (Prisma.MedicionGetPayload<{
-    include: {
-      lugar: true;
-      unidad: true;
-      tipo: true;
-      registrado_por: true;
-    };
-  }> | Prisma.MedicionGetPayload<{
-    include: ReturnType<typeof getIncludes>;
-  }>)[];
+  data: any[];
   pagination: {
     page: number;
     limit: number;
@@ -77,7 +70,7 @@ export class MedicionesService {
     const skip = (validatedFilters.page! - 1) * validatedFilters.limit!;
 
     // Obtener total y datos en paralelo
-    const [total, data] = await Promise.all([
+    const [total, rawData] = await Promise.all([
       prisma.medicion.count({ where }),
       prisma.medicion.findMany({
         where,
@@ -89,6 +82,21 @@ export class MedicionesService {
         },
       }),
     ]);
+
+    // Enriquecer datos con cálculo de días desde siembra si hay ciclo asociado
+    const data = rawData.map((medicion: any) => {
+      let dias_desde_siembra = null;
+      if (medicion.ciclo && medicion.ciclo.fecha_siembra) {
+        dias_desde_siembra = calcularDiasDesdeSiembra(
+          medicion.fecha_medicion,
+          medicion.ciclo.fecha_siembra
+        );
+      }
+      return {
+        ...medicion,
+        dias_desde_siembra,
+      };
+    });
 
     const totalPages = Math.ceil(total / validatedFilters.limit!);
 
@@ -127,10 +135,20 @@ export class MedicionesService {
         deleted_at: null,
       },
       include: getIncludes(!minimal),
-    });
+    }) as any;
 
     if (medicion) {
       logger.info('Medición encontrada', { id });
+
+      // Enriquecer con cálculo de días
+      let dias_desde_siembra = null;
+      if (medicion.ciclo && medicion.ciclo.fecha_siembra) {
+        dias_desde_siembra = calcularDiasDesdeSiembra(
+          medicion.fecha_medicion,
+          medicion.ciclo.fecha_siembra
+        );
+      }
+      medicion.dias_desde_siembra = dias_desde_siembra;
     } else {
       logger.warn('Medición no encontrada', { id });
     }
@@ -162,6 +180,16 @@ export class MedicionesService {
       origen_id: validatedData.origen_id,
     });
 
+    // Si no se proporciona ciclo_id, buscar el ciclo activo del lugar
+    let cicloIdEfectivo = validatedData.ciclo_id;
+    if (!cicloIdEfectivo) {
+      const cicloActivo = await CiclosService.findActiveByLugar(validatedData.lugar_id);
+      if (cicloActivo) {
+        cicloIdEfectivo = cicloActivo.id;
+        logger.info('Asignando ciclo activo automáticamente', { cicloId: cicloIdEfectivo });
+      }
+    }
+
     // Crear medición
     const medicion = await prisma.medicion.create({
       data: {
@@ -172,6 +200,7 @@ export class MedicionesService {
         tipo_id: validatedData.tipo_id,
         origen_id: validatedData.origen_id,
         registrado_por_id: userId,
+        ciclo_id: cicloIdEfectivo,
         notas: validatedData.notas,
       },
       include: getIncludes(includeAll),
@@ -179,9 +208,17 @@ export class MedicionesService {
 
 
 
+    const result = medicion as any;
+    if (result.ciclo && result.ciclo.fecha_siembra) {
+      result.dias_desde_siembra = calcularDiasDesdeSiembra(
+        result.fecha_medicion,
+        result.ciclo.fecha_siembra
+      );
+    }
+
     logger.info('Medición creada exitosamente', { id: medicion.id });
 
-    return medicion;
+    return result;
   }
 
   /**
@@ -245,9 +282,17 @@ export class MedicionesService {
 
 
 
+    const result = medicion as any;
+    if (result.ciclo && result.ciclo.fecha_siembra) {
+      result.dias_desde_siembra = calcularDiasDesdeSiembra(
+        result.fecha_medicion,
+        result.ciclo.fecha_siembra
+      );
+    }
+
     logger.info('Medición actualizada exitosamente', { id: medicion.id });
 
-    return medicion;
+    return result;
   }
 
   /**

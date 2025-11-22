@@ -37,7 +37,9 @@
     "active": "Activo",
     "inactive": "Inactivo",
     "activate": "Activar",
-    "deactivate": "Desactivar"
+    "deactivate": "Desactivar",
+    "cycles": "Ciclos",
+    "sowingDate": "Fecha de Siembra"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -52,6 +54,7 @@
     "origins": "Orígenes",
     "units": "Unidades",
     "recordTypes": "Tipos de Registro",
+    "cycles": "Ciclos",
     "collapse": "Colapsar"
   },
   "auth": {
@@ -147,6 +150,36 @@
       "longitude": "Ingresa la longitud",
       "altitude": "Ingresa la altitud",
       "accuracy": "Ingresa la precisión"
+    }
+  },
+  "cycles": {
+    "title": "Ciclos de Cultivo",
+    "description": "Gestiona los ciclos de producción por centro",
+    "newCycle": "Nuevo Ciclo",
+    "editCycle": "Editar Ciclo",
+    "deleteCycle": "Eliminar Ciclo",
+    "viewCycle": "Ver Ciclo",
+    "fields": {
+      "name": "Nombre del Ciclo",
+      "sowingDate": "Fecha de Siembra",
+      "endDate": "Fecha de Término",
+      "place": "Centro/Lugar",
+      "active": "Ciclo Activo",
+      "daysSinceSowing": "Días desde Siembra",
+      "notes": "Notas"
+    },
+    "placeholders": {
+      "name": "Ej: Ciclo Primavera 2025",
+      "sowingDate": "Selecciona la fecha de inicio",
+      "endDate": "Selecciona la fecha de fin (opcional)",
+      "place": "Selecciona el centro",
+      "notes": "Observaciones del ciclo"
+    },
+    "activeIndicator": "Activo",
+    "inactiveIndicator": "Finalizado",
+    "errors": {
+      "measurementBeforeSowing": "La fecha de medición no puede ser anterior a la siembra ({date})",
+      "noActiveCycle": "No hay un ciclo activo para este centro"
     }
   },
   "places": {

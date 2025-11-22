@@ -10,6 +10,7 @@ interface FormData {
     unidad_id: string
     tipo_id: string
     origen_id: string
+    ciclo_id: string
     notas: string
 }
 
@@ -38,6 +39,7 @@ export function useMedicionesCrud(): UseMedicionesCrudReturn {
         unidad_id: "",
         tipo_id: "",
         origen_id: "",
+        ciclo_id: "",
         notas: ""
     })
 
@@ -51,6 +53,7 @@ export function useMedicionesCrud(): UseMedicionesCrudReturn {
             unidad_id: "",
             tipo_id: "",
             origen_id: "",
+            ciclo_id: "",
             notas: ""
         })
         setIsModalOpen(true)
@@ -59,6 +62,7 @@ export function useMedicionesCrud(): UseMedicionesCrudReturn {
     // Abrir modal de edición de medición existente
     const openEditModal = (medicion: Medicion) => {
         setEditingMedicion(medicion)
+        const med = medicion as any
         setFormData({
             valor: medicion.valor.toString(),
             fecha_medicion: new Date(medicion.fecha_medicion).toISOString().split("T")[0],
@@ -66,6 +70,7 @@ export function useMedicionesCrud(): UseMedicionesCrudReturn {
             unidad_id: medicion.unidad.id.toString(),
             tipo_id: medicion.tipo.id.toString(),
             origen_id: medicion.origen.id.toString(),
+            ciclo_id: med.ciclo_id?.toString() || "",
             notas: medicion.notas || ""
         })
         setIsModalOpen(true)
@@ -103,13 +108,23 @@ export function useMedicionesCrud(): UseMedicionesCrudReturn {
             const url = editingMedicion ? `/api/mediciones/${editingMedicion.id}` : "/api/mediciones"
             const method = editingMedicion ? "PUT" : "POST"
 
+            const body = {
+                ...formData,
+                valor: parseFloat(formData.valor),
+                lugar_id: parseInt(formData.lugar_id),
+                unidad_id: parseInt(formData.unidad_id),
+                tipo_id: parseInt(formData.tipo_id),
+                origen_id: parseInt(formData.origen_id),
+                ciclo_id: formData.ciclo_id ? parseInt(formData.ciclo_id) : null,
+            }
+
             const res = await fetch(url, {
                 method,
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(body)
             })
             const data = await res.json()
             if (data.success) {

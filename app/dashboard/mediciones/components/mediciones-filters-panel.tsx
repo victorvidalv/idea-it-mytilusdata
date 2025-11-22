@@ -7,6 +7,7 @@ interface Filters {
     lugar_id: string
     tipo_id: string
     autor_id: string
+    ciclo_id: string
 }
 
 interface MedicionesFiltersPanelProps {
@@ -17,6 +18,7 @@ interface MedicionesFiltersPanelProps {
     lugares: any[]
     tipos: any[]
     usuarios: any[]
+    ciclos: any[]
     t: (key: string) => string
     tCommon: (key: string) => string
 }
@@ -30,11 +32,12 @@ export function MedicionesFiltersPanel({
     lugares,
     tipos,
     usuarios,
+    ciclos,
     t,
     tCommon
 }: MedicionesFiltersPanelProps) {
     // Verificar si hay filtros activos
-    const hasActiveFilters = filters.lugar_id || filters.tipo_id || filters.autor_id
+    const hasActiveFilters = filters.lugar_id || filters.tipo_id || filters.autor_id || filters.ciclo_id
 
     return (
         <Card className="border-border/50">
@@ -43,11 +46,10 @@ export function MedicionesFiltersPanel({
                     {/* Botón para mostrar/ocultar filtros */}
                     <button
                         type="button"
-                        className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                            showFilters 
-                                ? "bg-secondary text-secondary-foreground" 
-                                : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                        }`}
+                        className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${showFilters
+                            ? "bg-secondary text-secondary-foreground"
+                            : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                            }`}
                         onClick={() => setShowFilters(!showFilters)}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -58,13 +60,13 @@ export function MedicionesFiltersPanel({
                             <span className="flex h-2 w-2 rounded-full bg-primary" />
                         )}
                     </button>
-                    
+
                     {/* Botón para limpiar filtros activos */}
                     {hasActiveFilters && (
                         <button
                             type="button"
                             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                            onClick={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
+                            onClick={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "", ciclo_id: "" })}
                         >
                             {tCommon('clear')} {tCommon('filter')}
                         </button>
@@ -79,8 +81,9 @@ export function MedicionesFiltersPanel({
                             lugares={lugares}
                             tipos={tipos}
                             usuarios={usuarios}
+                            ciclos={ciclos}
                             onFilterChange={setFilters}
-                            onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
+                            onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "", ciclo_id: "" })}
                         />
                     </div>
                 )}

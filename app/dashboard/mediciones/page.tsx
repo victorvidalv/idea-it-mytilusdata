@@ -32,6 +32,7 @@ export default function MedicionesPage() {
         tipos,
         origenes,
         usuarios,
+        ciclos,
         loading,
         filters,
         pagination,
@@ -58,7 +59,7 @@ export default function MedicionesPage() {
     const { handleExportCSV } = useMedicionesExport()
 
     // Verificar si hay filtros activos
-    const hasActiveFilters = filters.lugar_id || filters.tipo_id || filters.autor_id
+    const hasActiveFilters = filters.lugar_id || filters.tipo_id || filters.autor_id || filters.ciclo_id
 
     // Manejar eliminación de medición
     const handleDeleteMedicion = async (id: number) => {
@@ -83,7 +84,7 @@ export default function MedicionesPage() {
                 onExport={handleExport}
                 hasFilters={!!hasActiveFilters}
                 onToggleFilters={() => setShowFilters(!showFilters)}
-                onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
+                onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "", ciclo_id: "" })}
             />
 
             {/* Tarjeta principal con tabla de mediciones */}
@@ -109,7 +110,7 @@ export default function MedicionesPage() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
+                                onClick={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "", ciclo_id: "" })}
                                 className="text-xs text-muted-foreground"
                             >
                                 {tCommon('clear')} {tCommon('filter')}
@@ -124,8 +125,9 @@ export default function MedicionesPage() {
                             lugares={lugares}
                             tipos={tipos}
                             usuarios={usuarios}
+                            ciclos={ciclos}
                             onFilterChange={setFilters}
-                            onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "" })}
+                            onClearFilters={() => setFilters({ lugar_id: "", tipo_id: "", autor_id: "", ciclo_id: "" })}
                         />
                     )}
                 </CardHeader>
@@ -155,6 +157,7 @@ export default function MedicionesPage() {
                     unidades={unidades}
                     tipos={tipos}
                     origenes={origenes}
+                    ciclos={ciclos}
                     onChange={setFormData}
                     onSubmit={handleFormSubmit}
                     submitting={submitting}

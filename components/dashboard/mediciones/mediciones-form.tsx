@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
 import { Lugar, Unidad, TipoRegistro, OrigenDato } from "@/lib/types"
 import { useTranslations } from "next-intl"
+import { Ciclo } from "@/app/dashboard/ciclos/hooks/use-ciclos"
 
 interface MedicionesFormProps {
     formData: {
@@ -15,21 +16,15 @@ interface MedicionesFormProps {
         unidad_id: string
         tipo_id: string
         origen_id: string
+        ciclo_id: string
         notas: string
     }
     lugares: Lugar[]
     unidades: Unidad[]
     tipos: TipoRegistro[]
     origenes: OrigenDato[]
-    onChange: (formData: {
-        valor: string
-        fecha_medicion: string
-        lugar_id: string
-        unidad_id: string
-        tipo_id: string
-        origen_id: string
-        notas: string
-    }) => void
+    ciclos: Ciclo[]
+    onChange: (formData: any) => void
     onSubmit: (e: React.FormEvent) => void
     submitting: boolean
     isEditing: boolean
@@ -41,6 +36,7 @@ export function MedicionesForm({
     unidades,
     tipos,
     origenes,
+    ciclos,
     onChange,
     onSubmit,
     submitting,
@@ -52,7 +48,7 @@ export function MedicionesForm({
     const tUnits = useTranslations('units')
     const tRecordTypes = useTranslations('recordTypes')
     const tOrigins = useTranslations('origins')
-    
+
     return (
         <form onSubmit={onSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -86,10 +82,30 @@ export function MedicionesForm({
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     required
                     value={formData.lugar_id}
-                    onChange={(e) => onChange({ ...formData, lugar_id: e.target.value })}
+                    onChange={(e) => onChange({ ...formData, lugar_id: e.target.value, ciclo_id: "" })}
                 >
                     <option value="">{tCommon('select')}...</option>
                     {lugares.map(l => <option key={l.id} value={l.id.toString()}>{l.nombre}</option>)}
+                </select>
+            </div>
+
+            {/* Selector de Ciclo (filtrado por lugar) */}
+            <div className="space-y-2">
+                <Label>{t('fields.cycles') || "Ciclo"}</Label>
+                <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    value={formData.ciclo_id}
+                    onChange={(e) => onChange({ ...formData, ciclo_id: e.target.value })}
+                >
+                    <option value="">{tCommon('select')} ({t('placeholders.autoSelect') || "Asignación Automática"})</option>
+                    {ciclos
+                        .filter(c => c.lugar_id.toString() === formData.lugar_id)
+                        .map(c => (
+                            <option key={c.id} value={c.id.toString()}>
+                                {c.nombre} {c.activo ? `(${t('activeIndicator') || "Activo"})` : ""}
+                            </option>
+                        ))
+                    }
                 </select>
             </div>
 

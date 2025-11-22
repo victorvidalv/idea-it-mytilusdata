@@ -33,26 +33,34 @@ export function AuthForm() {
     const [regPassword, setRegPassword] = React.useState("")
 
     // Obtener token CSRF al montar el componente
-    React.useEffect(() => {
-        const fetchCSRFToken = async () => {
-            try {
-                const response = await fetch("/api/auth/csrf-token", {
-                    method: "GET",
-                    credentials: "include",
-                })
+    const fetchCSRFToken = React.useCallback(async () => {
+        setIsLoading(true)
+        setError(null)
+        try {
+            const response = await fetch("/api/auth/csrf-token", {
+                method: "GET",
+                credentials: "include",
+            })
 
-                if (response.ok) {
-                    setCsrfReady(true)
-                } else {
-                    setError(t('error.sessionInitFailed'))
-                }
-            } catch (err) {
-                setError(t('error.connectionError'))
+            if (response.ok) {
+                setCsrfReady(true)
+                setError(null)
+            } else {
+                const data = await response.json().catch(() => ({}))
+                setError(data.error?.message || t('error.sessionInitFailed'))
+                setCsrfReady(false)
             }
+        } catch (err) {
+            setError(t('error.connectionError'))
+            setCsrfReady(false)
+        } finally {
+            setIsLoading(false)
         }
+    }, [t])
 
+    React.useEffect(() => {
         fetchCSRFToken()
-    }, [])
+    }, [fetchCSRFToken])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -218,12 +226,22 @@ export function AuthForm() {
                                     />
                                 </div>
                             </CardContent>
-                            <CardFooter>
+                            <CardFooter className="flex flex-col gap-3">
+                                {!csrfReady && !isLoading && error && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={fetchCSRFToken}
+                                        className="w-full"
+                                    >
+                                        {t('common.refresh' as any) || "Reintentar conexión"}
+                                    </Button>
+                                )}
                                 <Button
                                     className="w-full h-11 bg-primary hover:bg-primary/90 transition-all font-semibold"
                                     disabled={isLoading || !csrfReady}
                                 >
-                                    {!csrfReady ? (
+                                    {!csrfReady && isLoading ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             {t('initializing')}
@@ -232,6 +250,11 @@ export function AuthForm() {
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             {t('loggingIn')}
+                                        </>
+                                    ) : !csrfReady ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin text-destructive" />
+                                            {t('error.sessionInitFailed')}
                                         </>
                                     ) : (
                                         t('enterSystem')
@@ -293,12 +316,22 @@ export function AuthForm() {
                                     />
                                 </div>
                             </CardContent>
-                            <CardFooter>
+                            <CardFooter className="flex flex-col gap-3">
+                                {!csrfReady && !isLoading && error && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={fetchCSRFToken}
+                                        className="w-full"
+                                    >
+                                        {t('common.refresh' as any) || "Reintentar conexión"}
+                                    </Button>
+                                )}
                                 <Button
                                     className="w-full h-11 bg-primary hover:bg-primary/90 transition-all font-semibold"
                                     disabled={isLoading || !csrfReady}
                                 >
-                                    {!csrfReady ? (
+                                    {!csrfReady && isLoading ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             {t('initializing')}
@@ -307,6 +340,11 @@ export function AuthForm() {
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             {t('registering')}
+                                        </>
+                                    ) : !csrfReady ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin text-destructive" />
+                                            {t('error.sessionInitFailed')}
                                         </>
                                     ) : (
                                         t('createAccount')

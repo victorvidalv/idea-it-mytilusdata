@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react"
 import { Medicion, Lugar, Unidad, TipoRegistro, Usuario, OrigenDato } from "@/lib/types"
 import { useAuth } from "@/hooks/use-auth"
+import { Ciclo } from "@/app/dashboard/ciclos/hooks/use-ciclos"
 
 interface Filters {
     lugar_id: string
     tipo_id: string
     autor_id: string
+    ciclo_id: string
 }
 
 interface Pagination {
@@ -26,6 +28,7 @@ interface UseMedicionesDataReturn {
     tipos: TipoRegistro[]
     origenes: OrigenDato[]
     usuarios: Usuario[]
+    ciclos: Ciclo[]
     loading: boolean
     filters: Filters
     pagination: Pagination
@@ -43,12 +46,14 @@ export function useMedicionesData(): UseMedicionesDataReturn {
     const [tipos, setTipos] = useState<TipoRegistro[]>([])
     const [origenes, setOrigenes] = useState<OrigenDato[]>([])
     const [usuarios, setUsuarios] = useState<Usuario[]>([])
+    const [ciclos, setCiclos] = useState<Ciclo[]>([])
     const [loading, setLoading] = useState(true)
 
     const [filters, setFilters] = useState<Filters>({
         lugar_id: "",
         tipo_id: "",
-        autor_id: ""
+        autor_id: "",
+        ciclo_id: ""
     })
 
     const [pagination, setPagination] = useState<Pagination>({
@@ -83,28 +88,31 @@ export function useMedicionesData(): UseMedicionesDataReturn {
             if (filters.lugar_id) queryParams.append("lugar_id", filters.lugar_id)
             if (filters.tipo_id) queryParams.append("tipo_id", filters.tipo_id)
             if (filters.autor_id) queryParams.append("autor_id", filters.autor_id)
+            if (filters.ciclo_id) queryParams.append("ciclo_id", filters.ciclo_id)
 
             queryParams.append("page", pagination.page.toString())
             queryParams.append("limit", pagination.limit.toString())
 
             // Realizar peticiones paralelas a todas las APIs
-            const [mRes, lRes, uRes, tRes, oRes, usRes] = await Promise.all([
+            const [mRes, lRes, uRes, tRes, oRes, usRes, cRes] = await Promise.all([
                 fetch(`/api/mediciones?${queryParams.toString()}`, { headers }),
                 fetch("/api/lugares", { headers }),
                 fetch("/api/unidades", { headers }),
                 fetch("/api/tipos-registro", { headers }),
                 fetch("/api/origenes", { headers }),
-                fetch("/api/usuarios", { headers })
+                fetch("/api/usuarios", { headers }),
+                fetch("/api/ciclos", { headers })
             ])
 
             // Parsear respuestas JSON
-            const [m, l, u, t, o, us] = await Promise.all([
+            const [m, l, u, t, o, us, c] = await Promise.all([
                 mRes.json(),
                 lRes.json(),
                 uRes.json(),
                 tRes.json(),
                 oRes.json(),
-                usRes.json()
+                usRes.json(),
+                cRes.json()
             ])
 
             // Actualizar estados con datos recibidos
@@ -125,6 +133,7 @@ export function useMedicionesData(): UseMedicionesDataReturn {
             if (t.success) setTipos(t.data)
             if (o.success) setOrigenes(o.data)
             if (us.success) setUsuarios(us.data)
+            if (c.success) setCiclos(c.data)
         } catch (e) {
             console.error(e)
         } finally {
@@ -144,6 +153,7 @@ export function useMedicionesData(): UseMedicionesDataReturn {
         tipos,
         origenes,
         usuarios,
+        ciclos,
         loading,
         filters,
         pagination,

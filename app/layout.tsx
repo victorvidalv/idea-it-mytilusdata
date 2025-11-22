@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "sonner";
 
 export default async function RootLayout({
   children,
@@ -53,6 +54,7 @@ export default async function RootLayout({
             <main className="flex-1 flex flex-col">
               {children}
             </main>
+            <Toaster position="top-right" richColors />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

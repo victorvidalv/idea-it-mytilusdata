@@ -5,17 +5,20 @@ import { Label } from "@/components/ui/label"
 import { Filter } from "lucide-react"
 import { Lugar, TipoRegistro, Usuario } from "@/lib/types"
 import { useTranslations } from "next-intl"
+import { Ciclo } from "@/app/dashboard/ciclos/hooks/use-ciclos"
 
 interface MedicionesFiltersProps {
     filters: {
         lugar_id: string
         tipo_id: string
         autor_id: string
+        ciclo_id: string
     }
     lugares: Lugar[]
     tipos: TipoRegistro[]
     usuarios: Usuario[]
-    onFilterChange: (filters: { lugar_id: string; tipo_id: string; autor_id: string }) => void
+    ciclos: Ciclo[]
+    onFilterChange: (filters: { lugar_id: string; tipo_id: string; autor_id: string; ciclo_id: string }) => void
     onClearFilters: () => void
 }
 
@@ -24,6 +27,7 @@ export function MedicionesFilters({
     lugares,
     tipos,
     usuarios,
+    ciclos,
     onFilterChange,
     onClearFilters
 }: MedicionesFiltersProps) {
@@ -32,8 +36,9 @@ export function MedicionesFilters({
     const tPlaces = useTranslations('places')
     const tRecordTypes = useTranslations('recordTypes')
     const tUsers = useTranslations('users')
-    
-    const hasActiveFilters = filters.lugar_id || filters.tipo_id || filters.autor_id
+    const tCycles = useTranslations('cycles')
+
+    const hasActiveFilters = filters.lugar_id || filters.tipo_id || filters.autor_id || filters.ciclo_id
 
     return (
         <div className="flex flex-col gap-4">
@@ -63,16 +68,29 @@ export function MedicionesFilters({
                 )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 animate-in fade-in slide-in-from-top-1">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2 animate-in fade-in slide-in-from-top-1">
                 <div className="space-y-1.5">
                     <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t('fields.place')}</Label>
                     <select
                         className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         value={filters.lugar_id}
-                        onChange={(e) => onFilterChange({ ...filters, lugar_id: e.target.value })}
+                        onChange={(e) => onFilterChange({ ...filters, lugar_id: e.target.value, ciclo_id: "" })}
                     >
                         <option value="">{tCommon('places')}</option>
                         {lugares.map(l => <option key={l.id} value={l.id.toString()}>{l.nombre}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground">{tCycles('title')}</Label>
+                    <select
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        value={filters.ciclo_id}
+                        onChange={(e) => onFilterChange({ ...filters, ciclo_id: e.target.value })}
+                    >
+                        <option value="">{tCycles('title')}</option>
+                        {ciclos
+                            .filter(c => !filters.lugar_id || c.lugar_id.toString() === filters.lugar_id)
+                            .map(c => <option key={c.id} value={c.id.toString()}>{c.nombre}</option>)}
                     </select>
                 </div>
                 <div className="space-y-1.5">

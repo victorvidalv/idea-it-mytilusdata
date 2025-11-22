@@ -37,7 +37,9 @@
     "active": "Active",
     "inactive": "Inactive",
     "activate": "Activate",
-    "deactivate": "Deactivate"
+    "deactivate": "Deactivate",
+    "cycles": "Cycles",
+    "sowingDate": "Sowing Date"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -52,6 +54,7 @@
     "origins": "Origins",
     "units": "Units",
     "recordTypes": "Record Types",
+    "cycles": "Cycles",
     "collapse": "Collapse"
   },
   "auth": {
@@ -147,6 +150,36 @@
       "longitude": "Enter longitude",
       "altitude": "Enter altitude",
       "accuracy": "Enter accuracy"
+    }
+  },
+  "cycles": {
+    "title": "Cultivation Cycles",
+    "description": "Manage production cycles by center",
+    "newCycle": "New Cycle",
+    "editCycle": "Edit Cycle",
+    "deleteCycle": "Delete Cycle",
+    "viewCycle": "View Cycle",
+    "fields": {
+      "name": "Cycle Name",
+      "sowingDate": "Sowing Date",
+      "endDate": "End Date",
+      "place": "Center/Place",
+      "active": "Active Cycle",
+      "daysSinceSowing": "Days since Sowing",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "name": "E.g.: Spring Cycle 2025",
+      "sowingDate": "Select start date",
+      "endDate": "Select end date (optional)",
+      "place": "Select center",
+      "notes": "Cycle observations"
+    },
+    "activeIndicator": "Active",
+    "inactiveIndicator": "Finished",
+    "errors": {
+      "measurementBeforeSowing": "Measurement date cannot be before sowing ({date})",
+      "noActiveCycle": "No active cycle for this center"
     }
   },
   "places": {

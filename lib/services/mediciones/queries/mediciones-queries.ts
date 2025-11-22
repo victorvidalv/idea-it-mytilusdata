@@ -49,6 +49,11 @@ export function buildWhereClause(
     }
   }
 
+  // Filtro por ciclo
+  if (filters.ciclo_id) {
+    where.ciclo_id = filters.ciclo_id;
+  }
+
   return where;
 }
 
@@ -66,5 +71,6 @@ export function getIncludes(includeAll = false) {
     tipo: { select: { id: true, codigo: true, descripcion: true } },
     origen: { select: { id: true, nombre: true } },
     registrado_por: { select: { id: true, nombre: true, email: true } },
+    ciclo: { select: { id: true, nombre: true, fecha_siembra: true } },
   };
 }

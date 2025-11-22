@@ -24,3 +24,14 @@ export {
   type FilterMedicionesInput,
   type MedicionIdInput
 } from './mediciones.validator';
+
+// Validadores de ciclos
+export {
+  createCicloSchema,
+  updateCicloSchema,
+  filterCiclosSchema,
+  cicloIdSchema,
+  type CreateCicloInput,
+  type UpdateCicloInput,
+  type FilterCiclosInput
+} from './ciclos.validator';

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Proyecto Mitilicultura</title>
+    <style>
+        :root {
+            --primary-dark: #0f172a;
+            --primary-blue: #1e3a8a;
+            --accent-cyan: #06b6d4;
+            --text-light: #f8fafc;
+            --text-gray: #94a3b8;
+            --glass-bg: rgba(30, 58, 138, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: radial-gradient(circle at top right, #1e40af 0%, #0f172a 60%);
+        }
+
+        /* Contenedor Principal de la Presentación */
+        .slide-container {
+            width: 90vw;
+            max-width: 1000px;
+            height: 80vh;
+            /* Aspect ratio aproximado */
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        /* Diapositivas */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+            z-index: 10;
+        }
+
+        .slide.prev {
+            transform: translateX(-50px);
+            opacity: 0;
+        }
+
+        /* Tipografía */
+        h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--accent-cyan);
+            border-left: 5px solid var(--accent-cyan);
+            padding-left: 20px;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            max-width: 800px;
+        }
+
+        /* Elementos Específicos */
+        .highlight-box {
+            background: var(--glass-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-cyan);
+            margin-top: 20px;
+        }
+
+        .comparison-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .badge-current {
+            background-color: #334155;
+            color: #94a3b8;
+        }
+
+        .badge-goal {
+            background-color: var(--accent-cyan);
+            color: #0f172a;
+        }
+
+        .step-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .step-list li {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+        }
+
+        .step-list li::before {
+            content: "➜";
+            position: absolute;
+            left: 0;
+            color: var(--accent-cyan);
+            font-weight: bold;
+        }
+
+        /* Navegación */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            right: 60px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            z-index: 20;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            background: var(--accent-cyan);
+            color: var(--primary-dark);
+            border-color: var(--accent-cyan);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: var(--accent-cyan);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Utilidad para iconos simples SVG */
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slide-container">
+        <div class="progress" id="progressBar"></div>
+
+        <div class="slide active">
+            <p style="color: var(--accent-cyan); letter-spacing: 2px; text-transform: uppercase; font-weight: bold;">
+                Investigación Tecnológica 2025</p>
+            <h1>Plataforma de Predicción<br>para Mitilicultura</h1>
+            <p style="font-size: 1.5rem;">De la "Caja Negra" a la Gestión Inteligente.</p>
+            <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <p style="font-size: 1rem; color: var(--text-gray);">Optimizando el cultivo de <em>Mytilus
+                        chilensis</em> mediante ciencia de datos.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <h2>El Problema Actual</h2>
+            <h3 style="color: #ef4444;">La "Ceguera Operativa"</h3>
+            <p>
+                Los productores operan con una <strong>"caja negra"</strong>: desconocen el tamaño exacto y la biomasa
+                de sus choritos hasta el momento de sacar las cuerdas.
+            </p>
+            <div class="comparison-container">
+                <div class="card">
+                    <h3>Impacto Negativo</h3>
+                    <ul class="step-list">
+                        <li>Ineficiencia logística por falta de visibilidad.</li>
+                        <li>Imposibilidad de planificar ventas con certeza.</li>
+                        <li>Vulnerabilidad ante factores ambientales (Mareas Rojas).</li>
+                    </ul>
+                </div>
+            </div>
+            <p style="margin-top: 20px; font-style: italic;">
+                "Es como gestionar un inventario que no puedes ver ni contar."
+            </p>
+        </div>
+
+        <div class="slide">
+            <h2>Solución Propuesta</h2>
+            <p>
+                <strong>Objetivo:</strong> Transformar la incertidumbre en datos accionables mediante una herramienta
+                predictiva de curvas de crecimiento.
+            </p>
+
+            <div class="highlight-box">
+                <h3 style="color: var(--accent-cyan);">El Sistema Responde:</h3>
+                <p style="font-size: 1.5rem; font-weight: bold; color: white;">
+                    "Dadas las condiciones actuales, tus mejillones alcanzarán el calibre comercial <span
+                        style="color:var(--accent-cyan)">X</span> en el mes <span
+                        style="color:var(--accent-cyan)">Y</span>".
+                </p>
+            </div>
+
+            <p style="margin-top: 20px;">
+                Integra modelos matemáticos y patrones históricos para calcular la <strong>"fecha de arribo"</strong>
+                óptima.
+            </p>
+        </div>
+
+        <div class="slide">
+            <h2>Estado de Madurez (TRL)</h2>
+            <div class="comparison-container">
+                <div class="card" style="border-top: 4px solid #94a3b8;">
+                    <span class="badge badge-current">TRL 4 - ESTADO ACTUAL</span>
+                    <h3>Prototipo Funcional</h3>
+                    <p style="font-size: 1rem; color: #cbd5e1;">
+                        Concepto transformado en prototipo web. Desarrollado bajo presión (1 mes), pero incorpora
+                        funciones matemáticas y gráficas avanzadas. Es el punto de partida validado en laboratorio.
+                    </p>
+                </div>
+                <div class="card" style="border-top: 4px solid var(--accent-cyan); background: rgba(6, 182, 212, 0.1);">
+                    <span class="badge badge-goal">TRL 7 - LA META</span>
+                    <h3>Operación Real</h3>
+                    <p style="font-size: 1rem; color: white;">
+                        Llevar el concepto al mar. Validación con múltiples centros de cultivo funcionando
+                        simultáneamente en entorno operativo real.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <h2>Hoja de Ruta</h2>
+            <p>Próximos pasos para escalar de TRL 4 a TRL 7:</p>
+
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <div
+                    style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; display: flex; align-items: center;">
+                    <div style="font-size: 2rem; margin-right: 20px; color: var(--accent-cyan);">01</div>
+                    <div>
+                        <h3>Ingeniería de Datos</h3>
+                        <p style="margin:0; font-size: 1rem;">Estandarizar captura de datos (terreno + satélite +
+                            históricos) para alimentar el sistema.</p>
+                    </div>
+                </div>
+
+                <div
+                    style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; display: flex; align-items: center;">
+                    <div style="font-size: 2rem; margin-right: 20px; color: var(--accent-cyan);">02</div>
+                    <div>
+                        <h3>Motor Predictivo</h3>
+                        <p style="margin:0; font-size: 1rem;">Calibrar el modelo para que se "auto-ajuste" a las
+                            condiciones únicas de cada centro.</p>
+                    </div>
+                </div>
+
+                <div
+                    style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; display: flex; align-items: center;">
+                    <div style="font-size: 2rem; margin-right: 20px; color: var(--accent-cyan);">03</div>
+                    <div>
+                        <h3>Plataforma Escalable</h3>
+                        <p style="margin:0; font-size: 1rem;">Desplegar arquitectura web eficiente (SaaS, Bajo costo,
+                            Alta seguridad) para múltiples empresas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="prevBtn" onclick="changeSlide(-1)" disabled>
+                &#8592; Atrás
+            </button>
+            <div style="color: var(--text-gray); font-size: 0.9rem;">
+                <span id="currentInd">1</span> / <span id="totalInd">5</span>
+            </div>
+            <button id="nextBtn" onclick="changeSlide(1)">
+                Siguiente &#8594;
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentInd = document.getElementById('currentInd');
+        const totalInd = document.getElementById('totalInd');
+
+        totalInd.textContent = slides.length;
+
+        function updateUI() {
+            // Actualizar slides
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            // Actualizar botones
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+
+            // Texto botón final
+            if (currentSlide === slides.length - 1) {
+                nextBtn.innerHTML = "Finalizar";
+            } else {
+                nextBtn.innerHTML = "Siguiente &#8594;";
+            }
+
+            // Actualizar contador
+            currentInd.textContent = currentSlide + 1;
+
+            // Actualizar barra de progreso
+            const progressPercentage = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function changeSlide(direction) {
+            const newIndex = currentSlide + direction;
+            if (newIndex >= 0 && newIndex < slides.length) {
+                currentSlide = newIndex;
+                updateUI();
+            }
+        }
+
+        // Navegación con teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        // Inicializar
+        updateUI();
+    </script>
+</body>
+
+</html>

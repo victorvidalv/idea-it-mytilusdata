@@ -30,6 +30,7 @@ model Usuario {
   lugares           Lugar[]           @relation("creador_lugar")
   origenes          OrigenDato[]      @relation("creador_origen")
   mediciones        Medicion[]        @relation("registrador_medicion")
+  ciclos            Ciclo[]           @relation("creador_ciclo")
 
   @@map("usuarios")
 }
@@ -63,6 +64,7 @@ model Lugar {
   // Relaciones
   creador    Usuario?   @relation("creador_lugar", fields: [creado_por_id], references: [id])
   mediciones Medicion[] @relation("lugar_medicion")
+  ciclos     Ciclo[]    @relation("ciclos_lugar")
 
   @@map("lugares")
 }
@@ -104,6 +106,7 @@ model Medicion {
   tipo_id           Int
   origen_id         Int
   registrado_por_id Int
+  ciclo_id          Int?      // Ciclo al que pertenece esta medición (opcional para datos históricos)
   notas             String?   // Campo opcional para comentarios adicionales
   
   // Auditoría básica de fila
@@ -117,6 +120,7 @@ model Medicion {
   tipo           TipoRegistro @relation("tipo_medicion", fields: [tipo_id], references: [id])
   origen         OrigenDato   @relation("origen_medicion", fields: [origen_id], references: [id])
   registrado_por Usuario      @relation("registrador_medicion", fields: [registrado_por_id], references: [id])
+  ciclo          Ciclo?       @relation("ciclo_medicion", fields: [ciclo_id], references: [id])
 
   @@index([fecha_medicion])
   @@index([lugar_id])
@@ -124,8 +128,34 @@ model Medicion {
   @@index([tipo_id])
   @@index([origen_id])
   @@index([registrado_por_id])
+  @@index([ciclo_id])
   @@index([deleted_at])
   @@map("mediciones")
 }
 
-
+// --- TABLA DE CICLOS ---
+model Ciclo {
+  id                   Int       @id @default(autoincrement())
+  nombre               String    // Ej: "Ciclo 2025-1", "Temporada Primavera 2025"
+  fecha_siembra        DateTime  // Fecha de inicio del ciclo (siembra)
+  fecha_finalizacion   DateTime? // Fecha de término (opcional, null si está activo)
+  lugar_id             Int       // Relación con el centro (lugar)
+  activo               Boolean   @default(true) // Solo un ciclo activo por lugar
+  notas                String?
+  
+  // Auditoría
+  creado_por_id        Int?
+  created_at           DateTime  @default(now())
+  deleted_at           DateTime? // Soft delete
+  
+  // Relaciones
+  lugar                Lugar     @relation("ciclos_lugar", fields: [lugar_id], references: [id])
+  creador              Usuario?  @relation("creador_ciclo", fields: [creado_por_id], references: [id])
+  mediciones           Medicion[] @relation("ciclo_medicion")
+  
+  @@index([lugar_id])
+  @@index([activo])
+  @@index([fecha_siembra])
+  @@index([deleted_at])
+  @@map("ciclos")
+}

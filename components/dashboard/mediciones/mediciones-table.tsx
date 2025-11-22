@@ -42,6 +42,8 @@ export function MedicionesTable({
                     <TableRow className="bg-muted/30">
                         <TableHead>{t('fields.date')}</TableHead>
                         <TableHead>{t('fields.place')}</TableHead>
+                        <TableHead>{t('fields.cycles') || "Ciclo"}</TableHead>
+                        <TableHead className="text-center">{t('fields.daysSinceSowing') || "Días"}</TableHead>
                         <TableHead>{t('fields.value')}</TableHead>
                         <TableHead>{t('fields.recordType')}</TableHead>
                         <TableHead>{tCommon('users')}</TableHead>
@@ -51,7 +53,7 @@ export function MedicionesTable({
                 </TableHeader>
                 <TableBody>
                     <TableRow>
-                        <TableCell colSpan={7} className="h-40 text-center">
+                        <TableCell colSpan={9} className="h-40 text-center">
                             <Loader2 className="animate-spin inline mr-2" /> {tCommon('loading')}
                         </TableCell>
                     </TableRow>
@@ -66,6 +68,8 @@ export function MedicionesTable({
                 <TableRow className="bg-muted/30">
                     <TableHead>{t('fields.date')}</TableHead>
                     <TableHead>{t('fields.place')}</TableHead>
+                    <TableHead>{t('fields.cycles') || "Ciclo"}</TableHead>
+                    <TableHead className="text-center">{t('fields.daysSinceSowing') || "Días"}</TableHead>
                     <TableHead>{t('fields.value')}</TableHead>
                     <TableHead>{t('fields.recordType')}</TableHead>
                     <TableHead>{tCommon('users')}</TableHead>
@@ -87,6 +91,23 @@ export function MedicionesTable({
                                 <MapPin className="w-4 h-4 text-primary/70" />
                                 {m.lugar.nombre}
                             </div>
+                        </TableCell>
+                        <TableCell>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium">{(m as any).ciclo?.nombre || "-"}</span>
+                                {(m as any).ciclo?.fecha_siembra && (
+                                    <span className="text-[10px] text-muted-foreground italic">
+                                        Desde: {new Date((m as any).ciclo.fecha_siembra).toLocaleDateString()}
+                                    </span>
+                                )}
+                            </div>
+                        </TableCell>
+                        <TableCell className="text-center font-outfit font-bold">
+                            {(m as any).dias_desde_siembra !== null ? (
+                                <div className="inline-flex items-center justify-center p-1 bg-primary/10 rounded min-w-[2rem] text-primary">
+                                    {(m as any).dias_desde_siembra}
+                                </div>
+                            ) : "-"}
                         </TableCell>
                         <TableCell className="font-bold text-lg">
                             {m.valor} <span className="text-sm font-medium text-muted-foreground">{m.unidad.sigla}</span>
@@ -134,7 +155,7 @@ export function MedicionesTable({
             </TableBody>
             <tfoot className="border-t bg-muted/5">
                 <tr>
-                    <td colSpan={7} className="p-4">
+                    <td colSpan={9} className="p-4">
                         <div className="flex items-center justify-between">
                             <div className="text-sm text-muted-foreground">
                                 {tCommon('total')}: <span className="font-medium text-foreground">{pagination.total}</span>

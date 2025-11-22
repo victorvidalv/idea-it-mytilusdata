@@ -60,12 +60,12 @@ export function UserMenu() {
                         <div className="p-2 space-y-3">
                             {/* Tema */}
                             <div className="px-2 pt-1">
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Tema</p>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">{t('theme')}</p>
                                 <div className="grid grid-cols-3 gap-1 bg-muted/40 p-1 rounded-lg">
                                     {[
-                                        { value: 'light', icon: Sun, label: 'Luz' },
-                                        { value: 'dark', icon: Moon, label: 'Noche' },
-                                        { value: 'system', icon: Monitor, label: 'Auto' }
+                                        { value: 'light', icon: Sun, label: t('themeLight') },
+                                        { value: 'dark', icon: Moon, label: t('themeDark') },
+                                        { value: 'system', icon: Monitor, label: t('themeAuto') }
                                     ].map((item) => (
                                         <button
                                             key={item.value}
@@ -86,11 +86,11 @@ export function UserMenu() {
 
                             {/* Idioma */}
                             <div className="px-2">
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Idioma</p>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">{t('language')}</p>
                                 <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-lg">
                                     {[
-                                        { code: 'es', label: 'Español' },
-                                        { code: 'en', label: 'English' }
+                                        { code: 'es', label: t('languageSpanish') },
+                                        { code: 'en', label: t('languageEnglish') }
                                     ].map((lang) => (
                                         <button
                                             key={lang.code}

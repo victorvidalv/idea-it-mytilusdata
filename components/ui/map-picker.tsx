@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-lea
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 
 // Corregir problema de iconos de Leaflet en Next.js
 const icon = L.icon({
@@ -35,6 +36,7 @@ function LocationMarker({ lat, lng, onChange }: MapPickerProps) {
 }
 
 export default function MapPicker({ lat, lng, onChange }: MapPickerProps) {
+    const t = useTranslations('places')
     const center: [number, number] = [-41.4693, -72.9424] // Puerto Montt
 
     return (
@@ -51,7 +53,7 @@ export default function MapPicker({ lat, lng, onChange }: MapPickerProps) {
                 <LocationMarker lat={lat} lng={lng} onChange={onChange} />
             </MapContainer>
             <div className="absolute bottom-2 left-2 z-[1000] bg-background/80 backdrop-blur px-2 py-1 rounded text-[10px] font-medium border shadow-sm">
-                Haz clic en el mapa para posicionar
+                {t('clickToPosition')}
             </div>
         </div>
     )

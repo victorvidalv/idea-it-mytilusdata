@@ -207,7 +207,7 @@ export function AuthForm() {
                                     <Input
                                         id="login-email"
                                         type="email"
-                                        placeholder="tu@email.com"
+                                        placeholder={t('emailPlaceholder')}
                                         value={loginEmail}
                                         onChange={(e) => setLoginEmail(e.target.value)}
                                         required
@@ -234,7 +234,7 @@ export function AuthForm() {
                                         onClick={fetchCSRFToken}
                                         className="w-full"
                                     >
-                                        {t('common.refresh' as any) || "Reintentar conexión"}
+                                        {t('retryConnection')}
                                     </Button>
                                 )}
                                 <Button
@@ -286,7 +286,7 @@ export function AuthForm() {
                                     <Label htmlFor="name">{t('fullName')}</Label>
                                     <Input
                                         id="name"
-                                        placeholder="Juan Pérez"
+                                        placeholder={t('namePlaceholder')}
                                         value={regName}
                                         onChange={(e) => setRegName(e.target.value)}
                                         required
@@ -297,7 +297,7 @@ export function AuthForm() {
                                     <Input
                                         id="reg-email"
                                         type="email"
-                                        placeholder="tu@email.com"
+                                        placeholder={t('emailPlaceholder')}
                                         value={regEmail}
                                         onChange={(e) => setRegEmail(e.target.value)}
                                         required
@@ -324,7 +324,7 @@ export function AuthForm() {
                                         onClick={fetchCSRFToken}
                                         className="w-full"
                                     >
-                                        {t('common.refresh' as any) || "Reintentar conexión"}
+                                        {t('retryConnection')}
                                     </Button>
                                 )}
                                 <Button

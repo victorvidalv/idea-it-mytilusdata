@@ -34,6 +34,7 @@ export function MedicionesTable({
 }: MedicionesTableProps) {
     const t = useTranslations('measurements')
     const tCommon = useTranslations('common')
+    const tCycles = useTranslations('cycles')
 
     if (loading) {
         return (
@@ -42,8 +43,8 @@ export function MedicionesTable({
                     <TableRow className="bg-muted/30">
                         <TableHead>{t('fields.date')}</TableHead>
                         <TableHead>{t('fields.place')}</TableHead>
-                        <TableHead>{t('fields.cycles') || "Ciclo"}</TableHead>
-                        <TableHead className="text-center">{t('fields.daysSinceSowing') || "Días"}</TableHead>
+                        <TableHead>{tCycles('title')}</TableHead>
+                        <TableHead className="text-center">{tCycles('daysSinceSowing')}</TableHead>
                         <TableHead>{t('fields.value')}</TableHead>
                         <TableHead>{t('fields.recordType')}</TableHead>
                         <TableHead>{tCommon('users')}</TableHead>
@@ -68,8 +69,8 @@ export function MedicionesTable({
                 <TableRow className="bg-muted/30">
                     <TableHead>{t('fields.date')}</TableHead>
                     <TableHead>{t('fields.place')}</TableHead>
-                    <TableHead>{t('fields.cycles') || "Ciclo"}</TableHead>
-                    <TableHead className="text-center">{t('fields.daysSinceSowing') || "Días"}</TableHead>
+                    <TableHead>{tCycles('title')}</TableHead>
+                    <TableHead className="text-center">{tCycles('daysSinceSowing')}</TableHead>
                     <TableHead>{t('fields.value')}</TableHead>
                     <TableHead>{t('fields.recordType')}</TableHead>
                     <TableHead>{tCommon('users')}</TableHead>
@@ -97,7 +98,7 @@ export function MedicionesTable({
                                 <span className="text-sm font-medium">{(m as any).ciclo?.nombre || "-"}</span>
                                 {(m as any).ciclo?.fecha_siembra && (
                                     <span className="text-[10px] text-muted-foreground italic">
-                                        Desde: {new Date((m as any).ciclo.fecha_siembra).toLocaleDateString()}
+                                        {tCycles('since')} {new Date((m as any).ciclo.fecha_siembra).toLocaleDateString()}
                                     </span>
                                 )}
                             </div>
@@ -162,7 +163,7 @@ export function MedicionesTable({
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="text-sm text-muted-foreground">
-                                    {t('fields.page')} <span className="font-medium text-foreground">{pagination.page}</span> / {pagination.totalPages}
+                                    {tCommon('page')} <span className="font-medium text-foreground">{pagination.page}</span> / {pagination.totalPages}
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Button

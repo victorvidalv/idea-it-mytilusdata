@@ -39,7 +39,15 @@
     "activate": "Activar",
     "deactivate": "Desactivar",
     "cycles": "Ciclos",
-    "sowingDate": "Fecha de Siembra"
+    "sowingDate": "Fecha de Siembra",
+    "total": "Total",
+    "page": "Página",
+    "now": "Ahora",
+    "themeLight": "Luz",
+    "themeDark": "Noche",
+    "themeAuto": "Auto",
+    "languageSpanish": "Español",
+    "languageEnglish": "English"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -79,6 +87,9 @@
     "initializing": "Inicializando...",
     "loggingIn": "Iniciando sesión...",
     "registering": "Registrando...",
+    "emailPlaceholder": "tu@email.com",
+    "namePlaceholder": "Juan Pérez",
+    "retryConnection": "Reintentar conexión",
     "error": {
       "invalidCredentials": "Email o contraseña inválidos",
       "emailRequired": "El email es requerido",
@@ -149,7 +160,11 @@
       "latitude": "Ingresa la latitud",
       "longitude": "Ingresa la longitud",
       "altitude": "Ingresa la altitud",
-      "accuracy": "Ingresa la precisión"
+      "accuracy": "Ingresa la precisión",
+      "valueNumeric": "0.00",
+      "selectOption": "Seleccionar...",
+      "selectUnit": "Unidad...",
+      "selectType": "Tipo..."
     }
   },
   "cycles": {
@@ -159,6 +174,8 @@
     "editCycle": "Editar Ciclo",
     "deleteCycle": "Eliminar Ciclo",
     "viewCycle": "Ver Ciclo",
+    "autoAssignment": "Asignación Automática",
+    "since": "Desde:",
     "fields": {
       "name": "Nombre del Ciclo",
       "sowingDate": "Fecha de Siembra",
@@ -224,6 +241,9 @@
     "newOrigin": "Nuevo Origen",
     "editOrigin": "Editar Origen",
     "deleteOrigin": "Eliminar Origen",
+    "emptyState": "No hay orígenes registrados",
+    "updateDescription": "Actualiza los datos del origen",
+    "createDescription": "Define un nuevo origen para clasificar mediciones",
     "fields": {
       "name": "Nombre",
       "description": "Descripción"
@@ -239,6 +259,8 @@
     "newUnit": "Nueva Unidad",
     "editUnit": "Editar Unidad",
     "deleteUnit": "Eliminar Unidad",
+    "updateDescription": "Actualiza los datos de la unidad de medida",
+    "createDescription": "Define una nueva unidad de medida",
     "fields": {
       "name": "Nombre",
       "symbol": "Símbolo",
@@ -256,6 +278,11 @@
     "newRecordType": "Nuevo Tipo de Registro",
     "editRecordType": "Editar Tipo de Registro",
     "deleteRecordType": "Eliminar Tipo de Registro",
+    "emptyState": "No hay tipos de registro definidos",
+    "deleteWarning": "No se puede eliminar: tiene mediciones asociadas",
+    "updateDescription": "Solo se puede editar la descripción",
+    "createDescription": "Define un nuevo tipo para clasificar mediciones",
+    "codeImmutable": "El código no puede ser modificado",
     "fields": {
       "name": "Nombre",
       "description": "Descripción"
@@ -271,6 +298,8 @@
     "newUser": "Nuevo Usuario",
     "editUser": "Editar Usuario",
     "deleteUser": "Eliminar Usuario",
+    "emptyState": "No se encontraron usuarios",
+    "createDescription": "Ingresa los datos del nuevo miembro del equipo",
     "fields": {
       "name": "Nombre",
       "email": "Email",
@@ -328,6 +357,25 @@
     "sigmoidModel": "Modelo Sigmoide",
     "statistics": "Estadísticas",
     "exportChart": "Exportar Gráfico",
+    "seriesDescription": "Mostrando {count} series - Día 0 = primera medición",
+    "configureSeries": "Configura las series y genera el análisis",
+    "daysElapsed": "Días transcurridos",
+    "day": "Día",
+    "noData": "Sin datos",
+    "noDataDescription": "Agrega series con combinaciones de lugar, tipo y unidad",
+    "seriesNumber": "Serie {number}",
+    "mainSeries": "(Principal)",
+    "addSeries": "Agregar Serie {number}",
+    "series": "Series",
+    "total": "Total",
+    "minimum": "Mínimo",
+    "maximum": "Máximo",
+    "average": "Promedio",
+    "days": "Días",
+    "paramMaximum": "L (Máximo)",
+    "paramSlope": "k (Pendiente)",
+    "paramInflection": "x₀ (Inflexión)",
+    "paramFit": "R² (Ajuste)",
     "fields": {
       "startDate": "Fecha de Inicio",
       "endDate": "Fecha de Fin",
@@ -341,6 +389,16 @@
     "description": "Gestiona la configuración de tu cuenta",
     "editProfile": "Editar Perfil",
     "changePassword": "Cambiar Contraseña",
+    "password": {
+      "current": "Contraseña actual",
+      "new": "Nueva contraseña",
+      "confirm": "Confirmar nueva contraseña",
+      "leaveEmpty": "Deja los campos vacíos si no deseas cambiar la contraseña."
+    },
+    "memberSince": "Miembro desde",
+    "accountInfo": "Información de la cuenta",
+    "emailImmutable": "El email no puede ser modificado",
+    "noChanges": "No hay cambios para guardar",
     "fields": {
       "name": "Nombre",
       "email": "Email",
@@ -405,6 +463,19 @@
   },
   "inDevelopment": {
     "title": "En Desarrollo",
-    "description": "Esta función está actualmente en desarrollo. Por favor, vuelve más tarde."
+    "description": "Esta función está actualmente en desarrollo. Por favor, vuelve más tarde.",
+    "features": {
+      "premiumDesign": "Diseño Premium",
+      "highSpeed": "Alta Velocidad",
+      "madeWithPassion": "Hecho con Pasión"
+    },
+    "syncing": "Sincronizando últimas actualizaciones"
+  },
+  "map": {
+    "clickToPosition": "Haz clic en el mapa para posicionar"
+  },
+  "metadata": {
+    "title": "IT25I0032 - Sistema de Mediciones",
+    "description": "Plataforma avanzada de registro y auditoría de mediciones técnicas"
   }
 }

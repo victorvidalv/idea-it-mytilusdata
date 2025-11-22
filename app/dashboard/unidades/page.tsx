@@ -166,7 +166,7 @@ export default function UnidadesPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 title={editingUnidad ? t('editUnit') : t('newUnit')}
-                description={editingUnidad ? "Update measurement unit data" : "Define a new measurement unit"}
+                description={editingUnidad ? t('updateDescription') : t('createDescription')}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">

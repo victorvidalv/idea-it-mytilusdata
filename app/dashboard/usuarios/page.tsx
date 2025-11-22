@@ -170,7 +170,7 @@ export default function UsuariosPage() {
                             ) : usuarios.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-40 text-center text-muted-foreground">
-                                        No users found.
+                                        {t('emptyState')}
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -241,7 +241,7 @@ export default function UsuariosPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 title={t('newUser')}
-                description="Enter new team member data."
+                description={t('createDescription')}
             >
                 <form onSubmit={handleCreateUser} className="space-y-4">
                     <div className="space-y-2">

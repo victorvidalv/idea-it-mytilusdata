@@ -53,7 +53,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean, onToggle:
                 </div>
                 {!collapsed && (
                     <span className="font-outfit font-bold text-xl tracking-tight whitespace-nowrap">
-                        IT25I0032
+                        {tCommon('appName')}
                     </span>
                 )}
             </div>

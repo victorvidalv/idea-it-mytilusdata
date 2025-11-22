@@ -100,7 +100,7 @@ export default function PerfilPage() {
             }
 
             if (Object.keys(body).length === 0) {
-                setMessage({ type: "error", text: "No changes to save" })
+                setMessage({ type: "error", text: t('noChanges') })
                 setSubmitting(false)
                 return
             }
@@ -176,7 +176,7 @@ export default function PerfilPage() {
                                 <Calendar className="w-5 h-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Member since</p>
+                                <p className="text-xs text-muted-foreground">{t('memberSince')}</p>
                                 <p className="font-bold text-sm">
                                     {stats?.created_at ? new Date(stats.created_at).toLocaleDateString('es-CL', {
                                         year: 'numeric',
@@ -235,7 +235,7 @@ export default function PerfilPage() {
             {/* Formulario de edición */}
             <Card className="border-border/50">
                 <CardHeader>
-                    <CardTitle className="text-lg">Account Information</CardTitle>
+                    <CardTitle className="text-lg">{t('accountInfo')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -263,7 +263,7 @@ export default function PerfilPage() {
                             <div className="space-y-2">
                                 <Label>{t('fields.email')}</Label>
                                 <Input value={stats?.email || ""} disabled className="bg-muted" />
-                                <p className="text-xs text-muted-foreground">Email cannot be modified</p>
+                                <p className="text-xs text-muted-foreground">{t('emailImmutable')}</p>
                             </div>
                         </div>
 
@@ -280,7 +280,7 @@ export default function PerfilPage() {
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Contraseña actual</Label>
+                                    <Label>{t('password.current')}</Label>
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
@@ -289,7 +289,7 @@ export default function PerfilPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Nueva contraseña</Label>
+                                    <Label>{t('password.new')}</Label>
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
@@ -298,7 +298,7 @@ export default function PerfilPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Confirmar nueva</Label>
+                                    <Label>{t('password.confirm')}</Label>
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
@@ -308,7 +308,7 @@ export default function PerfilPage() {
                                 </div>
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
-                                Leave fields empty if you don't want to change password.
+                                {t('password.leaveEmpty')}
                             </p>
                         </div>
 

@@ -151,7 +151,7 @@ export default function TiposRegistroPage() {
                             ) : tipos.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={4} className="h-40 text-center text-muted-foreground">
-                                        No record types defined.
+                                        {t('emptyState')}
                                     </TableCell>
                                 </TableRow>
                             ) : tipos.map((tipo) => (
@@ -187,7 +187,7 @@ export default function TiposRegistroPage() {
                                                 className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                                                 onClick={() => handleDelete(tipo.id)}
                                                 disabled={tipo._count.mediciones > 0}
-                                                title={tipo._count.mediciones > 0 ? "Cannot delete: has measurements" : tCommon('delete')}
+                                                title={tipo._count.mediciones > 0 ? t('deleteWarning') : tCommon('delete')}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
@@ -204,7 +204,7 @@ export default function TiposRegistroPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 title={editingTipo ? t('editRecordType') : t('newRecordType')}
-                description={editingTipo ? "Only description can be edited" : "Define a new type to classify measurements"}
+                description={editingTipo ? t('updateDescription') : t('createDescription')}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
@@ -219,7 +219,7 @@ export default function TiposRegistroPage() {
                             className={editingTipo ? "bg-muted" : ""}
                         />
                         {editingTipo && (
-                            <p className="text-xs text-muted-foreground">Code cannot be modified</p>
+                            <p className="text-xs text-muted-foreground">{t('codeImmutable')}</p>
                         )}
                     </div>
                     <div className="space-y-2">

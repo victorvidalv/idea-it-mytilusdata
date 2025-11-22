@@ -29,21 +29,21 @@ export default function EnDesarrolloPage() {
                     <Card className="bg-card/50 border-border/40 backdrop-blur-sm">
                         <CardHeader className="p-4 flex flex-col items-center text-center">
                             <Sparkles className="w-8 h-8 text-yellow-500 mb-2" />
-                            <CardTitle className="text-sm font-semibold">Diseño Premium</CardTitle>
+                            <CardTitle className="text-sm font-semibold">{t('features.premiumDesign')}</CardTitle>
                         </CardHeader>
                     </Card>
 
                     <Card className="bg-card/50 border-border/40 backdrop-blur-sm">
                         <CardHeader className="p-4 flex flex-col items-center text-center">
                             <Rocket className="w-8 h-8 text-blue-500 mb-2" />
-                            <CardTitle className="text-sm font-semibold">Alta Velocidad</CardTitle>
+                            <CardTitle className="text-sm font-semibold">{t('features.highSpeed')}</CardTitle>
                         </CardHeader>
                     </Card>
 
                     <Card className="bg-card/50 border-border/40 backdrop-blur-sm">
                         <CardHeader className="p-4 flex flex-col items-center text-center">
                             <Heart className="w-8 h-8 text-red-500 mb-2" />
-                            <CardTitle className="text-sm font-semibold">Hecho con Pasión</CardTitle>
+                            <CardTitle className="text-sm font-semibold">{t('features.madeWithPassion')}</CardTitle>
                         </CardHeader>
                     </Card>
                 </div>
@@ -54,7 +54,7 @@ export default function EnDesarrolloPage() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                         </span>
-                        Sincronizando últimas actualizaciones
+                        {t('syncing')}
                     </div>
                 </div>
             </div>

@@ -48,6 +48,7 @@ export function MedicionesForm({
     const tUnits = useTranslations('units')
     const tRecordTypes = useTranslations('recordTypes')
     const tOrigins = useTranslations('origins')
+    const tCycles = useTranslations('cycles')
 
     return (
         <form onSubmit={onSubmit} className="space-y-4">
@@ -68,7 +69,7 @@ export function MedicionesForm({
                         id="m-valor"
                         type="number"
                         step="any"
-                        placeholder="0.00"
+                        placeholder={t('placeholders.valueNumeric')}
                         required
                         value={formData.valor}
                         onChange={(e) => onChange({ ...formData, valor: e.target.value })}
@@ -84,25 +85,25 @@ export function MedicionesForm({
                     value={formData.lugar_id}
                     onChange={(e) => onChange({ ...formData, lugar_id: e.target.value, ciclo_id: "" })}
                 >
-                    <option value="">{tCommon('select')}...</option>
+                    <option value="">{t('placeholders.selectOption')}</option>
                     {lugares.map(l => <option key={l.id} value={l.id.toString()}>{l.nombre}</option>)}
                 </select>
             </div>
 
             {/* Selector de Ciclo (filtrado por lugar) */}
             <div className="space-y-2">
-                <Label>{t('fields.cycles') || "Ciclo"}</Label>
+                <Label>{tCycles('title')}</Label>
                 <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     value={formData.ciclo_id}
                     onChange={(e) => onChange({ ...formData, ciclo_id: e.target.value })}
                 >
-                    <option value="">{tCommon('select')} ({t('placeholders.autoSelect') || "Asignación Automática"})</option>
+                    <option value="">{tCommon('select')} ({tCycles('autoAssignment')})</option>
                     {ciclos
                         .filter(c => c.lugar_id.toString() === formData.lugar_id)
                         .map(c => (
                             <option key={c.id} value={c.id.toString()}>
-                                {c.nombre} {c.activo ? `(${t('activeIndicator') || "Activo"})` : ""}
+                                {c.nombre} {c.activo ? `(${tCycles('activeIndicator')})` : ""}
                             </option>
                         ))
                     }
@@ -117,7 +118,7 @@ export function MedicionesForm({
                     value={formData.origen_id}
                     onChange={(e) => onChange({ ...formData, origen_id: e.target.value })}
                 >
-                    <option value="">{tCommon('select')}...</option>
+                    <option value="">{t('placeholders.selectOption')}</option>
                     {origenes.map(o => <option key={o.id} value={o.id.toString()}>{o.nombre}</option>)}
                 </select>
             </div>
@@ -131,7 +132,7 @@ export function MedicionesForm({
                         value={formData.unidad_id}
                         onChange={(e) => onChange({ ...formData, unidad_id: e.target.value })}
                     >
-                        <option value="">Unit...</option>
+                        <option value="">{t('placeholders.selectUnit')}</option>
                         {unidades.map(u => <option key={u.id} value={u.id.toString()}>{u.sigla}</option>)}
                     </select>
                 </div>
@@ -143,7 +144,7 @@ export function MedicionesForm({
                         value={formData.tipo_id}
                         onChange={(e) => onChange({ ...formData, tipo_id: e.target.value })}
                     >
-                        <option value="">Type...</option>
+                        <option value="">{t('placeholders.selectType')}</option>
                         {tipos.map(t => <option key={t.id} value={t.id.toString()}>{t.codigo}</option>)}
                     </select>
                 </div>
@@ -162,7 +163,7 @@ export function MedicionesForm({
 
             <Button type="submit" className="w-full h-12 mt-4" disabled={submitting}>
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                {isEditing ? tCommon('update') : tCommon('create')} Now
+                {isEditing ? tCommon('update') : tCommon('create')} {tCommon('now')}
             </Button>
         </form>
     )

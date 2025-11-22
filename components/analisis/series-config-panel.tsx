@@ -74,7 +74,7 @@ export function SeriesConfigPanel({
                                         {getSerieNombre(s, filters.lugares, filters.unidades, filters.tipos)}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        Series {idx + 1} {idx === 0 && "(Principal)"}
+                                        {t('seriesNumber', {number: idx + 1})} {idx === 0 && `(${t('mainSeries')})`}
                                     </p>
                                 </div>
                                 <Button
@@ -96,7 +96,7 @@ export function SeriesConfigPanel({
                 <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
                     <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
                         <Plus className="w-4 h-4" />
-                        Add Series {series.length + 1}
+                        {t('addSeries', {number: series.length + 1})}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div className="space-y-2">
@@ -150,7 +150,7 @@ export function SeriesConfigPanel({
                         disabled={!newLugar && !newTipo && !newUnidad}
                     >
                         <Plus className="w-4 h-4 mr-2" />
-                        {tCommon('add')} Series
+                        {tCommon('add')} {t('series')}
                     </Button>
                 </div>
             )}

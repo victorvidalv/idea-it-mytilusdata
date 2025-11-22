@@ -39,7 +39,15 @@
     "activate": "Activate",
     "deactivate": "Deactivate",
     "cycles": "Cycles",
-    "sowingDate": "Sowing Date"
+    "sowingDate": "Sowing Date",
+    "total": "Total",
+    "page": "Page",
+    "now": "Now",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeAuto": "Auto",
+    "languageSpanish": "Spanish",
+    "languageEnglish": "English"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -79,6 +87,9 @@
     "initializing": "Initializing...",
     "loggingIn": "Logging in...",
     "registering": "Registering...",
+    "emailPlaceholder": "your@email.com",
+    "namePlaceholder": "John Doe",
+    "retryConnection": "Retry connection",
     "error": {
       "invalidCredentials": "Invalid email or password",
       "emailRequired": "Email is required",
@@ -149,7 +160,11 @@
       "latitude": "Enter latitude",
       "longitude": "Enter longitude",
       "altitude": "Enter altitude",
-      "accuracy": "Enter accuracy"
+      "accuracy": "Enter accuracy",
+      "valueNumeric": "0.00",
+      "selectOption": "Select...",
+      "selectUnit": "Unit...",
+      "selectType": "Type..."
     }
   },
   "cycles": {
@@ -159,6 +174,8 @@
     "editCycle": "Edit Cycle",
     "deleteCycle": "Delete Cycle",
     "viewCycle": "View Cycle",
+    "autoAssignment": "Auto Assignment",
+    "since": "Since:",
     "fields": {
       "name": "Cycle Name",
       "sowingDate": "Sowing Date",
@@ -224,6 +241,9 @@
     "newOrigin": "New Origin",
     "editOrigin": "Edit Origin",
     "deleteOrigin": "Delete Origin",
+    "emptyState": "No origins registered",
+    "updateDescription": "Update origin data",
+    "createDescription": "Define a new origin to classify measurements",
     "fields": {
       "name": "Name",
       "description": "Description"
@@ -239,6 +259,8 @@
     "newUnit": "New Unit",
     "editUnit": "Edit Unit",
     "deleteUnit": "Delete Unit",
+    "updateDescription": "Update measurement unit data",
+    "createDescription": "Define a new measurement unit",
     "fields": {
       "name": "Name",
       "symbol": "Symbol",
@@ -256,6 +278,11 @@
     "newRecordType": "New Record Type",
     "editRecordType": "Edit Record Type",
     "deleteRecordType": "Delete Record Type",
+    "emptyState": "No record types defined.",
+    "deleteWarning": "Cannot delete: has measurements",
+    "updateDescription": "Only description can be edited",
+    "createDescription": "Define a new type to classify measurements",
+    "codeImmutable": "Code cannot be modified",
     "fields": {
       "name": "Name",
       "description": "Description"
@@ -271,6 +298,8 @@
     "newUser": "New User",
     "editUser": "Edit User",
     "deleteUser": "Delete User",
+    "emptyState": "No users found.",
+    "createDescription": "Enter new team member data.",
     "fields": {
       "name": "Name",
       "email": "Email",
@@ -328,6 +357,25 @@
     "sigmoidModel": "Sigmoid Model",
     "statistics": "Statistics",
     "exportChart": "Export Chart",
+    "seriesDescription": "Showing {count} series - Day 0 = first measurement",
+    "configureSeries": "Configure series and generate analysis",
+    "daysElapsed": "Days elapsed",
+    "day": "Day",
+    "noData": "No data",
+    "noDataDescription": "Add series with combinations of place, type and unit",
+    "seriesNumber": "Series {number}",
+    "mainSeries": "(Main)",
+    "addSeries": "Add Series {number}",
+    "series": "Series",
+    "total": "Total",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "average": "Average",
+    "days": "Days",
+    "paramMaximum": "L (Maximum)",
+    "paramSlope": "k (Slope)",
+    "paramInflection": "x₀ (Inflection)",
+    "paramFit": "R² (Fit)",
     "fields": {
       "startDate": "Start Date",
       "endDate": "End Date",
@@ -341,6 +389,16 @@
     "description": "Manage your account settings",
     "editProfile": "Edit Profile",
     "changePassword": "Change Password",
+    "password": {
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "leaveEmpty": "Leave fields empty if you don't want to change password."
+    },
+    "memberSince": "Member since",
+    "accountInfo": "Account Information",
+    "emailImmutable": "Email cannot be modified",
+    "noChanges": "No changes to save",
     "fields": {
       "name": "Name",
       "email": "Email",
@@ -405,6 +463,19 @@
   },
   "inDevelopment": {
     "title": "In Development",
-    "description": "This feature is currently under development. Please check back later."
+    "description": "This feature is currently under development. Please check back later.",
+    "features": {
+      "premiumDesign": "Premium Design",
+      "highSpeed": "High Speed",
+      "madeWithPassion": "Made with Passion"
+    },
+    "syncing": "Syncing latest updates"
+  },
+  "map": {
+    "clickToPosition": "Click on the map to position"
+  },
+  "metadata": {
+    "title": "IT25I0032 - Measurement System",
+    "description": "Advanced platform for technical measurement registration and audit"
   }
 }

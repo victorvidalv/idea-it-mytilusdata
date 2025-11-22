@@ -15,10 +15,20 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "IT25I0032 - Sistema de Mediciones",
-  description: "Plataforma avanzada de registro y auditoría de mediciones técnicas",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get('NEXT_LOCALE');
+  const locale = (localeCookie?.value && locales.includes(localeCookie.value as any))
+    ? localeCookie.value
+    : defaultLocale;
+
+  const messages = (await import(`@/messages/${locale}.json`)).default;
+
+  return {
+    title: messages.metadata.title,
+    description: messages.metadata.description,
+  };
+}
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";

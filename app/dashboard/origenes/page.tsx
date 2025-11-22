@@ -130,7 +130,7 @@ export default function OrigenesPage() {
                             {loading ? (
                                 <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">{tCommon('loading')}</TableCell></TableRow>
                             ) : origenes.length === 0 ? (
-                                <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">No origins registered</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={3} className="h-40 text-center text-muted-foreground">{t('emptyState')}</TableCell></TableRow>
                             ) : origenes.map((o) => (
                                 <TableRow key={o.id} className="group">
                                     <TableCell className="font-medium">
@@ -172,7 +172,7 @@ export default function OrigenesPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 title={editingOrigen ? t('editOrigin') : t('newOrigin')}
-                description={editingOrigen ? "Update origin data" : "Define a new origin to classify measurements"}
+                description={editingOrigen ? t('updateDescription') : t('createDescription')}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">

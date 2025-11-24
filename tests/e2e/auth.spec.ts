@@ -29,10 +29,10 @@ test.describe('Flujo de Autenticación', () => {
     });
 
     test('debe permitir el inicio de sesión con el administrador del sistema', async ({ page }) => {
-        // Datos del seed: victorvidalv@gmail.com / aveces123
+        // Datos del environment o fallback a los del seed si no existen
         const adminUser = {
-            email: 'victorvidalv@gmail.com',
-            password: 'aveces123'
+            email: process.env.E2E_ADMIN_EMAIL || 'victorvidalv@gmail.com',
+            password: process.env.E2E_ADMIN_PASSWORD || 'aveces123'
         };
 
         await page.goto('/login');

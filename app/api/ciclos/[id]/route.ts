@@ -8,10 +8,11 @@ import { logger } from "@/lib/utils/logger";
 /**
  * GET /api/ciclos/[id]
  */
-export const GET = withRole(async (request: NextRequest, { params }: { params: { id: string } }) => {
+export const GET = withRole(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const user = (request as any).user;
     try {
-        const id = parseInt(params.id);
+        const { id: idStr } = await params;
+        const id = parseInt(idStr);
         const ciclo = await CiclosService.findById(id);
 
         if (!ciclo) {
@@ -34,10 +35,11 @@ export const GET = withRole(async (request: NextRequest, { params }: { params: {
 /**
  * PATCH /api/ciclos/[id]
  */
-export const PATCH = withRole(async (request: NextRequest, { params }: { params: { id: string } }) => {
+export const PATCH = withRole(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const user = (request as any).user;
     try {
-        const id = parseInt(params.id);
+        const { id: idStr } = await params;
+        const id = parseInt(idStr);
         const body = await request.json();
         const validatedData = updateCicloSchema.parse({ ...body, id });
 
@@ -60,10 +62,11 @@ export const PATCH = withRole(async (request: NextRequest, { params }: { params:
 /**
  * DELETE /api/ciclos/[id]
  */
-export const DELETE = withRole(async (request: NextRequest, { params }: { params: { id: string } }) => {
+export const DELETE = withRole(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const user = (request as any).user;
     try {
-        const id = parseInt(params.id);
+        const { id: idStr } = await params;
+        const id = parseInt(idStr);
         await CiclosService.softDelete(id);
 
         return NextResponse.json({

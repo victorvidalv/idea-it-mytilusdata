@@ -63,9 +63,13 @@ test.describe('Gestión de Ciclos de Cultivo', () => {
 
         await page.getByRole('button', { name: 'Actualizar' }).click();
 
-        // Verificar actualización
-        await expect(page.getByText(newCicloName)).toBeVisible();
-        await expect(page.getByText(newNota)).toBeVisible();
+        // Esperar a que el modal se cierre
+        await expect(page.getByRole('button', { name: 'Actualizar' })).not.toBeVisible();
+
+        // Verificar actualización en la tabla (usando la fila específica para evitar ambigüedad)
+        const updatedRowVerif = page.locator('tr').filter({ hasText: newCicloName });
+        await expect(updatedRowVerif).toBeVisible();
+        await expect(updatedRowVerif.getByText(newNota)).toBeVisible();
 
         // 3. ELIMINACIÓN DE CICLO
         page.on('dialog', async dialog => {
@@ -74,9 +78,10 @@ test.describe('Gestión de Ciclos de Cultivo', () => {
 
         const updatedRow = page.locator('tr').filter({ hasText: newCicloName });
         // El segundo botón es Trash2
-        await updatedRow.getByRole('button').nth(1).click();
+        await updatedRow.getByRole('button').nth(1).click({ force: true });
 
         // Verificar que ya no esté
+        await expect(updatedRow).not.toBeVisible();
         await expect(page.getByText(newCicloName)).not.toBeVisible();
     });
 });

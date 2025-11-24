@@ -149,6 +149,7 @@ export function useCiclos() {
     }
 
     const handleDelete = async (id: number) => {
+        if (!window.confirm("¿Está seguro de que desea eliminar este ciclo de cultivo?")) return;
         try {
             const token = localStorage.getItem("token")
             const res = await fetch(`/api/ciclos/${id}`, {

@@ -98,7 +98,7 @@ export const POST = withRateLimit(
     }) as (...args: unknown[]) => Promise<NextResponse>,
     {
         windowMs: 15 * 60 * 1000, // 15 minutos
-        maxRequests: 5,
+        maxRequests: 20,
         skipSuccessfulRequests: false,
         skipFailedRequests: false,
     }

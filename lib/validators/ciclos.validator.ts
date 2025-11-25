@@ -24,7 +24,7 @@ export const createCicloSchema = z.object({
  * Esquema para actualizar un ciclo existente
  */
 export const updateCicloSchema = createCicloSchema.partial().extend({
-    id: z.number().int().positive(),
+    id: z.number().int().positive().optional(),
 });
 
 /**

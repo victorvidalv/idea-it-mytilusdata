@@ -180,6 +180,7 @@ export function CiclosTable({
                                                 size="icon"
                                                 className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
                                                 onClick={() => onEdit(ciclo)}
+                                                aria-label={tCommon('edit') || "Editar"}
                                             >
                                                 <Edit className="w-4 h-4" />
                                             </Button>
@@ -188,6 +189,7 @@ export function CiclosTable({
                                                 size="icon"
                                                 className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                                                 onClick={() => onDelete(ciclo.id)}
+                                                aria-label={tCommon('delete') || "Eliminar"}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>

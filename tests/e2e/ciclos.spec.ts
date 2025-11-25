@@ -77,11 +77,11 @@ test.describe('Gestión de Ciclos de Cultivo', () => {
         });
 
         const updatedRow = page.locator('tr').filter({ hasText: newCicloName });
-        // El segundo botón es Trash2
-        await updatedRow.getByRole('button').nth(1).click({ force: true });
+        // Usar aria-label para mayor precisión
+        await updatedRow.getByLabel(/Eliminar|delete/i).click({ force: true });
 
-        // Verificar que ya no esté
-        await expect(updatedRow).not.toBeVisible();
-        await expect(page.getByText(newCicloName)).not.toBeVisible();
+        // Verificar que ya no esté (esperar a que el texto desaparezca de la tabla)
+        await expect(page.locator('tbody')).not.toContainText(newCicloName, { timeout: 15000 });
+        await expect(page.getByText(newCicloName)).not.toBeVisible({ timeout: 5000 });
     });
 });

@@ -153,8 +153,8 @@ function UnidadesTab() {
             </Card>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingUnidad ? t('editUnit') : t('newUnit')}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2"><Label>{t('fields.name')}</Label><Input required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>{t('fields.symbol')}</Label><Input required value={formData.sigla} onChange={(e) => setFormData({ ...formData, sigla: e.target.value })} /></div>
+                    <div className="space-y-2"><Label htmlFor="u-nombre">{t('fields.name')}</Label><Input id="u-nombre" required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} /></div>
+                    <div className="space-y-2"><Label htmlFor="u-sigla">{t('fields.symbol')}</Label><Input id="u-sigla" required value={formData.sigla} onChange={(e) => setFormData({ ...formData, sigla: e.target.value })} /></div>
                     <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}{tCommon('save')}</Button>
                 </form>
             </Modal>

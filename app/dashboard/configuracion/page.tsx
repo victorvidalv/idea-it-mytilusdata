@@ -10,7 +10,7 @@ import { Modal } from "@/components/ui/modal"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
     Plus, Ruler, Loader2, Trash2, Edit2, Tag, Database, History,
-    User, Activity, Settings
+    User, Activity, Settings, Key, Copy, Check, Eye, EyeOff
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 
@@ -54,7 +54,7 @@ function UnidadesTab() {
     const t = useTranslations('units')
     const tCommon = useTranslations('common')
     const tMessages = useTranslations('messages')
-    
+
     const [unidades, setUnidades] = useState<Unidad[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -169,7 +169,7 @@ function TiposTab() {
     const tRecordTypes = useTranslations('recordTypes')
     const tCommon = useTranslations('common')
     const tMessages = useTranslations('messages')
-    
+
     const [tipos, setTipos] = useState<TipoRegistro[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -278,7 +278,7 @@ function OrigenesTab() {
     const t = useTranslations('origins')
     const tCommon = useTranslations('common')
     const tMessages = useTranslations('messages')
-    
+
     const [origenes, setOrigenes] = useState<OrigenDato[]>([])
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -379,7 +379,7 @@ function OrigenesTab() {
 function AuditoriaTab() {
     const t = useTranslations('auditLog')
     const tCommon = useTranslations('common')
-    
+
     const [logs, setLogs] = useState<Bitacora[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -446,12 +446,249 @@ function AuditoriaTab() {
 }
 
 // ================================
+// COMPONENTE API KEYS
+// ================================
+const PERMISOS_DISPONIBLES = [
+    { id: "lugares:read", label: "Lugares - Leer", group: "Lugares" },
+    { id: "lugares:write", label: "Lugares - Escribir", group: "Lugares" },
+    { id: "ciclos:read", label: "Ciclos - Leer", group: "Ciclos" },
+    { id: "ciclos:write", label: "Ciclos - Escribir", group: "Ciclos" },
+    { id: "mediciones:read", label: "Mediciones - Leer", group: "Mediciones" },
+    { id: "mediciones:write", label: "Mediciones - Escribir", group: "Mediciones" },
+    { id: "unidades:read", label: "Unidades - Leer", group: "Unidades" },
+    { id: "unidades:write", label: "Unidades - Escribir", group: "Unidades" },
+]
+
+interface ApiKeyItem {
+    id: number
+    nombre: string
+    key_prefix: string
+    permisos: string[]
+    activa: boolean
+    ultimo_uso: string | null
+    created_at: string
+    revocada_at: string | null
+    creador?: { nombre: string; email: string }
+}
+
+function ApiKeysTab() {
+    const tCommon = useTranslations('common')
+    const tMessages = useTranslations('messages')
+
+    const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([])
+    const [loading, setLoading] = useState(true)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [submitting, setSubmitting] = useState(false)
+    const [formData, setFormData] = useState({ nombre: "", permisos: [] as string[] })
+    const [nuevaClave, setNuevaClave] = useState<string | null>(null)
+    const [copiado, setCopiado] = useState(false)
+    const [mostrarClave, setMostrarClave] = useState(false)
+
+    const fetchApiKeys = async () => {
+        setLoading(true)
+        try {
+            const token = localStorage.getItem("token")
+            const res = await fetch("/api/admin/api-keys", {
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+            const data = await res.json()
+            if (data.success) setApiKeys(data.data)
+        } catch (error) { console.error(error) }
+        finally { setLoading(false) }
+    }
+
+    useEffect(() => { fetchApiKeys() }, [])
+
+    const openCreateModal = () => {
+        setFormData({ nombre: "", permisos: [] })
+        setNuevaClave(null)
+        setIsModalOpen(true)
+    }
+
+    const handlePermisoToggle = (permisoId: string) => {
+        setFormData(prev => ({
+            ...prev,
+            permisos: prev.permisos.includes(permisoId)
+                ? prev.permisos.filter(p => p !== permisoId)
+                : [...prev.permisos, permisoId]
+        }))
+    }
+
+    const handleRevoke = async (id: number) => {
+        if (!confirm(tMessages('confirm.delete'))) return
+        const token = localStorage.getItem("token")
+        const res = await fetch(`/api/admin/api-keys/${id}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        const data = await res.json()
+        if (data.success) fetchApiKeys()
+        else alert(data.message)
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setSubmitting(true)
+        const token = localStorage.getItem("token")
+        const res = await fetch("/api/admin/api-keys", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        })
+        const data = await res.json()
+        if (data.success) {
+            setNuevaClave(data.data.key)
+            fetchApiKeys()
+        } else {
+            alert(data.message)
+        }
+        setSubmitting(false)
+    }
+
+    const copiarClave = async () => {
+        if (nuevaClave) {
+            await navigator.clipboard.writeText(nuevaClave)
+            setCopiado(true)
+            setTimeout(() => setCopiado(false), 2000)
+        }
+    }
+
+    const formatFecha = (fecha: string | null) => {
+        if (!fecha) return "Nunca"
+        return new Date(fecha).toLocaleString()
+    }
+
+    return (
+        <>
+            <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-muted-foreground">Gestiona las claves de API para acceso programático a la plataforma.</p>
+                <Button onClick={openCreateModal} size="sm" className="gap-2">
+                    <Plus className="w-4 h-4" /> Nueva API Key
+                </Button>
+            </div>
+            <Card className="border-border/50">
+                <CardContent className="p-0">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="bg-muted/30">
+                                <TableHead>Nombre</TableHead>
+                                <TableHead>Prefijo</TableHead>
+                                <TableHead>Permisos</TableHead>
+                                <TableHead>Último uso</TableHead>
+                                <TableHead>Estado</TableHead>
+                                <TableHead className="text-right">{tCommon('actions')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow><TableCell colSpan={6} className="h-32 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-primary/50" /></TableCell></TableRow>
+                            ) : apiKeys.length === 0 ? (
+                                <TableRow><TableCell colSpan={6} className="h-32 text-center text-muted-foreground">No hay claves API creadas</TableCell></TableRow>
+                            ) : apiKeys.map((apiKey) => (
+                                <TableRow key={apiKey.id} className="group">
+                                    <TableCell className="font-medium flex items-center gap-2">
+                                        <Key className="w-4 h-4 text-primary" />
+                                        {apiKey.nombre}
+                                    </TableCell>
+                                    <TableCell>
+                                        <code className="bg-muted px-2 py-0.5 rounded text-xs font-mono">{apiKey.key_prefix}...</code>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1">
+                                            {apiKey.permisos.slice(0, 3).map(p => (
+                                                <span key={p} className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[10px] font-medium">
+                                                    {p.split(':')[0]}
+                                                </span>
+                                            ))}
+                                            {apiKey.permisos.length > 3 && (
+                                                <span className="text-muted-foreground text-xs">+{apiKey.permisos.length - 3}</span>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-xs text-muted-foreground">
+                                        {formatFecha(apiKey.ultimo_uso)}
+                                    </TableCell>
+                                    <TableCell>
+                                        {apiKey.activa ? (
+                                            <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">ACTIVA</span>
+                                        ) : (
+                                            <span className="bg-rose-500/10 text-rose-500 border border-rose-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">REVOCADA</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {apiKey.activa && (
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRevoke(apiKey.id)}>
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setNuevaClave(null) }} title={nuevaClave ? "¡API Key Creada!" : "Nueva API Key"}>
+                {nuevaClave ? (
+                    <div className="space-y-4">
+                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+                            <p className="text-sm text-amber-600 font-medium mb-2">⚠️ Guarde esta clave ahora</p>
+                            <p className="text-xs text-muted-foreground">Esta es la única vez que verá la clave completa. No podrá recuperarla después.</p>
+                        </div>
+                        <div className="relative">
+                            <div className="bg-muted rounded-lg p-3 font-mono text-sm break-all pr-20">
+                                {mostrarClave ? nuevaClave : nuevaClave.substring(0, 12) + "••••••••••••••••••••"}
+                            </div>
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMostrarClave(!mostrarClave)}>
+                                    {mostrarClave ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={copiarClave}>
+                                    {copiado ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                                </Button>
+                            </div>
+                        </div>
+                        <Button onClick={() => { setIsModalOpen(false); setNuevaClave(null) }} className="w-full">Entendido</Button>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>Nombre identificador</Label>
+                            <Input required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: App Móvil, Integración SERNAP" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Permisos</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {PERMISOS_DISPONIBLES.map(p => (
+                                    <label key={p.id} className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors ${formData.permisos.includes(p.id) ? 'bg-primary/10 border-primary' : 'bg-muted/30 border-border hover:border-primary/50'
+                                        }`}>
+                                        <input type="checkbox" className="sr-only" checked={formData.permisos.includes(p.id)} onChange={() => handlePermisoToggle(p.id)} />
+                                        <span className="text-xs font-medium">{p.label}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        <Button type="submit" className="w-full" disabled={submitting || formData.permisos.length === 0}>
+                            {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                            Crear API Key
+                        </Button>
+                    </form>
+                )}
+            </Modal>
+        </>
+    )
+}
+
+// ================================
 // PÁGINA PRINCIPAL
 // ================================
 export default function ConfiguracionPage() {
     const t = useTranslations('configuration')
     const tNavigation = useTranslations('navigation')
-    
+
     return (
         <div className="space-y-6">
             <div>
@@ -476,12 +713,16 @@ export default function ConfiguracionPage() {
                     <TabsTrigger value="auditoria" className="gap-2">
                         <History className="w-4 h-4" /> {tNavigation('auditLog')}
                     </TabsTrigger>
+                    <TabsTrigger value="api-keys" className="gap-2">
+                        <Key className="w-4 h-4" /> API Keys
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="unidades"><UnidadesTab /></TabsContent>
                 <TabsContent value="tipos"><TiposTab /></TabsContent>
                 <TabsContent value="origenes"><OrigenesTab /></TabsContent>
                 <TabsContent value="auditoria"><AuditoriaTab /></TabsContent>
+                <TabsContent value="api-keys"><ApiKeysTab /></TabsContent>
             </Tabs>
         </div>
     )

@@ -31,6 +31,7 @@ model Usuario {
   origenes          OrigenDato[]      @relation("creador_origen")
   mediciones        Medicion[]        @relation("registrador_medicion")
   ciclos            Ciclo[]           @relation("creador_ciclo")
+  apiKeys           ApiKey[]          @relation("creador_apikey")
 
   @@map("usuarios")
 }
@@ -158,4 +159,25 @@ model Ciclo {
   @@index([fecha_siembra])
   @@index([deleted_at])
   @@map("ciclos")
+}
+
+// --- TABLA DE API KEYS ---
+model ApiKey {
+  id            Int       @id @default(autoincrement())
+  nombre        String    // Identificador legible (ej: "App Móvil", "Integración SERNAP")
+  key_hash      String    @unique // Hash SHA-256 de la clave
+  key_prefix    String    // Primeros 8 caracteres para identificación visual
+  permisos      String[]  // ["lugares:read", "lugares:write", "ciclos:read", etc.]
+  creado_por_id Int
+  activa        Boolean   @default(true)
+  ultimo_uso    DateTime?
+  created_at    DateTime  @default(now())
+  revocada_at   DateTime?
+  
+  // Relaciones
+  creador       Usuario   @relation("creador_apikey", fields: [creado_por_id], references: [id])
+  
+  @@index([key_hash])
+  @@index([activa])
+  @@map("api_keys")
 }

@@ -17,6 +17,20 @@ export {
 export { withRole } from './role';
 
 // ============================================================================
+// API KEY MIDDLEWARE
+// ============================================================================
+
+export {
+    withApiKey,
+    verifyApiKey,
+    isApiKeyError,
+    generateApiKey,
+    hashApiKey,
+    type ApiPermission,
+    type AuthenticatedApiKey,
+} from './api-key';
+
+// ============================================================================
 // RATE LIMIT MIDDLEWARE
 // ============================================================================
 

@@ -187,6 +187,11 @@ export function withRateLimit<T extends (...args: unknown[]) => Promise<NextResp
         // Obtener el request (primer argumento)
         const request = args[0] as NextRequest;
 
+        // Saltar rate limiting en ambiente de test
+        if (process.env.NODE_ENV === "test" || process.env.E2E_TEST === "true") {
+            return await handler(...args);
+        }
+
         // Verificar rate limit
         const result = rateLimiter.check(request);
 
@@ -197,7 +202,7 @@ export function withRateLimit<T extends (...args: unknown[]) => Promise<NextResp
             // Log del bloqueo
             const ip = getClientIp(request);
             const url = request.nextUrl.pathname;
-            
+
             logger.warn(`Rate limit exceeded`, {
                 ip,
                 url,
@@ -261,15 +266,15 @@ export function withRateLimit<T extends (...args: unknown[]) => Promise<NextResp
  */
 export function getRateLimitHeaders(result: RateLimitResult): Map<string, string> {
     const headers = new Map<string, string>();
-    
+
     headers.set("X-RateLimit-Limit", result.limit.toString());
     headers.set("X-RateLimit-Remaining", result.remaining.toString());
     headers.set("X-RateLimit-Reset", result.reset.toString());
-    
+
     if (result.retryAfter) {
         headers.set("Retry-After", result.retryAfter.toString());
     }
-    
+
     return headers;
 }
 

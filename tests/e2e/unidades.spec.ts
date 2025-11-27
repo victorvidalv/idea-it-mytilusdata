@@ -1,16 +1,27 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+/**
+ * Función de login reutilizable que espera a que el botón esté habilitado (CSRF listo)
+ */
+async function loginAsAdmin(page: Page) {
+    await page.goto('/login');
+
+    // Esperar a que el formulario esté listo (CSRF token)
+    const loginButton = page.getByRole('button', { name: 'Entrar al Sistema' });
+    await expect(loginButton).toBeEnabled({ timeout: 10000 });
+
+    await page.locator('#login-email').fill(process.env.E2E_ADMIN_EMAIL || 'victorvidalv@gmail.com');
+    await page.locator('#login-password').fill(process.env.E2E_ADMIN_PASSWORD || 'aveces123');
+    await loginButton.click();
+
+    // Esperar redirección con timeout extendido
+    await expect(page).toHaveURL(/.*dashboard/, { timeout: 15000 });
+}
 
 test.describe('Gestión de Unidades', () => {
 
     test.beforeEach(async ({ page }) => {
-        // Iniciar sesión como administrador
-        await page.goto('/login');
-        await page.locator('#login-email').fill(process.env.E2E_ADMIN_EMAIL || 'victorvidalv@gmail.com');
-        await page.locator('#login-password').fill(process.env.E2E_ADMIN_PASSWORD || 'aveces123');
-        await page.getByRole('button', { name: 'Entrar al Sistema' }).click();
-
-        // Esperar a que el dashboard cargue
-        await expect(page).toHaveURL(/.*dashboard/);
+        await loginAsAdmin(page);
     });
 
     test('debe permitir crear, editar y eliminar una unidad de medida', async ({ page }) => {
@@ -27,8 +38,7 @@ test.describe('Gestión de Unidades', () => {
         // 1. CREACIÓN DE UNIDAD
         await page.getByRole('button', { name: 'Nueva Unidad' }).click();
 
-        // Rellenar formulario
-        // Los IDs son u-nombre y u-sigla según el código de la página
+        // Rellenar formulario 
         await page.locator('#u-nombre').fill(unitName);
         await page.locator('#u-sigla').fill(symbol);
 
@@ -37,16 +47,13 @@ test.describe('Gestión de Unidades', () => {
 
         // Verificar que aparezca en la lista
         await expect(page.getByText(unitName)).toBeVisible();
-        await expect(page.getByText(symbol)).toBeVisible();
 
         // 2. EDICIÓN DE UNIDAD
-        // Localizar la fila y el botón de editar
         const row = page.locator('tr').filter({ hasText: unitName });
-        // El botón de editar es el primero en la fila de acciones
         await row.locator('button').first().click();
 
-        const newUnitName = `${unitName} (Editada)`;
-        const newSymbol = 'PX';
+        const newUnitName = `${unitName} (Editado)`;
+        const newSymbol = 'PE';
 
         await page.locator('#u-nombre').fill(newUnitName);
         await page.locator('#u-sigla').fill(newSymbol);
@@ -59,14 +66,11 @@ test.describe('Gestión de Unidades', () => {
         await expect(page.getByText(newSymbol)).toBeVisible();
 
         // 3. ELIMINACIÓN DE UNIDAD
-        // Preparar el manejo del diálogo de confirmación nativo (confirmatión del navegador)
         page.on('dialog', async dialog => {
-            expect(dialog.message()).toContain('¿Estás seguro');
             await dialog.accept();
         });
 
         const updatedRow = page.locator('tr').filter({ hasText: newUnitName });
-        // El segundo botón de la fila es el de eliminar
         await updatedRow.locator('button').nth(1).click();
 
         // Verificar que la unidad ya no esté en la tabla

@@ -260,10 +260,10 @@ function TiposTab() {
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingTipo ? tRecordTypes('editRecordType') : tRecordTypes('newRecordType')}>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label>{tRecordTypes('fields.name')}</Label>
-                        <Input required={!editingTipo} disabled={!!editingTipo} value={formData.codigo} onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })} className={editingTipo ? "bg-muted" : ""} />
+                        <Label htmlFor="t-codigo">{tRecordTypes('fields.name')}</Label>
+                        <Input id="t-codigo" required={!editingTipo} disabled={!!editingTipo} value={formData.codigo} onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })} className={editingTipo ? "bg-muted" : ""} />
                     </div>
-                    <div className="space-y-2"><Label>{tRecordTypes('fields.description')}</Label><Input value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} /></div>
+                    <div className="space-y-2"><Label htmlFor="t-descripcion">{tRecordTypes('fields.description')}</Label><Input id="t-descripcion" value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} /></div>
                     <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}{tCommon('save')}</Button>
                 </form>
             </Modal>
@@ -364,8 +364,8 @@ function OrigenesTab() {
             </Card>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingOrigen ? t('editOrigin') : t('newOrigin')}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2"><Label>{t('fields.name')}</Label><Input required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>{t('fields.description')}</Label><Input value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} /></div>
+                    <div className="space-y-2"><Label htmlFor="o-nombre">{t('fields.name')}</Label><Input id="o-nombre" required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} /></div>
+                    <div className="space-y-2"><Label htmlFor="o-descripcion">{t('fields.description')}</Label><Input id="o-descripcion" value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} /></div>
                     <Button type="submit" className="w-full" disabled={submitting}>{submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}{tCommon('save')}</Button>
                 </form>
             </Modal>
@@ -656,8 +656,8 @@ function ApiKeysTab() {
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Nombre identificador</Label>
-                            <Input required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: App Móvil, Integración SERNAP" />
+                            <Label htmlFor="ak-nombre">Nombre identificador</Label>
+                            <Input id="ak-nombre" required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: App Móvil, Integración SERNAP" />
                         </div>
                         <div className="space-y-2">
                             <Label>Permisos</Label>
@@ -665,7 +665,7 @@ function ApiKeysTab() {
                                 {PERMISOS_DISPONIBLES.map(p => (
                                     <label key={p.id} className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors ${formData.permisos.includes(p.id) ? 'bg-primary/10 border-primary' : 'bg-muted/30 border-border hover:border-primary/50'
                                         }`}>
-                                        <input type="checkbox" className="sr-only" checked={formData.permisos.includes(p.id)} onChange={() => handlePermisoToggle(p.id)} />
+                                        <input id={`permiso-${p.id}`} type="checkbox" className="sr-only" checked={formData.permisos.includes(p.id)} onChange={() => handlePermisoToggle(p.id)} />
                                         <span className="text-xs font-medium">{p.label}</span>
                                     </label>
                                 ))}

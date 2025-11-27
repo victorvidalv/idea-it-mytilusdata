@@ -1,15 +1,27 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+/**
+ * Función de login reutilizable que espera a que el botón esté habilitado (CSRF listo)
+ */
+async function loginAsAdmin(page: Page) {
+    await page.goto('/login');
+
+    // Esperar a que el formulario esté listo (CSRF token)
+    const loginButton = page.getByRole('button', { name: 'Entrar al Sistema' });
+    await expect(loginButton).toBeEnabled({ timeout: 10000 });
+
+    await page.locator('#login-email').fill(process.env.E2E_ADMIN_EMAIL || 'victorvidalv@gmail.com');
+    await page.locator('#login-password').fill(process.env.E2E_ADMIN_PASSWORD || 'aveces123');
+    await loginButton.click();
+
+    // Esperar redirección con timeout extendido
+    await expect(page).toHaveURL(/.*dashboard/, { timeout: 15000 });
+}
 
 test.describe('Gestión de Usuarios', () => {
 
     test.beforeEach(async ({ page }) => {
-        // Iniciar sesión usando variables de entorno
-        await page.goto('/login');
-        await page.locator('#login-email').fill(process.env.E2E_ADMIN_EMAIL || 'victorvidalv@gmail.com');
-        await page.locator('#login-password').fill(process.env.E2E_ADMIN_PASSWORD || 'aveces123');
-        await page.getByRole('button', { name: 'Entrar al Sistema' }).click();
-
-        await expect(page).toHaveURL(/.*dashboard/);
+        await loginAsAdmin(page);
     });
 
     test('debe permitir crear, cambiar rol y desactivar/activar un usuario', async ({ page }) => {

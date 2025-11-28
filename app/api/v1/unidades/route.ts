@@ -2,9 +2,13 @@
 // Endpoints para listar y crear unidades con autenticación vía API Key
 
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { withApiKey } from "@/lib/middleware";
 import { logger } from "@/lib/utils/logger";
+import { UnidadesService } from "@/lib/services/unidades";
+import {
+    createUnidadSchema,
+    filterUnidadesSchema,
+} from "@/lib/validators/unidades.validator";
 
 /**
  * GET /api/v1/unidades
@@ -15,35 +19,41 @@ export const GET = withApiKey(async (request: NextRequest) => {
     const apiKey = (request as any).apiKey;
     try {
         const { searchParams } = new URL(request.url);
-        const busqueda = searchParams.get("q");
+        
+        // Validar filtros usando Zod
+        const validationResult = filterUnidadesSchema.safeParse({
+            q: searchParams.get("q"),
+            page: searchParams.get("page"),
+            limit: searchParams.get("limit"),
+        });
 
-        const where: { deleted_at: null; nombre?: { contains: string; mode: "insensitive" } } = {
-            deleted_at: null,
-        };
-
-        if (busqueda) {
-            where.nombre = { contains: busqueda, mode: "insensitive" };
+        if (!validationResult.success) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Error de validación",
+                    errors: validationResult.error.flatten().fieldErrors,
+                },
+                { status: 400 }
+            );
         }
 
-        const unidades = await prisma.unidad.findMany({
-            where,
-            select: {
-                id: true,
-                nombre: true,
-                sigla: true,
-            },
-            orderBy: { nombre: "asc" },
-        });
+        const filters = validationResult.data;
+        const page = filters.page || 1;
+        const limit = filters.limit || 50;
+
+        const result = await UnidadesService.findAll(filters, page, limit, false);
 
         logger.info("API v1: Unidades listadas", {
             apiKeyId: apiKey.id,
-            total: unidades.length,
+            total: result.pagination.total,
+            page: result.pagination.page,
         });
 
         return NextResponse.json({
             success: true,
-            data: unidades,
-            total: unidades.length,
+            data: result.data,
+            pagination: result.pagination,
         });
     } catch (error) {
         console.error("Error al listar unidades (API v1):", error);
@@ -63,36 +73,28 @@ export const POST = withApiKey(async (request: NextRequest) => {
     const apiKey = (request as any).apiKey;
     try {
         const body = await request.json();
-        const { nombre, sigla } = body;
 
-        // Validaciones
-        if (!nombre || typeof nombre !== "string" || nombre.trim().length === 0) {
+        // Validar datos usando Zod
+        const validationResult = createUnidadSchema.safeParse(body);
+
+        if (!validationResult.success) {
             return NextResponse.json(
-                { success: false, message: "El nombre es requerido" },
+                {
+                    success: false,
+                    message: "Error de validación",
+                    errors: validationResult.error.flatten().fieldErrors,
+                },
                 { status: 400 }
             );
         }
 
-        if (!sigla || typeof sigla !== "string" || sigla.trim().length === 0) {
-            return NextResponse.json(
-                { success: false, message: "La sigla es requerida" },
-                { status: 400 }
-            );
-        }
+        const data = validationResult.data;
 
-        // Crear unidad
-        const nuevaUnidad = await prisma.unidad.create({
-            data: {
-                nombre: nombre.trim(),
-                sigla: sigla.trim(),
-                creado_por_id: apiKey.creado_por_id,
-            },
-            select: {
-                id: true,
-                nombre: true,
-                sigla: true,
-            },
-        });
+        // Crear unidad usando el servicio
+        const nuevaUnidad = await UnidadesService.create(
+            data,
+            apiKey.creado_por_id
+        );
 
         logger.info("API v1: Unidad creada", {
             apiKeyId: apiKey.id,

@@ -5,6 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { withApiKey } from "@/lib/middleware";
 import { logger } from "@/lib/utils/logger";
+import { CiclosService } from "@/lib/services/ciclos";
+import {
+    createCicloSchema,
+    filterCiclosSchema,
+} from "@/lib/validators/ciclos.validator";
 
 /**
  * GET /api/v1/ciclos
@@ -15,59 +20,42 @@ export const GET = withApiKey(async (request: NextRequest) => {
     const apiKey = (request as any).apiKey;
     try {
         const { searchParams } = new URL(request.url);
-        const lugarId = searchParams.get("lugar_id");
-        const activo = searchParams.get("activo");
-        const page = parseInt(searchParams.get("page") || "1");
-        const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
-        const skip = (page - 1) * limit;
+        
+        // Validar filtros usando Zod
+        const validationResult = filterCiclosSchema.safeParse({
+            lugar_id: searchParams.get("lugar_id"),
+            activo: searchParams.get("activo"),
+            page: searchParams.get("page"),
+            limit: searchParams.get("limit"),
+        });
 
-        const where: any = { deleted_at: null };
-
-        if (lugarId) {
-            where.lugar_id = parseInt(lugarId);
-        }
-
-        if (activo !== null && activo !== undefined) {
-            where.activo = activo === "true";
-        }
-
-        const [ciclos, total] = await Promise.all([
-            prisma.ciclo.findMany({
-                where,
-                select: {
-                    id: true,
-                    nombre: true,
-                    fecha_siembra: true,
-                    fecha_finalizacion: true,
-                    activo: true,
-                    notas: true,
-                    created_at: true,
-                    lugar: {
-                        select: { id: true, nombre: true },
-                    },
+        if (!validationResult.success) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Error de validación",
+                    errors: validationResult.error.flatten().fieldErrors,
                 },
-                orderBy: { fecha_siembra: "desc" },
-                skip,
-                take: limit,
-            }),
-            prisma.ciclo.count({ where }),
-        ]);
+                { status: 400 }
+            );
+        }
+
+        const filters = validationResult.data;
+        const page = filters.page || 1;
+        const limit = filters.limit || 50;
+
+        const result = await CiclosService.findAll(filters, page, limit, false);
 
         logger.info("API v1: Ciclos listados", {
             apiKeyId: apiKey.id,
-            total,
-            page,
+            total: result.pagination.total,
+            page: result.pagination.page,
         });
 
         return NextResponse.json({
             success: true,
-            data: ciclos,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-            },
+            data: result.data,
+            pagination: result.pagination,
         });
     } catch (error) {
         console.error("Error al listar ciclos (API v1):", error);
@@ -87,33 +75,26 @@ export const POST = withApiKey(async (request: NextRequest) => {
     const apiKey = (request as any).apiKey;
     try {
         const body = await request.json();
-        const { nombre, fecha_siembra, fecha_finalizacion, lugar_id, notas } = body;
 
-        // Validaciones
-        if (!nombre || typeof nombre !== "string" || nombre.trim().length === 0) {
+        // Validar datos usando Zod
+        const validationResult = createCicloSchema.safeParse(body);
+
+        if (!validationResult.success) {
             return NextResponse.json(
-                { success: false, message: "El nombre es requerido" },
+                {
+                    success: false,
+                    message: "Error de validación",
+                    errors: validationResult.error.flatten().fieldErrors,
+                },
                 { status: 400 }
             );
         }
 
-        if (!fecha_siembra) {
-            return NextResponse.json(
-                { success: false, message: "La fecha de siembra es requerida" },
-                { status: 400 }
-            );
-        }
-
-        if (!lugar_id || isNaN(parseInt(lugar_id))) {
-            return NextResponse.json(
-                { success: false, message: "El lugar es requerido" },
-                { status: 400 }
-            );
-        }
+        const data = validationResult.data;
 
         // Verificar que el lugar existe
         const lugar = await prisma.lugar.findFirst({
-            where: { id: parseInt(lugar_id), deleted_at: null },
+            where: { id: data.lugar_id, deleted_at: null },
         });
 
         if (!lugar) {
@@ -123,29 +104,11 @@ export const POST = withApiKey(async (request: NextRequest) => {
             );
         }
 
-        // Crear ciclo
-        const nuevoCiclo = await prisma.ciclo.create({
-            data: {
-                nombre: nombre.trim(),
-                fecha_siembra: new Date(fecha_siembra),
-                fecha_finalizacion: fecha_finalizacion ? new Date(fecha_finalizacion) : null,
-                lugar_id: parseInt(lugar_id),
-                notas: notas?.trim() || null,
-                creado_por_id: apiKey.creado_por_id,
-            },
-            select: {
-                id: true,
-                nombre: true,
-                fecha_siembra: true,
-                fecha_finalizacion: true,
-                activo: true,
-                notas: true,
-                created_at: true,
-                lugar: {
-                    select: { id: true, nombre: true },
-                },
-            },
-        });
+        // Crear ciclo usando el servicio
+        const nuevoCiclo = await CiclosService.create(
+            data,
+            apiKey.creado_por_id
+        );
 
         logger.info("API v1: Ciclo creado", {
             apiKeyId: apiKey.id,

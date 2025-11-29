@@ -48,6 +48,7 @@ Este proyecto cuenta con un MCP dedicado para facilitar la inspección y consult
 | Documento | Descripción |
 |-----------|-------------|
 | [📐 Arquitectura](./docs/ARQUITECTURA.md) | Decisiones técnicas y patrones de diseño |
+| [🔧 Stack Tecnológico](./docs/ARQUITECTURA_STACK.md) | Justificación técnica del framework y estrategia de despliegue |
 | [🗄️ Base de Datos](./docs/BASE_DE_DATOS.md) | Modelo de datos, relaciones e índices |
 | [🚀 Despliegue](./docs/DESPLIEGUE.md) | CI/CD con GitHub y Vercel |
 | [🔐 Autenticación](./docs/AUTENTICACION.md) | Roles, permisos y seguridad |

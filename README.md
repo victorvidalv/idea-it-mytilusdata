@@ -23,6 +23,7 @@
 | 🗺️ **Mapas Interactivos** | Visualización geográfica con selector de coordenadas |
 | 📈 **Análisis de Datos** | Gráficos interactivos con Recharts y modelo sigmoide |
 | 🔐 **Control de Acceso** | Sistema RBAC con roles Admin, Equipo y Público |
+| ✅ **Validación Robusta** | Validación de esquemas con Zod y tipado TypeScript completo |
 | 🌐 **Multiidioma** | Soporte completo para Español e Inglés |
 | 📥 **Exportación** | Descarga de datos en CSV con streaming |
 | 🎨 **Tema Oscuro/Claro** | Interfaz adaptable a preferencias del usuario |
@@ -32,6 +33,7 @@
 - **Frontend**: Next.js 15, React 19, TypeScript
 - **Estilos**: Tailwind CSS, Shadcn/UI
 - **Base de Datos**: PostgreSQL (Neon) + Prisma ORM
+- **Validación**: Zod para esquemas y tipado
 - **Autenticación**: JWT con bcrypt
 - **Gráficos**: Recharts
 - **Despliegue**: Vercel
@@ -50,7 +52,9 @@ Este proyecto cuenta con un MCP dedicado para facilitar la inspección y consult
 | [🚀 Despliegue](./docs/DESPLIEGUE.md) | CI/CD con GitHub y Vercel |
 | [🔐 Autenticación](./docs/AUTENTICACION.md) | Roles, permisos y seguridad |
 | [🛠️ Servicios](./docs/SERVICIOS.md) | Capa de lógica de negocio |
+| [✅ Validadores](./docs/VALIDADORES.md) | Esquemas de validación con Zod |
 | [🔌 API](./docs/API.md) | Referencia de endpoints REST |
+| [🌐 API v1](./docs/API-v1.md) | API pública para integraciones externas |
 
 ## 🚀 Comenzando
 

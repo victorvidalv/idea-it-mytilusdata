@@ -17,6 +17,162 @@ http://localhost:3000/api/v1
 
 ---
 
+## Arquitectura
+
+La API v1 sigue una arquitectura en capas que garantiza seguridad, validación y separación de responsabilidades:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Cliente / Sensor IoT                    │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Middleware withApiKey                    │
+│  - Valida header X-API-Key                                 │
+│  - Verifica permisos granulares                            │
+│  - Retorna 401/403 si inválido                             │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Zod Schema Validation                     │
+│  - Valida estructura de datos                              │
+│  - Coerciona tipos automáticamente                         │
+│  - Retorna 400 con errores descriptivos                    │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      Service Layer                          │
+│  - Lógica de negocio centralizada                          │
+│  - Abstracción de Prisma ORM                              │
+│  - Reutilización entre endpoints                           │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      Prisma ORM                            │
+│  - Genera queries SQL optimizadas                          │
+│  - Maneja transacciones                                    │
+│  - Tipado end-to-end                                       │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    PostgreSQL Database                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Flujo de Request
+
+1. **Middleware withApiKey**
+   - Intercepta todas las requests a `/api/v1/*`
+   - Valida presencia y formato del header `X-API-Key`
+   - Busca la API key en la base de datos
+   - Verifica que la key esté activa
+   - Valida que la key tenga los permisos necesarios
+   - Retorna `401 Unauthorized` si la key es inválida
+   - Retorna `403 Forbidden` si faltan permisos
+
+2. **Zod Schema Validation**
+   - Cada endpoint tiene su propio schema de validación
+   - Zod valida estructura, tipos y restricciones
+   - Coerciona tipos automáticamente (string → number, etc.)
+   - Transforma datos cuando es necesario (string → Date)
+   - Retorna `400 Bad Request` con errores detallados en español
+
+3. **Service Layer**
+   - Contiene toda la lógica de negocio
+   - Recibe datos ya validados y tipados
+   - Abstrae la complejidad de Prisma
+   - Implementa reglas de negocio específicas
+   - Maneja transacciones cuando es necesario
+
+4. **Prisma ORM**
+   - Genera queries SQL optimizadas
+   - Maneja relaciones entre modelos
+   - Proporciona tipado TypeScript completo
+   - Maneja migraciones y schema de base de datos
+
+### Ejemplo de Implementación
+
+```typescript
+// app/api/v1/lugares/route.ts
+import { withApiKey } from '@/lib/middleware/with-api-key';
+import { createLugarSchema } from '@/lib/validators/lugares.validator';
+import { LugaresService } from '@/lib/services/lugares/lugares.service';
+
+// Middleware de autenticación
+export { withApiKey as middleware };
+
+export async function POST(request: Request) {
+  try {
+    // 1. Obtener datos del request
+    const body = await request.json();
+    
+    // 2. Validar con Zod
+    const validatedData = createLugarSchema.parse(body);
+    // validatedData está tipado como CreateLugarInput
+    
+    // 3. Llamar al servicio
+    const lugar = await LugaresService.create(validatedData);
+    
+    // 4. Retornar respuesta
+    return Response.json({ success: true, data: lugar }, { status: 201 });
+  } catch (error) {
+    // Manejar errores de validación de Zod
+    if (error instanceof z.ZodError) {
+      return Response.json(
+        {
+          success: false,
+          errors: error.errors.map(err => ({
+            path: err.path.join('.'),
+            message: err.message
+          }))
+        },
+        { status: 400 }
+      );
+    }
+    throw error;
+  }
+}
+```
+
+### Ventajas de esta Arquitectura
+
+1. **Seguridad en capas**: Cada capa valida sus responsabilidades
+2. **Separación de concerns**: Validación, lógica de negocio y acceso a datos están separados
+3. **Reutilización**: Los servicios pueden usarse desde múltiples endpoints
+4. **Tipado end-to-end**: Desde la validación hasta la base de datos
+5. **Testing fácil**: Cada capa puede testearse independientemente
+6. **Escalabilidad**: Fácil agregar nuevas capas o modificar existentes
+7. **Mantenibilidad**: Cambios en una capa no afectan a las otras
+
+### Servicios Utilizados en API v1
+
+Los siguientes servicios se utilizan en los endpoints de API v1:
+
+- [`LugaresService`](lib/services/lugares/lugares.service.ts:1): Gestión de lugares
+- [`UnidadesService`](lib/services/unidades/unidades.service.ts:1): Gestión de unidades de medida
+- [`CiclosService`](lib/services/ciclos/ciclos.service.ts:1): Gestión de ciclos de cultivo
+- [`MedicionesService`](lib/services/mediciones/mediciones.service.ts:1): Gestión de mediciones
+
+Cada servicio está documentado en [`docs/SERVICIOS.md`](docs/SERVICIOS.md:1).
+
+### Validadores Utilizados en API v1
+
+Los siguientes validadores Zod se utilizan en los endpoints de API v1:
+
+- [`createLugarSchema`](lib/validators/lugares.validator.ts:11) / [`updateLugarSchema`](lib/validators/lugares.validator.ts:46)
+- [`createUnidadSchema`](lib/validators/unidades.validator.ts:11) / [`updateUnidadSchema`](lib/validators/unidades.validator.ts:27)
+- [`createCicloSchema`](lib/validators/ciclos.validator.ts:11) / [`updateCicloSchema`](lib/validators/ciclos.validator.ts:26)
+- [`createMedicionSchema`](lib/validators/mediciones.validator.ts:15) / [`updateMedicionSchema`](lib/validators/mediciones.validator.ts:61)
+
+Cada validador está documentado en [`docs/VALIDADORES.md`](docs/VALIDADORES.md:1).
+
+---
+
 ## Autenticación
 
 Todas las peticiones requieren una clave API válida en el header `X-API-Key`.

@@ -1,137 +1,157 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import prisma from '../lib/prisma';
+import { Rol } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-async function seed() {
-    console.log('🌱 Limpiando base de datos...');
+async function main() {
+    console.log('🧹 Iniciando limpieza de base de datos...');
 
-    // Eliminar todos los datos existentes en orden para respetar FK
+    // 1. Eliminar datos dependientes primero (Respetando integridad referencial)
     await prisma.medicion.deleteMany();
+    await prisma.ciclo.deleteMany();
     await prisma.lugar.deleteMany();
     await prisma.origenDato.deleteMany();
     await prisma.unidad.deleteMany();
-    await prisma.tipoRegistro.deleteMany();
-    await prisma.usuario.deleteMany();
+    await prisma.apiKey.deleteMany();
 
-    console.log('✅ Base de datos limpiada');
-    console.log('🌱 Creando usuario administrador...');
+    // 2. Mantener ÚNICAMENTE al admin principal, eliminar el resto
+    await prisma.usuario.deleteMany({
+        where: {
+            email: { not: 'victorvidalv@gmail.com' }
+        }
+    });
 
-    // Hash de la contraseña aveces123
+    // Asegurar que el admin principal existe
     const passwordHash = await bcrypt.hash('aveces123', 10);
-
-    // Crear único usuario admin
-    const admin = await prisma.usuario.create({
-        data: {
+    const admin = await prisma.usuario.upsert({
+        where: { email: 'victorvidalv@gmail.com' },
+        update: { activo: true, rol: Rol.ADMIN },
+        create: {
             nombre: 'Victor Vidal',
             email: 'victorvidalv@gmail.com',
             password_hash: passwordHash,
             activo: true,
-            rol: 'ADMIN',
+            rol: Rol.ADMIN,
         },
     });
 
-    console.log('👤 Admin creado: victorvidalv@gmail.com');
+    console.log(`✅ Admin verificado: ${admin.email}`);
 
-    // Crear tipos de registro
-    const tipos = ['PRB', 'MST', 'REG'];
-    const descripciones = ['Medición de prueba o calibración', 'Muestra oficial', 'Registro estándar'];
+    // 3. Tipos de registro (Se mantienen o actualizan)
+    const tiposData = [
+        { codigo: 'PRB', descripcion: 'Medición de prueba o calibración' },
+        { codigo: 'MST', descripcion: 'Muestra oficial' },
+        { codigo: 'REG', descripcion: 'Registro estándar' },
+    ];
 
-    for (let i = 0; i < tipos.length; i++) {
+    for (const t of tiposData) {
         await prisma.tipoRegistro.upsert({
-            where: { codigo: tipos[i] },
-            update: {},
-            create: { codigo: tipos[i], descripcion: descripciones[i] },
+            where: { codigo: t.codigo },
+            update: { descripcion: t.descripcion },
+            create: t,
         });
     }
-    console.log('📋 Tipos de registro creados');
+    console.log('✅ Tipos de registro listos');
 
-    // Crear unidades
-    const unidadesData = [
-        { nombre: 'Kilogramo', sigla: 'kg' },
-        { nombre: 'Gramo', sigla: 'g' },
-        { nombre: 'Litro', sigla: 'L' },
-        { nombre: 'Mililitro', sigla: 'mL' },
-        { nombre: 'Metro', sigla: 'm' },
-        { nombre: 'Centímetro', sigla: 'cm' },
-        { nombre: 'Celsius', sigla: '°C' },
-        { nombre: 'Porcentaje', sigla: '%' },
-    ];
+    // 4. Crear Unidades (Específicas de mitilicultura)
+    const unidades = await Promise.all([
+        prisma.unidad.create({ data: { nombre: 'Temperatura', sigla: '°C', creado_por_id: admin.id } }),
+        prisma.unidad.create({ data: { nombre: 'Salinidad', sigla: 'psu', creado_por_id: admin.id } }),
+        prisma.unidad.create({ data: { nombre: 'Oxígeno Disuelto', sigla: 'mg/L', creado_por_id: admin.id } }),
+        prisma.unidad.create({ data: { nombre: 'Peso Promedio', sigla: 'g', creado_por_id: admin.id } }),
+        prisma.unidad.create({ data: { nombre: 'Talla Promedio', sigla: 'mm', creado_por_id: admin.id } }),
+        prisma.unidad.create({ data: { nombre: 'Transparencia (Secchi)', sigla: 'm', creado_por_id: admin.id } }),
+    ]);
+    console.log('✅ Unidades de mitilicultura creadas');
 
-    for (const u of unidadesData) {
-        await prisma.unidad.create({
-            data: { nombre: u.nombre, sigla: u.sigla, creado_por_id: admin.id },
+    // 5. Crear Orígenes de Datos
+    const origenes = await Promise.all([
+        prisma.origenDato.create({ data: { nombre: 'Sensores In-situ', descripcion: 'Datos capturados por boyas inteligentes', creado_por_id: admin.id } }),
+        prisma.origenDato.create({ data: { nombre: 'Muestreo Manual', descripcion: 'Registros tomados por personal de terreno', creado_por_id: admin.id } }),
+        prisma.origenDato.create({ data: { nombre: 'Laboratorio Externo', descripcion: 'Análisis de muestras enviadas a lab', creado_por_id: admin.id } }),
+    ]);
+    console.log('✅ Orígenes de datos creados');
+
+    // 6. Crear Lugares (Centros de cultivo)
+    const lugares = await Promise.all([
+        prisma.lugar.create({ data: { nombre: 'Centro Castro - Estero', nota: 'Ubicado en la zona central del fiordo', latitud: -42.4772, longitud: -73.7661, creado_por_id: admin.id } }),
+        prisma.lugar.create({ data: { nombre: 'Centro Quellón - Canal', nota: 'Zona de alta corriente', latitud: -43.1167, longitud: -73.6167, creado_por_id: admin.id } }),
+        prisma.lugar.create({ data: { nombre: 'Centro Dalcahue', nota: 'Captación de semilla', latitud: -42.3667, longitud: -73.6500, creado_por_id: admin.id } }),
+    ]);
+    console.log('✅ Lugares (Centros) creados');
+
+    // 7. Crear Ciclos
+    const fechaActual = new Date();
+    const ciclos = await Promise.all(lugares.map((l, index) => {
+        const fechaSiembra = new Date(fechaActual);
+        fechaSiembra.setMonth(fechaActual.getMonth() - (index + 2));
+
+        return prisma.ciclo.create({
+            data: {
+                nombre: `Ciclo Productivo ${l.nombre.split(' ')[1]} 2024-2025`,
+                fecha_siembra: fechaSiembra,
+                lugar_id: l.id,
+                activo: true,
+                notas: 'Ciclo iniciado con semilla certificada',
+                creado_por_id: admin.id
+            }
         });
-    }
-    console.log('📏 Unidades creadas');
+    }));
+    console.log('✅ Ciclos de producción creados');
 
-    // Crear orígenes de datos
-    const origenesData = [
-        { nombre: 'Laboratorio Central', descripcion: 'Datos provenientes del laboratorio principal' },
-        { nombre: 'Estación de Campo', descripcion: 'Mediciones tomadas en terreno' },
-        { nombre: 'Sensor Automático', descripcion: 'Datos capturados por sensores IoT' },
-        { nombre: 'Base de Datos Externa', descripcion: 'Importación de fuentes externas' },
-    ];
+    // 8. Crear Mediciones (Datos de prueba para cada ciclo)
+    const tipoReg = await prisma.tipoRegistro.findFirst({ where: { codigo: 'PRB' } });
 
-    for (const o of origenesData) {
-        await prisma.origenDato.create({
-            data: { nombre: o.nombre, descripcion: o.descripcion, creado_por_id: admin.id },
-        });
-    }
-    console.log('🔗 Orígenes de datos creados');
+    console.log('📊 Generando mediciones históricas...');
 
-    // Crear lugar de prueba
-    const lugar = await prisma.lugar.create({
-        data: { nombre: 'Centro de Pruebas', creado_por_id: admin.id },
-    });
-    console.log('📍 Lugar:', lugar.nombre);
+    for (const ciclo of ciclos) {
+        const medicionesBuffer = [];
+        const diasCiclo = 30; // 1 mes de datos diarios
 
-    // Crear mediciones con curva sigmoide
-    const tipo = await prisma.tipoRegistro.findFirst();
-    const unidades = await prisma.unidad.findMany();
-    const origenes = await prisma.origenDato.findMany();
-    const fechaInicio = new Date('2025-01-01');
+        for (let i = 0; i < diasCiclo; i++) {
+            const fechaMedicion = new Date(ciclo.fecha_siembra);
+            fechaMedicion.setDate(fechaMedicion.getDate() + i);
 
-    console.log('📊 Creando mediciones con curva sigmoide...');
+            // Generar una medición para cada unidad en este día
+            for (const unidad of unidades) {
+                let valorBase = 0;
+                switch (unidad.sigla) {
+                    case '°C': valorBase = 12 + Math.sin(i / 5) * 2; break; // Temp 10-14
+                    case 'psu': valorBase = 32 + (Math.random() * 2); break; // Salinidad estable
+                    case 'mg/L': valorBase = 8 - (Math.random() * 1); break; // Oxígeno
+                    case 'g': valorBase = 5 + (i * 0.5); break; // Crecimiento progresivo peso
+                    case 'mm': valorBase = 15 + (i * 1.2); break; // Crecimiento progresivo talla
+                    case 'm': valorBase = 4 + Math.cos(i / 10); break; // Visibilidad
+                }
 
-    for (const unidad of unidades) {
-        const registros = [];
-        const minVal = 5;
-        const maxVal = 95;
-        const amplitude = maxVal - minVal;
-        const k = 0.28;
-        const x0 = 25;
-
-        for (let i = 0; i < 50; i++) {
-            const valorPerfecto = minVal + amplitude / (1 + Math.exp(-k * (i - x0)));
-            const ruido = (Math.random() - 0.5) * 0.8;
-            const valor = Math.max(minVal, Math.min(maxVal, valorPerfecto + ruido));
-
-            const fecha = new Date(fechaInicio);
-            fecha.setDate(fechaInicio.getDate() + i);
-
-            registros.push({
-                valor: parseFloat(valor.toFixed(2)),
-                fecha_medicion: fecha,
-                lugar_id: lugar.id,
-                unidad_id: unidad.id,
-                tipo_id: tipo!.id,
-                origen_id: origenes[i % origenes.length].id,
-                registrado_por_id: admin.id,
-                notas: `Prueba día ${i + 1}`,
-                created_at: new Date(),
-                updated_at: new Date(),
-            });
+                medicionesBuffer.push({
+                    valor: parseFloat(valorBase.toFixed(2)),
+                    fecha_medicion: fechaMedicion,
+                    lugar_id: ciclo.lugar_id,
+                    unidad_id: unidad.id,
+                    tipo_id: tipoReg!.id,
+                    origen_id: origenes[i % origenes.length].id,
+                    registrado_por_id: admin.id,
+                    ciclo_id: ciclo.id,
+                    notas: `Muestreo diario día ${i + 1}`,
+                });
+            }
         }
 
-        await prisma.medicion.createMany({ data: registros });
-        console.log(`  ${unidad.sigla}: 50 ✓`);
+        await prisma.medicion.createMany({
+            data: medicionesBuffer
+        });
+        console.log(`   - Mediciones para ${ciclo.nombre} completadas`);
     }
 
-    console.log('✅ Seed completado - Admin: victorvidalv@gmail.com / aveces123');
+    console.log('✨ Seed finalizado con éxito');
 }
 
-seed()
+main()
     .catch((e) => {
-        console.error('❌ Error:', e);
+        console.error('❌ Error durante el seed:', e);
         process.exit(1);
     })
     .finally(async () => {

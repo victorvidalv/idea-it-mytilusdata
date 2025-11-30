@@ -1,4 +1,4 @@
-import { Lugar, Unidad, TipoRegistro } from "@/lib/types"
+import { Lugar, Unidad, TipoRegistro, Ciclo } from "@/lib/types"
 
 // Configuración de una serie
 export interface SeriesConfig {
@@ -6,6 +6,7 @@ export interface SeriesConfig {
     lugarId: string
     tipoId: string
     unidadId: string
+    cicloId: string
 }
 
 // Datos procesados de una serie
@@ -40,4 +41,5 @@ export interface FilterData {
     lugares: Lugar[]
     unidades: Unidad[]
     tipos: TipoRegistro[]
+    ciclos: Ciclo[]
 }

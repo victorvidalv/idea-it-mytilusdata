@@ -17,6 +17,7 @@ export type {
   OrigenDato,
   Usuario,
   Medicion,
+  Ciclo,
 } from './api.types';
 
 export { ErrorCode, BitacoraAccion, BitacoraTabla } from './api.types';

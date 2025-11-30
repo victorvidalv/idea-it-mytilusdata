@@ -14,9 +14,11 @@ interface SeriesConfigPanelProps {
     newLugar: string
     newTipo: string
     newUnidad: string
+    newCiclo: string
     onNewLugarChange: (value: string) => void
     onNewTipoChange: (value: string) => void
     onNewUnidadChange: (value: string) => void
+    onNewCicloChange: (value: string) => void
 }
 
 export function SeriesConfigPanel({
@@ -27,25 +29,31 @@ export function SeriesConfigPanel({
     newLugar,
     newTipo,
     newUnidad,
+    newCiclo,
     onNewLugarChange,
     onNewTipoChange,
     onNewUnidadChange,
+    onNewCicloChange,
 }: SeriesConfigPanelProps) {
     const t = useTranslations('analysis')
     const tCommon = useTranslations('common')
-    const tPlaces = useTranslations('places')
-    const tUnits = useTranslations('units')
-    const tRecordTypes = useTranslations('recordTypes')
+    const tCycles = useTranslations('cycles')
+
+    // Filtrar ciclos por lugar seleccionado
+    const ciclosFiltrados = filters.ciclos.filter(c =>
+        !newLugar || c.lugar_id.toString() === newLugar
+    )
 
     const handleAddSerie = () => {
         if (series.length >= 5) return
-        if (!newLugar && !newTipo && !newUnidad) return
+        if (!newLugar && !newTipo && !newUnidad && !newCiclo) return
 
         onAddSerie({
             id: Date.now().toString(),
             lugarId: newLugar,
             tipoId: newTipo,
-            unidadId: newUnidad
+            unidadId: newUnidad,
+            cicloId: newCiclo
         })
     }
 
@@ -71,10 +79,10 @@ export function SeriesConfigPanel({
                                 />
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-sm truncate">
-                                        {getSerieNombre(s, filters.lugares, filters.unidades, filters.tipos)}
+                                        {getSerieNombre(s, filters.lugares, filters.unidades, filters.tipos, filters.ciclos)}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        {t('seriesNumber', {number: idx + 1})} {idx === 0 && `(${t('mainSeries')})`}
+                                        {t('seriesNumber', { number: idx + 1 })} {idx === 0 && `(${t('mainSeries')})`}
                                     </p>
                                 </div>
                                 <Button
@@ -96,9 +104,9 @@ export function SeriesConfigPanel({
                 <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
                     <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
                         <Plus className="w-4 h-4" />
-                        {t('addSeries', {number: series.length + 1})}
+                        {t('addSeries', { number: series.length + 1 })}
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                         <div className="space-y-2">
                             <Label className="text-xs">{t('fields.place')}</Label>
                             <select
@@ -109,6 +117,21 @@ export function SeriesConfigPanel({
                                 <option value="">{tCommon('places')}</option>
                                 {filters.lugares.map((l) => (
                                     <option key={l.id} value={l.id.toString()}>{l.nombre}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-xs">{t('fields.cycle')}</Label>
+                            <select
+                                value={newCiclo}
+                                onChange={(e) => onNewCicloChange(e.target.value)}
+                                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
+                            >
+                                <option value="">{tCommon('cycles')}</option>
+                                {ciclosFiltrados.map((c) => (
+                                    <option key={c.id} value={c.id.toString()}>
+                                        {c.nombre} {c.activo ? `(${tCycles('activeIndicator')})` : ''}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -147,7 +170,7 @@ export function SeriesConfigPanel({
                         onClick={handleAddSerie}
                         variant="outline"
                         className="w-full"
-                        disabled={!newLugar && !newTipo && !newUnidad}
+                        disabled={!newLugar && !newTipo && !newUnidad && !newCiclo}
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         {tCommon('add')} {t('series')}

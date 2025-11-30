@@ -26,8 +26,8 @@ export default function AnalisisPage() {
     const t = useTranslations('analysis')
     const tCommon = useTranslations('common')
 
-    // Obtener datos base (lugares, unidades, tipos)
-    const { lugares, unidades, tipos, loading } = useAnalisisData()
+    // Obtener datos base (lugares, unidades, tipos, ciclos)
+    const { lugares, unidades, tipos, ciclos, loading } = useAnalisisData()
 
     // Gestionar series de análisis
     const {
@@ -37,13 +37,15 @@ export default function AnalisisPage() {
         newLugar,
         newTipo,
         newUnidad,
+        newCiclo,
         handleAddSerie,
         handleRemoveSerie,
         fetchAnalisis,
         setNewLugar,
         setNewTipo,
-        setNewUnidad
-    } = useAnalisisSeries(lugares, unidades, tipos)
+        setNewUnidad,
+        setNewCiclo
+    } = useAnalisisSeries(lugares, unidades, tipos, ciclos)
 
     // Calcular estadísticas de la serie principal
     const mainStats = useMemo(() => {
@@ -61,7 +63,7 @@ export default function AnalisisPage() {
     }, [seriesData])
 
     // Datos de filtros
-    const filterData = { lugares, unidades, tipos }
+    const filterData = { lugares, unidades, tipos, ciclos }
 
     // Mostrar indicador de carga
     if (loading) {
@@ -96,9 +98,11 @@ export default function AnalisisPage() {
                 newLugar={newLugar}
                 newTipo={newTipo}
                 newUnidad={newUnidad}
+                newCiclo={newCiclo}
                 onNewLugarChange={setNewLugar}
                 onNewTipoChange={setNewTipo}
                 onNewUnidadChange={setNewUnidad}
+                onNewCicloChange={setNewCiclo}
                 fetchAnalisis={fetchAnalisis}
                 loadingChart={loadingChart}
                 t={t}

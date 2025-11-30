@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"
-import { Lugar, Unidad, TipoRegistro } from "@/lib/types"
+import { Lugar, Unidad, TipoRegistro, Ciclo } from "@/lib/types"
 
 // Interfaz para el retorno del hook
 export interface UseAnalisisDataReturn {
     lugares: Lugar[]
     unidades: Unidad[]
     tipos: TipoRegistro[]
+    ciclos: Ciclo[]
     loading: boolean
 }
 
@@ -15,6 +16,7 @@ export function useAnalisisData(): UseAnalisisDataReturn {
     const [lugares, setLugares] = useState<Lugar[]>([])
     const [unidades, setUnidades] = useState<Unidad[]>([])
     const [tipos, setTipos] = useState<TipoRegistro[]>([])
+    const [ciclos, setCiclos] = useState<Ciclo[]>([])
     const [loading, setLoading] = useState(true)
 
     // Cargar datos iniciales
@@ -25,23 +27,26 @@ export function useAnalisisData(): UseAnalisisDataReturn {
 
             try {
                 // Obtener datos en paralelo
-                const [lRes, uRes, tRes] = await Promise.all([
+                const [lRes, uRes, tRes, cRes] = await Promise.all([
                     fetch("/api/lugares", { headers }),
                     fetch("/api/unidades", { headers }),
-                    fetch("/api/tipos-registro", { headers })
+                    fetch("/api/tipos-registro", { headers }),
+                    fetch("/api/ciclos", { headers })
                 ])
 
                 // Parsear respuestas
-                const [l, u, t] = await Promise.all([
+                const [l, u, t, c] = await Promise.all([
                     lRes.json(),
                     uRes.json(),
-                    tRes.json()
+                    tRes.json(),
+                    cRes.json()
                 ])
 
                 // Actualizar estados si la respuesta es exitosa
                 if (l.success) setLugares(l.data)
                 if (u.success) setUnidades(u.data)
                 if (t.success) setTipos(t.data)
+                if (c.success) setCiclos(c.data)
             } catch (e) {
                 console.error(e)
             } finally {
@@ -56,6 +61,7 @@ export function useAnalisisData(): UseAnalisisDataReturn {
         lugares,
         unidades,
         tipos,
+        ciclos,
         loading
     }
 }

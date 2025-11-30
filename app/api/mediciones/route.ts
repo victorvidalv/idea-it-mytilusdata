@@ -26,6 +26,7 @@ export const GET = withRole(async (request: NextRequest) => {
       lugar_id: searchParams.get("lugar_id"),
       unidad_id: searchParams.get("unidad_id"),
       tipo_id: searchParams.get("tipo_id"),
+      ciclo_id: searchParams.get("ciclo_id"),
       autor_id: searchParams.get("autor_id"),
       fecha_desde: searchParams.get("fecha_desde"),
       fecha_hasta: searchParams.get("fecha_hasta"),

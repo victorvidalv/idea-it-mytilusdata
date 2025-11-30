@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react"
-import { Lugar, Unidad, TipoRegistro, Medicion } from "@/lib/types"
+import { useState, useCallback, useEffect } from "react"
+import { Lugar, Unidad, TipoRegistro, Ciclo, Medicion } from "@/lib/types"
 import { SeriesConfig, SeriesData, getSerieNombre, SERIES_COLORS } from "@/components/analisis"
 import { procesarDatosMediciones } from "../utils/data-processor"
 
@@ -11,19 +11,22 @@ export interface UseAnalisisSeriesReturn {
     newLugar: string
     newTipo: string
     newUnidad: string
+    newCiclo: string
     handleAddSerie: (serie: SeriesConfig) => void
     handleRemoveSerie: (id: string) => void
     fetchAnalisis: () => Promise<void>
     setNewLugar: (value: string) => void
     setNewTipo: (value: string) => void
     setNewUnidad: (value: string) => void
+    setNewCiclo: (value: string) => void
 }
 
 // Hook para gestionar series de análisis
 export function useAnalisisSeries(
     lugares: Lugar[],
     unidades: Unidad[],
-    tipos: TipoRegistro[]
+    tipos: TipoRegistro[],
+    ciclos: Ciclo[]
 ): UseAnalisisSeriesReturn {
     // Estados para series configuradas
     const [series, setSeries] = useState<SeriesConfig[]>([])
@@ -34,6 +37,12 @@ export function useAnalisisSeries(
     const [newLugar, setNewLugar] = useState("")
     const [newTipo, setNewTipo] = useState("")
     const [newUnidad, setNewUnidad] = useState("")
+    const [newCiclo, setNewCiclo] = useState("")
+
+    // Limpiar ciclo si cambia el lugar
+    useEffect(() => {
+        setNewCiclo("")
+    }, [newLugar])
 
     // Agregar nueva serie de análisis
     const handleAddSerie = useCallback((serie: SeriesConfig) => {
@@ -41,6 +50,7 @@ export function useAnalisisSeries(
         setNewLugar("")
         setNewTipo("")
         setNewUnidad("")
+        setNewCiclo("")
     }, [])
 
     // Eliminar serie de análisis
@@ -69,6 +79,7 @@ export function useAnalisisSeries(
                 if (serie.lugarId) queryParams.append("lugar_id", serie.lugarId)
                 if (serie.tipoId) queryParams.append("tipo_id", serie.tipoId)
                 if (serie.unidadId) queryParams.append("unidad_id", serie.unidadId)
+                if (serie.cicloId) queryParams.append("ciclo_id", serie.cicloId)
 
                 // Obtener mediciones
                 const res = await fetch(`/api/mediciones?${queryParams.toString()}`, { headers })
@@ -77,13 +88,20 @@ export function useAnalisisSeries(
                 if (data.success && data.data.length > 0) {
                     const mediciones = data.data as Medicion[]
 
-                    // Procesar datos de mediciones
-                    const processedData = procesarDatosMediciones(mediciones)
+                    // Determinar fecha de inicio opcional (si hay ciclo)
+                    let fechaInicio: Date | undefined = undefined
+                    if (serie.cicloId) {
+                        const ciclo = ciclos.find(c => c.id.toString() === serie.cicloId)
+                        if (ciclo) fechaInicio = new Date(ciclo.fecha_siembra)
+                    }
+
+                    // Procesar datos de mediciones utilizando la fecha de inicio del ciclo si existe
+                    const processedData = procesarDatosMediciones(mediciones, fechaInicio)
 
                     // Agregar datos de serie
                     newSeriesData.push({
                         id: serie.id,
-                        nombre: getSerieNombre(serie, lugares, unidades, tipos),
+                        nombre: getSerieNombre(serie, lugares, unidades, tipos, ciclos),
                         color: SERIES_COLORS[idx],
                         data: processedData
                     })
@@ -96,7 +114,7 @@ export function useAnalisisSeries(
         } finally {
             setLoadingChart(false)
         }
-    }, [series, lugares, unidades, tipos])
+    }, [series, lugares, unidades, tipos, ciclos])
 
     return {
         series,
@@ -105,11 +123,13 @@ export function useAnalisisSeries(
         newLugar,
         newTipo,
         newUnidad,
+        newCiclo,
         handleAddSerie,
         handleRemoveSerie,
         fetchAnalisis,
         setNewLugar,
         setNewTipo,
-        setNewUnidad
+        setNewUnidad,
+        setNewCiclo
     }
 }

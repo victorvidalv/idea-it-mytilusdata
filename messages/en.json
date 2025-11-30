@@ -381,7 +381,8 @@
       "endDate": "End Date",
       "place": "Place",
       "unit": "Unit",
-      "recordType": "Record Type"
+      "recordType": "Record Type",
+      "cycle": "Cycle"
     }
   },
   "profile": {

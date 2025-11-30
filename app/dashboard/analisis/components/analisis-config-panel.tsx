@@ -15,13 +15,16 @@ interface AnalisisConfigPanelProps {
         lugares: any[]
         unidades: any[]
         tipos: any[]
+        ciclos: any[]
     }
     newLugar: string
     newTipo: string
     newUnidad: string
+    newCiclo: string
     onNewLugarChange: (value: string) => void
     onNewTipoChange: (value: string) => void
     onNewUnidadChange: (value: string) => void
+    onNewCicloChange: (value: string) => void
     fetchAnalisis: () => Promise<void>
     loadingChart: boolean
     t: (key: string) => string
@@ -37,9 +40,11 @@ export function AnalisisConfigPanel({
     newLugar,
     newTipo,
     newUnidad,
+    newCiclo,
     onNewLugarChange,
     onNewTipoChange,
     onNewUnidadChange,
+    onNewCicloChange,
     fetchAnalisis,
     loadingChart,
     t,
@@ -66,9 +71,11 @@ export function AnalisisConfigPanel({
                     newLugar={newLugar}
                     newTipo={newTipo}
                     newUnidad={newUnidad}
+                    newCiclo={newCiclo}
                     onNewLugarChange={onNewLugarChange}
                     onNewTipoChange={onNewTipoChange}
                     onNewUnidadChange={onNewUnidadChange}
+                    onNewCicloChange={onNewCicloChange}
                 />
 
                 {/* Botón generar análisis */}

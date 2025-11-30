@@ -111,6 +111,22 @@ export interface Usuario {
 }
 
 /**
+ * Ciclo de producción
+ */
+export interface Ciclo {
+  id: number;
+  nombre: string;
+  fecha_siembra: Date;
+  fecha_finalizacion?: Date | null;
+  lugar_id: number;
+  activo: boolean;
+  notas?: string | null;
+  creado_por_id?: number | null;
+  created_at: Date;
+  deleted_at?: Date | null;
+}
+
+/**
  * Medición con relaciones
  */
 export interface Medicion {
@@ -121,6 +137,7 @@ export interface Medicion {
   created_at: Date;
   updated_at?: Date | null;
   deleted_at?: Date | null;
+  ciclo_id?: number | null;
 
   // Relaciones
   lugar: Lugar;
@@ -128,6 +145,7 @@ export interface Medicion {
   tipo: TipoRegistro;
   origen: OrigenDato;
   registrado_por: Usuario;
+  ciclo?: Ciclo | null;
 }
 
 /**
@@ -179,4 +197,5 @@ export enum BitacoraTabla {
   TIPOS_REGISTRO = 'tipos_registro',
   ORIGEN_DATOS = 'origen_datos',
   MEDICIONES = 'mediciones',
+  CICLOS = 'ciclos',
 }

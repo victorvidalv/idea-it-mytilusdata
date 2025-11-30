@@ -1,4 +1,4 @@
-import { Lugar, Unidad, TipoRegistro } from "@/lib/types"
+import { Lugar, Unidad, TipoRegistro, Ciclo } from "@/lib/types"
 import type { SeriesConfig } from "../types"
 
 // Obtener nombre descriptivo de una serie
@@ -6,13 +6,19 @@ export function getSerieNombre(
     s: SeriesConfig,
     lugares: Lugar[],
     unidades: Unidad[],
-    tipos: TipoRegistro[]
+    tipos: TipoRegistro[],
+    ciclos: Ciclo[]
 ): string {
     const parts = []
 
     if (s.lugarId) {
         const lugar = lugares.find(l => l.id.toString() === s.lugarId)
         if (lugar) parts.push(lugar.nombre)
+    }
+
+    if (s.cicloId) {
+        const ciclo = ciclos.find(c => c.id.toString() === s.cicloId)
+        if (ciclo) parts.push(ciclo.nombre)
     }
 
     if (s.unidadId) {

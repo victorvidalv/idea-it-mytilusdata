@@ -47,7 +47,12 @@
     "themeDark": "Dark",
     "themeAuto": "Auto",
     "languageSpanish": "Spanish",
-    "languageEnglish": "English"
+    "languageEnglish": "English",
+    "all": "All",
+    "allCycles": "All cycles",
+    "allUnits": "All units",
+    "allRecordTypes": "All record types",
+    "allPlaces": "All places"
   },
   "navigation": {
     "dashboard": "Dashboard",

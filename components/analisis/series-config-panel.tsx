@@ -51,13 +51,30 @@ export function SeriesConfigPanel({
         const hasSelection = newLugar || newTipo || newUnidad || newCiclo
         if (!hasSelection) return
 
-        onAddSerie({
-            id: Date.now().toString(),
-            lugarId: newLugar,
-            tipoId: newTipo,
-            unidadId: newUnidad,
-            cicloId: newCiclo
-        })
+        if (newUnidad === "all") {
+            // "Explotar" todas las unidades en series individuales
+            const unidadesDisponibles = filters.unidades
+            const espacioRestante = 5 - series.length
+
+            // Solo agregar hasta completar el límite de 5
+            unidadesDisponibles.slice(0, espacioRestante).forEach((u, idx) => {
+                onAddSerie({
+                    id: `${Date.now()}-${idx}`,
+                    lugarId: newLugar,
+                    tipoId: newTipo,
+                    unidadId: u.id.toString(),
+                    cicloId: newCiclo
+                })
+            })
+        } else {
+            onAddSerie({
+                id: Date.now().toString(),
+                lugarId: newLugar,
+                tipoId: newTipo,
+                unidadId: newUnidad,
+                cicloId: newCiclo
+            })
+        }
     }
 
     return (

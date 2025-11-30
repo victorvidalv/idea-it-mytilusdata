@@ -47,7 +47,12 @@
     "themeDark": "Noche",
     "themeAuto": "Auto",
     "languageSpanish": "Español",
-    "languageEnglish": "English"
+    "languageEnglish": "English",
+    "all": "Todos",
+    "allCycles": "Todos los ciclos",
+    "allUnits": "Todas las unidades",
+    "allRecordTypes": "Todos los tipos",
+    "allPlaces": "Todos los lugares"
   },
   "navigation": {
     "dashboard": "Dashboard",

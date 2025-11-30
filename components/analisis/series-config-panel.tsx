@@ -41,12 +41,15 @@ export function SeriesConfigPanel({
 
     // Filtrar ciclos por lugar seleccionado
     const ciclosFiltrados = filters.ciclos.filter(c =>
-        !newLugar || c.lugar_id.toString() === newLugar
+        !newLugar || newLugar === "all" || c.lugar_id.toString() === newLugar
     )
 
     const handleAddSerie = () => {
         if (series.length >= 5) return
-        if (!newLugar && !newTipo && !newUnidad && !newCiclo) return
+
+        // Validar que al menos haya algún filtro seleccionado
+        const hasSelection = newLugar || newTipo || newUnidad || newCiclo
+        if (!hasSelection) return
 
         onAddSerie({
             id: Date.now().toString(),
@@ -79,7 +82,7 @@ export function SeriesConfigPanel({
                                 />
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-sm truncate">
-                                        {getSerieNombre(s, filters.lugares, filters.unidades, filters.tipos, filters.ciclos)}
+                                        {getSerieNombre(s, filters.lugares, filters.unidades, filters.tipos, filters.ciclos, tCommon)}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                         {t('seriesNumber', { number: idx + 1 })} {idx === 0 && `(${t('mainSeries')})`}
@@ -114,7 +117,8 @@ export function SeriesConfigPanel({
                                 onChange={(e) => onNewLugarChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">{tCommon('places')}</option>
+                                <option value="">{t('placeholders.place') || 'Seleccionar lugar...'}</option>
+                                <option value="all">{tCommon('allPlaces')}</option>
                                 {filters.lugares.map((l) => (
                                     <option key={l.id} value={l.id.toString()}>{l.nombre}</option>
                                 ))}
@@ -127,7 +131,8 @@ export function SeriesConfigPanel({
                                 onChange={(e) => onNewCicloChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">{tCommon('cycles')}</option>
+                                <option value="">{tCycles('placeholders.place') || 'Seleccionar ciclo...'}</option>
+                                <option value="all">{tCommon('allCycles')}</option>
                                 {ciclosFiltrados.map((c) => (
                                     <option key={c.id} value={c.id.toString()}>
                                         {c.nombre} {c.activo ? `(${tCycles('activeIndicator')})` : ''}
@@ -142,7 +147,8 @@ export function SeriesConfigPanel({
                                 onChange={(e) => onNewUnidadChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">{tCommon('units')}</option>
+                                <option value="">{t('placeholders.unit') || 'Seleccionar unidad...'}</option>
+                                <option value="all">{tCommon('allUnits')}</option>
                                 {filters.unidades.map((u) => (
                                     <option key={u.id} value={u.id.toString()}>
                                         {u.nombre} ({u.sigla})
@@ -157,7 +163,8 @@ export function SeriesConfigPanel({
                                 onChange={(e) => onNewTipoChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">{tCommon('recordTypes')}</option>
+                                <option value="">{t('placeholders.recordType') || 'Seleccionar tipo...'}</option>
+                                <option value="all">{tCommon('allRecordTypes')}</option>
                                 {filters.tipos.map((t) => (
                                     <option key={t.id} value={t.id.toString()}>
                                         {t.descripcion || t.codigo}

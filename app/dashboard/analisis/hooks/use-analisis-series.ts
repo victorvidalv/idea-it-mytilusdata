@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react"
 import { Lugar, Unidad, TipoRegistro, Ciclo, Medicion } from "@/lib/types"
 import { SeriesConfig, SeriesData, getSerieNombre, SERIES_COLORS } from "@/components/analisis"
+import { useTranslations } from "next-intl"
 import { procesarDatosMediciones } from "../utils/data-processor"
 
 // Interfaz para el retorno del hook
@@ -28,6 +29,7 @@ export function useAnalisisSeries(
     tipos: TipoRegistro[],
     ciclos: Ciclo[]
 ): UseAnalisisSeriesReturn {
+    const tCommon = useTranslations('common')
     // Estados para series configuradas
     const [series, setSeries] = useState<SeriesConfig[]>([])
     const [seriesData, setSeriesData] = useState<SeriesData[]>([])
@@ -76,10 +78,10 @@ export function useAnalisisSeries(
                 const queryParams = new URLSearchParams()
 
                 // Construir query params
-                if (serie.lugarId) queryParams.append("lugar_id", serie.lugarId)
-                if (serie.tipoId) queryParams.append("tipo_id", serie.tipoId)
-                if (serie.unidadId) queryParams.append("unidad_id", serie.unidadId)
-                if (serie.cicloId) queryParams.append("ciclo_id", serie.cicloId)
+                if (serie.lugarId && serie.lugarId !== "all") queryParams.append("lugar_id", serie.lugarId)
+                if (serie.tipoId && serie.tipoId !== "all") queryParams.append("tipo_id", serie.tipoId)
+                if (serie.unidadId && serie.unidadId !== "all") queryParams.append("unidad_id", serie.unidadId)
+                if (serie.cicloId && serie.cicloId !== "all") queryParams.append("ciclo_id", serie.cicloId)
 
                 // Obtener mediciones
                 const res = await fetch(`/api/mediciones?${queryParams.toString()}`, { headers })
@@ -101,7 +103,7 @@ export function useAnalisisSeries(
                     // Agregar datos de serie
                     newSeriesData.push({
                         id: serie.id,
-                        nombre: getSerieNombre(serie, lugares, unidades, tipos, ciclos),
+                        nombre: getSerieNombre(serie, lugares, unidades, tipos, ciclos, tCommon),
                         color: SERIES_COLORS[idx],
                         data: processedData
                     })

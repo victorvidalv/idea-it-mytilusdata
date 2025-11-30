@@ -34,7 +34,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean, onToggle:
         { name: t('measurements'), href: "/dashboard/mediciones", icon: Database, roles: ["ADMIN", "EQUIPO"] },
         { name: t('analysis'), href: "/dashboard/analisis", icon: TrendingUp, roles: ["ADMIN", "EQUIPO"] },
         { name: t('configuration'), href: "/dashboard/configuracion", icon: Settings, roles: ["ADMIN", "EQUIPO"] },
-        { name: "Documentación API", href: "/dashboard/api-docs", icon: Book, roles: ["ADMIN"] },
+        { name: t('apiDocs'), href: "/dashboard/api-docs", icon: Book, roles: ["ADMIN"] },
         { name: t('users'), href: "/dashboard/usuarios", icon: Users, roles: ["ADMIN"] },
         { name: t('inDevelopment'), href: "/dashboard/en-desarrollo", icon: Rocket, roles: ["PUBLICO"] },
     ]

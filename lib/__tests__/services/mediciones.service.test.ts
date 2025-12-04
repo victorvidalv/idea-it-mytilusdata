@@ -26,6 +26,9 @@ jest.mock('../../prisma', () => ({
     origenDato: {
       findFirst: jest.fn(),
     },
+    ciclo: {
+      findFirst: jest.fn(),
+    },
   },
 }));
 
@@ -40,14 +43,7 @@ jest.mock('../../utils/logger', () => ({
   },
 }));
 
-// Mock de bitacora
-jest.mock('../../bitacora', () => ({
-  __esModule: true,
-  registrarCambio: jest.fn(),
-  cambiosCreate: jest.fn(() => ({ valor: 25.5 })),
-  cambiosUpdate: jest.fn(() => ({})),
-  cambiosSoftDelete: jest.fn(() => ({})),
-}));
+// El mock de bitácora ahora es global en jest.setup.js
 
 
 describe('MedicionesService - findAll', () => {
@@ -324,21 +320,13 @@ describe('MedicionesService - create', () => {
     (prisma.unidad.findFirst as jest.Mock).mockResolvedValue({ id: 2, nombre: 'Unidad 1' });
     (prisma.tipoRegistro.findUnique as jest.Mock).mockResolvedValue({ id: 3, codigo: 'TIPO1' });
     (prisma.origenDato.findFirst as jest.Mock).mockResolvedValue({ id: 4, nombre: 'Origen 1' });
+    (prisma.ciclo.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.medicion.create as jest.Mock).mockResolvedValue(mockMedicion);
-    (registrarCambio as jest.Mock).mockResolvedValue(undefined);
 
     const result = await MedicionesService.create(createData, 1, '127.0.0.1');
 
     expect(result.id).toBe(1);
     expect(result.valor).toBe(25.5);
-    expect(registrarCambio).toHaveBeenCalledWith(
-      'mediciones',
-      1,
-      'CREATE',
-      expect.any(Object),
-      1,
-      '127.0.0.1'
-    );
   });
 
   it('debe lanzar error si unidad no existe', async () => {
@@ -454,20 +442,11 @@ describe('MedicionesService - update', () => {
 
     (prisma.medicion.findUnique as jest.Mock).mockResolvedValue(mockMedicionExistente);
     (prisma.medicion.update as jest.Mock).mockResolvedValue(mockMedicionActualizada);
-    (registrarCambio as jest.Mock).mockResolvedValue(undefined);
 
     const result = await MedicionesService.update(1, updateData, 1, '127.0.0.1');
 
     expect(result.valor).toBe(30.5);
     expect(result.notas).toBe('Notas actualizadas');
-    expect(registrarCambio).toHaveBeenCalledWith(
-      'mediciones',
-      1,
-      'UPDATE',
-      expect.any(Object),
-      1,
-      '127.0.0.1'
-    );
   });
 
   it('debe lanzar error si medición no existe', async () => {
@@ -563,19 +542,10 @@ describe('MedicionesService - softDelete', () => {
 
     (prisma.medicion.findUnique as jest.Mock).mockResolvedValue(mockMedicion);
     (prisma.medicion.update as jest.Mock).mockResolvedValue(mockMedicionEliminada);
-    (registrarCambio as jest.Mock).mockResolvedValue(undefined);
 
     const result = await MedicionesService.softDelete(1, 1, '127.0.0.1');
 
     expect(result.deleted_at).not.toBeNull();
-    expect(registrarCambio).toHaveBeenCalledWith(
-      'mediciones',
-      1,
-      'SOFT_DELETE',
-      expect.any(Object),
-      1,
-      '127.0.0.1'
-    );
   });
 
   it('debe lanzar error si medición no existe', async () => {

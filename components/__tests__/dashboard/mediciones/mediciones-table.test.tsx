@@ -113,12 +113,24 @@ describe('MedicionesTable', () => {
 
   describe('renderizado de la tabla', () => {
     it('debe renderizar la tabla con datos', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -133,12 +145,24 @@ describe('MedicionesTable', () => {
     });
 
     it('debe renderizar las filas de mediciones', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -171,19 +195,35 @@ describe('MedicionesTable', () => {
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={{
+            page: 1, limit: 10, total: 1, totalPages: 1, hasNext: false, hasPrevious: false
+          }}
+          onPageChange={jest.fn()}
         />
       );
 
-      expect(screen.getByText('-')).toBeInTheDocument();
+      expect(screen.getAllByText('-').length).toBeGreaterThan(0);
     });
 
     it('debe mostrar la inicial del nombre del autor', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -198,6 +238,15 @@ describe('MedicionesTable', () => {
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={{
+            page: 1,
+            limit: 10,
+            total: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrevious: false,
+          }}
+          onPageChange={jest.fn()}
         />
       );
 
@@ -256,12 +305,24 @@ describe('MedicionesTable', () => {
 
   describe('interacciones', () => {
     it('debe llamar onEdit con la medición correcta al hacer clic en editar', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -276,12 +337,24 @@ describe('MedicionesTable', () => {
     });
 
     it('debe llamar onDelete con el ID correcto al hacer clic en eliminar', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -297,12 +370,24 @@ describe('MedicionesTable', () => {
     });
 
     it('debe llamar onEdit con la segunda medición al hacer clic en su botón de editar', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -316,12 +401,24 @@ describe('MedicionesTable', () => {
     });
 
     it('debe llamar onDelete con el ID de la segunda medición al hacer clic en su botón de eliminar', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -355,12 +452,24 @@ describe('MedicionesTable', () => {
 
   describe('formato de datos', () => {
     it('debe mostrar la fecha formateada', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -370,12 +479,24 @@ describe('MedicionesTable', () => {
     });
 
     it('debe mostrar el valor con la unidad', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 
@@ -386,12 +507,24 @@ describe('MedicionesTable', () => {
     });
 
     it('debe mostrar el código del tipo en un badge', () => {
+      const mockPagination = {
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      const mockOnPageChange = jest.fn();
+
       render(
         <MedicionesTable
           mediciones={mockMediciones}
           loading={false}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          pagination={mockPagination}
+          onPageChange={mockOnPageChange}
         />
       );
 

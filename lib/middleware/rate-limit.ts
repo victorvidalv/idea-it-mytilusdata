@@ -187,8 +187,8 @@ export function withRateLimit<T extends (...args: unknown[]) => Promise<NextResp
         // Obtener el request (primer argumento)
         const request = args[0] as NextRequest;
 
-        // Saltar rate limiting en ambiente de test
-        if (process.env.NODE_ENV === "test" || process.env.E2E_TEST === "true") {
+        // Saltar rate limiting solo en ambiente E2E si está configurado
+        if (process.env.E2E_TEST === "true") {
             return await handler(...args);
         }
 

@@ -24,6 +24,7 @@ import {
   validarTipo,
 } from './validators/mediciones-relations.validator';
 import { buildWhereClause, getIncludes } from './queries/mediciones-queries';
+import { registrarCambio, cambiosCreate, cambiosUpdate, cambiosSoftDelete } from '@/lib/bitacora';
 
 /**
  * Tipo para el resultado paginado de mediciones
@@ -206,6 +207,9 @@ export class MedicionesService {
       include: getIncludes(includeAll),
     });
 
+    // Registrar en bitácora
+    await registrarCambio('mediciones', medicion.id, 'CREATE', cambiosCreate(medicion), userId, clientIp);
+
 
 
     const result = medicion as any;
@@ -268,7 +272,6 @@ export class MedicionesService {
 
 
 
-    // Actualizar medición
     const medicion = await prisma.medicion.update({
       where: {
         id: validatedId.id,
@@ -279,6 +282,16 @@ export class MedicionesService {
       },
       include: getIncludes(includeAll),
     });
+
+    // Registrar en bitácora
+    await registrarCambio(
+      'mediciones',
+      medicion.id,
+      'UPDATE',
+      cambiosUpdate({ valor: { anterior: medicionExistente.valor, nuevo: medicion.valor } }),
+      userId,
+      clientIp
+    );
 
 
 
@@ -325,7 +338,6 @@ export class MedicionesService {
       throw new Error(`Medición con ID ${id} no encontrada`);
     }
 
-    // Actualizar deleted_at y updated_at
     const medicion = await prisma.medicion.update({
       where: {
         id: validatedId.id,
@@ -336,6 +348,9 @@ export class MedicionesService {
       },
       include: getIncludes(includeAll),
     });
+
+    // Registrar en bitácora
+    await registrarCambio('mediciones', medicion.id, 'SOFT_DELETE', cambiosSoftDelete(medicion), userId, clientIp);
 
 
 

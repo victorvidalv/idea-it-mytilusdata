@@ -1,4 +1,5 @@
-# 🦪 MytilusData - Sistema de Registro de Mediciones
+# 🦪 MytilusData
+### Plataforma digital para el monitoreo de variables productivas y optimización de cultivos de *Mytilus chilensis*
 
 <div align="center">
 
@@ -7,11 +8,25 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-336791?style=flat-square&logo=postgresql)](https://neon.tech/)
 
-**Plataforma web para el registro, gestión y análisis de mediciones ambientales**
+**Plataforma inteligente para Potenciar la Mitilicultura y Diversificación Acuícola**
 
 [Demo en Vivo](https://www.mytilusdata.cl) · [Documentación](#-documentación) · [Contribuir](#-contribución)
 
 </div>
+
+---
+
+## 📋 Contexto del Proyecto
+
+Este proyecto es una iniciativa financiada por la **Agencia Nacional de Investigación y Desarrollo (ANID)** de Chile.
+
+- **Postulación:** Febrero 2025
+- **Inicio de Ejecución:** Enero 2026
+- **Formulación Original:** La documentación detallada sobre la génesis, objetivos y metodología del proyecto se encuentra en [contexto_proyecto.md](./docs/contexto_proyecto.md).
+
+### 🎯 Objetivo General
+Desarrollar una infraestructura digital avanzada para el monitoreo de variables productivas y la optimización de los ciclos de cultivo del mejillón chileno (*Mytilus chilensis*), permitiendo una toma de decisiones basada en datos para mejorar la eficiencia y sostenibilidad de la industria.
+
 
 ---
 
@@ -40,8 +55,10 @@
 
 ## 🔌 Model Context Protocol (MCP)
 
-Este proyecto cuenta con un MCP dedicado para facilitar la inspección y consulta de la base de datos:
-- **mcp-base-datos-mytilusdata**: Permite revisar tablas, esquemas y registros directamente desde asistentes de IA compatibles con este protocolo.
+Este proyecto utiliza el estándar MCP para extender las capacidades de los asistentes de IA, permitiendo una interacción fluida con los datos y la documentación:
+
+- **mcp-base-datos-mytilusdata**: Permite revisar tablas, esquemas y registros directamente desde asistentes de IA.
+- **notion-mcp-server**: Proporciona acceso a la base de conocimiento en Notion. A través de este MCP, se pueden consultar **antecedentes adicionales y documentación complementaria** gestionada por el equipo de desarrollo, incluyendo bitácoras, minutas de reuniones y detalles técnicos extendidos.
 
 ## 📚 Documentación
 

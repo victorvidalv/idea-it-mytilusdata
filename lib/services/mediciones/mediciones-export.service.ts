@@ -15,6 +15,70 @@ import { buildWhereClause, getIncludes } from './queries/mediciones-queries';
  */
 export class MedicionesExportService {
   /**
+   * Exportar mediciones a CSV (síncrono)
+   * @param filters - Filtros de búsqueda de mediciones
+   * @returns String con el contenido del CSV
+   */
+  static async exportToCSV(
+    filters: FilterMedicionesInput
+  ): Promise<string> {
+    logger.info('Iniciando exportación de mediciones a CSV', { filters });
+
+    try {
+      const where = buildWhereClause(filters);
+      const mediciones = await prisma.medicion.findMany({
+        where,
+        include: getIncludes(true),
+        orderBy: { fecha_medicion: 'desc' },
+      });
+
+      // Agregar BOM para compatibilidad con Excel
+      let csv = '\uFEFF';
+
+      // Definir headers del CSV
+      const headers = ['id', 'valor', 'fecha', 'unidad', 'lugar', 'tipoRegistro', 'observaciones', 'createdAt'];
+      csv += headers.join(',') + '\n';
+
+      // Función para escapar valores CSV
+      const escapeCSV = (value: string | number | null | undefined): string => {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      };
+
+      // Procesar mediciones y convertir a líneas CSV
+      const csvLines = mediciones.map((m) => {
+        // Safely access nested properties
+        const unidadSigla = ('unidad' in m && m.unidad) ? (m.unidad as any).sigla : '';
+        const lugarNombre = ('lugar' in m && m.lugar) ? (m.lugar as any).nombre : '';
+        const tipoDesc = ('tipo' in m && m.tipo) ? ((m.tipo as any).descripcion || (m.tipo as any).codigo) : '';
+
+        return [
+          escapeCSV(m.id),
+          escapeCSV(m.valor.toString()),
+          escapeCSV(m.fecha_medicion.toISOString()),
+          escapeCSV(unidadSigla),
+          escapeCSV(lugarNombre),
+          escapeCSV(tipoDesc),
+          escapeCSV(m.notas || ''),
+          escapeCSV(m.created_at.toISOString()),
+        ].join(',');
+      });
+
+      csv += csvLines.join('\n');
+
+      logger.info('CSV generado exitosamente', { count: mediciones.length });
+      return csv;
+    } catch (error) {
+      logger.error('Error al generar el archivo CSV', error as Error);
+      throw new ApiError(500, 'Error al generar el archivo CSV');
+    }
+  }
+
+  /**
    * Exportar mediciones a CSV usando streaming para eficiencia de memoria
    * @param filters - Filtros de búsqueda de mediciones
    * @returns ReadableStream que emite el contenido del CSV

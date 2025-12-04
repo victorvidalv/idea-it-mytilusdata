@@ -22,6 +22,7 @@ import {
   validarLugar,
   validarUnidad,
   validarTipo,
+  validarOrigen,
 } from './validators/mediciones-relations.validator';
 import { buildWhereClause, getIncludes } from './queries/mediciones-queries';
 import { registrarCambio, cambiosCreate, cambiosUpdate, cambiosSoftDelete } from '@/lib/bitacora';
@@ -268,6 +269,10 @@ export class MedicionesService {
 
     if (validatedData.tipo_id !== undefined) {
       await validarTipo(validatedData.tipo_id);
+    }
+
+    if (validatedData.origen_id !== undefined) {
+      await validarOrigen(validatedData.origen_id);
     }
 
 

@@ -56,6 +56,7 @@ Este proyecto cuenta con un MCP dedicado para facilitar la inspección y consult
 | [✅ Validadores](./docs/VALIDADORES.md) | Esquemas de validación con Zod |
 | [🔌 API](./docs/API.md) | Referencia de endpoints REST |
 | [🌐 API v1](./docs/API-v1.md) | API pública para integraciones externas |
+| [🎭 Testing E2E](./docs/TESTING_E2E.md) | Suite de pruebas end-to-end con Playwright |
 
 ## 🚀 Comenzando
 

@@ -13,6 +13,7 @@ describe('createMedicionSchema', () => {
       lugar_id: 1,
       unidad_id: 2,
       tipo_id: 3,
+      origen_id: 4,
       notas: 'Medición de prueba'
     };
 
@@ -31,7 +32,8 @@ describe('createMedicionSchema', () => {
       fecha_medicion: '2024-01-15',
       lugar_id: 1,
       unidad_id: 2,
-      tipo_id: 3
+      tipo_id: 3,
+      origen_id: 4
     };
 
     const result = createMedicionSchema.safeParse(validData);
@@ -45,7 +47,8 @@ describe('createMedicionSchema', () => {
       fecha_medicion: '2024-01-15',
       lugar_id: 1,
       unidad_id: 2,
-      tipo_id: 3
+      tipo_id: 3,
+      origen_id: 4
     };
 
     const result = createMedicionSchema.safeParse(invalidData);
@@ -63,7 +66,8 @@ describe('createMedicionSchema', () => {
       fecha_medicion: '2024-01-15',
       lugar_id: 1,
       unidad_id: 2,
-      tipo_id: 3
+      tipo_id: 3,
+      origen_id: 4
     };
 
     const result = createMedicionSchema.safeParse(invalidData);
@@ -80,7 +84,8 @@ describe('createMedicionSchema', () => {
       fecha_medicion: futureDate.toISOString(),
       lugar_id: 1,
       unidad_id: 2,
-      tipo_id: 3
+      tipo_id: 3,
+      origen_id: 4
     };
 
     const result = createMedicionSchema.safeParse(invalidData);
@@ -98,7 +103,8 @@ describe('createMedicionSchema', () => {
       fecha_medicion: '2024-01-15',
       lugar_id: -1,
       unidad_id: 2,
-      tipo_id: 3
+      tipo_id: 3,
+      origen_id: 4
     };
 
     const result = createMedicionSchema.safeParse(invalidData);
@@ -112,7 +118,8 @@ describe('createMedicionSchema', () => {
       fecha_medicion: '2024-01-15',
       lugar_id: 1,
       unidad_id: 2.5,
-      tipo_id: 3
+      tipo_id: 3,
+      origen_id: 4
     };
 
     const result = createMedicionSchema.safeParse(invalidData);
@@ -126,7 +133,8 @@ describe('createMedicionSchema', () => {
       fecha_medicion: '2024-01-15',
       lugar_id: 1,
       unidad_id: 2,
-      tipo_id: 0
+      tipo_id: 0,
+      origen_id: 4
     };
 
     const result = createMedicionSchema.safeParse(invalidData);
@@ -143,6 +151,7 @@ describe('createMedicionSchema', () => {
       lugar_id: 1,
       unidad_id: 2,
       tipo_id: 3,
+      origen_id: 4,
       notas: longNotes
     };
 
@@ -164,6 +173,7 @@ describe('createMedicionSchema', () => {
       lugar_id: 1,
       unidad_id: 2,
       tipo_id: 3,
+      origen_id: 4,
       notas: maxNotes
     };
 

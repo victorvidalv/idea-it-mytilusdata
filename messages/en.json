@@ -52,7 +52,9 @@
     "allCycles": "All cycles",
     "allUnits": "All units",
     "allRecordTypes": "All record types",
-    "allPlaces": "All places"
+    "allPlaces": "All places",
+    "theme": "Theme",
+    "language": "Language"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -68,7 +70,9 @@
     "units": "Units",
     "recordTypes": "Record Types",
     "cycles": "Cycles",
-    "collapse": "Collapse"
+    "collapse": "Collapse",
+    "apiKeys": "API Keys",
+    "auditLog": "Audit Log"
   },
   "auth": {
     "welcome": "Welcome",
@@ -195,6 +199,7 @@
       "sowingDate": "Select start date",
       "endDate": "Select end date (optional)",
       "place": "Select center",
+      "cycle": "Select cycle...",
       "notes": "Cycle observations"
     },
     "activeIndicator": "Active",
@@ -225,6 +230,7 @@
     "pendingCoordinates": "Pending...",
     "records": "records",
     "noCoordinates": "No coordinates",
+    "measurementsCount": "{count} measurements",
     "fields": {
       "name": "Name",
       "description": "Description",
@@ -388,6 +394,11 @@
       "unit": "Unit",
       "recordType": "Record Type",
       "cycle": "Cycle"
+    },
+    "placeholders": {
+      "place": "Select place...",
+      "unit": "Select unit...",
+      "recordType": "Select type..."
     }
   },
   "profile": {
@@ -428,6 +439,35 @@
     "notifications": "Notifications",
     "language": "Language",
     "theme": "Theme"
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "description": "Manage API keys for programmatic access to the platform.",
+    "newApiKey": "New API Key",
+    "created": "API Key Created!",
+    "name": "Name",
+    "prefix": "Prefix",
+    "permissions": "Permissions",
+    "lastUsed": "Last used",
+    "status": "Status",
+    "active": "ACTIVE",
+    "revoked": "REVOKED",
+    "never": "Never",
+    "emptyState": "No API keys created",
+    "identifierName": "Identifier name",
+    "create": "Create API Key",
+    "understood": "Understood",
+    "warningTitle": "⚠️ Save this key now",
+    "warningDescription": "This is the only time you will see the complete key. You won't be able to recover it later.",
+    "placeholderName": "E.g.: Mobile App, SERNAP Integration"
+  },
+  "permissions": {
+    "places": "Places",
+    "cycles": "Cycles",
+    "measurements": "Measurements",
+    "units": "Units",
+    "read": "Read",
+    "write": "Write"
   },
   "validation": {
     "required": "This field is required",

@@ -60,12 +60,12 @@ export function UserMenu() {
                         <div className="p-2 space-y-3">
                             {/* Tema */}
                             <div className="px-2 pt-1">
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">{t('theme')}</p>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">{tCommon('theme')}</p>
                                 <div className="grid grid-cols-3 gap-1 bg-muted/40 p-1 rounded-lg">
                                     {[
-                                        { value: 'light', icon: Sun, label: t('themeLight') },
-                                        { value: 'dark', icon: Moon, label: t('themeDark') },
-                                        { value: 'system', icon: Monitor, label: t('themeAuto') }
+                                        { value: 'light', icon: Sun, label: tCommon('themeLight') },
+                                        { value: 'dark', icon: Moon, label: tCommon('themeDark') },
+                                        { value: 'system', icon: Monitor, label: tCommon('themeAuto') }
                                     ].map((item) => (
                                         <button
                                             key={item.value}
@@ -86,11 +86,11 @@ export function UserMenu() {
 
                             {/* Idioma */}
                             <div className="px-2">
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">{t('language')}</p>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">{tCommon('language')}</p>
                                 <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-lg">
                                     {[
-                                        { code: 'es', label: t('languageSpanish') },
-                                        { code: 'en', label: t('languageEnglish') }
+                                        { code: 'es', label: tCommon('languageSpanish') },
+                                        { code: 'en', label: tCommon('languageEnglish') }
                                     ].map((lang) => (
                                         <button
                                             key={lang.code}

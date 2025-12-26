@@ -52,7 +52,9 @@
     "allCycles": "Todos los ciclos",
     "allUnits": "Todas las unidades",
     "allRecordTypes": "Todos los tipos",
-    "allPlaces": "Todos los lugares"
+    "allPlaces": "Todos los lugares",
+    "theme": "Tema",
+    "language": "Idioma"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -68,7 +70,9 @@
     "units": "Unidades",
     "recordTypes": "Tipos de Registro",
     "cycles": "Ciclos",
-    "collapse": "Colapsar"
+    "collapse": "Colapsar",
+    "apiKeys": "API Keys",
+    "auditLog": "Bitácora"
   },
   "auth": {
     "welcome": "Bienvenido",
@@ -195,6 +199,7 @@
       "sowingDate": "Selecciona la fecha de inicio",
       "endDate": "Selecciona la fecha de fin (opcional)",
       "place": "Selecciona el centro",
+      "cycle": "Seleccionar ciclo...",
       "notes": "Observaciones del ciclo"
     },
     "activeIndicator": "Activo",
@@ -225,6 +230,7 @@
     "pendingCoordinates": "Pendiente...",
     "records": "registros",
     "noCoordinates": "Sin coordenadas",
+    "measurementsCount": "{count} mediciones",
     "fields": {
       "name": "Nombre",
       "description": "Descripción",
@@ -388,6 +394,11 @@
       "unit": "Unidad",
       "recordType": "Tipo de Registro",
       "cycle": "Ciclo"
+    },
+    "placeholders": {
+      "place": "Seleccionar lugar...",
+      "unit": "Seleccionar unidad...",
+      "recordType": "Seleccionar tipo..."
     }
   },
   "profile": {
@@ -428,6 +439,35 @@
     "notifications": "Notificaciones",
     "language": "Idioma",
     "theme": "Tema"
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "description": "Gestiona las claves de API para acceso programático a la plataforma.",
+    "newApiKey": "Nueva API Key",
+    "created": "¡API Key Creada!",
+    "name": "Nombre",
+    "prefix": "Prefijo",
+    "permissions": "Permisos",
+    "lastUsed": "Último uso",
+    "status": "Estado",
+    "active": "ACTIVA",
+    "revoked": "REVOCADA",
+    "never": "Nunca",
+    "emptyState": "No hay claves API creadas",
+    "identifierName": "Nombre identificador",
+    "create": "Crear API Key",
+    "understood": "Entendido",
+    "warningTitle": "⚠️ Guarde esta clave ahora",
+    "warningDescription": "Esta es la única vez que verá la clave completa. No podrá recuperarla después.",
+    "placeholderName": "Ej: App Móvil, Integración SERNAP"
+  },
+  "permissions": {
+    "places": "Lugares",
+    "cycles": "Ciclos",
+    "measurements": "Mediciones",
+    "units": "Unidades",
+    "read": "Leer",
+    "write": "Escribir"
   },
   "validation": {
     "required": "Este campo es requerido",

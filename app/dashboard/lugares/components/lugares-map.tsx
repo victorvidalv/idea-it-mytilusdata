@@ -79,7 +79,7 @@ export function LugaresMap({ lugares, t }: LugaresMapProps) {
                             <div className="text-sm">
                                 <p className="font-bold">{lugar.nombre}</p>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                    {lugar._count?.mediciones || 0} mediciones
+                                    {t('measurementsCount', { count: lugar._count?.mediciones || 0 })}
                                 </p>
                                 {lugar.nota && <p className="text-xs mt-1 italic">{lugar.nota}</p>}
                             </div>

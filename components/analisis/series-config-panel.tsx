@@ -134,7 +134,7 @@ export function SeriesConfigPanel({
                                 onChange={(e) => onNewLugarChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">{t('placeholders.place') || 'Seleccionar lugar...'}</option>
+                                <option value="">{t('placeholders.place')}</option>
                                 <option value="all">{tCommon('allPlaces')}</option>
                                 {filters.lugares.map((l) => (
                                     <option key={l.id} value={l.id.toString()}>{l.nombre}</option>
@@ -148,7 +148,7 @@ export function SeriesConfigPanel({
                                 onChange={(e) => onNewCicloChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">{tCycles('placeholders.place') || 'Seleccionar ciclo...'}</option>
+                                <option value="">{tCycles('placeholders.cycle')}</option>
                                 <option value="all">{tCommon('allCycles')}</option>
                                 {ciclosFiltrados.map((c) => (
                                     <option key={c.id} value={c.id.toString()}>
@@ -164,7 +164,7 @@ export function SeriesConfigPanel({
                                 onChange={(e) => onNewUnidadChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">{t('placeholders.unit') || 'Seleccionar unidad...'}</option>
+                                <option value="">{t('placeholders.unit')}</option>
                                 <option value="all">{tCommon('allUnits')}</option>
                                 {filters.unidades.map((u) => (
                                     <option key={u.id} value={u.id.toString()}>
@@ -180,7 +180,7 @@ export function SeriesConfigPanel({
                                 onChange={(e) => onNewTipoChange(e.target.value)}
                                 className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
                             >
-                                <option value="">{t('placeholders.recordType') || 'Seleccionar tipo...'}</option>
+                                <option value="">{t('placeholders.recordType')}</option>
                                 <option value="all">{tCommon('allRecordTypes')}</option>
                                 {filters.tipos.map((t) => (
                                     <option key={t.id} value={t.id.toString()}>

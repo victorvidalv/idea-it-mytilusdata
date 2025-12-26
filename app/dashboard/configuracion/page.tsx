@@ -448,17 +448,6 @@ function AuditoriaTab() {
 // ================================
 // COMPONENTE API KEYS
 // ================================
-const PERMISOS_DISPONIBLES = [
-    { id: "lugares:read", label: "Lugares - Leer", group: "Lugares" },
-    { id: "lugares:write", label: "Lugares - Escribir", group: "Lugares" },
-    { id: "ciclos:read", label: "Ciclos - Leer", group: "Ciclos" },
-    { id: "ciclos:write", label: "Ciclos - Escribir", group: "Ciclos" },
-    { id: "mediciones:read", label: "Mediciones - Leer", group: "Mediciones" },
-    { id: "mediciones:write", label: "Mediciones - Escribir", group: "Mediciones" },
-    { id: "unidades:read", label: "Unidades - Leer", group: "Unidades" },
-    { id: "unidades:write", label: "Unidades - Escribir", group: "Unidades" },
-]
-
 interface ApiKeyItem {
     id: number
     nombre: string
@@ -474,6 +463,8 @@ interface ApiKeyItem {
 function ApiKeysTab() {
     const tCommon = useTranslations('common')
     const tMessages = useTranslations('messages')
+    const t = useTranslations('apiKeys')
+    const tPerm = useTranslations('permissions')
 
     const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([])
     const [loading, setLoading] = useState(true)
@@ -554,16 +545,28 @@ function ApiKeysTab() {
     }
 
     const formatFecha = (fecha: string | null) => {
-        if (!fecha) return "Nunca"
+        if (!fecha) return t('never')
         return new Date(fecha).toLocaleString()
     }
+
+    // Generar permisos con traducciones
+    const permisosDisponibles = [
+        { id: "lugares:read", label: `${tPerm('places')} - ${tPerm('read')}`, group: tPerm('places') },
+        { id: "lugares:write", label: `${tPerm('places')} - ${tPerm('write')}`, group: tPerm('places') },
+        { id: "ciclos:read", label: `${tPerm('cycles')} - ${tPerm('read')}`, group: tPerm('cycles') },
+        { id: "ciclos:write", label: `${tPerm('cycles')} - ${tPerm('write')}`, group: tPerm('cycles') },
+        { id: "mediciones:read", label: `${tPerm('measurements')} - ${tPerm('read')}`, group: tPerm('measurements') },
+        { id: "mediciones:write", label: `${tPerm('measurements')} - ${tPerm('write')}`, group: tPerm('measurements') },
+        { id: "unidades:read", label: `${tPerm('units')} - ${tPerm('read')}`, group: tPerm('units') },
+        { id: "unidades:write", label: `${tPerm('units')} - ${tPerm('write')}`, group: tPerm('units') },
+    ]
 
     return (
         <>
             <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-muted-foreground">Gestiona las claves de API para acceso programático a la plataforma.</p>
+                <p className="text-sm text-muted-foreground">{t('description')}</p>
                 <Button onClick={openCreateModal} size="sm" className="gap-2">
-                    <Plus className="w-4 h-4" /> Nueva API Key
+                    <Plus className="w-4 h-4" /> {t('newApiKey')}
                 </Button>
             </div>
             <Card className="border-border/50">
@@ -571,11 +574,11 @@ function ApiKeysTab() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/30">
-                                <TableHead>Nombre</TableHead>
-                                <TableHead>Prefijo</TableHead>
-                                <TableHead>Permisos</TableHead>
-                                <TableHead>Último uso</TableHead>
-                                <TableHead>Estado</TableHead>
+                                <TableHead>{t('name')}</TableHead>
+                                <TableHead>{t('prefix')}</TableHead>
+                                <TableHead>{t('permissions')}</TableHead>
+                                <TableHead>{t('lastUsed')}</TableHead>
+                                <TableHead>{t('status')}</TableHead>
                                 <TableHead className="text-right">{tCommon('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -583,7 +586,7 @@ function ApiKeysTab() {
                             {loading ? (
                                 <TableRow><TableCell colSpan={6} className="h-32 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-primary/50" /></TableCell></TableRow>
                             ) : apiKeys.length === 0 ? (
-                                <TableRow><TableCell colSpan={6} className="h-32 text-center text-muted-foreground">No hay claves API creadas</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={6} className="h-32 text-center text-muted-foreground">{t('emptyState')}</TableCell></TableRow>
                             ) : apiKeys.map((apiKey) => (
                                 <TableRow key={apiKey.id} className="group">
                                     <TableCell className="font-medium flex items-center gap-2">
@@ -610,9 +613,9 @@ function ApiKeysTab() {
                                     </TableCell>
                                     <TableCell>
                                         {apiKey.activa ? (
-                                            <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">ACTIVA</span>
+                                            <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">{t('active')}</span>
                                         ) : (
-                                            <span className="bg-rose-500/10 text-rose-500 border border-rose-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">REVOCADA</span>
+                                            <span className="bg-rose-500/10 text-rose-500 border border-rose-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">{t('revoked')}</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -631,12 +634,12 @@ function ApiKeysTab() {
                 </CardContent>
             </Card>
 
-            <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setNuevaClave(null) }} title={nuevaClave ? "¡API Key Creada!" : "Nueva API Key"}>
+            <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setNuevaClave(null) }} title={nuevaClave ? t('created') : t('newApiKey')}>
                 {nuevaClave ? (
                     <div className="space-y-4">
                         <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
-                            <p className="text-sm text-amber-600 font-medium mb-2">⚠️ Guarde esta clave ahora</p>
-                            <p className="text-xs text-muted-foreground">Esta es la única vez que verá la clave completa. No podrá recuperarla después.</p>
+                            <p className="text-sm text-amber-600 font-medium mb-2">{t('warningTitle')}</p>
+                            <p className="text-xs text-muted-foreground">{t('warningDescription')}</p>
                         </div>
                         <div className="relative">
                             <div className="bg-muted rounded-lg p-3 font-mono text-sm break-all pr-20">
@@ -651,18 +654,18 @@ function ApiKeysTab() {
                                 </Button>
                             </div>
                         </div>
-                        <Button onClick={() => { setIsModalOpen(false); setNuevaClave(null) }} className="w-full">Entendido</Button>
+                        <Button onClick={() => { setIsModalOpen(false); setNuevaClave(null) }} className="w-full">{t('understood')}</Button>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="ak-nombre">Nombre identificador</Label>
-                            <Input id="ak-nombre" required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: App Móvil, Integración SERNAP" />
+                            <Label htmlFor="ak-nombre">{t('identifierName')}</Label>
+                            <Input id="ak-nombre" required value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} placeholder={t('placeholderName')} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Permisos</Label>
+                            <Label>{t('permissions')}</Label>
                             <div className="grid grid-cols-2 gap-2">
-                                {PERMISOS_DISPONIBLES.map(p => (
+                                {permisosDisponibles.map(p => (
                                     <label key={p.id} className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors ${formData.permisos.includes(p.id) ? 'bg-primary/10 border-primary' : 'bg-muted/30 border-border hover:border-primary/50'
                                         }`}>
                                         <input id={`permiso-${p.id}`} type="checkbox" className="sr-only" checked={formData.permisos.includes(p.id)} onChange={() => handlePermisoToggle(p.id)} />
@@ -673,7 +676,7 @@ function ApiKeysTab() {
                         </div>
                         <Button type="submit" className="w-full" disabled={submitting || formData.permisos.length === 0}>
                             {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                            Crear API Key
+                            {t('create')}
                         </Button>
                     </form>
                 )}
@@ -714,7 +717,7 @@ export default function ConfiguracionPage() {
                         <History className="w-4 h-4" /> {tNavigation('auditLog')}
                     </TabsTrigger>
                     <TabsTrigger value="api-keys" className="gap-2">
-                        <Key className="w-4 h-4" /> API Keys
+                        <Key className="w-4 h-4" /> {tNavigation('apiKeys')}
                     </TabsTrigger>
                 </TabsList>
 

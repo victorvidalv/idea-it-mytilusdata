@@ -17,7 +17,7 @@
 		id: number;
 		nombre: string;
 		lugarId: number;
-		fechaSiembra: string;
+		fechaSiembra: string | Date;
 	}
 
 	interface PuntoProyeccion {
@@ -189,11 +189,11 @@
 
 	{#if hayProyeccion}
 		<ProyeccionResultados
-			proyeccion={resultado.proyeccion || []}
-			curvaUsada={resultado.curvaUsada}
-			curvaReferencia={resultado.curvaReferencia}
-			meta={resultado.metadatos?.tallaObjetivo}
-			metadatos={resultado.metadatos}
+			proyeccion={resultado!.proyeccion || []}
+			curvaUsada={resultado!.curvaUsada}
+			curvaReferencia={resultado!.curvaReferencia}
+			meta={resultado!.metadatos?.tallaObjetivo}
+			metadatos={resultado!.metadatos}
 			mediciones={dias.map((d, i) => ({ dia: d, talla: tallas[i] }))}
 			onExportar={exportarCSV}
 		/>

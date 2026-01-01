@@ -14,16 +14,26 @@ basándose en la curva más similar de la biblioteca.
 	<title>Proyección de Crecimiento | MytilusData</title>
 </svelte:head>
 
-<div class="container mx-auto max-w-4xl px-4 py-8">
-	<div class="mb-8 space-y-2">
-		<h1 class="font-display text-3xl font-bold tracking-tight text-foreground">
-			Proyección de Crecimiento
-		</h1>
-		<p class="text-muted-foreground">
-			Ingresa los datos de tus mediciones y proyecta el crecimiento de tus moluscos
-			basándote en las curvas de nuestra biblioteca.
-		</p>
+<div class="space-y-6">
+	<!-- Encabezado -->
+	<div class="animate-fade-up flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+		<div>
+			<p
+				class="mb-2 font-body text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase"
+			>
+				Análisis
+			</p>
+			<h1 class="font-display text-3xl leading-tight text-foreground md:text-4xl">
+				Proyección de <span class="text-gradient-ocean">Crecimiento</span>
+			</h1>
+			<p class="mt-2 font-body text-sm text-muted-foreground">
+				Ingresa los datos de tus mediciones y proyecta el crecimiento de tus moluscos
+				basándote en las curvas de nuestra biblioteca.
+			</p>
+		</div>
 	</div>
 
-	<ProyeccionPanel lugares={data.lugares} ciclos={data.ciclos} />
+	<div>
+		<ProyeccionPanel lugares={data.lugares} ciclos={data.ciclos} />
+	</div>
 </div>

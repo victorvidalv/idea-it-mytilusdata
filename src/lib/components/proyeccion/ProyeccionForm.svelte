@@ -8,6 +8,8 @@ Soporta ingreso manual y carga desde ciclo existente.
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
 	import SearchableSelect from '$lib/components/SearchableSelect.svelte';
+	import ProyeccionLoader from './ProyeccionLoader.svelte';
+	import CargaDatosLoader from './CargaDatosLoader.svelte';
 
 	// --- Tipos ---
 	interface Lugar {
@@ -19,7 +21,7 @@ Soporta ingreso manual y carga desde ciclo existente.
 		id: number;
 		nombre: string;
 		lugarId: number;
-		fechaSiembra: string;
+		fechaSiembra: string | Date;
 	}
 
 	interface MedicionCargada {
@@ -441,3 +443,9 @@ Soporta ingreso manual y carga desde ciclo existente.
 		</div>
 	</Card.Content>
 </Card.Root>
+
+<!-- Loader overlay para proyección -->
+<ProyeccionLoader visible={cargando} />
+
+<!-- Loader overlay para carga de ciclo -->
+<CargaDatosLoader visible={cargandoDatos} />

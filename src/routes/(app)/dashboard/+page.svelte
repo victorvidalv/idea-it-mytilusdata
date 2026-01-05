@@ -13,7 +13,13 @@
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold tracking-tight">Bienvenido(a), {data.user?.nombre}</h1>
-			<p class="text-slate-500">Resumen y estado de tus centros de cultivo</p>
+			<p class="text-slate-500">
+			{#if data.canViewAll}
+				Vista general de todos los centros de cultivo
+			{:else}
+				Resumen y estado de tus centros de cultivo
+			{/if}
+		</p>
 		</div>
 		<Button>Nuevo Registro</Button>
 	</div>

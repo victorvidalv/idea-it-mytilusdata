@@ -11,7 +11,7 @@ export const usuarios = sqliteTable('usuarios', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	nombre: text('nombre').notNull(),
 	email: text('email').notNull().unique(),
-	rol: text('rol', { enum: ['ADMIN', 'EQUIPO', 'PUBLICO'] }).default('PUBLICO'),
+	rol: text('rol', { enum: ['ADMIN', 'INVESTIGADOR', 'USUARIO'] }).default('USUARIO'),
 	activo: integer('activo', { mode: 'boolean' }).default(true),
 	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });

@@ -7,7 +7,8 @@ declare global {
 			user: {
 				userId: number;
 				email: string;
-				rol: string;
+				nombre: string;
+				rol: 'ADMIN' | 'INVESTIGADOR' | 'USUARIO';
 			} | null;
 		}
 		// interface PageData {}

@@ -1,35 +1,19 @@
 <!--
 Tarjeta informativa con indicadores clave, alertas de confiabilidad, y análisis matemático desplegable.
-Componente contenedor que delega responsabilidad a subcomponentes especializados.
+Refactorizado para usar tipos compartidos.
 -->
 <script lang="ts">
-	import type { ParametrosSigmoidal, CurvaReferencia } from './proyeccionUtils';
+	import type { CurvaReferencia } from './proyeccionUtils';
 	import { generarAlertas, type Alerta } from './curva-alertas';
 	import CurvaIndicadores from './CurvaIndicadores.svelte';
 	import CurvaAlertasPanel from './CurvaAlertasPanel.svelte';
 	import CurvaAnalisisMatematico from './CurvaAnalisisMatematico.svelte';
-
-	interface CurvaUsadaProps {
-		id: number;
-		codigoReferencia: string;
-		sse: number;
-		esCurvaLocal: boolean;
-		r2?: number;
-		parametros?: ParametrosSigmoidal;
-	}
-
-	interface MetadatosProps {
-		rangoDias?: string;
-		rangoTallas?: string;
-		tallaObjetivo?: number;
-		diaObjetivo?: number;
-		totalPuntos: number;
-	}
+    import type { CurvaUsada, Metadatos } from './ProyeccionComponentTypes';
 
 	interface Props {
-		curvaUsada: CurvaUsadaProps;
+		curvaUsada: CurvaUsada;
 		curvaReferencia?: CurvaReferencia;
-		metadatos?: MetadatosProps;
+		metadatos?: Metadatos;
 		mediciones?: { dia: number; talla: number }[];
 	}
 
@@ -50,8 +34,6 @@ Componente contenedor que delega responsabilidad a subcomponentes especializados
 
 <div class="space-y-4">
 	<CurvaIndicadores {curvaUsada} {metadatos} />
-
 	<CurvaAlertasPanel {alertas} />
-
 	<CurvaAnalisisMatematico {curvaUsada} {curvaReferencia} {metadatos} {mediciones} />
 </div>

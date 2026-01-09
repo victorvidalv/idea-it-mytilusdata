@@ -102,7 +102,7 @@ export async function createMagicLink(email: string, nombre: string, origin: str
 
     // Enviar correo con Resend
     const resendResult = await resend.emails.send({
-        from: 'Plataforma Idea <onboarding@resend.dev>',
+        from: env.EMAIL_FROM || 'Plataforma Idea <onboarding@resend.dev>',
         to: email,
         subject: 'Tu enlace de acceso a la Plataforma',
         html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

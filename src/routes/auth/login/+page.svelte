@@ -86,6 +86,77 @@
 						Ingresar con otro correo
 					</Button>
 				</div>
+			{:else if form?.requiresRegistration}
+				<div class="animate-fade-up space-y-4">
+					<div class="mb-6">
+						<p class="text-sm font-medium text-foreground mb-1">Casi listo</p>
+						<p class="text-xs text-muted-foreground">Completa tus datos para crear tu cuenta y acceder a la plataforma.</p>
+					</div>
+					<form
+						method="POST"
+						use:enhance={() => {
+							loading = true;
+							return async ({ update }) => {
+								await update();
+								loading = false;
+							};
+						}}
+						class="space-y-5"
+					>
+						<input type="hidden" name="email" value={form?.email || ''} />
+						<div class="space-y-2">
+							<Label for="nombre" class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Nombre Completo</Label>
+							<Input 
+								id="nombre" 
+								name="nombre" 
+								type="text" 
+								placeholder="Juan Pérez" 
+								required 
+								disabled={loading}
+								value={form?.nombre || ''}
+								class="h-11 rounded-xl bg-secondary/50 border-border/50 focus:border-ocean-light focus:ring-ocean-light/20 transition-all"
+							/>
+						</div>
+						
+						<div class="flex flex-row items-start space-x-3 space-y-0 p-4 border border-border/50 rounded-xl bg-secondary/20">
+							<input 
+								type="checkbox" 
+								id="terms" 
+								name="terms" 
+								required 
+								disabled={loading}
+								class="mt-1 h-4 w-4 rounded border-border/50 text-ocean-mid focus:ring-ocean-light/20 bg-secondary/50"
+							/>
+							<div class="space-y-1 leading-none text-sm">
+								<Label for="terms" class="font-medium cursor-pointer">
+									Acepto las condiciones
+								</Label>
+								<p class="text-muted-foreground text-xs leading-normal">
+									Al continuar, aceptas las <a href="/condiciones-servicios" target="_blank" class="text-ocean-light hover:underline hover:text-ocean-mid transition-colors font-semibold">Condiciones del Servicio</a> de la plataforma.
+								</p>
+							</div>
+						</div>
+
+						<Button 
+							type="submit" 
+							class="w-full h-11 rounded-xl bg-ocean-mid hover:bg-ocean-deep text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-ocean-mid/20" 
+							disabled={loading}
+						>
+							{#if loading}
+								<svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+								</svg>
+								Creando cuenta...
+							{:else}
+								Crear cuenta y recibir enlace
+								<svg class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+								</svg>
+							{/if}
+						</Button>
+					</form>
+				</div>
 			{:else}
 				<form
 					method="POST"
@@ -98,19 +169,6 @@
 					}}
 					class="space-y-5"
 				>
-					<div class="space-y-2">
-						<Label for="nombre" class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Nombre Completo</Label>
-						<Input 
-							id="nombre" 
-							name="nombre" 
-							type="text" 
-							placeholder="Juan Pérez" 
-							required 
-							disabled={loading}
-							value={form?.nombre || ''}
-							class="h-11 rounded-xl bg-secondary/50 border-border/50 focus:border-ocean-light focus:ring-ocean-light/20 transition-all"
-						/>
-					</div>
 					<div class="space-y-2">
 						<Label for="email" class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Correo Electrónico</Label>
 						<Input 

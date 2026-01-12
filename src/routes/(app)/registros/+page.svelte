@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { toast } from 'svelte-sonner';
+	import toast from 'svelte-french-toast';
 	import SearchableSelect from '$lib/components/SearchableSelect.svelte';
 
 	export let data: any;

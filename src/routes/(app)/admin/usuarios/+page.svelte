@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { toast } from 'svelte-sonner';
+	import toast from 'svelte-french-toast';
 
 	export let data: any;
 	export let form: any;
@@ -29,9 +29,9 @@
 	};
 
 	$: if (form?.success) {
-		toast.success('Operación exitosa', { description: form?.message });
+		toast.success('Operación exitosa: ' + (form?.message || ''));
 	} else if (form?.error) {
-		toast.error('Error', { description: form?.message });
+		toast.error('Error: ' + (form?.message || ''));
 	}
 
 	// Contadores

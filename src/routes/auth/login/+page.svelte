@@ -3,21 +3,17 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { toast } from 'svelte-sonner';
+	import toast from 'svelte-french-toast';
 
 	export let form: any;
 	
 	let loading = false;
 
 	$: if (form?.success) {
-		toast.success('¡Enlace enviado!', {
-			description: 'Revisa tu bandeja de entrada para acceder a la plataforma.'
-		});
+		toast.success('¡Enlace enviado! Revisa tu bandeja de entrada para acceder a la plataforma.');
 		loading = false;
 	} else if (form?.error || form?.missing) {
-		toast.error('Error', {
-			description: form?.message || 'Hubo un error al procesar tu solicitud.'
-		});
+		toast.error('Error: ' + (form?.message || 'Hubo un error al procesar tu solicitud.'));
 		loading = false;
 	}
 </script>

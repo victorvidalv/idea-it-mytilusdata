@@ -96,6 +96,44 @@
 		</form>
 	</section>
 
+	<!-- Sección: Descarga de Datos -->
+	<section class="bg-card border border-border/50 rounded-2xl p-6 sm:p-8 shadow-sm">
+		<div class="mb-6">
+			<h2 class="text-xl font-semibold flex items-center gap-2">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="text-green-500"
+				>
+					<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+					<polyline points="14 2 14 8 20 8" />
+					<path d="M8 13h2" />
+					<path d="M8 17h2" />
+					<path d="M14 13h2" />
+					<path d="M14 17h2" />
+				</svg>
+				Descargar mis datos
+			</h2>
+			<p class="text-sm text-muted-foreground mt-1">Genera y descarga un archivo Excel (.xlsx) con todo el historial de los centros de cultivo, ciclos productivos y registros bajo tu cuenta.</p>
+		</div>
+
+		<Button
+			href="/api/export-data"
+			target="_blank"
+			variant="outline"
+			class="h-11 rounded-xl bg-background border-border/50 hover:bg-muted font-medium transition-all"
+		>
+			Descargar Archivo Excel
+		</Button>
+	</section>
+
 	<!-- Sección: Zona de Peligro -->
 	<section class="bg-red-500/5 border border-red-500/20 rounded-2xl p-6 sm:p-8 shadow-sm">
 		<div class="mb-6">

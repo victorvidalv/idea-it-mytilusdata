@@ -15,6 +15,14 @@
 	// Estado del menú mobile
 	let mobileMenuOpen = false;
 
+	// Estado del sidebar colapsado
+	let sidebarCollapsed = false;
+
+	// Función para toggle del sidebar
+	function toggleSidebar() {
+		sidebarCollapsed = !sidebarCollapsed;
+	}
+
 	// Mapa de colores para roles
 	const rolStyle: Record<string, { color: string; label: string }> = {
 		ADMIN: { color: 'text-red-400', label: 'Administrador' },
@@ -25,86 +33,116 @@
 
 <div class="min-h-screen flex bg-background">
 	<!-- Sidebar -->
-	<aside class="w-[260px] bg-ocean-gradient border-r border-white/[0.06] hidden md:flex flex-col flex-shrink-0 relative overflow-hidden">
+	<aside
+		class="bg-ocean-gradient border-r border-white/[0.06] hidden md:flex flex-col flex-shrink-0 relative overflow-hidden transition-all duration-300 ease-in-out {sidebarCollapsed ? 'w-[72px]' : 'w-[260px]'}"
+	>
 		<!-- Fondo sutil -->
 		<div class="absolute inset-0 bg-ocean-mesh pointer-events-none"></div>
 		
+
 		<!-- Logo -->
-		<div class="relative z-10 p-5 flex items-center gap-3">
-			<div class="h-9 w-9 rounded-xl bg-white/10 glass flex items-center justify-center">
+		<div class="relative z-10 p-5 flex items-center gap-3 {sidebarCollapsed ? 'justify-center px-3' : ''}">
+			<div class="h-9 w-9 rounded-xl bg-white/10 glass flex items-center justify-center flex-shrink-0">
 				<div class="h-4 w-4 bg-white/80 rounded-sm"></div>
 			</div>
-			<div>
-				<span class="font-display text-white text-lg leading-none">Idea 2025</span>
-				<p class="text-[10px] text-white/30 font-body mt-0.5 tracking-wider uppercase">Mitilicultura</p>
-			</div>
+			{#if !sidebarCollapsed}
+				<div class="overflow-hidden">
+					<span class="font-display text-white text-lg leading-none whitespace-nowrap">Idea 2025</span>
+					<p class="text-[10px] text-white/30 font-body mt-0.5 tracking-wider uppercase whitespace-nowrap">Mitilicultura</p>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Navegación principal -->
 		<nav class="relative z-10 flex-1 px-3 py-4 space-y-0.5">
-			<p class="px-3 pb-2 text-[10px] font-body font-semibold text-white/25 uppercase tracking-[0.2em]">Principal</p>
+			<p class="px-3 pb-2 text-[10px] font-body font-semibold text-white/25 uppercase tracking-[0.2em] {sidebarCollapsed ? 'sr-only' : ''}">Principal</p>
 			{#each links as link, i}
-				<a 
-					href={link.href} 
-					class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body font-medium transition-all duration-200
-						{$page.url.pathname.startsWith(link.href) 
-							? 'bg-white/10 text-white shadow-sm shadow-black/10' 
+				<a
+					href={link.href}
+					class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body font-medium transition-all duration-200 {sidebarCollapsed ? 'justify-center' : ''}
+						{$page.url.pathname.startsWith(link.href)
+							? 'bg-white/10 text-white shadow-sm shadow-black/10'
 							: 'text-white/50 hover:text-white/80 hover:bg-white/[0.05]'}"
+					title={sidebarCollapsed ? link.label : ''}
 				>
 					<svg class="w-[18px] h-[18px] flex-shrink-0 transition-colors duration-200 {$page.url.pathname.startsWith(link.href) ? 'text-teal-glow' : 'text-white/30 group-hover:text-white/50'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d={link.icon} />
 					</svg>
-					{link.label}
-					{#if $page.url.pathname.startsWith(link.href)}
-						<div class="ml-auto h-1.5 w-1.5 rounded-full bg-teal-glow"></div>
+					{#if !sidebarCollapsed}
+						<span class="whitespace-nowrap">{link.label}</span>
+						{#if $page.url.pathname.startsWith(link.href)}
+							<div class="ml-auto h-1.5 w-1.5 rounded-full bg-teal-glow"></div>
+						{/if}
 					{/if}
 				</a>
 			{/each}
 
 			{#if data.user?.rol === 'ADMIN'}
 				<div class="pt-5 mt-5 border-t border-white/[0.06]">
-					<p class="px-3 pb-2 text-[10px] font-body font-semibold text-white/25 uppercase tracking-[0.2em]">Administración</p>
-					<a 
-						href={adminLink.href} 
-						class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body font-medium transition-all duration-200
-							{$page.url.pathname.startsWith(adminLink.href) 
-								? 'bg-red-500/15 text-red-300 shadow-sm shadow-black/10' 
+					<p class="px-3 pb-2 text-[10px] font-body font-semibold text-white/25 uppercase tracking-[0.2em] {sidebarCollapsed ? 'sr-only' : ''}">Administración</p>
+					<a
+						href={adminLink.href}
+						class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body font-medium transition-all duration-200 {sidebarCollapsed ? 'justify-center' : ''}
+							{$page.url.pathname.startsWith(adminLink.href)
+								? 'bg-red-500/15 text-red-300 shadow-sm shadow-black/10'
 								: 'text-white/50 hover:text-red-300/80 hover:bg-red-500/[0.06]'}"
+						title={sidebarCollapsed ? adminLink.label : ''}
 					>
 						<svg class="w-[18px] h-[18px] flex-shrink-0 transition-colors {$page.url.pathname.startsWith(adminLink.href) ? 'text-red-400' : 'text-white/30 group-hover:text-red-400/60'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d={adminLink.icon} />
 						</svg>
-						{adminLink.label}
+						{#if !sidebarCollapsed}
+							<span class="whitespace-nowrap">{adminLink.label}</span>
+						{/if}
 					</a>
 				</div>
 			{/if}
 		</nav>
 		
 		<!-- Perfil de usuario -->
-		<div class="relative z-10 p-4 border-t border-white/[0.06]">
-			<div class="flex items-center gap-3 mb-3">
-				<div class="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center text-sm font-display text-white/80">
+		<div class="relative z-10 p-4 border-t border-white/[0.06] {sidebarCollapsed ? 'flex flex-col items-center' : ''}">
+			<div class="flex items-center gap-3 mb-3 {sidebarCollapsed ? 'justify-center' : ''}">
+				<div class="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center text-sm font-display text-white/80 flex-shrink-0" title={sidebarCollapsed ? data.user?.nombre || 'Usuario' : ''}>
 					{data.user?.nombre?.charAt(0).toUpperCase() || 'U'}
 				</div>
-				<div class="flex-1 min-w-0">
-					<p class="text-sm font-body font-medium text-white/90 truncate">{data.user?.nombre || 'Usuario'}</p>
-					<p class="text-[11px] font-body text-white/30 truncate">{data.user?.email || ''}</p>
-					<span class="text-[10px] font-body font-semibold {rolStyle[data.user?.rol]?.color || 'text-white/40'}">
-						{rolStyle[data.user?.rol]?.label || 'Usuario'}
-					</span>
-				</div>
+				{#if !sidebarCollapsed}
+					<div class="flex-1 min-w-0 overflow-hidden">
+						<p class="text-sm font-body font-medium text-white/90 truncate">{data.user?.nombre || 'Usuario'}</p>
+						<p class="text-[11px] font-body text-white/30 truncate">{data.user?.email || ''}</p>
+						<span class="text-[10px] font-body font-semibold {rolStyle[data.user?.rol]?.color || 'text-white/40'}">
+							{rolStyle[data.user?.rol]?.label || 'Usuario'}
+						</span>
+					</div>
+				{/if}
 			</div>
-			<form method="POST" action="/auth/logout">
-				<button 
-					type="submit" 
+			<form method="POST" action="/auth/logout" class="w-full">
+				<button
+					type="submit"
 					class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-body font-medium text-white/40 border border-white/[0.08] hover:bg-white/[0.05] hover:text-white/60 hover:border-white/15 transition-all duration-200"
+					title={sidebarCollapsed ? 'Cerrar Sesión' : ''}
 				>
-					<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
 					</svg>
-					Cerrar Sesión
+					{#if !sidebarCollapsed}
+						<span>Cerrar Sesión</span>
+					{/if}
 				</button>
 			</form>
+		</div>
+
+		<!-- Botón de toggle (Bottom) -->
+		<div class="relative z-10 p-2 border-t border-white/[0.06] flex {sidebarCollapsed ? 'justify-center' : 'justify-end'}">
+			<button
+				onclick={toggleSidebar}
+				class="h-8 w-8 rounded-lg bg-white/[0.03] hover:bg-white/10 border border-white/[0.05] flex items-center justify-center text-white/40 hover:text-white transition-all duration-200"
+				aria-label={sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+				title={sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú'}
+			>
+				<svg class="w-4 h-4 transition-transform duration-300 {sidebarCollapsed ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+				</svg>
+			</button>
 		</div>
 	</aside>
 
@@ -114,7 +152,7 @@
 		<header class="h-14 border-b border-border bg-background flex md:hidden items-center justify-between px-4">
 			<button 
 				class="p-1.5 rounded-lg hover:bg-secondary transition-colors"
-				on:click={() => mobileMenuOpen = !mobileMenuOpen}
+				onclick={() => mobileMenuOpen = !mobileMenuOpen}
 				aria-label="Abrir menú de navegación"
 			>
 				<svg class="w-5 h-5 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -136,18 +174,18 @@
 		{#if mobileMenuOpen}
 			<div 
 				class="fixed inset-0 z-50 bg-black/60 md:hidden animate-fade-in" 
-				on:click={() => mobileMenuOpen = false}
-				on:keypress={() => {}}
+				onclick={() => mobileMenuOpen = false}
+				onkeypress={() => {}}
 				role="button"
 				tabindex="-1"
 			>
-				<div class="w-[280px] h-full bg-ocean-gradient p-4 animate-slide-in-left" on:click|stopPropagation on:keypress|stopPropagation role="presentation">
+				<div class="w-[280px] h-full bg-ocean-gradient p-4 animate-slide-in-left" onclick={(e) => e.stopPropagation()} onkeypress={() => {}} role="presentation">
 					<nav class="space-y-1 mt-4">
 						{#each links as link}
 							<a 
 								href={link.href}
 								class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body text-white/70 hover:bg-white/10 transition-colors"
-								on:click={() => mobileMenuOpen = false}
+								onclick={() => mobileMenuOpen = false}
 							>
 								<svg class="w-5 h-5 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d={link.icon} />

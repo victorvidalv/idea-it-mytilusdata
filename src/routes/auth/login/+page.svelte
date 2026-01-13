@@ -82,7 +82,7 @@
 							</div>
 						</div>
 					</div>
-					<Button variant="outline" class="w-full" on:click={() => { form = null; }}>
+					<Button variant="outline" class="w-full" onclick={() => { form = null; }}>
 						Ingresar con otro correo
 					</Button>
 				</div>

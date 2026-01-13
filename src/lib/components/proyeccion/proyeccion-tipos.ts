@@ -27,12 +27,14 @@ export interface Medicion {
 export interface SerieData {
 	key: string;
 	label: string;
-	data: { dia: number; talla: number }[];
+	data: { dia: number; talla: number; limiteInferior?: number; limiteSuperior?: number }[];
 	color: string;
+	value?: string;
+	props?: Record<string, unknown>;
 }
 
 export interface TablaDato {
 	dia: number;
 	talla: number;
-	tipo: 'dato' | 'proyeccion';
+	tipo: 'dato' | 'proyeccion' | 'interpolado' | 'proyectado';
 }

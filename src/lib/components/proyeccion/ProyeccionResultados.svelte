@@ -1,16 +1,17 @@
 <!--
 Componente para mostrar los resultados de la proyección.
 Refactorizado para reducir complejidad y usar tipos compartidos.
+Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-forward).
 -->
 <script lang="ts">
-	import { LineChart } from 'layerchart';
+	import { LineChart, AreaChart } from 'layerchart';
 	import { scaleLinear } from 'd3-scale';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import CurvaInfoCard from './CurvaInfoCard.svelte';
-    import ProyeccionResultadosTabla from './ProyeccionResultadosTabla.svelte';
+	import ProyeccionResultadosTabla from './ProyeccionResultadosTabla.svelte';
 	import { construirSeriesProyeccion, construirTablaDatos, generarDescripcionGrafico, type CurvaReferencia } from './proyeccionUtils';
-    import type { PuntoProyeccion, CurvaUsada, Metadatos } from './ProyeccionComponentTypes';
+	import type { PuntoProyeccion, CurvaUsada, Metadatos, IncertidumbreProyeccion, DegradacionRMSE } from './ProyeccionComponentTypes';
 
 	interface Props {
 		proyeccion: PuntoProyeccion[];
@@ -19,18 +20,21 @@ Refactorizado para reducir complejidad y usar tipos compartidos.
 		metadatos?: Metadatos;
 		mediciones?: { dia: number; talla: number }[];
 		meta?: number;
+		incertidumbre?: IncertidumbreProyeccion;
+		degradacionRMSE?: DegradacionRMSE;
 		onExportar: () => void;
 	}
 
-	let { proyeccion, curvaUsada, curvaReferencia, metadatos, mediciones = [], meta, onExportar }: Props = $props();
+	let { proyeccion, curvaUsada, curvaReferencia, metadatos, mediciones = [], meta, incertidumbre, degradacionRMSE, onExportar }: Props = $props();
 
-	let chartSeriesData = $derived(construirSeriesProyeccion(proyeccion, mediciones, meta, curvaReferencia));
+	let chartSeriesData = $derived(construirSeriesProyeccion(proyeccion, mediciones, meta, curvaReferencia, incertidumbre));
 	let tablaDatos = $derived(construirTablaDatos(proyeccion, mediciones));
 	let chartDescription = $derived(generarDescripcionGrafico(mediciones, proyeccion));
 
 	let seriesConDatos = $derived(chartSeriesData.filter((s) => s.data && s.data.length > 0));
 	let hasMultipleSeries = $derived(seriesConDatos.length > 1);
 	let hasDataToPlot = $derived(seriesConDatos.length > 0);
+	let tieneIncertidumbre = $derived(!!incertidumbre && incertidumbre.dias.length > 0);
 </script>
 
 <div id="grafico-resultados" class="space-y-6 scroll-mt-8">
@@ -55,15 +59,41 @@ Refactorizado para reducir complejidad y usar tipos compartidos.
 		</Card.Header>
 		<Card.Content>
 			<div class="h-[400px] w-full">
-				<LineChart
-					data={hasDataToPlot ? seriesConDatos[0].data : []}
-					x="dia"
-					xScale={scaleLinear()}
-					y="talla"
-					yScale={scaleLinear()}
-					series={hasMultipleSeries ? seriesConDatos.map((s) => ({ key: s.key, label: s.label, data: s.data, color: s.color, value: 'talla' })) : undefined}
-					axis grid tooltip points legend={hasMultipleSeries}
-				/>
+				{#if tieneIncertidumbre}
+					<AreaChart
+						data={[]}
+						x="dia"
+						xScale={scaleLinear()}
+						y="talla"
+						yScale={scaleLinear()}
+						series={seriesConDatos.map((s) => ({
+							key: s.key,
+							label: s.label,
+							data: s.data,
+							color: s.color,
+							value: s.value || 'talla',
+							props: s.props
+						}))}
+						axis
+						grid
+						tooltip
+						legend={hasMultipleSeries}
+					/>
+				{:else}
+					<LineChart
+						data={hasDataToPlot ? seriesConDatos[0].data : []}
+						x="dia"
+						xScale={scaleLinear()}
+						y="talla"
+						yScale={scaleLinear()}
+						series={hasMultipleSeries ? seriesConDatos.map((s) => ({ key: s.key, label: s.label, data: s.data, color: s.color, value: 'talla' })) : undefined}
+						axis
+						grid
+						tooltip
+						points
+						legend={hasMultipleSeries}
+					/>
+				{/if}
 			</div>
 		</Card.Content>
 	</Card.Root>
@@ -81,7 +111,7 @@ Refactorizado para reducir complejidad y usar tipos compartidos.
 			</div>
 		</Card.Header>
 		<Card.Content>
-			<ProyeccionResultadosTabla {tablaDatos} {onExportar} />
+			<ProyeccionResultadosTabla {tablaDatos} {degradacionRMSE} {onExportar} />
 		</Card.Content>
 	</Card.Root>
 </div>

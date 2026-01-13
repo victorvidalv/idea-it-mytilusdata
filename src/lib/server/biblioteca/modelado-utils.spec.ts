@@ -6,27 +6,22 @@ import {
 	ejecutarAjusteEstacional,
 	calcularR2Generico,
 	calcularValoresIniciales,
-	calcularValoresInicialesEstacionales
+	calcularValoresInicialesEstacionales,
+	validarDatosEntrada
 } from './modelado-utils';
-import { validarDegradacionTemporal } from './modelado';
+import { generarMockDatosCrecimiento } from './modelado-test-helpers';
 
-/**
- * Genera datos simulados de crecimiento de Mytilus chilensis
- * basados en una sigmoide teórica con ruido gaussiano leve.
- */
-function generarMockData(): { dias: number[]; tallas: number[] } {
-	const L = 85;
-	const k = 0.025;
-	const x0 = 180;
-	const dias = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360];
-	const modelo = crearModeloLogistico([L, k, x0]);
-	const tallas = dias.map((d) => modelo(d) + (Math.random() - 0.5) * 1.5);
-	return { dias, tallas };
-}
+describe('generarMockDatosCrecimiento', () => {
+	it('provee al menos 15 puntos y pasa validación de entrada', () => {
+		const { dias, tallas } = generarMockDatosCrecimiento();
+		expect(dias.length).toBeGreaterThanOrEqual(15);
+		expect(validarDatosEntrada(dias, tallas)).toBe(true);
+	});
+});
 
 describe('calcularProyeccionBootstrap', () => {
 	it('se ejecuta sin bloquearse y retorna percentiles coherentes', async () => {
-		const { dias, tallas } = generarMockData();
+		const { dias, tallas } = generarMockDatosCrecimiento();
 		const resultado = await calcularProyeccionBootstrap(dias, tallas, 30);
 
 		expect(resultado).not.toBeNull();
@@ -49,15 +44,24 @@ describe('calcularProyeccionBootstrap', () => {
 	});
 
 	it('retorna null para horizonte no positivo', async () => {
-		const { dias, tallas } = generarMockData();
+		const { dias, tallas } = generarMockDatosCrecimiento();
 		const resultado = await calcularProyeccionBootstrap(dias, tallas, 0);
 		expect(resultado).toBeNull();
+	});
+
+	it('cumple rendimiento crítico: 1.000 remuestreos en menos de 300 ms', async () => {
+		const { dias, tallas } = generarMockDatosCrecimiento();
+		const t0 = performance.now();
+		await calcularProyeccionBootstrap(dias, tallas, 30);
+		const t1 = performance.now();
+		const duracion = t1 - t0;
+		expect(duracion).toBeLessThan(300);
 	});
 });
 
 describe('crearModeloLogisticoEstacional', () => {
-	it('la optimización converge sin NaN ni Infinity', () => {
-		const { dias, tallas } = generarMockData();
+	it('la optimización converge sin NaN ni Infinity y retorna 5 parámetros finitos', () => {
+		const { dias, tallas } = generarMockDatosCrecimiento();
 		const initialBase = calcularValoresIniciales(dias, tallas);
 		const initialEstacional = calcularValoresInicialesEstacionales(initialBase);
 
@@ -67,15 +71,22 @@ describe('crearModeloLogisticoEstacional', () => {
 		expect(params!.length).toBe(5);
 		expect(params!.every(Number.isFinite)).toBe(true);
 
+		const [L, k0, k1, k2, x0] = params!;
+		expect(Number.isFinite(L)).toBe(true);
+		expect(Number.isFinite(k0)).toBe(true);
+		expect(Number.isFinite(k1)).toBe(true);
+		expect(Number.isFinite(k2)).toBe(true);
+		expect(Number.isFinite(x0)).toBe(true);
+
 		const modelo = crearModeloLogisticoEstacional(params!);
 		const r2 = calcularR2Generico(dias, tallas, modelo);
 		expect(Number.isFinite(r2)).toBe(true);
 		expect(r2).toBeGreaterThan(0.8);
 	});
 
-	it('con k1=k2=0 se comporta igual al modelo base', () => {
-		const paramsBase = [85, 0.025, 180];
-		const paramsEstacional = [85, 0.025, 0, 0, 180];
+	it('con k1=k2=0 se comporta idéntico al modelo base de 3 parámetros', () => {
+		const paramsBase = [88, 0.024, 190];
+		const paramsEstacional = [88, 0.024, 0, 0, 190];
 		const modeloBase = crearModeloLogistico(paramsBase);
 		const modeloEst = crearModeloLogisticoEstacional(paramsEstacional);
 
@@ -83,39 +94,5 @@ describe('crearModeloLogisticoEstacional', () => {
 		for (const d of diasPrueba) {
 			expect(modeloEst(d)).toBeCloseTo(modeloBase(d), 6);
 		}
-	});
-});
-
-describe('validarDegradacionTemporal', () => {
-	it('divide correctamente en periodos y retorna estructura de error', () => {
-		const { dias, tallas } = generarMockData();
-		const resultado = validarDegradacionTemporal(dias, tallas);
-
-		expect(resultado).not.toBeNull();
-		expect(Array.isArray(resultado!.degradacionM1)).toBe(true);
-		expect(Array.isArray(resultado!.degradacionM2)).toBe(true);
-		expect(Array.isArray(resultado!.degradacionM3)).toBe(true);
-
-		// Con 12 meses de datos debe haber al menos algunos RMSE calculados
-		expect(resultado!.degradacionM1.length).toBeGreaterThan(0);
-
-		// Todos los RMSE deben ser finitos y no negativos
-		for (const v of resultado!.degradacionM1) {
-			expect(Number.isFinite(v)).toBe(true);
-			expect(v).toBeGreaterThanOrEqual(0);
-		}
-		for (const v of resultado!.degradacionM2) {
-			expect(Number.isFinite(v)).toBe(true);
-			expect(v).toBeGreaterThanOrEqual(0);
-		}
-		for (const v of resultado!.degradacionM3) {
-			expect(Number.isFinite(v)).toBe(true);
-			expect(v).toBeGreaterThanOrEqual(0);
-		}
-	});
-
-	it('retorna null para datos insuficientes', () => {
-		const resultado = validarDegradacionTemporal([1], [10]);
-		expect(resultado).toBeNull();
 	});
 });

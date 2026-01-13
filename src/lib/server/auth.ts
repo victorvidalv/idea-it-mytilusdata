@@ -5,26 +5,69 @@ import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import pkg from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
+import { redirect } from '@sveltejs/kit';
 
 // Acceder correctamente a sign/verify desde el paquete CJS
 const { sign, verify } = pkg;
 
+// --- Constantes de Roles ---
+
+/** Jerarquía de roles: mayor índice = mayor privilegio */
+export const ROLES = {
+    USUARIO: 'USUARIO',
+    INVESTIGADOR: 'INVESTIGADOR',
+    ADMIN: 'ADMIN'
+} as const;
+
+export type Rol = (typeof ROLES)[keyof typeof ROLES];
+
+/** Niveles numéricos para comparación jerárquica */
+const ROLE_LEVEL: Record<Rol, number> = {
+    USUARIO: 0,
+    INVESTIGADOR: 1,
+    ADMIN: 2
+};
+
+/**
+ * Verificar si el usuario tiene al menos el rol requerido.
+ * Lanza redirect a /dashboard si no tiene permisos.
+ */
+export function requireRole(userRol: Rol | undefined, minRole: Rol): void {
+    if (!userRol || ROLE_LEVEL[userRol] < ROLE_LEVEL[minRole]) {
+        throw redirect(303, '/dashboard');
+    }
+}
+
+/**
+ * Verificar si un rol es igual o superior a otro (sin lanzar redirect).
+ */
+export function hasMinRole(userRol: Rol | undefined, minRole: Rol): boolean {
+    if (!userRol) return false;
+    return ROLE_LEVEL[userRol] >= ROLE_LEVEL[minRole];
+}
+
+// --- Autenticación ---
+
 export async function createMagicLink(email: string, nombre: string, origin: string) {
     const resend = new Resend(env.RESEND_API_KEY);
     console.log('Iniciando creación de Magic Link para:', email);
+
+    // Determinar rol inicial: ADMIN si coincide con ADMIN_EMAIL
+    const isAdminEmail = env.ADMIN_EMAIL && email.toLowerCase() === env.ADMIN_EMAIL.toLowerCase();
+    const rolInicial = isAdminEmail ? ROLES.ADMIN : ROLES.USUARIO;
 
     // Verificar si el usuario existe, si no, crear
     let user = await db.select().from(usuarios).where(eq(usuarios.email, email)).get();
     console.log('Usuario encontrado:', user);
 
     if (!user) {
-        console.log('Creando nuevo usuario...');
+        console.log('Creando nuevo usuario con rol:', rolInicial);
         const newUser = await db
             .insert(usuarios)
             .values({
                 email,
                 nombre,
-                rol: 'PUBLICO',
+                rol: rolInicial,
                 activo: true
             })
             .returning()
@@ -34,6 +77,13 @@ export async function createMagicLink(email: string, nombre: string, origin: str
     }
 
     if (!user) throw new Error('No se pudo crear el usuario');
+
+    // Si es admin y su rol actual no es ADMIN, promover automáticamente
+    if (isAdminEmail && user.rol !== ROLES.ADMIN) {
+        await db.update(usuarios).set({ rol: ROLES.ADMIN }).where(eq(usuarios.id, user.id));
+        user = { ...user, rol: ROLES.ADMIN };
+        console.log('Usuario promovido a ADMIN automáticamente');
+    }
 
     // Generar un token único
     const token = randomBytes(32).toString('hex');
@@ -101,7 +151,7 @@ export async function verifyTokenAndGetSession(token: string) {
         .set({ usedAt: new Date() })
         .where(eq(magicLinkTokens.id, dbToken.id));
 
-    // Generar JWT
+    // Generar JWT con rol actualizado
     const sessionToken = sign(
         { userId: user.id, email: user.email, rol: user.rol, nombre: user.nombre },
         env.JWT_SECRET,

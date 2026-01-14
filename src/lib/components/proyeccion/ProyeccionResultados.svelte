@@ -11,6 +11,7 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 	import CurvaInfoCard from './CurvaInfoCard.svelte';
 	import ProyeccionResultadosTabla from './ProyeccionResultadosTabla.svelte';
 	import { construirSeriesProyeccion, construirTablaDatos, generarDescripcionGrafico, type CurvaReferencia } from './proyeccionUtils';
+	import { COLOR_REAL } from './proyeccion-colores';
 	import type { PuntoProyeccion, CurvaUsada, Metadatos, IncertidumbreProyeccion, DegradacionRMSE } from './ProyeccionComponentTypes';
 
 	interface Props {
@@ -77,8 +78,28 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 						axis
 						grid
 						tooltip
-						legend={hasMultipleSeries}
+						legend={false}
+						props={{
+							grid: { class: 'stroke-border/30' },
+							xAxis: { class: 'text-muted-foreground text-xs', tickLength: 4 },
+							yAxis: { class: 'text-muted-foreground text-xs', tickLength: 4 }
+						}}
 					/>
+					<!-- Leyenda manual premium -->
+					<div class="mt-4 flex flex-wrap items-center justify-center gap-5">
+						<div class="flex items-center gap-2">
+							<span class="h-2.5 w-2.5 rounded-full" style="background: {COLOR_REAL}"></span>
+							<span class="text-xs text-muted-foreground">Real</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="h-2.5 w-2.5 rounded-sm border border-amber-600/50" style="background: rgba(251, 191, 36, 0.2)"></span>
+							<span class="text-xs text-muted-foreground">Intervalo de confianza (95%)</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="h-1 w-5 rounded-full" style="background: oklch(0.55 0.16 65)"></span>
+							<span class="text-xs text-muted-foreground">Proyectado (mediana)</span>
+						</div>
+					</div>
 				{:else}
 					<LineChart
 						data={hasDataToPlot ? seriesConDatos[0].data : []}

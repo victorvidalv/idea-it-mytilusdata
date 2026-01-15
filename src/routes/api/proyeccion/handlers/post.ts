@@ -74,7 +74,9 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 			proyeccion: resultado.proyeccion,
 			curvaUsada: resultado.curvaUsada,
 			curvaReferencia: resultado.curvaReferencia,
-			metadatos: resultado.metadatos
+			metadatos: resultado.metadatos,
+			incertidumbre: resultado.incertidumbre,
+			degradacionRMSE: resultado.degradacionRMSE
 		});
 	} catch (error) {
 		console.error('Error en POST /api/proyeccion:', error);

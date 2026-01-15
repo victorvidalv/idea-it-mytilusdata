@@ -3,20 +3,28 @@
  * Funciones para cálculo de R² y escalado de parámetros.
  */
 
-import { crearModeloLogistico } from './modelado-utils';
+import { crearModeloLogistico, crearModeloLogisticoEstacional } from './modelado-utils';
 import type { ParametrosSigmoidal } from '$lib/server/db/schema';
+import type { ParametrosSigmoidalEstacional } from './modelado-utils';
 import type { DatosUsuario } from './similitud';
 
 /**
  * Calcular R² (coeficiente de determinación).
+ * Soporta tanto modelo base como estacional.
  */
 export function calcularR2(
 	datos: DatosUsuario,
-	parametros: ParametrosSigmoidal
+	parametros: ParametrosSigmoidal | ParametrosSigmoidalEstacional
 ): number {
 	const { dias, tallas } = datos;
 	const { L, k, x0 } = parametros;
-	const modelo = crearModeloLogistico([L, k, x0]);
+
+	let modelo: (d: number) => number;
+	if ('k1' in parametros && 'k2' in parametros) {
+		modelo = crearModeloLogisticoEstacional([L, k, parametros.k1, parametros.k2, x0]);
+	} else {
+		modelo = crearModeloLogistico([L, k, x0]);
+	}
 
 	const yMean = tallas.reduce((a, b) => a + b, 0) / tallas.length;
 	const ssRes = tallas.reduce((sum, y, i) => sum + (y - modelo(dias[i])) ** 2, 0);

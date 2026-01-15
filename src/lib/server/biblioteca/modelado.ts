@@ -5,14 +5,20 @@
  */
 
 import type { ParametrosSigmoidal, PuntosTalla } from '$lib/server/db/schema';
+import type { ParametrosSigmoidalEstacional } from './modelado-utils';
 import {
 	calcularR2,
+	calcularR2Generico,
 	calcularValoresIniciales,
+	calcularValoresInicialesEstacionales,
 	ejecutarAjuste,
+	ejecutarAjusteEstacional,
 	formatearResultado,
+	formatearResultadoEstacional,
 	UMBRAL_R2,
 	validarDatosEntrada,
 	crearModeloLogistico,
+	crearModeloLogisticoEstacional,
 	MIN_PUNTOS
 } from './modelado-utils';
 
@@ -37,6 +43,8 @@ export interface DatosCiclo {
 
 /**
  * Ajusta el modelo sigmoidal a los datos de un ciclo.
+ * Intenta modelo estacional (5 parámetros) si hay suficientes datos,
+ * y se queda con el que tenga mejor R².
  *
  * @param datos - Datos del ciclo (días y tallas)
  * @returns Parámetros ajustados o null si el ajuste falla
@@ -49,21 +57,39 @@ export function ajustarCiclo(datos: DatosCiclo): ParametrosSigmoidal | null {
 	}
 
 	try {
-		const initialValues = calcularValoresIniciales(dias, tallas);
-		const parametros = ejecutarAjuste(dias, tallas, initialValues);
+		// 1. Ajuste base siempre como referencia
+		const initialValuesBase = calcularValoresIniciales(dias, tallas);
+		const parametrosBase = ejecutarAjuste(dias, tallas, initialValuesBase);
+		let mejorResultado: ParametrosSigmoidal | null = null;
+		let mejorR2 = -Infinity;
 
-		if (!parametros) {
-			return null;
+		if (parametrosBase) {
+			const r2Base = calcularR2(dias, tallas, parametrosBase);
+			if (r2Base >= UMBRAL_R2) {
+				const [L, k, x0] = parametrosBase;
+				mejorResultado = formatearResultado(L, k, x0, r2Base);
+				mejorR2 = r2Base;
+			}
 		}
 
-		const [L, k, x0] = parametros;
-		const r2 = calcularR2(dias, tallas, parametros);
+		// 2. Intentar ajuste estacional si hay suficientes datos (>= 10 puntos)
+		if (dias.length >= 10) {
+			const initialValuesEst = calcularValoresInicialesEstacionales(parametrosBase ?? initialValuesBase);
+			const parametrosEst = ejecutarAjusteEstacional(dias, tallas, initialValuesEst);
 
-		if (r2 < UMBRAL_R2) {
-			return null;
+			if (parametrosEst) {
+				const [L, k0, k1, k2, x0] = parametrosEst;
+				const modeloEst = crearModeloLogisticoEstacional(parametrosEst);
+				const r2Est = calcularR2Generico(dias, tallas, modeloEst);
+
+				if (r2Est >= UMBRAL_R2 && r2Est > mejorR2) {
+					mejorResultado = formatearResultadoEstacional(L, k0, k1, k2, x0, r2Est);
+					mejorR2 = r2Est;
+				}
+			}
 		}
 
-		return formatearResultado(L, k, x0, r2);
+		return mejorResultado;
 	} catch {
 		return null;
 	}
@@ -168,7 +194,13 @@ export function validarDegradacionTemporal(
 			continue;
 		}
 
-		const modelo = crearModeloLogistico([params.L, params.k, params.x0]);
+		let modelo: (d: number) => number;
+		if ('k1' in params && 'k2' in params) {
+			const p = params as ParametrosSigmoidalEstacional;
+			modelo = crearModeloLogisticoEstacional([p.L, p.k, p.k1, p.k2, p.x0]);
+		} else {
+			modelo = crearModeloLogistico([params.L, params.k, params.x0]);
+		}
 
 		const calcularRMSE = (mesObjetivo: number): number | null => {
 			const grupo = datosPorMes.get(mesObjetivo);

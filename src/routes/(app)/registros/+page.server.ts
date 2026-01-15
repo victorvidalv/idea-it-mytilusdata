@@ -61,7 +61,7 @@ export const load: PageServerLoad = async ({ locals }) => {
         registrosBase = registrosBase.where(eq(mediciones.userId, userId)) as any;
     }
 
-    const registros = await registrosBase.orderBy(desc(mediciones.fechaMedicion)).limit(100).all();
+    const registros = await registrosBase.orderBy(desc(mediciones.fechaMedicion)).limit(5000).all();
 
     // Agregar campo `isOwner` para controlar edición/borrado
     const registrosConPermisos = registros.map(r => ({

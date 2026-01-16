@@ -8,8 +8,8 @@
 	import SearchableSelect from '$lib/components/SearchableSelect.svelte';
 	import DataTable from '$lib/components/DataTable.svelte';
 
-	export let data: any;
-	export let form: any;
+	export let data: import('./$types').PageData;
+	export let form: import('./$types').ActionData;
 
 	let showForm = false;
 	let selectedLugarId = '';
@@ -22,8 +22,8 @@
 	}
 
 	// Estadísticas
-	$: activos = data.ciclos.filter((c: any) => c.activo).length;
-	$: finalizados = data.ciclos.filter((c: any) => !c.activo).length;
+	$: activos = data.ciclos.filter((c: { activo: boolean | null }) => c.activo).length;
+	$: finalizados = data.ciclos.filter((c: { activo: boolean | null }) => !c.activo).length;
 
 	// Formatear fecha
 	function formatDate(dateStr: string | null): string {
@@ -122,6 +122,7 @@
 						<p class="font-body text-sm font-medium text-foreground">Primero registre un centro</p>
 						<p class="mt-0.5 font-body text-xs text-muted-foreground">
 							Necesita al menos un centro de cultivo para poder crear ciclos productivos.
+							<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 							<a href="/centros" class="text-ocean-light hover:underline">Ir a Centros →</a>
 						</p>
 					</div>
@@ -173,7 +174,10 @@
 									bind:value={selectedLugarId}
 									required
 									placeholder="Seleccionar centro..."
-									options={data.centros.map((c) => ({ value: c.id, label: c.nombre }))}
+									options={data.centros.map((c: { id: number | string; nombre: string }) => ({
+										value: c.id,
+										label: c.nombre
+									}))}
 								/>
 							</div>
 

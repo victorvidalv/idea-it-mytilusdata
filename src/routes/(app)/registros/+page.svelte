@@ -6,7 +6,9 @@
 	import SearchableSelect from '$lib/components/SearchableSelect.svelte';
 	import DataTable from '$lib/components/DataTable.svelte';
 
-	export let data: any;
+	import type { SubmitFunction } from '@sveltejs/kit';
+
+	export let data: import('./$types').PageData;
 
 	let showForm = false;
 
@@ -21,14 +23,16 @@
 
 	// Derivar opciones de ciclos basado en el centro seleccionado
 	$: ciclosDisponibles = selectedLugarId
-		? data.ciclos.filter((c: any) => c.lugarId.toString() === selectedLugarId.toString())
+		? data.ciclos.filter(
+				(c: { lugarId: number }) => c.lugarId.toString() === selectedLugarId.toString()
+			)
 		: [];
 
 	// Resetear el ciclo si se cambia el centro
 	$: if (selectedLugarId) {
 		if (
 			selectedCicloId &&
-			!ciclosDisponibles.find((c: any) => c.id.toString() === selectedCicloId.toString())
+			!ciclosDisponibles.find((c: { id: number }) => c.id.toString() === selectedCicloId.toString())
 		) {
 			selectedCicloId = '';
 		}
@@ -36,11 +40,13 @@
 
 	// Saber qué unidad mostrar junto al input "Valor"
 	$: unidadSeleccionada = selectedTipoId
-		? data.tipos.find((t: any) => t.id.toString() === selectedTipoId.toString())?.unidadBase
+		? data.tipos.find(
+				(t: { id: number; unidadBase: string }) => t.id.toString() === selectedTipoId.toString()
+			)?.unidadBase
 		: '';
 
-	function handleAction() {
-		return async ({ result, update }: { result: any; update: any }) => {
+	const handleAction: SubmitFunction = () => {
+		return async ({ result, update }) => {
 			if (result.type === 'success') {
 				toast.success(result.data?.message || 'Operación exitosa');
 				showForm = false;
@@ -57,10 +63,11 @@
 				toast.error(result.data?.message || 'Ocurrió un error');
 			}
 		};
-	}
+	};
 
-	function formatDateTime(dateString: string) {
-		const date = new Date(dateString);
+	function formatDateTime(dateInput: string | Date | null) {
+		if (!dateInput) return '—';
+		const date = new Date(dateInput);
 		return date.toLocaleString('es-CL', {
 			year: 'numeric',
 			month: 'short',
@@ -82,21 +89,36 @@
 
 	// Ciclos disponibles para el centro seleccionado en edición
 	$: editCiclosDisponibles = editLugarId
-		? data.ciclos.filter((c: any) => c.lugarId?.toString() === editLugarId?.toString())
+		? data.ciclos.filter(
+				(c: { lugarId?: number | null }) => c.lugarId?.toString() === editLugarId?.toString()
+			)
 		: [];
 
 	// Unidad del tipo seleccionado en edición
 	$: editUnidad = editTipoId
-		? data.tipos.find((t: any) => t.id?.toString() === editTipoId?.toString())?.unidadBase
+		? data.tipos.find(
+				(t: { id: number; unidadBase: string }) => t.id?.toString() === editTipoId?.toString()
+			)?.unidadBase
 		: '';
 
-	function startEdit(reg: any) {
+	function startEdit(reg: {
+		id: number;
+		centroId?: number | null;
+		cicloId?: number | null;
+		tipoId?: number | null;
+		origenNombre?: string | null;
+		valor?: number | null;
+		fechaMedicion?: Date | string | null;
+		notas?: string | null;
+	}) {
 		editingId = reg.id;
 		editLugarId = reg.centroId?.toString() || '';
 		editCicloId = reg.cicloId?.toString() || '';
 		editTipoId = reg.tipoId?.toString() || '';
 		editOrigenId = ''; // Buscar el origenId por nombre
-		const origenMatch = data.origenes.find((o: any) => o.nombre === reg.origenNombre);
+		const origenMatch = data.origenes.find(
+			(o: { id: number; nombre: string }) => o.nombre === reg.origenNombre
+		);
 		editOrigenId = origenMatch?.id?.toString() || '';
 		editValor = reg.valor?.toString() || '';
 		editFecha = reg.fechaMedicion ? new Date(reg.fechaMedicion).toISOString().slice(0, 16) : '';
@@ -218,7 +240,10 @@
 										bind:value={selectedLugarId}
 										required
 										placeholder="Seleccionar un centro..."
-										options={data.centros.map((c: any) => ({ value: c.id, label: c.nombre }))}
+										options={data.centros.map((c: { id: number; nombre: string }) => ({
+											value: c.id,
+											label: c.nombre
+										}))}
 									/>
 								</div>
 
@@ -236,7 +261,10 @@
 										bind:value={selectedCicloId}
 										disabled={!selectedLugarId || ciclosDisponibles.length === 0}
 										placeholder="-- Sin ligar a un ciclo --"
-										options={ciclosDisponibles.map((c: any) => ({ value: c.id, label: c.nombre }))}
+										options={ciclosDisponibles.map((c: { id: number; nombre: string }) => ({
+											value: c.id,
+											label: c.nombre
+										}))}
 									/>
 									{#if selectedLugarId && ciclosDisponibles.length === 0}
 										<p class="mt-1 text-[10px] text-muted-foreground">
@@ -269,10 +297,12 @@
 										bind:value={selectedTipoId}
 										required
 										placeholder="Seleccione el tipo... (ej. TALLA, TEMPERATURA)"
-										options={data.tipos.map((t: any) => ({
-											value: t.id,
-											label: `${t.codigo} (${t.unidadBase})`
-										}))}
+										options={data.tipos.map(
+											(t: { id: number; codigo: string; unidadBase: string }) => ({
+												value: t.id,
+												label: `${t.codigo} (${t.unidadBase})`
+											})
+										)}
 									/>
 								</div>
 
@@ -317,7 +347,10 @@
 										bind:value={selectedOrigenId}
 										required
 										placeholder="Origen del dato..."
-										options={data.origenes.map((o: any) => ({ value: o.id, label: o.nombre }))}
+										options={data.origenes.map((o: { id: number; nombre: string }) => ({
+											value: o.id,
+											label: o.nombre
+										}))}
 									/>
 								</div>
 
@@ -402,7 +435,7 @@
 				emptyDescription="Ingresa el primer registro usando el botón superior."
 				let:items
 			>
-				{#each items as reg}
+				{#each items as reg (reg.id)}
 					{#if editingId === reg.id}
 						<!-- Fila de edición inline -->
 						<tr class="border-b border-border/20 bg-ocean-light/[0.03]">
@@ -422,7 +455,10 @@
 												bind:value={editLugarId}
 												required
 												placeholder="Centro..."
-												options={data.centros.map((c) => ({ value: c.id, label: c.nombre }))}
+												options={data.centros.map((c: { id: number; nombre: string }) => ({
+													value: c.id,
+													label: c.nombre
+												}))}
 											/>
 										</div>
 										<div class="space-y-1">
@@ -437,7 +473,7 @@
 												bind:value={editCicloId}
 												disabled={!editLugarId || editCiclosDisponibles.length === 0}
 												placeholder="-- Sin ciclo --"
-												options={editCiclosDisponibles.map((c) => ({
+												options={editCiclosDisponibles.map((c: { id: number; nombre: string }) => ({
 													value: c.id,
 													label: c.nombre
 												}))}
@@ -455,10 +491,12 @@
 												bind:value={editTipoId}
 												required
 												placeholder="Tipo..."
-												options={data.tipos.map((t) => ({
-													value: t.id,
-													label: `${t.codigo} (${t.unidadBase})`
-												}))}
+												options={data.tipos.map(
+													(t: { id: number; codigo: string; unidadBase: string }) => ({
+														value: t.id,
+														label: `${t.codigo} (${t.unidadBase})`
+													})
+												)}
 											/>
 										</div>
 										<div class="space-y-1">
@@ -490,7 +528,10 @@
 												bind:value={editOrigenId}
 												required
 												placeholder="Origen..."
-												options={data.origenes.map((o) => ({ value: o.id, label: o.nombre }))}
+												options={data.origenes.map((o: { id: number; nombre: string }) => ({
+													value: o.id,
+													label: o.nombre
+												}))}
 											/>
 										</div>
 										<div class="space-y-1">

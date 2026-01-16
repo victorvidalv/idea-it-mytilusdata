@@ -1,4 +1,5 @@
 <script lang="ts">
+	/* eslint-disable @typescript-eslint/no-explicit-any */
 	import { onMount, onDestroy } from 'svelte';
 
 	let {
@@ -23,6 +24,7 @@
 	let map: any = null;
 	let selectedMarker: any = null;
 	let L: any = null;
+	let observer: ResizeObserver | null = null;
 
 	onMount(async () => {
 		// Importar Leaflet
@@ -43,7 +45,7 @@
 				link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
 				link.crossOrigin = '';
 				document.head.appendChild(link);
-				await new Promise(r => setTimeout(r, 300));
+				await new Promise((r) => setTimeout(r, 300));
 			}
 		}
 
@@ -57,18 +59,20 @@
 
 		// Tiles - CartoDB Voyager (claro)
 		L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+			attribution:
+				'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
 			subdomains: 'abcd',
 			maxZoom: 20
 		}).addTo(map);
 
 		// Icono personalizado
-		const makeIcon = (size: number = 22) => L.divIcon({
-			className: '',
-			html: `<div style="width:${size}px;height:${size}px;background:linear-gradient(135deg,#2980b9,#16a085);border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div>`,
-			iconSize: [size, size],
-			iconAnchor: [size/2, size/2]
-		});
+		const makeIcon = (size: number = 22) =>
+			L.divIcon({
+				className: '',
+				html: `<div style="width:${size}px;height:${size}px;background:linear-gradient(135deg,#2980b9,#16a085);border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div>`,
+				iconSize: [size, size],
+				iconAnchor: [size / 2, size / 2]
+			});
 
 		// Marcador inicial si tiene posición válida
 		if (latitude !== -41.4689 || longitude !== -72.9411) {
@@ -88,7 +92,7 @@
 		// Marcadores adicionales
 		if (markers.length > 0) {
 			const bounds: any[] = [];
-			markers.forEach(m => {
+			markers.forEach((m) => {
 				const mk = L.marker([m.lat, m.lng], { icon: makeIcon(16) }).addTo(map);
 				if (m.label) mk.bindPopup(m.label);
 				bounds.push([m.lat, m.lng]);
@@ -119,17 +123,17 @@
 		}
 
 		// Forzar recálculo del tamaño del mapa (crítico para contenedores ocultos)
-		const fixSize = () => { if (map) map.invalidateSize(); };
+		const fixSize = () => {
+			if (map) map.invalidateSize();
+		};
 		setTimeout(fixSize, 100);
 		setTimeout(fixSize, 300);
 		setTimeout(fixSize, 600);
 		setTimeout(fixSize, 1200);
 
 		// Observer para cuando el contenedor cambie de tamaño
-		const observer = new ResizeObserver(fixSize);
+		observer = new ResizeObserver(fixSize);
 		observer.observe(mapContainer);
-		
-		return () => observer.disconnect();
 	});
 
 	onDestroy(() => {
@@ -137,11 +141,15 @@
 			map.remove();
 			map = null;
 		}
+		if (observer) {
+			observer.disconnect();
+			observer = null;
+		}
 	});
 </script>
 
 <div
 	bind:this={mapContainer}
 	style="height:{height};min-height:{height};width:100%;position:relative;z-index:0;background:#e8e8e8;"
-	class="rounded-xl overflow-hidden border border-border/40"
+	class="overflow-hidden rounded-xl border border-border/40"
 ></div>

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { Button } from '$lib/components/ui/button';
+	import type { LayoutData } from './$types';
 
-	export let data: any;
+	export let data: LayoutData;
 
 	const links = [
 		{
@@ -113,7 +113,7 @@
 			>
 				Principal
 			</p>
-			{#each links as link, i}
+			{#each links as link (link.href)}
 				<a
 					href={link.href}
 					class="group flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm font-medium transition-all duration-200 {sidebarCollapsed
@@ -159,7 +159,7 @@
 					>
 						Administración
 					</p>
-					{#each adminLinks as adminLink}
+					{#each adminLinks as adminLink (adminLink.href)}
 						<a
 							href={adminLink.href}
 							class="group flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm font-medium transition-all duration-200 {sidebarCollapsed
@@ -224,10 +224,10 @@
 						</p>
 						<p class="truncate font-body text-[11px] text-white/30">{data.user?.email || ''}</p>
 						<span
-							class="font-body text-[10px] font-semibold {rolStyle[data.user?.rol]?.color ||
+							class="font-body text-[10px] font-semibold {rolStyle[data.user?.rol ?? '']?.color ||
 								'text-white/40'}"
 						>
-							{rolStyle[data.user?.rol]?.label || 'Usuario'}
+							{rolStyle[data.user?.rol ?? '']?.label || 'Usuario'}
 						</span>
 					</div>
 					<svg
@@ -349,7 +349,7 @@
 					role="presentation"
 				>
 					<nav class="mt-4 space-y-1">
-						{#each links as link}
+						{#each links as link (link.href)}
 							<a
 								href={link.href}
 								class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm text-white/70 transition-colors hover:bg-white/10"

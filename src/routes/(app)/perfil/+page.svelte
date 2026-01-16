@@ -5,7 +5,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import toast from 'svelte-french-toast';
 
-	export let data: any;
+	export let data: import('./$types').PageData;
 
 	let loadingUpdate = false;
 	let loadingDelete = false;

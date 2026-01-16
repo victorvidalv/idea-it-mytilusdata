@@ -5,11 +5,13 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Card from '$lib/components/ui/card';
 	import { toast } from 'svelte-sonner';
+	import SearchableSelect from '$lib/components/SearchableSelect.svelte';
 
 	export let data: any;
 	export let form: any;
 
 	let showForm = false;
+	let selectedLugarId = '';
 
 	$: if (form?.success) {
 		toast.success('¡Operación exitosa!', { description: form?.message });
@@ -126,17 +128,14 @@
 							<!-- Centro de cultivo -->
 							<div class="space-y-2">
 								<Label for="lugarId" class="text-xs font-medium uppercase tracking-wider text-muted-foreground font-body">Centro de Cultivo</Label>
-								<select
+								<SearchableSelect
 									id="lugarId"
 									name="lugarId"
+									bind:value={selectedLugarId}
 									required
-									class="w-full h-11 rounded-xl bg-secondary/50 border border-border/50 px-3 text-sm font-body focus:border-ocean-light focus:ring-1 focus:ring-ocean-light/20 transition-all"
-								>
-									<option value="" disabled selected>Seleccionar centro...</option>
-									{#each data.centros as centro (centro.id)}
-										<option value={centro.id}>{centro.nombre}</option>
-									{/each}
-								</select>
+									placeholder="Seleccionar centro..."
+									options={data.centros.map((c) => ({ value: c.id, label: c.nombre }))}
+								/>
 							</div>
 
 							<!-- Fecha de siembra -->
@@ -188,91 +187,99 @@
 			</Card.Root>
 		</div>
 	{:else if data.ciclos.length > 0}
-		<div class="space-y-3 animate-fade-up delay-150">
-			{#each data.ciclos as ciclo, i (ciclo.id)}
-				<div class="card-hover" style="animation-delay: {i * 40}ms">
-					<Card.Root class="border-border/50 overflow-hidden group">
-						<Card.Content class="py-4">
-							<div class="flex items-center gap-4">
-								<!-- Indicador de estado -->
-								<div class="flex-shrink-0">
-									<div class="h-11 w-11 rounded-xl flex items-center justify-center {ciclo.activo ? 'bg-teal-glow/10' : 'bg-secondary/60'}">
+		<div class="animate-fade-up delay-150">
+			<Card.Root class="border-border/50 overflow-hidden">
+				<div class="px-6 py-5 border-b border-border/40 bg-secondary/10 flex justify-between items-center">
+					<h3 class="font-display font-medium text-foreground">Ciclos Registrados</h3>
+					<span class="text-xs font-body text-muted-foreground">{data.ciclos.length} ciclo{data.ciclos.length !== 1 ? 's' : ''}</span>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full text-sm font-body">
+						<thead>
+							<tr class="border-b border-border/40 bg-secondary/30">
+								<th class="text-left py-3 px-6 text-xs font-medium uppercase tracking-wider text-muted-foreground">Estado</th>
+								<th class="text-left py-3 px-6 text-xs font-medium uppercase tracking-wider text-muted-foreground">Nombre</th>
+								<th class="text-left py-3 px-6 text-xs font-medium uppercase tracking-wider text-muted-foreground">Centro</th>
+								<th class="text-left py-3 px-6 text-xs font-medium uppercase tracking-wider text-muted-foreground">Siembra</th>
+								<th class="text-left py-3 px-6 text-xs font-medium uppercase tracking-wider text-muted-foreground">Duración</th>
+								<th class="text-right py-3 px-6 text-xs font-medium uppercase tracking-wider text-muted-foreground">Acciones</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-border/20">
+							{#each data.ciclos as ciclo (ciclo.id)}
+								<tr class="hover:bg-secondary/20 transition-colors group">
+									<td class="py-3 px-6">
 										{#if ciclo.activo}
-											<div class="h-3 w-3 rounded-full bg-teal-glow animate-pulse"></div>
+											<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold text-teal-600 bg-teal-50 dark:text-teal-400 dark:bg-teal-900/20">
+												<span class="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
+												Activo
+											</span>
 										{:else}
-											<svg class="w-5 h-5 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-											</svg>
+											<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold text-muted-foreground bg-secondary border border-border">
+												Finalizado
+											</span>
 										{/if}
-									</div>
-								</div>
-
-								<!-- Info del ciclo -->
-								<div class="flex-1 min-w-0">
-									<div class="flex items-center gap-2 mb-0.5">
-										<h3 class="text-sm font-body font-semibold text-foreground truncate">{ciclo.nombre}</h3>
-										{#if ciclo.activo}
-											<span class="text-[10px] font-body font-semibold text-teal-glow bg-teal-glow/10 px-2 py-0.5 rounded-full flex-shrink-0">Activo</span>
-										{:else}
-											<span class="text-[10px] font-body font-semibold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full flex-shrink-0">Finalizado</span>
-										{/if}
-									</div>
-									<div class="flex items-center gap-3 text-xs text-muted-foreground font-body">
-										<span class="inline-flex items-center gap-1">
-											<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									</td>
+									<td class="py-3 px-6 font-medium text-foreground">{ciclo.nombre}</td>
+									<td class="py-3 px-6 text-muted-foreground">
+										<div class="flex items-center gap-1.5">
+											<svg class="w-3.5 h-3.5 text-ocean-light/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
 											</svg>
 											{ciclo.lugarNombre}
-										</span>
-										<span>|</span>
-										<span>Siembra: {formatDate(ciclo.fechaSiembra)}</span>
+										</div>
+									</td>
+									<td class="py-3 px-6 text-muted-foreground whitespace-nowrap">
+										{formatDate(ciclo.fechaSiembra)}
 										{#if ciclo.fechaFinalizacion}
-											<span>→ {formatDate(ciclo.fechaFinalizacion)}</span>
+											<span class="text-muted-foreground/40 mx-1">→</span>
+											{formatDate(ciclo.fechaFinalizacion)}
 										{/if}
-										<span class="text-ocean-light font-medium">
-											{diasCultivo(ciclo.fechaSiembra, ciclo.fechaFinalizacion)}
-										</span>
-										{#if !ciclo.isOwner && data.canViewAll}
-											<span class="text-ocean-light/60">· Otro usuario</span>
+									</td>
+									<td class="py-3 px-6">
+										<span class="text-ocean-light font-medium tabular-nums">{diasCultivo(ciclo.fechaSiembra, ciclo.fechaFinalizacion)}</span>
+									</td>
+									<td class="py-3 px-6">
+										{#if ciclo.isOwner}
+											<div class="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+												<form method="POST" action="?/toggleActive" use:enhance class="inline">
+													<input type="hidden" name="cicloId" value={ciclo.id} />
+													<input type="hidden" name="activo" value={!ciclo.activo} />
+													<button
+														type="submit"
+														class="text-[11px] font-body font-medium px-2.5 py-1 rounded-md transition-all
+															{ciclo.activo
+																? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/15'
+																: 'text-teal-600 hover:bg-teal-50 dark:text-teal-400 dark:hover:bg-teal-900/15'}"
+													>
+														{ciclo.activo ? 'Finalizar' : 'Reactivar'}
+													</button>
+												</form>
+												<form method="POST" action="?/delete" use:enhance class="inline">
+													<input type="hidden" name="cicloId" value={ciclo.id} />
+													<button
+														type="submit"
+														class="p-1.5 rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all"
+														title="Eliminar ciclo"
+													>
+														<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+														</svg>
+													</button>
+												</form>
+											</div>
+										{:else if data.canViewAll}
+											<div class="flex justify-end">
+												<span class="text-[10px] text-muted-foreground/50 font-body">Otro usuario</span>
+											</div>
 										{/if}
-									</div>
-								</div>
-
-								<!-- Acciones -->
-								{#if ciclo.isOwner}
-									<div class="flex items-center gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
-										<form method="POST" action="?/toggleActive" use:enhance class="inline">
-											<input type="hidden" name="cicloId" value={ciclo.id} />
-											<input type="hidden" name="activo" value={!ciclo.activo} />
-											<button 
-												type="submit"
-												class="text-xs font-body font-medium px-3 py-1.5 rounded-lg transition-all duration-200
-													{ciclo.activo 
-														? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/15' 
-														: 'text-teal-600 hover:bg-teal-50 dark:text-teal-400 dark:hover:bg-teal-900/15'}"
-											>
-												{ciclo.activo ? 'Finalizar' : 'Reactivar'}
-											</button>
-										</form>
-										<form method="POST" action="?/delete" use:enhance class="inline">
-											<input type="hidden" name="cicloId" value={ciclo.id} />
-											<button 
-												type="submit"
-												class="p-1.5 rounded-lg text-muted-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all"
-												title="Eliminar ciclo"
-											>
-												<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-												</svg>
-											</button>
-										</form>
-									</div>
-								{/if}
-							</div>
-						</Card.Content>
-					</Card.Root>
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
 				</div>
-			{/each}
+			</Card.Root>
 		</div>
 	{/if}
 </div>

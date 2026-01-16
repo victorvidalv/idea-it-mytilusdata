@@ -1,6 +1,11 @@
 import type { Alerta, ParametrosAlertas } from './curva-alertas-tipos';
 import { validarDatosInsuficientes, validarAjustePorBiblioteca, validarRCuadrado } from './curva-alertas-basicas';
-import { validarDispersion, validarExtrapolacionAsintota, validarTallaMaxima } from './curva-alertas-avanzadas';
+import {
+	validarDispersion,
+	validarExtrapolacionAsintota,
+	validarRangoBiologicoTallas,
+	validarTallaMaxima
+} from './curva-alertas-avanzadas';
 
 export type { Alerta, ParametrosAlertas };
 
@@ -16,6 +21,7 @@ export function generarAlertas(entrada: ParametrosAlertas): Alerta[] {
 		...validarDatosInsuficientes(n),
 		...validarAjustePorBiblioteca(esCurvaLocal),
 		...validarRCuadrado(r2),
+		...validarRangoBiologicoTallas(mediciones),
 		...validarDispersion(mediciones),
 		...validarExtrapolacionAsintota(parametros, tallaObjetivo),
 		...validarTallaMaxima(parametros, mediciones)

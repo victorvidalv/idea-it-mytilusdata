@@ -101,7 +101,7 @@ describe('GET /api/proyeccion', () => {
 	});
 
 	describe('Mediciones insuficientes', () => {
-		it('debería retornar 422 si hay menos de 3 mediciones', async () => {
+		it('debería retornar 422 si hay menos de 5 mediciones', async () => {
 			mockVerificarAutenticacion.mockReturnValue(1);
 			mockValidarCicloIdParam.mockReturnValue({ valido: true });
 			mockObtenerCicloId.mockReturnValue(1);
@@ -124,7 +124,9 @@ describe('GET /api/proyeccion', () => {
 			const data = await response.json();
 
 			expect(response.status).toBe(422);
-			expect(data.error).toBe('Se requieren al menos 3 mediciones de talla para proyectar');
+			expect(data.error).toBe(
+				'Se encontraron 2 mediciones de talla. Se requieren al menos 5 para proyectar con estabilidad.'
+			);
 			expect(data.totalMediciones).toBe(2);
 		});
 	});
@@ -139,7 +141,9 @@ describe('GET /api/proyeccion', () => {
 			const mockMediciones = [
 				{ dia: 30, talla: 10 },
 				{ dia: 60, talla: 15 },
-				{ dia: 90, talla: 20 }
+				{ dia: 90, talla: 20 },
+				{ dia: 120, talla: 25 },
+				{ dia: 150, talla: 30 }
 			];
 
 			mockVerificarAutenticacion.mockReturnValue(1);
@@ -149,7 +153,9 @@ describe('GET /api/proyeccion', () => {
 			mockObtenerMedicionesTalla.mockResolvedValue([
 				{ valor: 10, fechaMedicion: '2024-01-31' },
 				{ valor: 15, fechaMedicion: '2024-03-01' },
-				{ valor: 20, fechaMedicion: '2024-03-31' }
+				{ valor: 20, fechaMedicion: '2024-03-31' },
+				{ valor: 25, fechaMedicion: '2024-04-30' },
+				{ valor: 30, fechaMedicion: '2024-05-30' }
 			]);
 			mockConvertirMedicionesADias.mockReturnValue(mockMediciones);
 
@@ -161,7 +167,7 @@ describe('GET /api/proyeccion', () => {
 			expect(data.success).toBe(true);
 			expect(data.ciclo).toEqual({ id: 1, nombre: 'Ciclo 2024', fechaSiembra: '2024-01-01' });
 			expect(data.mediciones).toEqual(mockMediciones);
-			expect(data.mediciones).toHaveLength(3);
+			expect(data.mediciones).toHaveLength(5);
 		});
 	});
 

@@ -1,17 +1,17 @@
 <!--
 Página de proyección de crecimiento para usuarios autenticados.
 Permite al usuario ingresar sus datos y proyectar el crecimiento
-basándose en la curva más similar de la biblioteca.
+mediante ajuste logístico y perfiles históricos de referencia.
 -->
 <script lang="ts">
-	import ProyeccionPanel from '$lib/components/proyeccion/ProyeccionPanel.svelte';
+	import ProyeccionPanel from '$lib/components/calculo-sigmoides-similares/ProyeccionPanel.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
-	<title>Proyección de Crecimiento | MytilusData</title>
+	<title>Proyectar Sigmoides | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-6">
@@ -24,11 +24,11 @@ basándose en la curva más similar de la biblioteca.
 				Análisis
 			</p>
 			<h1 class="font-display text-3xl leading-tight text-foreground md:text-4xl">
-				Proyección de <span class="text-gradient-ocean">Crecimiento</span>
+				Proyectar <span class="text-gradient-ocean">Sigmoides</span>
 			</h1>
 			<p class="mt-2 font-body text-sm text-muted-foreground">
-				Ingresa los datos de tus mediciones y proyecta el crecimiento de tus moluscos
-				basándote en las curvas de nuestra biblioteca.
+				Ingresa al menos cinco mediciones día-talla para estimar una curva logística, compararla con
+				perfiles históricos y visualizar el rango esperado de crecimiento.
 			</p>
 		</div>
 	</div>

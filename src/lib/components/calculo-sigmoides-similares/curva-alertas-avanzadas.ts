@@ -1,6 +1,9 @@
 import type { Alerta } from './curva-alertas-tipos';
 import type { ParametrosSigmoidal } from './proyeccionUtils';
 
+const TALLA_MIN_BIOLOGICA_ESPERADA = 20;
+const TALLA_MAX_BIOLOGICA_ESPERADA = 120;
+
 // Calcular coeficiente de variación
 export function calcularCoeficienteVariacion(tallas: number[]): number {
 	if (tallas.length < 3) return 0;
@@ -24,6 +27,30 @@ export function validarDispersion(mediciones: { dia: number; talla: number }[]):
 		];
 	}
 	return [];
+}
+
+// Advertir tallas fuera del rango biológico esperado sin bloquear el gráfico.
+export function validarRangoBiologicoTallas(mediciones: { dia: number; talla: number }[]): Alerta[] {
+	const fueraDeRango = mediciones.filter(
+		(m) =>
+			m.talla < TALLA_MIN_BIOLOGICA_ESPERADA ||
+			m.talla > TALLA_MAX_BIOLOGICA_ESPERADA
+	);
+
+	if (fueraDeRango.length === 0) return [];
+
+	const ejemplos = fueraDeRango
+		.slice(0, 3)
+		.map((m) => `día ${m.dia}: ${m.talla} mm`)
+		.join(', ');
+
+	return [
+		{
+			tipo: 'warning',
+			titulo: 'Datos fuera del rango biológico esperado',
+			mensaje: `${fueraDeRango.length} medición(es) están fuera del rango referencial ${TALLA_MIN_BIOLOGICA_ESPERADA}-${TALLA_MAX_BIOLOGICA_ESPERADA} mm (${ejemplos}). El gráfico se genera igual, pero la curva debe interpretarse con cautela porque el ajuste puede estar representando una etapa temprana, un registro atípico o una unidad de medida distinta.`
+		}
+	];
 }
 
 // Validar extrapolación a la asíntota

@@ -10,6 +10,7 @@ import {
 	validarLongitudArrays,
 	validarMinimoPuntos
 } from '../../../routes/api/proyeccion/validation/request';
+import { validarDatosUsuario } from '../../../lib/server/biblioteca/similitud-validation';
 
 describe('verificarAutenticacion', () => {
 	it('returns null when locals.user is null', () => {
@@ -129,24 +130,47 @@ describe('validarLongitudArrays', () => {
 });
 
 describe('validarMinimoPuntos', () => {
-	it('returns error when less than 3 points', () => {
+	it('returns error when less than 5 points', () => {
 		const result = validarMinimoPuntos({ dias: [1], tallas: [10] });
 		expect(result.valido).toBe(false);
 		expect(result.error).toBeDefined();
 	});
 
-	it('returns error for exactly 2 points', () => {
-		const result = validarMinimoPuntos({ dias: [1, 2], tallas: [10, 20] });
+	it('returns error for exactly 4 points', () => {
+		const result = validarMinimoPuntos({ dias: [1, 2, 3, 4], tallas: [10, 20, 30, 40] });
 		expect(result.valido).toBe(false);
 	});
 
-	it('returns valid for exactly 3 points', () => {
-		const result = validarMinimoPuntos({ dias: [1, 2, 3], tallas: [10, 20, 30] });
+	it('returns valid for exactly 5 points', () => {
+		const result = validarMinimoPuntos({ dias: [1, 2, 3, 4, 5], tallas: [10, 20, 30, 40, 50] });
 		expect(result.valido).toBe(true);
 	});
 
-	it('returns valid for more than 3 points', () => {
-		const result = validarMinimoPuntos({ dias: [1, 2, 3, 4, 5], tallas: [10, 20, 30, 40, 50] });
+	it('returns valid for more than 5 points', () => {
+		const result = validarMinimoPuntos({
+			dias: [1, 2, 3, 4, 5, 6],
+			tallas: [10, 20, 30, 40, 50, 60]
+		});
 		expect(result.valido).toBe(true);
+	});
+});
+
+describe('validarDatosUsuario', () => {
+	it('permite tallas bajo el rango biológico esperado si son computables', () => {
+		const result = validarDatosUsuario({
+			dias: [10, 20, 30, 40, 50],
+			tallas: [10, 11, 12, 13, 14]
+		});
+
+		expect(result).toBeNull();
+	});
+
+	it('bloquea tallas imposibles para el cálculo', () => {
+		const result = validarDatosUsuario({
+			dias: [10, 20, 30, 40, 50],
+			tallas: [10, 11, 0, 13, 14]
+		});
+
+		expect(result).toContain('Talla inválida');
 	});
 });

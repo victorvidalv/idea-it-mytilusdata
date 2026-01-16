@@ -56,6 +56,13 @@ describe('escalarParametros', () => {
 		const paramsEscalados = escalarParametros(PARAMS_REFERENCIA, datos);
 		expect(paramsEscalados.L).toBeCloseTo(50, 0);
 	});
+
+	it('mantiene la asíntota escalada por encima de las tallas observadas', () => {
+		const datos = { dias: [240, 260, 280], tallas: [72, 74, 76] };
+		const paramsEscalados = escalarParametros(PARAMS_REFERENCIA, datos);
+		expect(paramsEscalados.L).toBeGreaterThan(76);
+		expect(paramsEscalados.L).toBeLessThanOrEqual(110);
+	});
 });
 
 describe('calcularR2', () => {

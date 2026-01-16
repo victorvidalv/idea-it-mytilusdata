@@ -11,7 +11,7 @@ export async function ejecutarProyeccion(dias: number[], tallas: number[], talla
 		body.tallaObjetivo = tallaObj;
 	}
 
-	const res = await fetch('/api/proyeccion', {
+	const res = await fetch('/api/proyectar-sigmoides', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',

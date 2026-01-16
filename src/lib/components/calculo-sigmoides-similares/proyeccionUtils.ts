@@ -15,14 +15,17 @@ import type {
 	TablaDato
 } from './proyeccion-tipos';
 import type { IncertidumbreProyeccion } from './ProyeccionComponentTypes';
-import {
-	evaluarSigmoidal,
-	generarCurvaSigmoidal,
-	calcularLEscalado
-} from './proyeccion-sigmoidal';
+import { evaluarSigmoidal, generarCurvaSigmoidal, calcularLEscalado } from './proyeccion-sigmoidal';
 
 // Re-exportar para conveniencia
-export type { ParametrosSigmoidal, CurvaReferencia, PuntoProyeccion, Medicion, SerieData, TablaDato };
+export type {
+	ParametrosSigmoidal,
+	CurvaReferencia,
+	PuntoProyeccion,
+	Medicion,
+	SerieData,
+	TablaDato
+};
 export { evaluarSigmoidal, generarCurvaSigmoidal, calcularLEscalado };
 
 // Paleta premium para modo incertidumbre
@@ -63,7 +66,12 @@ export function construirSeriesProyeccion(
 			],
 			color: PALETA.meta,
 			value: 'talla',
-			props: { line: { color: PALETA.meta, strokeWidth: 1.5 }, fill: 'transparent' }
+			props: {
+				strokeWidth: 1.6,
+				strokeDasharray: '5 5',
+				line: { strokeWidth: 1.6, strokeDasharray: '5 5' },
+				fill: 'transparent'
+			}
 		});
 	}
 
@@ -76,7 +84,12 @@ export function construirSeriesProyeccion(
 			data: diasRef,
 			color: PALETA.referencia,
 			value: 'talla',
-			props: { line: { color: PALETA.referencia, strokeWidth: 1.5 }, fill: 'transparent' }
+			props: {
+				strokeWidth: 1.7,
+				strokeDasharray: '8 5',
+				line: { strokeWidth: 1.7, strokeDasharray: '8 5' },
+				fill: 'transparent'
+			}
 		});
 
 		// Curva ESCALADA para ajustarse a los datos del usuario
@@ -93,7 +106,12 @@ export function construirSeriesProyeccion(
 				data: diasEscalado,
 				color: PALETA.referenciaEscalada,
 				value: 'talla',
-				props: { line: { color: PALETA.referenciaEscalada, strokeWidth: 1.5 }, fill: 'transparent' }
+				props: {
+					strokeWidth: 2.4,
+					strokeDasharray: '3 4',
+					line: { strokeWidth: 2.4, strokeDasharray: '3 4' },
+					fill: 'transparent'
+				}
 			});
 		}
 	}
@@ -106,7 +124,11 @@ export function construirSeriesProyeccion(
 			data: mediciones.map((m) => ({ dia: m.dia, talla: m.talla })),
 			color: PALETA.real,
 			value: 'talla',
-			props: { line: { color: PALETA.real, strokeWidth: 2 }, fill: 'transparent' }
+			props: {
+				strokeWidth: 2.2,
+				line: { strokeWidth: 2.2 },
+				fill: 'transparent'
+			}
 		});
 	}
 
@@ -123,7 +145,7 @@ export function construirSeriesProyeccion(
 		// 1. Relleno de la banda (sin borde, solo área)
 		series.push({
 			key: 'banda',
-			label: 'Intervalo de confianza (95%)',
+			label: 'Rango esperado (95%)',
 			data: datosBanda,
 			color: PALETA.bandaStroke,
 			value: 'limiteSuperior',
@@ -136,7 +158,37 @@ export function construirSeriesProyeccion(
 			}
 		});
 
-		// 4. Mediana: línea gruesa sólida con color ámbar de alto contraste
+		series.push({
+			key: 'limite-inferior',
+			label: 'Minimo esperado',
+			data: datosBanda,
+			color: PALETA.bandaStrokeLight,
+			value: 'limiteInferior',
+			props: {
+				fill: 'transparent',
+				fillOpacity: 0,
+				strokeWidth: 1.4,
+				strokeDasharray: '4 4',
+				line: { color: PALETA.bandaStrokeLight, strokeWidth: 1.4, strokeDasharray: '4 4' }
+			}
+		});
+
+		series.push({
+			key: 'limite-superior',
+			label: 'Maximo esperado',
+			data: datosBanda,
+			color: PALETA.bandaStrokeLight,
+			value: 'limiteSuperior',
+			props: {
+				fill: 'transparent',
+				fillOpacity: 0,
+				strokeWidth: 1.4,
+				strokeDasharray: '4 4',
+				line: { color: PALETA.bandaStrokeLight, strokeWidth: 1.4, strokeDasharray: '4 4' }
+			}
+		});
+
+		// Mediana: línea gruesa sólida con color ámbar de alto contraste
 		series.push({
 			key: 'proyectado',
 			label: 'Proyectado (mediana)',
@@ -145,6 +197,7 @@ export function construirSeriesProyeccion(
 			value: 'mediana',
 			props: {
 				line: { color: PALETA.mediana, strokeWidth: 3.5 },
+				strokeWidth: 3.5,
 				fill: 'transparent'
 			}
 		});
@@ -155,7 +208,11 @@ export function construirSeriesProyeccion(
 			data: proyeccion.map((p) => ({ dia: p.dia, talla: p.talla })),
 			color: COLOR_PROYECTADO,
 			value: 'talla',
-			props: { line: { color: COLOR_PROYECTADO, strokeWidth: 2.5 }, fill: 'transparent' }
+			props: {
+				strokeWidth: 3,
+				line: { color: COLOR_PROYECTADO, strokeWidth: 3 },
+				fill: 'transparent'
+			}
 		});
 	}
 

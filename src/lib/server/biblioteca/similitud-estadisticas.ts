@@ -3,10 +3,21 @@
  * Funciones para cálculo de R² y escalado de parámetros.
  */
 
-import { crearModeloLogistico, crearModeloLogisticoEstacional } from './modelado-utils';
+import {
+	MAX_VALUES,
+	MIN_VALUES,
+	crearModeloLogistico,
+	crearModeloLogisticoEstacional
+} from './modelado-utils';
 import type { ParametrosSigmoidal } from '$lib/server/db/schema';
 import type { ParametrosSigmoidalEstacional } from './modelado-utils';
 import type { DatosUsuario } from './similitud';
+
+const MARGEN_ASINTOTA_OBSERVADA = 1.02;
+
+function limitar(valor: number, minimo: number, maximo: number): number {
+	return Math.min(maximo, Math.max(minimo, valor));
+}
 
 /**
  * Calcular R² (coeficiente de determinación).
@@ -35,8 +46,12 @@ export function calcularR2(
 
 /**
  * Escalar parámetros de una curva de biblioteca para ajustarse a los datos del usuario.
- * Mantiene k y x0 (forma), solo recalcula L por mínimos cuadrados analíticos.
- * L_opt = ∑(y_i / g_i) / ∑(1 / g_i²)  donde g_i = 1 + exp(-k*(t_i - x0))
+ * Mantiene k y x0 (forma temporal), solo recalcula L por mínimos cuadrados analíticos.
+ *
+ * Con a_i = 1 / (1 + exp(-k(t_i - x0))), el modelo queda y_i ≈ L·a_i.
+ * El óptimo sin restricción es L* = ∑(y_i·a_i) / ∑(a_i²). Después se proyecta
+ * al intervalo biológico permitido, exigiendo que la asíntota quede por encima
+ * de las tallas ya observadas.
  */
 export function escalarParametros(
 	parametros: ParametrosSigmoidal,
@@ -53,11 +68,18 @@ export function escalarParametros(
 	let sumDen = 0;
 	for (let i = 0; i < dias.length; i++) {
 		const exponente = Math.max(-20, Math.min(20, -k * (dias[i] - x0)));
-		const g = 1 + Math.exp(exponente);
-		sumNum += tallas[i] / g;
-		sumDen += 1 / (g * g);
+		const factorForma = 1 / (1 + Math.exp(exponente));
+		sumNum += tallas[i] * factorForma;
+		sumDen += factorForma * factorForma;
 	}
 
-	const L_nuevo = sumDen > 0 ? sumNum / sumDen : parametros.L;
+	const lSinRestriccion = sumDen > 0 ? sumNum / sumDen : parametros.L;
+	const tallaMaximaObservada = Math.max(...tallas);
+	const limiteInferior = Math.min(
+		MAX_VALUES[0],
+		Math.max(MIN_VALUES[0], tallaMaximaObservada * MARGEN_ASINTOTA_OBSERVADA)
+	);
+	const L_nuevo = limitar(lSinRestriccion, limiteInferior, MAX_VALUES[0]);
+
 	return { ...parametros, L: Math.round(L_nuevo * 100) / 100 };
 }

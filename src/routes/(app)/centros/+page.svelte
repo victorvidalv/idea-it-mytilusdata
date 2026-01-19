@@ -3,7 +3,7 @@
 	import { browser } from '$app/environment';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { toast } from 'svelte-sonner';
+	import toast from 'svelte-french-toast';
 
 	export let data: any;
 	export let form: any;

@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Card from '$lib/components/ui/card';
-	import { toast } from 'svelte-sonner';
+	import toast from 'svelte-french-toast';
 	import SearchableSelect from '$lib/components/SearchableSelect.svelte';
 
 	export let data: any;
@@ -14,10 +14,10 @@
 	let selectedLugarId = '';
 
 	$: if (form?.success) {
-		toast.success('¡Operación exitosa!', { description: form?.message });
+		toast.success('¡Operación exitosa! ' + (form?.message || ''));
 		showForm = false;
 	} else if (form?.error) {
-		toast.error('Error', { description: form?.message });
+		toast.error('Error: ' + (form?.message || ''));
 	}
 
 	// Estadísticas

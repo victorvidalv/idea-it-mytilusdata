@@ -107,21 +107,25 @@
 		</nav>
 		
 		<!-- Perfil de usuario -->
-		<div class="relative z-10 p-4 border-t border-white/[0.06] {sidebarCollapsed ? 'flex flex-col items-center' : ''}">
-			<div class="flex items-center gap-3 mb-3 {sidebarCollapsed ? 'justify-center' : ''}">
-				<div class="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center text-sm font-display text-white/80 flex-shrink-0" title={sidebarCollapsed ? data.user?.nombre || 'Usuario' : ''}>
+		<div class="relative z-10 p-4 border-t border-white/[0.06] flex flex-col gap-2 {sidebarCollapsed ? 'items-center' : ''}">
+			<!-- Ahora es un link clickeable hacia la configuración -->
+			<a href="/perfil" class="flex items-center gap-3 p-1 rounded-xl hover:bg-white/[0.05] transition-colors group cursor-pointer {sidebarCollapsed ? 'justify-center' : ''}">
+				<div class="h-9 w-9 rounded-xl bg-white/10 group-hover:bg-white/20 transition-colors flex items-center justify-center text-sm font-display text-white/80 flex-shrink-0 shadow-sm" title={sidebarCollapsed ? data.user?.nombre || 'Usuario' : ''}>
 					{data.user?.nombre?.charAt(0).toUpperCase() || 'U'}
 				</div>
 				{#if !sidebarCollapsed}
 					<div class="flex-1 min-w-0 overflow-hidden">
-						<p class="text-sm font-body font-medium text-white/90 truncate">{data.user?.nombre || 'Usuario'}</p>
+						<p class="text-sm font-body font-medium text-white/90 truncate group-hover:text-white transition-colors">{data.user?.nombre || 'Usuario'}</p>
 						<p class="text-[11px] font-body text-white/30 truncate">{data.user?.email || ''}</p>
 						<span class="text-[10px] font-body font-semibold {rolStyle[data.user?.rol]?.color || 'text-white/40'}">
 							{rolStyle[data.user?.rol]?.label || 'Usuario'}
 						</span>
 					</div>
+					<svg class="w-4 h-4 text-white/20 group-hover:text-white/60 transition-colors shrink-0 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+					</svg>
 				{/if}
-			</div>
+			</a>
 			<form method="POST" action="/auth/logout" class="w-full">
 				<button
 					type="submit"

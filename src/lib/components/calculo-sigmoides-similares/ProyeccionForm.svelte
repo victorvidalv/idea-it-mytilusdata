@@ -14,12 +14,13 @@ Formulario para mediciones. Refactorizado al máximo para svelteqa compliance.
     import type { Lugar, Ciclo } from './ProyeccionComponentTypes';
 
 	interface Props {
-		lugares?: Lugar[]; ciclos?: Ciclo[]; dias: number[]; tallas: number[]; tallaObjetivo?: string;
+		lugares?: Lugar[]; ciclos?: Ciclo[]; fechas: string[]; dias: number[]; tallas: number[]; tallaObjetivo?: string;
+		modeloSeleccionado?: string; modelosDisponibles?: Array<{ id: string; nombre: string; descripcion: string }>;
 		onAgregarPunto: any; onEliminarPunto: any; onUsarMedicionesCargadas: any; onEjecutarProyeccion: any;
 		error: string; cargando: boolean;
 	}
 
-	let { lugares = [], ciclos = [], dias, tallas, tallaObjetivo = $bindable(''), onAgregarPunto, onEliminarPunto, onUsarMedicionesCargadas, onEjecutarProyeccion, error = $bindable(), cargando }: Props = $props();
+	let { lugares = [], ciclos = [], fechas, dias, tallas, tallaObjetivo = $bindable(''), modeloSeleccionado = $bindable(''), modelosDisponibles = [], onAgregarPunto, onEliminarPunto, onUsarMedicionesCargadas, onEjecutarProyeccion, error = $bindable(), cargando }: Props = $props();
 
     const s = createFormState();
 
@@ -28,8 +29,8 @@ Formulario para mediciones. Refactorizado al máximo para svelteqa compliance.
 
     const hCarga = () => s.cargarMediciones();
     const hUsar = () => s.handleUsarMediciones(onUsarMedicionesCargadas);
-    const hAdd = () => s.handleAgregarPunto(onAgregarPunto, (e) => error = e);
-    const hDel = (dia: number) => { s.medicionesCargadas = s.medicionesCargadas.filter(m => m.dia !== dia); };
+    const hAdd = () => s.handleAgregarPunto(onAgregarPunto, (e: string) => error = e);
+    const hDel = (fecha: string) => { s.medicionesCargadas = s.medicionesCargadas.filter(m => m.fecha !== fecha); };
 </script>
 
 <Card.Root class="border-border/50">
@@ -38,16 +39,16 @@ Formulario para mediciones. Refactorizado al máximo para svelteqa compliance.
 		<ProyeccionFormCarga
 			lugares={s.lugaresLocales} {ciclos} bind:selectedLugarId={s.selectedLugarId} bind:selectedCicloId={s.selectedCicloId}
 			cargandoDatos={s.cargandoDatos} errorCarga={s.errorCarga} medicionesCargadas={s.medicionesCargadas}
-			onCargarMediciones={hCarga} onUsarMedicionesCargadas={hUsar} onEliminarMedicionCargada={hDel}
+			onCargarMediciones={hCarga} onUsarMedicionesCargadas={hUsar} onEliminarMedicionCargada={(fecha: string) => hDel(fecha)}
 		/>
 		<div class="relative py-2">
 			<div class="absolute inset-0 flex items-center"><div class="w-full border-t border-border/30"></div></div>
 			<div class="relative flex justify-center"><span class="bg-background px-2 text-xs text-muted-foreground">O ingresa manualmente</span></div>
 		</div>
-		<ProyeccionFormManual bind:nuevoDia={s.nuevoDia} bind:nuevaTalla={s.nuevaTalla} onAgregarPunto={hAdd} handleKeydown={(e: KeyboardEvent) => e.key === 'Enter' && hAdd()} />
+		<ProyeccionFormManual bind:nuevaFecha={s.nuevaFecha} bind:nuevaTalla={s.nuevaTalla} onAgregarPunto={hAdd} handleKeydown={(e: KeyboardEvent) => e.key === 'Enter' && hAdd()} />
 		{#if error}<p class="text-sm text-destructive">{error}</p>{/if}
-		<ProyeccionFormTabla {dias} {tallas} {onEliminarPunto} />
-		<ProyeccionFormConfig bind:tallaObjetivo {cargando} diasCount={dias.length} {onEjecutarProyeccion} />
+		<ProyeccionFormTabla {fechas} {dias} {tallas} {onEliminarPunto} />
+		<ProyeccionFormConfig bind:tallaObjetivo bind:modeloSeleccionado {modelosDisponibles} {cargando} fechasCount={fechas.length} {onEjecutarProyeccion} />
 	</Card.Content>
 </Card.Root>
 

@@ -1,5 +1,4 @@
 import type { Alerta } from './curva-alertas-tipos';
-import type { ParametrosSigmoidal } from './proyeccionUtils';
 
 const TALLA_MIN_BIOLOGICA_ESPERADA = 20;
 const TALLA_MAX_BIOLOGICA_ESPERADA = 120;
@@ -22,7 +21,7 @@ export function validarDispersion(mediciones: { dia: number; talla: number }[]):
 			{
 				tipo: 'warning',
 				titulo: 'Alta dispersión en los datos',
-				mensaje: `El coeficiente de variación es ${(cv * 100).toFixed(0)}%. Los datos tienen una dispersión alta, lo que reduce la confiabilidad del ajuste. Esto puede indicar mediciones en diferentes individuos o condiciones heterogéneas.`
+				mensaje: `El coeficiente de variación es ${(cv * 100).toFixed(0)}%. Los datos tienen una dispersión alta, lo que reduce la confiabilidad de la proyección. Esto puede indicar mediciones en diferentes individuos o condiciones heterogéneas.`
 			}
 		];
 	}
@@ -48,45 +47,25 @@ export function validarRangoBiologicoTallas(mediciones: { dia: number; talla: nu
 		{
 			tipo: 'warning',
 			titulo: 'Datos fuera del rango biológico esperado',
-			mensaje: `${fueraDeRango.length} medición(es) están fuera del rango referencial ${TALLA_MIN_BIOLOGICA_ESPERADA}-${TALLA_MAX_BIOLOGICA_ESPERADA} mm (${ejemplos}). El gráfico se genera igual, pero la curva debe interpretarse con cautela porque el ajuste puede estar representando una etapa temprana, un registro atípico o una unidad de medida distinta.`
+			mensaje: `${fueraDeRango.length} medición(es) están fuera del rango referencial ${TALLA_MIN_BIOLOGICA_ESPERADA}-${TALLA_MAX_BIOLOGICA_ESPERADA} mm (${ejemplos}). El gráfico se genera igual, pero la proyección debe interpretarse con cautela porque puede estar representando una etapa temprana, un registro atípico o una unidad de medida distinta.`
 		}
 	];
 }
 
-// Validar extrapolación a la asíntota
+// Validar extrapolación a la asíntota — simplificado, ya no depende de parámetros sigmoidales
 export function validarExtrapolacionAsintota(
-	params: ParametrosSigmoidal | undefined,
+	_L: number | undefined,
 	tallaObjetivo: number | undefined
 ): Alerta[] {
-	if (!params || !tallaObjetivo) return [];
-	const fraccion = tallaObjetivo / params.L;
-	if (fraccion > 0.95) {
-		return [
-			{
-				tipo: 'warning',
-				titulo: 'Meta muy cercana a la asíntota',
-				mensaje: `La talla objetivo (${tallaObjetivo} mm) es el ${(fraccion * 100).toFixed(0)}% de la asíntota L = ${params.L.toFixed(1)} mm. En la zona asintótica, pequeñas variaciones en los parámetros producen grandes cambios en el día estimado. La predicción del día objetivo tiene alta incertidumbre.`
-			}
-		];
-	}
+	// Ya no aplica con modelos predictivos externos
 	return [];
 }
 
-// Validar talla máxima observada vs L
+// Validar talla máxima observada vs L — simplificado
 export function validarTallaMaxima(
-	params: ParametrosSigmoidal | undefined,
+	_L: number | undefined,
 	mediciones: { dia: number; talla: number }[]
 ): Alerta[] {
-	if (!params || mediciones.length === 0) return [];
-	const maxTalla = Math.max(...mediciones.map((m) => m.talla));
-	if (maxTalla > params.L * 0.98) {
-		return [
-			{
-				tipo: 'warning',
-				titulo: 'Talla observada cercana o superior a L',
-				mensaje: `La talla máxima observada (${maxTalla.toFixed(1)} mm) está muy cerca o supera la asíntota L = ${params.L.toFixed(1)} mm. El modelo podría estar subestimando el crecimiento real. Considera que se requieren más datos en la fase de estabilización.`
-			}
-		];
-	}
+	// Ya no aplica con modelos predictivos externos
 	return [];
 }

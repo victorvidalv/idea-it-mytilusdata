@@ -1,102 +1,111 @@
 <!--
-Subcomponente para mostrar las funciones ajustadas (curva proyectada, referencia y escalado).
-Refactorizado para reducir complejidad y usar tipos compartidos.
+Subcomponente para mostrar información del modelo predictivo utilizado.
+Refactorizado para eliminar referencias a sigmoides y ajuste local.
 -->
 <script lang="ts">
-	import { calcularLEscalado, type CurvaReferencia } from './proyeccionUtils';
-	import {
-		formatearFormulaSigmoidal,
-		type CurvaUsada,
-		type Metadatos
-	} from './ProyeccionComponentTypes';
+	import type { CurvaUsada, Metadatos } from './ProyeccionComponentTypes';
 
 	interface Props {
 		curvaUsada: CurvaUsada;
-		curvaReferencia?: CurvaReferencia;
 		mediciones?: { dia: number; talla: number }[];
 		metadatos?: Metadatos;
 	}
 
-	let { curvaUsada, curvaReferencia, mediciones = [], metadatos }: Props = $props();
+	let { curvaUsada, mediciones = [], metadatos }: Props = $props();
 
-	let lEscalado = $derived.by(() => {
-		if (!curvaReferencia || mediciones.length === 0) return undefined;
-		return calcularLEscalado(
-			{ dias: mediciones.map((m) => m.dia), tallas: mediciones.map((m) => m.talla) },
-			curvaReferencia.parametros
-		);
-	});
+	// Determinar qué parámetros mostrar según el modelo usado
+	function getParametrosModelo(parametros: Record<string, number> | undefined, modeloUsado: string | undefined) {
+		if (!parametros) return null;
+
+		const slug = modeloUsado || '';
+
+		// Modelo logístico: L, k, x0
+		if (slug.includes('logistic') || parametros.L !== undefined) {
+			return {
+				tipo: 'logistic',
+				tallaMax: parametros.L,
+				tasa: parametros.k,
+				inflexion: parametros.x0,
+				tallaMaxLabel: 'Talla máx (L)',
+				tasaLabel: 'Tasa k',
+				inflexionLabel: 'Inflexión x₀'
+			};
+		}
+
+		// Von Bertalanffy: Linf, K, t0
+		if (slug.includes('bertalanffy') || parametros.Linf !== undefined) {
+			return {
+				tipo: 'von_bertalanffy',
+				tallaMax: parametros.Linf,
+				tasa: parametros.K,
+				inflexion: parametros.t0,
+				tallaMaxLabel: 'Talla máx (L∞)',
+				tasaLabel: 'Tasa K',
+				inflexionLabel: 't₀'
+			};
+		}
+
+		// Gompertz: a, b, c
+		if (slug.includes('gompertz') || parametros.a !== undefined) {
+			return {
+				tipo: 'gompertz',
+				tallaMax: parametros.a,
+				tasa: parametros.b,
+				inflexion: parametros.c,
+				tallaMaxLabel: 'Talla máx (a)',
+				tasaLabel: 'Parámetro b',
+				inflexionLabel: 'Parámetro c'
+			};
+		}
+
+		return null;
+	}
+
+	let paramsInfo = $derived(getParametrosModelo(curvaUsada.parametros, metadatos?.modeloUsado));
 </script>
 
 <div class="space-y-3">
 	<h4 class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-		Funciones ajustadas
+		Modelo utilizado
 	</h4>
 
-	{#if curvaUsada.parametros}
+	{#if metadatos?.modeloUsado}
 		<div class="space-y-2 rounded-lg border border-border/50 bg-secondary/20 p-3">
 			<div class="flex items-center gap-2">
 				<div class="h-3 w-3 rounded-full bg-blue-500"></div>
-				<span class="text-xs font-semibold">
-					{curvaUsada.esCurvaLocal
-						? 'Ajuste local (Levenberg-Marquardt)'
-						: 'Perfil histórico escalado'}
-				</span>
+				<span class="text-xs font-semibold">{metadatos.modeloUsado}</span>
 			</div>
 			<p class="pl-5 text-[10px] text-muted-foreground">
-				{curvaUsada.esCurvaLocal
-					? 'Optimización no lineal directa de los 3 parámetros.'
-					: 'Rescalado analítico de L basado en el perfil histórico más compatible.'}
+				Modelo predictivo entrenado externamente para proyectar el crecimiento de mitilicultura.
 			</p>
-			<div class="rounded-md bg-background/60 p-2 text-center">
-				<p class="font-mono text-[11px]">{formatearFormulaSigmoidal(curvaUsada.parametros, 'f')}</p>
-			</div>
-			<div class="grid grid-cols-3 gap-2 pl-5">
-				<div>
-					<p class="text-[10px] text-muted-foreground">L</p>
-					<p class="font-mono text-xs font-semibold">{curvaUsada.parametros.L.toFixed(2)} mm</p>
-				</div>
-				<div>
-					<p class="text-[10px] text-muted-foreground">k</p>
-					<p class="font-mono text-xs font-semibold">{curvaUsada.parametros.k.toFixed(4)}</p>
-				</div>
-				<div>
-					<p class="text-[10px] text-muted-foreground">x₀</p>
-					<p class="font-mono text-xs font-semibold">d {curvaUsada.parametros.x0.toFixed(1)}</p>
-				</div>
-			</div>
 		</div>
 	{/if}
 
-	{#if curvaReferencia}
+	{#if paramsInfo}
 		<div class="space-y-2 rounded-lg border border-border/50 bg-secondary/10 p-3">
 			<div class="flex items-center gap-2">
 				<div class="h-3 w-3 rounded-full bg-emerald-500"></div>
-				<span class="text-xs font-semibold">Referencia: {curvaReferencia.codigoReferencia}</span>
+				<span class="text-xs font-semibold">Parámetros estimados</span>
 			</div>
-			<div class="rounded-md bg-background/60 p-2 text-center">
-				<p class="font-mono text-[11px]">
-					{formatearFormulaSigmoidal(curvaReferencia.parametros, 'g')}
-				</p>
+			<div class="grid grid-cols-3 gap-2 pl-5">
+				<div>
+					<p class="text-[10px] text-muted-foreground">{paramsInfo.tallaMaxLabel}</p>
+					<p class="font-mono text-xs font-semibold">{paramsInfo.tallaMax?.toFixed(2)} mm</p>
+				</div>
+				{#if paramsInfo.tasa}
+					<div>
+						<p class="text-[10px] text-muted-foreground">{paramsInfo.tasaLabel}</p>
+						<p class="font-mono text-xs font-semibold">{paramsInfo.tasa.toFixed(4)}</p>
+					</div>
+				{/if}
+				{#if paramsInfo.inflexion}
+					<div>
+						<p class="text-[10px] text-muted-foreground">{paramsInfo.inflexionLabel}</p>
+						<p class="font-mono text-xs font-semibold">{paramsInfo.inflexion.toFixed(4)}</p>
+					</div>
+				{/if}
 			</div>
 		</div>
-
-		{#if lEscalado !== undefined}
-			<div class="space-y-2 rounded-lg border border-border/50 bg-secondary/10 p-3">
-				<div class="flex items-center gap-2">
-					<div class="h-3 w-3 rounded-full bg-orange-400"></div>
-					<span class="text-xs font-semibold">Referencia escalada (h)</span>
-				</div>
-				<div class="rounded-md bg-background/60 p-2 text-center">
-					<p class="font-mono text-[11px]">
-						{formatearFormulaSigmoidal({ ...curvaReferencia.parametros, L: lEscalado }, 'h')}
-					</p>
-				</div>
-				<p class="pl-5 text-[10px] text-muted-foreground">
-					L: {curvaReferencia.parametros.L.toFixed(1)} → {lEscalado.toFixed(1)} mm
-				</p>
-			</div>
-		{/if}
 	{/if}
 
 	{#if metadatos?.tallaObjetivo}

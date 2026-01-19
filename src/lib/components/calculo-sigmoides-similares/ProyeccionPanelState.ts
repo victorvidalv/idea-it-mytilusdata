@@ -1,28 +1,29 @@
 /**
  * Gestión de puntos de datos para ProyeccionPanel.
+ * Ahora usa fechas reales en lugar de días relativos.
  */
 
-export function agregarPunto(dias: number[], tallas: number[], dia: number, talla: number) {
-	const newDias = [...dias];
+export function agregarPunto(fechas: string[], tallas: number[], fecha: string, talla: number) {
+	const newFechas = [...fechas];
 	const newTallas = [...tallas];
-	const idx = newDias.indexOf(dia);
+	const idx = newFechas.indexOf(fecha);
 	
 	if (idx >= 0) {
 		newTallas[idx] = talla;
 	} else {
-		newDias.push(dia);
+		newFechas.push(fecha);
 		newTallas.push(talla);
 	}
 	
-	return { dias: newDias, tallas: newTallas };
+	return { fechas: newFechas, tallas: newTallas };
 }
 
-export function eliminarPunto(dias: number[], tallas: number[], dia: number) {
-	const idx = dias.indexOf(dia);
-	if (idx < 0) return { dias, tallas };
+export function eliminarPunto(fechas: string[], tallas: number[], fecha: string) {
+	const idx = fechas.indexOf(fecha);
+	if (idx < 0) return { fechas, tallas };
 	
 	return {
-		dias: dias.filter((_, i) => i !== idx),
+		fechas: fechas.filter((_, i) => i !== idx),
 		tallas: tallas.filter((_, i) => i !== idx)
 	};
 }

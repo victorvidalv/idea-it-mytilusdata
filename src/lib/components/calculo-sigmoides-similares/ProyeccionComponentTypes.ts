@@ -15,7 +15,7 @@ export interface Ciclo {
 }
 
 export interface MedicionCargada {
-	dia: number;
+	fecha: string;
 	talla: number;
 }
 
@@ -37,7 +37,7 @@ export interface CurvaUsada {
 	sse: number;
 	esCurvaLocal: boolean;
 	r2?: number;
-	parametros?: ParametrosSigmoidal;
+	parametros?: ParametrosSigmoidal | Record<string, number>;
 }
 
 export interface CurvaReferencia {
@@ -48,8 +48,8 @@ export interface CurvaReferencia {
 }
 
 export interface Metadatos {
-	rangoDias: string;
-	rangoTallas: string;
+	rangoDias: string | [number, number];
+	rangoTallas: string | [number, number];
 	tallaObjetivo?: number;
 	diaObjetivo?: number;
 	totalPuntos: number;
@@ -81,6 +81,8 @@ export interface ResultadoProyeccion {
 	metadatos?: Metadatos;
 	incertidumbre?: IncertidumbreProyeccion;
 	degradacionRMSE?: DegradacionRMSE;
+	modeloUsado?: string;
+	metricas?: Record<string, number>;
 	error?: string;
 }
 

@@ -4,14 +4,22 @@
 
 import type { ResultadoProyeccion } from './ProyeccionComponentTypes';
 
-export async function ejecutarProyeccion(dias: number[], tallas: number[], tallaObjetivo: string): Promise<ResultadoProyeccion> {
-	const body: Record<string, unknown> = { dias, tallas };
+export async function ejecutarProyeccion(
+	fechas: string[],
+	tallas: number[],
+	tallaObjetivo: string,
+	modelo?: string
+): Promise<ResultadoProyeccion> {
+	const body: Record<string, unknown> = { fechas, tallas };
 	const tallaObj = parseFloat(tallaObjetivo);
 	if (!isNaN(tallaObj) && tallaObj > 0) {
 		body.tallaObjetivo = tallaObj;
 	}
+	if (modelo) {
+		body.modelo = modelo;
+	}
 
-	const res = await fetch('/api/proyectar-sigmoides', {
+	const res = await fetch('/api/proyectar', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -24,6 +32,22 @@ export async function ejecutarProyeccion(dias: number[], tallas: number[], talla
 	}
 
 	return await res.json();
+}
+
+export async function obtenerModelosPrediccion(): Promise<Array<{ id: string; nombre: string; descripcion: string }>> {
+	const res = await fetch('/api/proyectar/models', {
+		method: 'GET',
+		headers: { Accept: 'application/json' },
+		credentials: 'include'
+	});
+
+	if (!res.ok) {
+		const errorData = await res.json().catch(() => ({ error: `Error HTTP ${res.status}` }));
+		throw new Error(errorData.error || `Error HTTP ${res.status}`);
+	}
+
+	const data = await res.json();
+	return data.modelos || [];
 }
 
 export function exportarCSV(resultado: ResultadoProyeccion) {

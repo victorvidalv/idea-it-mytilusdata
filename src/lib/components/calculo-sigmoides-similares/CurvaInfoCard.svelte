@@ -12,12 +12,11 @@ Refactorizado para usar tipos compartidos.
 
 	interface Props {
 		curvaUsada: CurvaUsada;
-		curvaReferencia?: CurvaReferencia;
 		metadatos?: Metadatos;
 		mediciones?: { dia: number; talla: number }[];
 	}
 
-	let { curvaUsada, curvaReferencia, metadatos, mediciones = [] }: Props = $props();
+	let { curvaUsada, metadatos, mediciones = [] }: Props = $props();
 
 	// Alertas delegadas al módulo curva-alertas
 	let alertas = $derived<Alerta[]>(
@@ -26,7 +25,7 @@ Refactorizado para usar tipos compartidos.
 			mediciones,
 			esCurvaLocal: curvaUsada.esCurvaLocal,
 			r2: curvaUsada.r2,
-			parametros: curvaUsada.parametros,
+			parametros: curvaUsada.parametros as any,
 			tallaObjetivo: metadatos?.tallaObjetivo
 		})
 	);
@@ -35,5 +34,5 @@ Refactorizado para usar tipos compartidos.
 <div class="space-y-4">
 	<CurvaIndicadores {curvaUsada} {metadatos} />
 	<CurvaAlertasPanel {alertas} />
-	<CurvaAnalisisMatematico {curvaUsada} {curvaReferencia} {metadatos} {mediciones} />
+	<CurvaAnalisisMatematico {curvaUsada} {metadatos} {mediciones} />
 </div>

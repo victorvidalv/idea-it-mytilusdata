@@ -166,8 +166,10 @@ describe('GET /api/proyeccion', () => {
 			expect(response.status).toBe(200);
 			expect(data.success).toBe(true);
 			expect(data.ciclo).toEqual({ id: 1, nombre: 'Ciclo 2024', fechaSiembra: '2024-01-01' });
-			expect(data.mediciones).toEqual(mockMediciones);
 			expect(data.mediciones).toHaveLength(5);
+			expect(data.mediciones[0]).toHaveProperty('fecha');
+			expect(data.mediciones[0]).toHaveProperty('dia');
+			expect(data.mediciones[0]).toHaveProperty('talla');
 		});
 	});
 

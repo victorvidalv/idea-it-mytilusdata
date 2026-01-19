@@ -28,29 +28,31 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 	interface Props {
 		proyeccion: PuntoProyeccion[];
 		curvaUsada?: CurvaUsada;
-		curvaReferencia?: CurvaReferencia;
 		metadatos?: Metadatos;
 		mediciones?: { dia: number; talla: number }[];
 		meta?: number;
 		incertidumbre?: IncertidumbreProyeccion;
 		degradacionRMSE?: DegradacionRMSE;
+		modeloUsado?: string;
+		metricas?: Record<string, number>;
 		onExportar: () => void;
 	}
 
 	let {
 		proyeccion,
 		curvaUsada,
-		curvaReferencia,
 		metadatos,
 		mediciones = [],
 		meta,
 		incertidumbre,
 		degradacionRMSE,
+		modeloUsado,
+		metricas,
 		onExportar
 	}: Props = $props();
 
 	let chartSeriesData = $derived(
-		construirSeriesProyeccion(proyeccion, mediciones, meta, curvaReferencia, incertidumbre)
+		construirSeriesProyeccion(proyeccion, mediciones, meta, undefined, incertidumbre)
 	);
 	let tablaDatos = $derived(construirTablaDatos(proyeccion, mediciones));
 	let chartDescription = $derived(generarDescripcionGrafico(mediciones, proyeccion));
@@ -116,37 +118,41 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 	);
 
 	let comparacionCurvas = $derived.by(() => {
-		if (!curvaReferencia?.parametros || !curvaUsada?.parametros) return [];
+		if (!curvaUsada?.parametros) return [];
 
-		const ref = curvaReferencia.parametros;
-		const usada = curvaUsada.parametros;
+		const usada = curvaUsada.parametros as Record<string, number>;
+		const items: Array<{ label: string; value: string; helper: string }> = [];
 
-		return [
-			{
-				label: 'Escala L',
-				value: `${ref.L.toFixed(1)} -> ${usada.L.toFixed(1)} mm`,
-				helper: `${(usada.L - ref.L >= 0 ? '+' : '') + (usada.L - ref.L).toFixed(1)} mm`
-			},
-			{
+		if (usada.L !== undefined) {
+			items.push({
+				label: 'Talla máx (L)',
+				value: `${usada.L.toFixed(1)} mm`,
+				helper: 'asíntota superior del modelo'
+			});
+		}
+		if (usada.k !== undefined) {
+			items.push({
 				label: 'Tasa k',
 				value: usada.k.toFixed(4),
-				helper: curvaUsada.esCurvaLocal
-					? 'optimizada localmente'
-					: 'tomada del perfil de referencia'
-			},
-			{
-				label: 'Inflexion x0',
-				value: `dia ${usada.x0.toFixed(1)}`,
-				helper: curvaUsada.esCurvaLocal
-					? 'ajustada a datos propios'
-					: `ref. dia ${ref.x0.toFixed(1)}`
-			},
-			{
-				label: 'Error de forma',
-				value: curvaReferencia.sse.toFixed(3),
-				helper: 'SSE normalizado'
-			}
-		];
+				helper: 'velocidad de crecimiento'
+			});
+		}
+		if (usada.x0 !== undefined) {
+			items.push({
+				label: 'Inflexión x0',
+				value: `día ${usada.x0.toFixed(1)}`,
+				helper: 'punto de máxima velocidad'
+			});
+		}
+		if (metricas?.rmse !== undefined) {
+			items.push({
+				label: 'RMSE',
+				value: metricas.rmse.toFixed(3),
+				helper: 'error cuadrático medio'
+			});
+		}
+
+		return items;
 	});
 
 	let resumenRiesgo = $derived.by(() => {
@@ -185,7 +191,7 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 
 <div id="grafico-resultados" class="scroll-mt-8 space-y-6">
 	{#if curvaUsada}
-		<CurvaInfoCard {curvaUsada} {curvaReferencia} {metadatos} {mediciones} />
+		<CurvaInfoCard {curvaUsada} {metadatos} {mediciones} />
 	{/if}
 
 	<Card.Root class="border-border/50">

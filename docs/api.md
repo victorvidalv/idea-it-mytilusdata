@@ -59,12 +59,15 @@ Todas las respuestas incluyen headers informativos sobre el estado del rate limi
 
 ## Endpoints Disponibles
 
-| Endpoint           | Método | Descripción                  | Rate Limit        |
-| ------------------ | ------ | ---------------------------- | ----------------- |
-| `/api/centros`     | GET    | Obtener centros de cultivo   | DEFAULT (100/min) |
-| `/api/ciclos`      | GET    | Obtener ciclos productivos   | DEFAULT (100/min) |
-| `/api/registros`   | GET    | Obtener registros/mediciones | DEFAULT (100/min) |
-| `/api/export-data` | GET    | Exportar datos a Excel       | EXPORT (10/min)   |
+| Endpoint                       | Método | Descripción                              | Rate Limit        |
+| ------------------------------ | ------ | ---------------------------------------- | ----------------- |
+| `/api/centros`                 | GET    | Obtener centros de cultivo               | DEFAULT (100/min) |
+| `/api/ciclos`                  | GET    | Obtener ciclos productivos               | DEFAULT (100/min) |
+| `/api/registros`               | GET    | Obtener registros/mediciones             | DEFAULT (100/min) |
+| `/api/export-data`             | GET    | Exportar datos a Excel                   | EXPORT (10/min)   |
+| `/api/proyectar-sigmoides`     | POST   | Ejecutar proyección de crecimiento       | DEFAULT (100/min) |
+| `/api/proyectar-sigmoides`     | GET    | Obtener mediciones para proyección       | DEFAULT (100/min) |
+| `/api/proyectar-sigmoides/models` | GET | Listar modelos de predicción disponibles | DEFAULT (100/min) |
 
 ---
 
@@ -715,6 +718,124 @@ if not registros.empty:
 | ------- | ------------- | --------------------------------------------- |
 | 2026-01 | Inicial       | Lanzamiento de API REST con endpoints básicos |
 | 2026-02 | Rate Limiting | Implementación de rate limiting diferenciado  |
+
+## POST /api/proyectar-sigmoides
+
+Ejecuta una proyección de crecimiento delegando el cálculo a un microservicio externo de predicción.
+
+> **Requiere autenticación de sesión** (cookie de sesión).
+
+### Solicitud
+
+```http
+POST /api/proyectar-sigmoides HTTP/1.1
+Host: tu-dominio.com
+Content-Type: application/json
+Cookie: session=jwt-token
+```
+
+### Body
+
+| Campo           | Tipo     | Requerido | Descripción                              |
+| --------------- | -------- | --------- | ---------------------------------------- |
+| `dias`          | number[] | Sí        | Días relativos desde la siembra          |
+| `tallas`        | number[] | Sí        | Tallas medidas en mm                     |
+| `tallaObjetivo` | number   | No        | Talla objetivo para calcular día estimado |
+| `diasMax`       | number   | No        | Horizonte máximo de proyección en días   |
+| `modelo`        | string   | No        | Modelo de predicción a usar (ver `/models`) |
+
+### Respuesta Exitosa (200 OK)
+
+```json
+{
+  "success": true,
+  "proyeccion": [
+    { "dia": 180, "talla": 65.2, "tipo": "proyectado" },
+    { "dia": 190, "talla": 68.1, "tipo": "proyectado" }
+  ],
+  "curvaUsada": {
+    "id": 0,
+    "codigoReferencia": "gompertz",
+    "sse": 1.2,
+    "esCurvaLocal": true,
+    "r2": 0.99,
+    "parametros": { "L": 100, "k": 0.1, "x0": 50 }
+  },
+  "metadatos": {
+    "rangoDias": [0, 150],
+    "rangoTallas": [10, 55],
+    "tallaObjetivo": 80,
+    "totalPuntos": 6
+  },
+  "modeloUsado": "gompertz",
+  "metricas": {
+    "r_squared": 0.99,
+    "rmse": 1.2
+  },
+  "incertidumbre": {
+    "dias": [160, 170, 180],
+    "mediana": [60, 62.5, 65.2],
+    "limiteInferior": [58, 60, 63],
+    "limiteSuperior": [62, 65, 67.5]
+  }
+}
+```
+
+### Respuesta Fallida (422 Unprocessable Entity)
+
+```json
+{
+  "error": "Datos insuficientes para el modelo",
+  "metadatos": { "totalPuntos": 6 }
+}
+```
+
+### Errores
+
+| Código | Descripción                      |
+| ------ | -------------------------------- |
+| 401    | Usuario no autenticado           |
+| 400    | Body inválido o faltan campos    |
+| 422    | La API externa no pudo proyectar |
+| 500    | Error interno del servidor       |
+
+---
+
+## GET /api/proyectar-sigmoides/models
+
+Obtiene la lista de modelos de predicción disponibles en el microservicio externo.
+
+> **Requiere autenticación de sesión**.
+
+### Solicitud
+
+```http
+GET /api/proyectar-sigmoides/models HTTP/1.1
+Host: tu-dominio.com
+Cookie: session=jwt-token
+```
+
+### Respuesta Exitosa (200 OK)
+
+```json
+{
+  "success": true,
+  "modelos": [
+    {
+      "id": "gompertz",
+      "nombre": "Gompertz",
+      "descripcion": "Modelo asimétrico de crecimiento"
+    },
+    {
+      "id": "logistic_growth",
+      "nombre": "Logístico",
+      "descripcion": "Modelo sigmoidal simétrico"
+    }
+  ]
+}
+```
+
+---
 
 ### Notas de Versionamiento
 

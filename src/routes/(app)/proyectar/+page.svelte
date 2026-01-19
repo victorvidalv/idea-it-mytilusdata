@@ -1,7 +1,7 @@
 <!--
 Página de proyección de crecimiento para usuarios autenticados.
 Permite al usuario ingresar sus datos y proyectar el crecimiento
-mediante ajuste logístico y perfiles históricos de referencia.
+mediante modelos predictivos externos.
 -->
 <script lang="ts">
 	import ProyeccionPanel from '$lib/components/calculo-sigmoides-similares/ProyeccionPanel.svelte';
@@ -11,7 +11,7 @@ mediante ajuste logístico y perfiles históricos de referencia.
 </script>
 
 <svelte:head>
-	<title>Proyectar Sigmoides | MytilusData</title>
+	<title>Proyectar Crecimiento | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-6">
@@ -24,11 +24,11 @@ mediante ajuste logístico y perfiles históricos de referencia.
 				Análisis
 			</p>
 			<h1 class="font-display text-3xl leading-tight text-foreground md:text-4xl">
-				Proyectar <span class="text-gradient-ocean">Sigmoides</span>
+				Proyectar <span class="text-gradient-ocean">Crecimiento</span>
 			</h1>
 			<p class="mt-2 font-body text-sm text-muted-foreground">
-				Ingresa al menos cinco mediciones día-talla para estimar una curva logística, compararla con
-				perfiles históricos y visualizar el rango esperado de crecimiento.
+				Ingresa al menos cinco mediciones día-talla para proyectar el crecimiento
+				mediante modelos predictivos y visualizar el rango esperado.
 			</p>
 		</div>
 	</div>

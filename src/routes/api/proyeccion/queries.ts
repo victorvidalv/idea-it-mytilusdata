@@ -5,7 +5,7 @@
 import { db } from '$lib/server/db';
 import { ciclos, mediciones, tiposRegistro } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
-import type { CicloInfo, MedicionConDia } from './types';
+import type { CicloInfo, MedicionConFecha } from './types';
 
 /**
  * Obtener información básica de un ciclo.
@@ -65,20 +65,14 @@ export async function obtenerMedicionesTalla(
 }
 
 /**
- * Convertir mediciones a formato con día calculado.
+ * Convertir mediciones a formato con fecha real (ISO).
+ * Ya no calcula días desde siembra; la API se encarga de eso.
  */
-export function convertirMedicionesADias(
-	mediciones: Array<{ valor: number; fechaMedicion: Date }>,
-	fechaSiembra: Date
-): MedicionConDia[] {
-	const fechaSiembraMs = fechaSiembra.getTime();
-
-	return mediciones.map((m) => {
-		const fechaMedMs = new Date(m.fechaMedicion).getTime();
-		const dia = Math.round((fechaMedMs - fechaSiembraMs) / (1000 * 60 * 60 * 24));
-		return {
-			dia,
-			talla: m.valor
-		};
-	});
+export function convertirMedicionesAFormato(
+	mediciones: Array<{ valor: number; fechaMedicion: Date }>
+): MedicionConFecha[] {
+	return mediciones.map((m) => ({
+		fecha: new Date(m.fechaMedicion).toISOString().split('T')[0],
+		talla: m.valor
+	}));
 }

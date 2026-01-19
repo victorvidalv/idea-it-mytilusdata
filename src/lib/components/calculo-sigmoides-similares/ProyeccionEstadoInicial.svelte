@@ -39,10 +39,10 @@
 						{#if error}
 							{error}
 						{:else if listo}
-							Ejecuta la proyección para ajustar el perfil logístico, estimar el día objetivo y
+							Ejecuta la proyección para estimar el crecimiento futuro, calcular el día objetivo y
 							visualizar el rango esperado.
 						{:else}
-							El ajuste requiere al menos {minimoPuntos} pares día-talla. Agrega {faltantes}
+							La proyección requiere al menos {minimoPuntos} pares día-talla. Agrega {faltantes}
 							{faltantes === 1 ? ' medición adicional' : ' mediciones adicionales'} para habilitar la
 							predicción.
 						{/if}
@@ -61,7 +61,7 @@
 					<p class="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
 						Modelo
 					</p>
-					<p class="mt-1 text-sm font-semibold">Logístico restringido</p>
+					<p class="mt-1 text-sm font-semibold">Predictivo externo</p>
 				</div>
 				<div class="rounded-lg border border-border/40 bg-secondary/20 p-3">
 					<p class="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">

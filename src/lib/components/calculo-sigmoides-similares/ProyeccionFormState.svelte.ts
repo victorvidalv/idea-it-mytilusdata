@@ -8,7 +8,7 @@ export function createFormState() {
 	let cargandoDatos = $state(false);
 	let errorCarga = $state('');
 	let medicionesCargadas = $state<MedicionCargada[]>([]);
-	let nuevoDia = $state('');
+	let nuevaFecha = $state('');
 	let nuevaTalla = $state('');
 
 	return {
@@ -24,8 +24,8 @@ export function createFormState() {
 		set errorCarga(v) { errorCarga = v; },
 		get medicionesCargadas() { return medicionesCargadas; },
 		set medicionesCargadas(v) { medicionesCargadas = v; },
-		get nuevoDia() { return nuevoDia; },
-		set nuevoDia(v) { nuevoDia = v; },
+		get nuevaFecha() { return nuevaFecha; },
+		set nuevaFecha(v) { nuevaFecha = v; },
 		get nuevaTalla() { return nuevaTalla; },
 		set nuevaTalla(v) { nuevaTalla = v; },
         
@@ -52,11 +52,11 @@ export function createFormState() {
             this.resetCiclo();
         },
 
-        handleAgregarPunto(onAgregar: (d: number, t: number) => void, onError: (e: string) => void) {
-            const res = Actions.validarPuntoManual(nuevoDia, nuevaTalla);
+        handleAgregarPunto(onAgregar: (f: string, t: number) => void, onError: (e: string) => void) {
+            const res = Actions.validarPuntoManual(nuevaFecha, nuevaTalla);
             if (res.error) { onError(res.error); return; }
-            onAgregar(res.dia, res.talla);
-            nuevoDia = ''; nuevaTalla = ''; onError('');
+            onAgregar(res.fecha, res.talla);
+            nuevaFecha = ''; nuevaTalla = ''; onError('');
         }
 	};
 }

@@ -3,7 +3,7 @@ import { validarDatosUsuario } from './similitud-validation';
 
 describe('validarDatosUsuario', () => {
 	it('retorna null para datos válidos', () => {
-		const datos = { dias: [0, 30, 60], tallas: [25, 35, 45] };
+		const datos = { dias: [0, 30, 60, 90, 120], tallas: [25, 35, 45, 55, 65] };
 		expect(validarDatosUsuario(datos)).toBeNull();
 	});
 

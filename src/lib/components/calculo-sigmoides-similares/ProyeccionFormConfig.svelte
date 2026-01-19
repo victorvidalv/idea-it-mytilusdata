@@ -5,15 +5,17 @@
 
 	interface Props {
 		tallaObjetivo: string;
+		modeloSeleccionado?: string;
+		modelosDisponibles?: Array<{ id: string; nombre: string; descripcion: string }>;
 		cargando: boolean;
-		diasCount: number;
+		fechasCount: number;
 		onEjecutarProyeccion: () => void;
 	}
 
-	let { tallaObjetivo = $bindable(), cargando, diasCount, onEjecutarProyeccion }: Props = $props();
+	let { tallaObjetivo = $bindable(), modeloSeleccionado = $bindable(''), modelosDisponibles = [], cargando, fechasCount, onEjecutarProyeccion }: Props = $props();
 
 	const MIN_PUNTOS_PROYECCION = 5;
-	let faltantes = $derived(Math.max(0, MIN_PUNTOS_PROYECCION - diasCount));
+	let faltantes = $derived(Math.max(0, MIN_PUNTOS_PROYECCION - fechasCount));
 </script>
 
 <div class="flex flex-col gap-4">
@@ -42,10 +44,26 @@
 				class="h-11 rounded-xl border-border/50 bg-secondary/50 transition-all focus:border-ocean-light focus:ring-ocean-light/20"
 			/>
 		</div>
+		{#if modelosDisponibles.length > 0}
+			<div class="flex-1 space-y-2">
+				<Label class="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+					Modelo de predicción
+				</Label>
+				<select
+					bind:value={modeloSeleccionado}
+					class="h-11 w-full rounded-xl border border-border/50 bg-secondary/50 px-3 text-sm transition-all focus:border-ocean-light focus:ring-ocean-light/20"
+				>
+					<option value="">Auto (recomendado)</option>
+					{#each modelosDisponibles as modelo}
+						<option value={modelo.id}>{modelo.nombre}</option>
+					{/each}
+				</select>
+			</div>
+		{/if}
 		<div class="flex items-end">
 			<Button
 				onclick={onEjecutarProyeccion}
-				disabled={diasCount < MIN_PUNTOS_PROYECCION || cargando}
+				disabled={fechasCount < MIN_PUNTOS_PROYECCION || cargando}
 				class="h-11 rounded-xl bg-ocean-mid hover:bg-ocean-light"
 			>
 				{cargando ? 'Proyectando...' : 'Ejecutar Proyección'}

@@ -1,5 +1,3 @@
-import type { ParametrosSigmoidal } from './proyeccionUtils';
-
 // Tipo de alerta
 export interface Alerta {
 	tipo: 'warning' | 'info';
@@ -13,6 +11,5 @@ export interface ParametrosAlertas {
 	mediciones: { dia: number; talla: number }[];
 	esCurvaLocal: boolean;
 	r2?: number;
-	parametros?: ParametrosSigmoidal;
 	tallaObjetivo?: number;
 }

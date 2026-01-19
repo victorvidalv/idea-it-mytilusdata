@@ -14,7 +14,7 @@
 		medicionesCargadas: MedicionCargada[];
 		onCargarMediciones: () => void;
 		onUsarMedicionesCargadas: () => void;
-		onEliminarMedicionCargada: (dia: number) => void;
+		onEliminarMedicionCargada: (fecha: string) => void;
 	}
 
 	let {
@@ -95,27 +95,27 @@
 				<table class="w-full text-sm">
 					<thead class="bg-secondary/30 text-muted-foreground">
 						<tr>
-							<th class="px-3 py-2 text-left font-medium">Día</th>
+							<th class="px-3 py-2 text-left font-medium">Fecha</th>
 							<th class="px-3 py-2 text-left font-medium">Talla (mm)</th>
 							<th class="px-3 py-2 text-right font-medium">Acciones</th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each medicionesCargadas as medicion}
-							<tr class="border-t border-border/30">
-								<td class="px-3 py-2">{medicion.dia}</td>
-								<td class="px-3 py-2">{medicion.talla.toFixed(1)}</td>
-								<td class="px-3 py-2 text-right">
-									<Button
-										variant="ghost"
-										size="sm"
-										onclick={() => onEliminarMedicionCargada(medicion.dia)}
-										class="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
-									>
-										Eliminar
-									</Button>
-								</td>
-							</tr>
+						<tr class="border-t border-border/30">
+							<td class="px-3 py-2">{medicion.fecha}</td>
+							<td class="px-3 py-2">{medicion.talla.toFixed(1)}</td>
+							<td class="px-3 py-2 text-right">
+								<Button
+									variant="ghost"
+									size="sm"
+									onclick={() => onEliminarMedicionCargada(medicion.fecha)}
+									class="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
+								>
+									Eliminar
+								</Button>
+							</td>
+						</tr>
 						{/each}
 					</tbody>
 				</table>

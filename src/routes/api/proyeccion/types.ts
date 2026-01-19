@@ -4,29 +4,33 @@
 
 /**
  * Request body para ejecutar proyección.
+ * Ahora usa fechas reales en lugar de días relativos.
  */
 export interface ProyeccionRequest {
-	dias: number[];
+	fechas: string[];
 	tallas: number[];
 	tallaObjetivo?: number;
 	diasMax?: number;
+	modelo?: string;
 }
 
 /**
  * Request body para exportar CSV.
  */
 export interface ProyeccionCSVRequest {
-	dias: number[];
+	fechas: string[];
 	tallas: number[];
 	tallaObjetivo?: number;
 	diasMax?: number;
+	modelo?: string;
 }
 
 /**
- * Datos de medición con día calculado.
+ * Datos de medición con fecha real (ISO).
+ * La API se encarga de calcular días internamente.
  */
-export interface MedicionConDia {
-	dia: number;
+export interface MedicionConFecha {
+	fecha: string;
 	talla: number;
 }
 
@@ -45,7 +49,7 @@ export interface CicloInfo {
 export interface GetProyeccionSuccess {
 	success: true;
 	ciclo: CicloInfo;
-	mediciones: MedicionConDia[];
+	mediciones: MedicionConFecha[];
 }
 
 /**
@@ -67,10 +71,24 @@ export type GetProyeccionResult = GetProyeccionSuccess | GetProyeccionError;
  */
 export interface PostProyeccionSuccess {
 	success: true;
-	proyeccion: number[];
-	curvaUsada: string;
-	curvaReferencia: number[];
+	proyeccion: Array<{ dia: number; talla: number; tipo: string }>;
+	curvaUsada: {
+		id: number;
+		codigoReferencia: string;
+		sse: number;
+		esCurvaLocal: boolean;
+		r2?: number;
+		parametros?: Record<string, number>;
+	};
 	metadatos: Record<string, unknown>;
+	modeloUsado?: string;
+	metricas?: Record<string, number>;
+	incertidumbre?: {
+		dias: number[];
+		mediana: number[];
+		limiteInferior: number[];
+		limiteSuperior: number[];
+	};
 }
 
 /**

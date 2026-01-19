@@ -5,7 +5,7 @@ const mockVerificarAutenticacion = vi.hoisted(() => vi.fn());
 const mockValidarCamposRequeridos = vi.hoisted(() => vi.fn());
 const mockValidarLongitudArrays = vi.hoisted(() => vi.fn());
 const mockValidarMinimoPuntos = vi.hoisted(() => vi.fn());
-const mockEjecutarProyeccion = vi.hoisted(() => vi.fn());
+const mockLlamarApiPrediccion = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../routes/api/proyeccion/validation', () => ({
 	verificarAutenticacion: mockVerificarAutenticacion,
@@ -14,8 +14,8 @@ vi.mock('../../../routes/api/proyeccion/validation', () => ({
 	validarMinimoPuntos: mockValidarMinimoPuntos
 }));
 
-vi.mock('$lib/server/biblioteca/similitud', () => ({
-	ejecutarProyeccion: mockEjecutarProyeccion
+vi.mock('$lib/server/prediction-service', () => ({
+	llamarApiPrediccion: mockLlamarApiPrediccion
 }));
 
 import { handlePostProyeccion } from '../../../routes/api/proyeccion/handlers/post';
@@ -39,12 +39,22 @@ describe('POST /api/proyeccion', () => {
 		mockValidarCamposRequeridos.mockReturnValue({ valido: true });
 		mockValidarLongitudArrays.mockReturnValue({ valido: true });
 		mockValidarMinimoPuntos.mockReturnValue({ valido: true });
-		mockEjecutarProyeccion.mockResolvedValue({
+		mockLlamarApiPrediccion.mockResolvedValue({
 			success: true,
-			proyeccion: [10, 20, 30],
-			curvaUsada: 'curva-1',
-			curvaReferencia: [5, 15, 25],
-			metadatos: { tipo: 'test' }
+			modelo_usado: 'gompertz',
+			predicciones: [
+				{ fecha: '2024-01-02', talla: 10.5 },
+				{ fecha: '2024-01-03', talla: 20.3 },
+				{ fecha: '2024-01-04', talla: 30.1 }
+			],
+			parametros_modelo: { L: 100, k: 0.1, x0: 50 },
+			metricas: { r_squared: 0.99, rmse: 1.2 },
+			incertidumbre: {
+				dias: [2, 3, 4],
+				mediana: [10.5, 20.3, 30.1],
+				limite_inferior: [9, 19, 29],
+				limite_superior: [12, 21, 31]
+			}
 		});
 	});
 
@@ -128,33 +138,41 @@ describe('POST /api/proyeccion', () => {
 
 			expect(response.status).toBe(200);
 			expect(data.success).toBe(true);
-			expect(data.proyeccion).toEqual([10, 20, 30]);
-			expect(data.curvaUsada).toBe('curva-1');
-			expect(data.curvaReferencia).toEqual([5, 15, 25]);
-			expect(data.metadatos).toEqual({ tipo: 'test' });
+			expect(data.proyeccion).toBeDefined();
+			expect(data.proyeccion.length).toBe(3);
+			expect(data.curvaUsada).toBeDefined();
+			expect(data.curvaUsada.codigoReferencia).toBe('gompertz');
+			expect(data.modeloUsado).toBe('gompertz');
+			expect(data.metricas.r_squared).toBe(0.99);
 		});
 
-		it('debería llamar a ejecutarProyeccion con los parámetros correctos', async () => {
+		it('debería llamar a la API externa con los parámetros correctos', async () => {
 			const body = {
 				dias: [1, 2, 3],
 				tallas: [10, 20, 30],
 				tallaObjetivo: 25,
-				diasMax: 90
+				diasMax: 90,
+				modelo: 'gompertz'
 			};
 
 			const event = createPostEvent({ body });
 			await handlePostProyeccion(event);
 
-			expect(mockEjecutarProyeccion).toHaveBeenCalledWith(
-				{ dias: [1, 2, 3], tallas: [10, 20, 30] },
-				{ tallaObjetivo: 25, diasMax: 90 }
-			);
+			expect(mockLlamarApiPrediccion).toHaveBeenCalledWith({
+				datos: [
+					{ fecha: '2024-01-02', talla: 10 },
+					{ fecha: '2024-01-03', talla: 20 },
+					{ fecha: '2024-01-04', talla: 30 }
+				],
+				config: { talla_objetivo: 25, horizon: 90 },
+				modelo: 'gompertz'
+			});
 		});
 
-		it('debería retornar 422 si la proyección falla', async () => {
-			mockEjecutarProyeccion.mockResolvedValue({
+		it('debería retornar 422 si la API externa falla', async () => {
+			mockLlamarApiPrediccion.mockResolvedValue({
 				success: false,
-				error: 'No se pudo calcular la proyección'
+				warnings: ['Datos insuficientes']
 			});
 
 			const event = createPostEvent({
@@ -164,29 +182,11 @@ describe('POST /api/proyeccion', () => {
 			const data = await response.json();
 
 			expect(response.status).toBe(422);
-			expect(data.error).toBe('No se pudo calcular la proyección');
-		});
-
-		it('debería retornar 422 con metadatos cuando la proyección falla', async () => {
-			mockEjecutarProyeccion.mockResolvedValue({
-				success: false,
-				error: 'Datos insuficientes',
-				metadatos: { puntos: 2, minimo: 3 }
-			});
-
-			const event = createPostEvent({
-				body: { dias: [1, 2], tallas: [10, 20] }
-			});
-			const response = await handlePostProyeccion(event);
-			const data = await response.json();
-
-			expect(response.status).toBe(422);
 			expect(data.error).toBe('Datos insuficientes');
-			expect(data.metadatos).toEqual({ puntos: 2, minimo: 3 });
 		});
 
-		it('debería retornar 422 con mensaje por defecto si no hay error', async () => {
-			mockEjecutarProyeccion.mockResolvedValue({
+		it('debería retornar 422 con mensaje por defecto si no hay warnings', async () => {
+			mockLlamarApiPrediccion.mockResolvedValue({
 				success: false
 			});
 
@@ -221,8 +221,8 @@ describe('POST /api/proyeccion', () => {
 			consoleSpy.mockRestore();
 		});
 
-		it('debería retornar 500 si ejecutarProyeccion lanza una excepción', async () => {
-			mockEjecutarProyeccion.mockRejectedValue(new Error('Error inesperado'));
+		it('debería retornar 500 si la API externa lanza una excepción', async () => {
+			mockLlamarApiPrediccion.mockRejectedValue(new Error('Timeout de API'));
 
 			const event = createPostEvent({
 				body: { dias: [1, 2, 3], tallas: [10, 20, 30] }

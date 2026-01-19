@@ -7,7 +7,17 @@
     }
     let { metadatos, curvaUsada }: Props = $props();
 
-    let esMetaSuperada = $derived(metadatos.tallaObjetivo && curvaUsada.parametros && metadatos.tallaObjetivo >= curvaUsada.parametros.L);
+    // Extraer talla máxima según el modelo usado
+    function getTallaMaxima(parametros: Record<string, number> | undefined): number | undefined {
+        if (!parametros) return undefined;
+        if (parametros.L !== undefined) return parametros.L;
+        if (parametros.Linf !== undefined) return parametros.Linf;
+        if (parametros.a !== undefined) return parametros.a;
+        return undefined;
+    }
+
+    let tallaMax = $derived(getTallaMaxima(curvaUsada.parametros));
+    let esMetaSuperada = $derived(metadatos.tallaObjetivo && tallaMax !== undefined && metadatos.tallaObjetivo >= tallaMax);
 </script>
 
 {#if metadatos.diaObjetivo && metadatos.tallaObjetivo}
@@ -21,8 +31,8 @@
         <p class="text-[10px] font-medium uppercase tracking-wider text-yellow-600">⚠️ Meta</p>
         <p class="font-mono text-sm font-semibold text-yellow-600">{metadatos.tallaObjetivo} mm</p>
         <p class="text-[10px] text-muted-foreground">
-            {#if esMetaSuperada}
-                Supera L = {curvaUsada.parametros?.L.toFixed(1)} mm
+            {#if esMetaSuperada && tallaMax !== undefined}
+                Supera talla máx = {tallaMax.toFixed(1)} mm
             {:else}
                 Fuera del rango proyectable
             {/if}

@@ -8,7 +8,7 @@ import { handleGetProyeccion, handlePostProyeccion } from './handlers';
 
 /**
  * GET /api/proyeccion?cicloId=123
- * Ruta de compatibilidad. El endpoint canonico es /api/proyectar-sigmoides.
+ * Ruta de compatibilidad. El endpoint canonico es /api/proyectar.
  * Obtiene las mediciones de talla de un ciclo para proyección.
  */
 export async function GET(event: RequestEvent): Promise<Response> {
@@ -17,8 +17,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 /**
  * POST /api/proyeccion
- * Ruta de compatibilidad. El endpoint canonico es /api/proyectar-sigmoides.
- * Ejecuta la proyección de crecimiento usando el servicio de similitud.
+ * Ruta de compatibilidad. El endpoint canonico es /api/proyectar.
+ * Ejecuta la proyección de crecimiento usando el servicio de predicción externo.
  */
 export async function POST(event: RequestEvent): Promise<Response> {
 	return handlePostProyeccion(event);

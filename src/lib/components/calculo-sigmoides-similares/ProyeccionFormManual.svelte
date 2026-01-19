@@ -4,14 +4,14 @@
 	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
-		nuevoDia: string;
+		nuevaFecha: string;
 		nuevaTalla: string;
 		onAgregarPunto: () => void;
 		handleKeydown: (e: KeyboardEvent) => void;
 	}
 
 	let {
-		nuevoDia = $bindable(),
+		nuevaFecha = $bindable(),
 		nuevaTalla = $bindable(),
 		onAgregarPunto,
 		handleKeydown
@@ -20,13 +20,11 @@
 
 <div class="flex flex-col gap-4 sm:flex-row">
 	<div class="flex-1 space-y-2">
-		<Label class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Día</Label>
+		<Label class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Fecha</Label>
 		<Input
-			type="number"
-			placeholder="Ej: 0, 30, 60..."
-			bind:value={nuevoDia}
+			type="date"
+			bind:value={nuevaFecha}
 			onkeydown={handleKeydown}
-			min="0"
 			class="h-11 rounded-xl border-border/50 bg-secondary/50 transition-all focus:border-ocean-light focus:ring-ocean-light/20"
 		/>
 	</div>
@@ -48,7 +46,7 @@
 	<div class="flex items-end">
 		<Button
 			onclick={onAgregarPunto}
-			disabled={nuevoDia === '' || nuevaTalla === ''}
+			disabled={nuevaFecha === '' || nuevaTalla === ''}
 			class="h-11 rounded-xl bg-ocean-mid hover:bg-ocean-light"
 		>
 			Agregar

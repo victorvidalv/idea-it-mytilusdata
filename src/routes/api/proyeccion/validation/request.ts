@@ -9,10 +9,10 @@ import type { ValidacionResult } from './auth';
  * Validar que los campos requeridos existan en el body.
  */
 export function validarCamposRequeridos(body: Partial<ProyeccionRequest>): ValidacionResult {
-	if (!body.dias || !Array.isArray(body.dias)) {
+	if (!body.fechas || !Array.isArray(body.fechas)) {
 		return {
 			valido: false,
-			error: 'Campo requerido: dias (array de números)'
+			error: 'Campo requerido: fechas (array de fechas ISO)'
 		};
 	}
 
@@ -30,10 +30,10 @@ export function validarCamposRequeridos(body: Partial<ProyeccionRequest>): Valid
  * Validar que los arrays tengan la misma longitud.
  */
 export function validarLongitudArrays(body: ProyeccionRequest): ValidacionResult {
-	if (body.dias.length !== body.tallas.length) {
+	if (body.fechas.length !== body.tallas.length) {
 		return {
 			valido: false,
-			error: 'Los arrays dias y tallas deben tener la misma longitud'
+			error: 'Los arrays fechas y tallas deben tener la misma longitud'
 		};
 	}
 
@@ -44,7 +44,7 @@ export function validarLongitudArrays(body: ProyeccionRequest): ValidacionResult
  * Validar cantidad mínima de puntos para proyección.
  */
 export function validarMinimoPuntos(body: ProyeccionRequest): ValidacionResult {
-	if (body.dias.length < 5) {
+	if (body.fechas.length < 5) {
 		return {
 			valido: false,
 			error: 'Se requieren al menos 5 mediciones para ejecutar una proyección estable'

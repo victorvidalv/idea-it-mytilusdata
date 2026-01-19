@@ -1,14 +1,14 @@
 /**
- * Handler compartido para GET /api/proyectar-sigmoides y compatibilidad /api/proyeccion.
+ * Handler compartido para GET /api/proyectar y compatibilidad /api/proyeccion.
  */
 
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { verificarAutenticacion, validarCicloIdParam, obtenerCicloId } from '../validation';
-import { obtenerCiclo, obtenerMedicionesTalla, convertirMedicionesADias } from '../queries';
+import { obtenerCiclo, obtenerMedicionesTalla, convertirMedicionesAFormato } from '../queries';
 
 /**
- * GET /api/proyectar-sigmoides?cicloId=123
+ * GET /api/proyectar?cicloId=123
  * Obtiene las mediciones de talla de un ciclo para proyección.
  * Requiere autenticación y que el ciclo pertenezca al usuario.
  */
@@ -37,7 +37,7 @@ export async function handleGetProyeccion({ locals, url }: RequestEvent): Promis
 		}
 
 		const medicionesRaw = await obtenerMedicionesTalla(cicloId, userId);
-		const mediciones = convertirMedicionesADias(medicionesRaw, ciclo.fechaSiembra);
+		const mediciones = convertirMedicionesAFormato(medicionesRaw);
 
 		if (mediciones.length < 5) {
 			return json(
@@ -59,7 +59,7 @@ export async function handleGetProyeccion({ locals, url }: RequestEvent): Promis
 			mediciones
 		});
 	} catch (error) {
-		console.error('Error en GET /api/proyectar-sigmoides:', error);
+		console.error('Error en GET /api/proyectar:', error);
 		return json({ error: 'Error interno del servidor' }, { status: 500 });
 	}
 }

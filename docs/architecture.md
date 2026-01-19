@@ -37,6 +37,7 @@ graph TB
     subgraph External [Servicios Externos]
         Resend[Resend - Emails]
         Turnstile[Cloudflare Turnstile]
+        PredictionAPI[Microservicio Python de Predicciones]
     end
 
     UI --> Routes
@@ -800,6 +801,50 @@ const conteoMap = new Map(ciclosPorLugar.map((c) => [c.lugarId, c.total]));
 3. **Monitoring**: Implementar APM (Application Performance Monitoring)
 4. **Logging**: Centralizar logs con servicio externo
 5. **Backups**: Configurar backups automáticos de BD
+
+## Microservicio de Predicciones
+
+El sistema delega el cálculo de proyecciones de crecimiento a un microservicio Python externo.
+
+### Arquitectura
+
+```mermaid
+graph LR
+    Frontend[Frontend SvelteKit] -->|POST /api/proyectar-sigmoides| Backend[SvelteKit Backend]
+    Backend -->|POST /predict| PredictionAPI[Microservicio Python]
+    PredictionAPI -->|{predicciones, metricas}| Backend
+    Backend -->|{proyeccion, curvaUsada, metricas}| Frontend
+```
+
+### Configuración
+
+| Variable de Entorno     | Descripción                              | Valor por Defecto                                    |
+| ----------------------- | ---------------------------------------- | ---------------------------------------------------- |
+| `PREDICTION_API_URL`    | URL base del microservicio de predicción | `https://t2g-apipython.v6qptm.easypanel.host`        |
+
+### Endpoints del Microservicio
+
+| Endpoint           | Método | Descripción                              |
+| ------------------ | ------ | ---------------------------------------- |
+| `/health`          | GET    | Health check                             |
+| `/config`          | GET    | Configuración del servicio               |
+| `/config/models`   | GET    | Lista de modelos disponibles             |
+| `/predict`         | POST   | Ejecutar predicción                      |
+
+### Flujo de Proyección
+
+1. El frontend envía `dias`, `tallas`, `tallaObjetivo` y `modelo` opcional
+2. El backend transforma los días relativos a fechas ISO
+3. Llama al microservicio con el payload normalizado
+4. Recibe predicciones, métricas y parámetros del modelo
+5. Normaliza la respuesta al formato esperado por el frontend
+6. Incluye `modeloUsado`, `metricas` (r², RMSE) e `incertidumbre` cuando están disponibles
+
+### Modelos Soportados
+
+El frontend puede elegir entre los modelos disponibles cargados dinámicamente desde `/config/models`. Si no se especifica modelo, el microservicio selecciona automáticamente el más adecuado.
+
+---
 
 ## Próximos Pasos
 

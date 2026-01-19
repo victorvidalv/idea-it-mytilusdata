@@ -17,9 +17,11 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 
 	let { lugares, ciclos }: Props = $props();
 
-	let dias = $state<number[]>([]);
+	let fechas = $state<string[]>([]);
 	let tallas = $state<number[]>([]);
 	let tallaObjetivo = $state('');
+	let modeloSeleccionado = $state('');
+	let modelosDisponibles = $state<Array<{ id: string; nombre: string; descripcion: string }>>([]);
 	let cargando = $state(false);
 	let error = $state('');
 	let resultado = $state<ResultadoProyeccion | null>(null);
@@ -27,29 +29,48 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	const MIN_PUNTOS_PROYECCION = 5;
 	let hayProyeccion = $derived(!!(resultado?.success && resultado.proyeccion?.length));
 
-	function handleAgregarPunto(dia: number, talla: number) {
-		const res = agregarPunto(dias, tallas, dia, talla);
-		dias = res.dias;
+	// Calcular días relativos desde la primera fecha para mostrar en UI
+	function calcularDiasDesdePrimeraFecha(fechas: string[]): number[] {
+		if (fechas.length === 0) return [];
+		const fechaInicio = new Date(fechas[0] + 'T00:00:00Z');
+		return fechas.map((f) => {
+			const fecha = new Date(f + 'T00:00:00Z');
+			return Math.round((fecha.getTime() - fechaInicio.getTime()) / (1000 * 60 * 60 * 24));
+		});
+	}
+
+	let dias = $derived(calcularDiasDesdePrimeraFecha(fechas));
+
+	// Cargar modelos al montar
+	$effect(() => {
+		Actions.obtenerModelosPrediccion()
+			.then((m) => { modelosDisponibles = m; })
+			.catch(() => { modelosDisponibles = []; });
+	});
+
+	function handleAgregarPunto(fecha: string, talla: number) {
+		const res = agregarPunto(fechas, tallas, fecha, talla);
+		fechas = res.fechas;
 		tallas = res.tallas;
 		resultado = null;
 	}
 
-	function handleEliminarPunto(dia: number) {
-		const res = eliminarPunto(dias, tallas, dia);
-		dias = res.dias;
+	function handleEliminarPunto(fecha: string) {
+		const res = eliminarPunto(fechas, tallas, fecha);
+		fechas = res.fechas;
 		tallas = res.tallas;
 		resultado = null;
 	}
 
-	function handleUsarMediciones(mediciones: { dia: number; talla: number }[]) {
-		dias = mediciones.map((m) => m.dia);
+	function handleUsarMediciones(mediciones: { fecha: string; talla: number }[]) {
+		fechas = mediciones.map((m) => m.fecha);
 		tallas = mediciones.map((m) => m.talla);
 		resultado = null;
 	}
 
 	async function handleEjecutarProyeccion() {
-		if (dias.length < MIN_PUNTOS_PROYECCION) {
-			const faltantes = MIN_PUNTOS_PROYECCION - dias.length;
+		if (fechas.length < MIN_PUNTOS_PROYECCION) {
+			const faltantes = MIN_PUNTOS_PROYECCION - fechas.length;
 			error = `Se requieren al menos ${MIN_PUNTOS_PROYECCION} mediciones para proyectar. Faltan ${faltantes}.`;
 			resultado = null;
 			return;
@@ -57,7 +78,7 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 		cargando = true;
 		error = '';
 		try {
-			resultado = await Actions.ejecutarProyeccion(dias, tallas, tallaObjetivo);
+			resultado = await Actions.ejecutarProyeccion(fechas, tallas, tallaObjetivo, modeloSeleccionado || undefined);
 			if (!resultado.success) error = resultado.error || 'Error en proyección';
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error de conexión';
@@ -71,9 +92,12 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	<ProyeccionForm
 		{lugares}
 		{ciclos}
+		{fechas}
 		{dias}
 		{tallas}
 		bind:tallaObjetivo
+		bind:modeloSeleccionado
+		{modelosDisponibles}
 		{error}
 		{cargando}
 		onAgregarPunto={handleAgregarPunto}
@@ -86,12 +110,13 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 		<ProyeccionResultados
 			proyeccion={resultado!.proyeccion || []}
 			curvaUsada={resultado!.curvaUsada}
-			curvaReferencia={resultado!.curvaReferencia}
 			meta={resultado!.metadatos?.tallaObjetivo}
 			metadatos={resultado!.metadatos}
 			mediciones={dias.map((d, i) => ({ dia: d, talla: tallas[i] }))}
 			incertidumbre={resultado!.incertidumbre}
 			degradacionRMSE={resultado!.degradacionRMSE}
+			modeloUsado={resultado!.modeloUsado}
+			metricas={resultado!.metricas}
 			onExportar={() => Actions.exportarCSV(resultado!)}
 		/>
 	{:else if !cargando}

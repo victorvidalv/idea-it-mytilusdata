@@ -11,16 +11,17 @@ Formulario para mediciones. Refactorizado al máximo para svelteqa compliance.
     import ProyeccionFormTabla from './ProyeccionFormTabla.svelte';
     import ProyeccionFormConfig from './ProyeccionFormConfig.svelte';
     import { createFormState } from './ProyeccionFormState.svelte';
-    import type { Lugar, Ciclo } from './ProyeccionComponentTypes';
+	import type { Lugar, Ciclo, ModeloPrediccion } from './ProyeccionComponentTypes';
 
 	interface Props {
 		lugares?: Lugar[]; ciclos?: Ciclo[]; fechas: string[]; dias: number[]; tallas: number[]; tallaObjetivo?: string;
-		modeloSeleccionado?: string; modelosDisponibles?: Array<{ id: string; nombre: string; descripcion: string }>;
+		modeloSeleccionado?: string; modelosDisponibles?: ModeloPrediccion[];
+		horizon?: number;
 		onAgregarPunto: any; onEliminarPunto: any; onUsarMedicionesCargadas: any; onEjecutarProyeccion: any;
 		error: string; cargando: boolean;
 	}
 
-	let { lugares = [], ciclos = [], fechas, dias, tallas, tallaObjetivo = $bindable(''), modeloSeleccionado = $bindable(''), modelosDisponibles = [], onAgregarPunto, onEliminarPunto, onUsarMedicionesCargadas, onEjecutarProyeccion, error = $bindable(), cargando }: Props = $props();
+	let { lugares = [], ciclos = [], fechas, dias, tallas, tallaObjetivo = $bindable(''), modeloSeleccionado = $bindable(''), modelosDisponibles = [], horizon = $bindable(90), onAgregarPunto, onEliminarPunto, onUsarMedicionesCargadas, onEjecutarProyeccion, error = $bindable(), cargando }: Props = $props();
 
     const s = createFormState();
 
@@ -48,7 +49,7 @@ Formulario para mediciones. Refactorizado al máximo para svelteqa compliance.
 		<ProyeccionFormManual bind:nuevaFecha={s.nuevaFecha} bind:nuevaTalla={s.nuevaTalla} onAgregarPunto={hAdd} handleKeydown={(e: KeyboardEvent) => e.key === 'Enter' && hAdd()} />
 		{#if error}<p class="text-sm text-destructive">{error}</p>{/if}
 		<ProyeccionFormTabla {fechas} {dias} {tallas} {onEliminarPunto} />
-		<ProyeccionFormConfig bind:tallaObjetivo bind:modeloSeleccionado {modelosDisponibles} {cargando} fechasCount={fechas.length} {onEjecutarProyeccion} />
+		<ProyeccionFormConfig bind:tallaObjetivo bind:modeloSeleccionado {modelosDisponibles} {cargando} fechasCount={fechas.length} bind:horizon {onEjecutarProyeccion} />
 	</Card.Content>
 </Card.Root>
 

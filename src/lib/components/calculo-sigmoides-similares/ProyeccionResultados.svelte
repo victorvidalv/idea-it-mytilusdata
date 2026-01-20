@@ -24,6 +24,7 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 		IncertidumbreProyeccion,
 		DegradacionRMSE
 	} from './ProyeccionComponentTypes';
+	import { AlertTriangle, Info } from 'lucide-svelte';
 
 	interface Props {
 		proyeccion: PuntoProyeccion[];
@@ -35,6 +36,8 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 		degradacionRMSE?: DegradacionRMSE;
 		modeloUsado?: string;
 		metricas?: Record<string, number>;
+		warnings?: string[];
+		metadata?: Record<string, unknown>;
 		onExportar: () => void;
 	}
 
@@ -48,6 +51,8 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 		degradacionRMSE,
 		modeloUsado,
 		metricas,
+		warnings = [],
+		metadata = {},
 		onExportar
 	}: Props = $props();
 
@@ -191,7 +196,50 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 
 <div id="grafico-resultados" class="scroll-mt-8 space-y-6">
 	{#if curvaUsada}
-		<CurvaInfoCard {curvaUsada} {metadatos} {mediciones} />
+		<CurvaInfoCard {curvaUsada} {metadatos} {mediciones} {metadata} />
+	{/if}
+
+	{#if warnings.length > 0}
+		<div class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+			<div class="flex items-center gap-2 mb-2">
+				<AlertTriangle class="h-4 w-4 text-amber-600" />
+				<h4 class="text-sm font-semibold text-amber-800 dark:text-amber-200">Advertencias</h4>
+			</div>
+			<ul class="space-y-1">
+				{#each warnings as warning}
+					<li class="text-xs text-amber-700 dark:text-amber-300 flex items-start gap-1.5">
+						<span class="mt-1 h-1 w-1 rounded-full bg-amber-500 shrink-0"></span>
+						{warning}
+					</li>
+				{/each}
+			</ul>
+		</div>
+	{/if}
+
+	{#if metadata && Object.keys(metadata).length > 0}
+		<div class="rounded-xl border border-border/50 bg-card p-3">
+			<div class="flex items-center gap-2 mb-2">
+				<Info class="h-3.5 w-3.5 text-ocean-mid" />
+				<h4 class="text-xs font-semibold text-foreground uppercase tracking-wider">Metadata de la API</h4>
+			</div>
+			<div class="flex flex-wrap gap-2">
+				{#if metadata.contract_version}
+					<span class="inline-flex items-center rounded-md bg-ocean-mid/10 px-2 py-1 text-[10px] text-ocean-mid">
+						Versión: {metadata.contract_version}
+					</span>
+				{/if}
+				{#if metadata.fallback_used}
+					<span class="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-[10px] text-amber-600">
+						Usó fallback
+					</span>
+				{/if}
+				{#each Object.entries(metadata).filter(([k]) => k !== 'contract_version' && k !== 'fallback_used') as [key, value]}
+					<span class="inline-flex items-center rounded-md bg-secondary/50 px-2 py-1 text-[10px] text-muted-foreground">
+						{key}: {String(value)}
+					</span>
+				{/each}
+			</div>
+		</div>
 	{/if}
 
 	<Card.Root class="border-border/50">

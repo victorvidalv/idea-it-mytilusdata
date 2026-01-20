@@ -6,9 +6,10 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	import ProyeccionForm from './ProyeccionForm.svelte';
 	import ProyeccionResultados from './ProyeccionResultados.svelte';
 	import ProyeccionEstadoInicial from './ProyeccionEstadoInicial.svelte';
+	import ProyeccionDataQuality from './ProyeccionDataQuality.svelte';
 	import * as Actions from './ProyeccionPanelActions';
 	import { agregarPunto, eliminarPunto } from './ProyeccionPanelState';
-	import type { Lugar, Ciclo, ResultadoProyeccion } from './ProyeccionComponentTypes';
+	import type { Lugar, Ciclo, ResultadoProyeccion, ModeloPrediccion } from './ProyeccionComponentTypes';
 
 	interface Props {
 		lugares: Lugar[];
@@ -21,7 +22,8 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	let tallas = $state<number[]>([]);
 	let tallaObjetivo = $state('');
 	let modeloSeleccionado = $state('');
-	let modelosDisponibles = $state<Array<{ id: string; nombre: string; descripcion: string }>>([]);
+	let modelosDisponibles = $state<ModeloPrediccion[]>([]);
+	let horizon = $state(90);
 	let cargando = $state(false);
 	let error = $state('');
 	let resultado = $state<ResultadoProyeccion | null>(null);
@@ -78,7 +80,7 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 		cargando = true;
 		error = '';
 		try {
-			resultado = await Actions.ejecutarProyeccion(fechas, tallas, tallaObjetivo, modeloSeleccionado || undefined);
+			resultado = await Actions.ejecutarProyeccion(fechas, tallas, tallaObjetivo, modeloSeleccionado || undefined, horizon);
 			if (!resultado.success) error = resultado.error || 'Error en proyección';
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error de conexión';
@@ -89,6 +91,8 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 </script>
 
 <div class="space-y-6">
+	<ProyeccionDataQuality {fechas} {tallas} />
+
 	<ProyeccionForm
 		{lugares}
 		{ciclos}
@@ -100,6 +104,7 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 		{modelosDisponibles}
 		{error}
 		{cargando}
+		bind:horizon
 		onAgregarPunto={handleAgregarPunto}
 		onEliminarPunto={handleEliminarPunto}
 		onUsarMedicionesCargadas={handleUsarMediciones}
@@ -117,6 +122,8 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 			degradacionRMSE={resultado!.degradacionRMSE}
 			modeloUsado={resultado!.modeloUsado}
 			metricas={resultado!.metricas}
+			warnings={resultado!.warnings}
+			metadata={resultado!.metadata}
 			onExportar={() => Actions.exportarCSV(resultado!)}
 		/>
 	{:else if !cargando}

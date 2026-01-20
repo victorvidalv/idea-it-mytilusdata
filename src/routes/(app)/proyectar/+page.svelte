@@ -5,9 +5,46 @@ mediante modelos predictivos externos.
 -->
 <script lang="ts">
 	import ProyeccionPanel from '$lib/components/calculo-sigmoides-similares/ProyeccionPanel.svelte';
+	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+
+	// Estado de conexión con API
+	let apiStatus = $state<'checking' | 'online' | 'degraded' | 'offline'>('checking');
+	let modelosCount = $state<number | null>(null);
+
+	onMount(() => {
+		checkApiStatus();
+	});
+
+	async function checkApiStatus() {
+		try {
+			const controller = new AbortController();
+			const timeout = setTimeout(() => controller.abort(), 5000);
+			const res = await fetch('/api/proyectar/models', {
+				signal: controller.signal,
+				credentials: 'include'
+			});
+			clearTimeout(timeout);
+			if (res.ok) {
+				const data = await res.json();
+				modelosCount = data.modelos?.length ?? null;
+				apiStatus = 'online';
+			} else {
+				apiStatus = 'degraded';
+			}
+		} catch {
+			apiStatus = 'offline';
+		}
+	}
+
+	const statusConfig = {
+		checking: { label: 'Verificando...', color: 'bg-slate-400', text: 'text-slate-500' },
+		online: { label: 'Conectado', color: 'bg-emerald-500', text: 'text-emerald-600' },
+		degraded: { label: 'Degradado', color: 'bg-amber-500', text: 'text-amber-600' },
+		offline: { label: 'Sin conexión', color: 'bg-rose-500', text: 'text-rose-600' }
+	};
 </script>
 
 <svelte:head>
@@ -30,6 +67,19 @@ mediante modelos predictivos externos.
 				Ingresa al menos cinco mediciones día-talla para proyectar el crecimiento
 				mediante modelos predictivos y visualizar el rango esperado.
 			</p>
+		</div>
+		<div class="flex flex-col items-end gap-1.5">
+			<div class="flex items-center gap-2 rounded-full border border-border/50 bg-secondary/50 px-3 py-1.5">
+				<span class="h-2 w-2 rounded-full {statusConfig[apiStatus].color} animate-pulse"></span>
+				<span class="text-xs font-medium {statusConfig[apiStatus].text}">
+					{statusConfig[apiStatus].label}
+				</span>
+			</div>
+			{#if modelosCount !== null && apiStatus === 'online'}
+				<p class="text-[10px] text-muted-foreground">
+					{modelosCount} {modelosCount === 1 ? 'modelo' : 'modelos'} disponibles
+				</p>
+			{/if}
 		</div>
 	</div>
 

@@ -14,9 +14,10 @@ Refactorizado para usar tipos compartidos.
 		curvaUsada: CurvaUsada;
 		metadatos?: Metadatos;
 		mediciones?: { dia: number; talla: number }[];
+		metadata?: Record<string, unknown>;
 	}
 
-	let { curvaUsada, metadatos, mediciones = [] }: Props = $props();
+	let { curvaUsada, metadatos, mediciones = [], metadata = {} }: Props = $props();
 
 	// Alertas delegadas al módulo curva-alertas
 	let alertas = $derived<Alerta[]>(
@@ -32,6 +33,13 @@ Refactorizado para usar tipos compartidos.
 </script>
 
 <div class="space-y-4">
+	{#if metadata?.fallback_used}
+		<div class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+			<p class="text-xs text-amber-700 dark:text-amber-300">
+				<span class="font-semibold">Nota:</span> Se utilizó un modelo de respaldo (fallback) porque el modelo seleccionado no pudo ajustarse a los datos proporcionados.
+			</p>
+		</div>
+	{/if}
 	<CurvaIndicadores {curvaUsada} {metadatos} />
 	<CurvaAlertasPanel {alertas} />
 	<CurvaAnalisisMatematico {curvaUsada} {metadatos} {mediciones} />

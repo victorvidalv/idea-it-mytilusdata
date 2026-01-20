@@ -2,13 +2,14 @@
  * Acciones para ProyeccionPanel.svelte.
  */
 
-import type { ResultadoProyeccion } from './ProyeccionComponentTypes';
+import type { ResultadoProyeccion, ModeloPrediccion } from './ProyeccionComponentTypes';
 
 export async function ejecutarProyeccion(
 	fechas: string[],
 	tallas: number[],
 	tallaObjetivo: string,
-	modelo?: string
+	modelo?: string,
+	horizon?: number
 ): Promise<ResultadoProyeccion> {
 	const body: Record<string, unknown> = { fechas, tallas };
 	const tallaObj = parseFloat(tallaObjetivo);
@@ -17,6 +18,9 @@ export async function ejecutarProyeccion(
 	}
 	if (modelo) {
 		body.modelo = modelo;
+	}
+	if (horizon !== undefined && !isNaN(horizon)) {
+		body.horizon = Math.max(1, Math.min(365, Math.round(horizon)));
 	}
 
 	const res = await fetch('/api/proyectar', {
@@ -34,7 +38,7 @@ export async function ejecutarProyeccion(
 	return await res.json();
 }
 
-export async function obtenerModelosPrediccion(): Promise<Array<{ id: string; nombre: string; descripcion: string }>> {
+export async function obtenerModelosPrediccion(): Promise<ModeloPrediccion[]> {
 	const res = await fetch('/api/proyectar/models', {
 		method: 'GET',
 		headers: { Accept: 'application/json' },
@@ -47,7 +51,20 @@ export async function obtenerModelosPrediccion(): Promise<Array<{ id: string; no
 	}
 
 	const data = await res.json();
-	return data.modelos || [];
+	const modelos = data.modelos || [];
+	// Normalizar modelos si vienen en formato legacy (solo id, nombre, descripcion)
+	return modelos.map((m: Record<string, unknown>) => ({
+		id: String(m.id || m.codigo || ''),
+		nombre: String(m.nombre || m.name || ''),
+		descripcion: String(m.descripcion || m.description || ''),
+		modelType: (m.modelType as ModeloPrediccion['modelType']) || 'Matematico',
+		featuresRequired: Array.isArray(m.featuresRequired) ? m.featuresRequired : ['talla'],
+		featuresOptional: Array.isArray(m.featuresOptional) ? m.featuresOptional : [],
+		minPoints: typeof m.minPoints === 'number' ? m.minPoints : 5,
+		supportsUncertainty: Boolean(m.supportsUncertainty ?? true),
+		supportsTargetDate: Boolean(m.supportsTargetDate ?? true),
+		status: (m.status as ModeloPrediccion['status']) || 'Estable'
+	}));
 }
 
 export function exportarCSV(resultado: ResultadoProyeccion) {

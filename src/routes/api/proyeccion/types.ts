@@ -5,6 +5,7 @@
 /**
  * Request body para ejecutar proyección.
  * Ahora usa fechas reales en lugar de días relativos.
+ * Soporta datos multivariables opcionales.
  */
 export interface ProyeccionRequest {
 	fechas: string[];
@@ -12,6 +13,12 @@ export interface ProyeccionRequest {
 	tallaObjetivo?: number;
 	diasMax?: number;
 	modelo?: string;
+	// Campos multivariables opcionales
+	biomasas?: number[];
+	densidades?: number[];
+	temperaturas?: number[];
+	features?: Array<Record<string, number>>;
+	horizon?: number;
 }
 
 /**
@@ -28,10 +35,15 @@ export interface ProyeccionCSVRequest {
 /**
  * Datos de medición con fecha real (ISO).
  * La API se encarga de calcular días internamente.
+ * Soporta campos multivariables opcionales.
  */
 export interface MedicionConFecha {
 	fecha: string;
 	talla: number;
+	biomasa?: number;
+	densidad?: number;
+	temperatura?: number;
+	features?: Record<string, number>;
 }
 
 /**
@@ -89,6 +101,7 @@ export interface PostProyeccionSuccess {
 		limiteInferior: number[];
 		limiteSuperior: number[];
 	};
+	warnings?: string[];
 }
 
 /**
@@ -98,6 +111,7 @@ export interface PostProyeccionError {
 	success: false;
 	error: string;
 	metadatos?: Record<string, unknown>;
+	warnings?: string[];
 }
 
 /**

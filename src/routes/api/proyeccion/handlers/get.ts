@@ -5,12 +5,14 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { verificarAutenticacion, validarCicloIdParam, obtenerCicloId } from '../validation';
-import { obtenerCiclo, obtenerMedicionesTalla, convertirMedicionesAFormato } from '../queries';
+import { obtenerCiclo, obtenerMedicionesPorCiclo } from '../queries';
 
 /**
  * GET /api/proyectar?cicloId=123
- * Obtiene las mediciones de talla de un ciclo para proyección.
+ * Obtiene las mediciones multivariables de un ciclo para proyección.
  * Requiere autenticación y que el ciclo pertenezca al usuario.
+ * Si el ciclo tiene datos multivariables (biomasa, densidad, temperatura),
+ * los incluye en la respuesta.
  */
 export async function handleGetProyeccion({ locals, url }: RequestEvent): Promise<Response> {
 	const userId = verificarAutenticacion(locals);
@@ -36,8 +38,7 @@ export async function handleGetProyeccion({ locals, url }: RequestEvent): Promis
 			return json({ error: 'Ciclo no encontrado o no pertenece al usuario' }, { status: 404 });
 		}
 
-		const medicionesRaw = await obtenerMedicionesTalla(cicloId, userId);
-		const mediciones = convertirMedicionesAFormato(medicionesRaw);
+		const mediciones = await obtenerMedicionesPorCiclo(cicloId, userId);
 
 		if (mediciones.length < 5) {
 			return json(

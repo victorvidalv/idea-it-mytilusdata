@@ -1,12 +1,14 @@
 /**
  * Handler compartido para POST /api/proyectar y compatibilidad /api/proyeccion.
  * Ahora delega el cálculo a un microservicio externo de predicción.
+ * Soporta datos multivariables opcionales.
  */
 
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import type { ProyeccionRequest } from '../types';
-import { llamarApiPrediccion } from '$lib/server/prediction-service';
+import { llamarApiPrediccion, PredictionServiceError } from '$lib/server/prediction-service';
+import type { PredictionApiInput } from '$lib/server/prediction-service';
 import {
 	verificarAutenticacion,
 	validarCamposRequeridos,
@@ -50,9 +52,64 @@ function calcularDiasDesdePrimeraFecha(fechas: string[]): number[] {
 }
 
 /**
+ * Construir PredictionApiInput completo a partir del request body.
+ * Incluye variables multivariables opcionales si están presentes.
+ */
+function construirApiInput(body: ProyeccionRequest): PredictionApiInput {
+	const fechas = body.fechas;
+
+	const datos = fechas.map((fecha, i) => {
+		const punto: PredictionApiInput['datos'][number] = {
+			fecha,
+			talla: body.tallas[i]
+		};
+
+		if (body.biomasas && body.biomasas[i] !== undefined) {
+			punto.biomasa = body.biomasas[i];
+		}
+		if (body.densidades && body.densidades[i] !== undefined) {
+			punto.densidad = body.densidades[i];
+		}
+		if (body.temperaturas && body.temperaturas[i] !== undefined) {
+			punto.temperatura = body.temperaturas[i];
+		}
+		if (body.features && body.features[i] !== undefined) {
+			punto.features = Object.entries(body.features[i]).map(([nombre, valor]) => ({
+				nombre,
+				valor
+			}));
+		}
+
+		return punto;
+	});
+
+	const config: PredictionApiInput['config'] = {};
+	if (body.tallaObjetivo != null) {
+		config.talla_objetivo = body.tallaObjetivo;
+	}
+	if (body.diasMax != null) {
+		config.horizon = body.diasMax;
+	}
+	if (body.horizon != null) {
+		config.horizon = body.horizon;
+	}
+
+	const input: PredictionApiInput = { datos };
+	if (Object.keys(config).length > 0) {
+		input.config = config;
+	}
+	if (body.modelo) {
+		input.modelo = body.modelo;
+	}
+
+	return input;
+}
+
+/**
  * POST /api/proyectar
  * Ejecuta la proyección de crecimiento delegando al microservicio externo.
  * Requiere autenticación.
+ * Acepta datos multivariables opcionales.
  */
 export async function handlePostProyeccion({ request, locals }: RequestEvent): Promise<Response> {
 	const userId = verificarAutenticacion(locals);
@@ -68,47 +125,32 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 			return json({ error: validacion.error }, { status: 400 });
 		}
 
-		// Usar fechas reales del request
-		const fechas = body.fechas;
+		// Construir input completo para la API
+		const apiInput = construirApiInput(body);
 
-		const datos = fechas.map((fecha, i) => ({
-			fecha,
-			talla: body.tallas[i]
-		}));
-
-		const config: { horizon?: number; talla_objetivo?: number } = {};
-		if (body.tallaObjetivo != null) {
-			config.talla_objetivo = body.tallaObjetivo;
-		}
-		if (body.diasMax != null) {
-			config.horizon = body.diasMax;
-		}
-
-		const resultado = await llamarApiPrediccion({
-			datos,
-			config: Object.keys(config).length > 0 ? config : undefined,
-			modelo: body.modelo
-		});
+		const resultado = await llamarApiPrediccion(apiInput);
 
 		if (!resultado.success) {
 			return json(
 				{
+					success: false,
 					error: resultado.warnings?.join('; ') || 'Error al ejecutar la proyección',
-					metadatos: { totalPuntos: body.fechas.length }
+					metadatos: { totalPuntos: body.fechas.length },
+					warnings: resultado.warnings
 				},
 				{ status: 422 }
 			);
 		}
 
 		// Calcular días relativos desde la primera fecha para compatibilidad con UI
-		const diasRelativos = calcularDiasDesdePrimeraFecha(fechas);
+		const diasRelativos = calcularDiasDesdePrimeraFecha(body.fechas);
 		const diasRelativosProyeccion = calcularDiasDesdePrimeraFecha(
 			resultado.predicciones.map((p) => p.fecha)
 		);
 		const proyeccion = resultado.predicciones.map((p, i) => ({
 			dia: diasRelativosProyeccion[i],
 			talla: p.talla,
-			tipo: 'proyectado'
+			tipo: 'proyectado' as const
 		}));
 
 		// Normalizar incertidumbre si viene
@@ -116,11 +158,11 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 		if (resultado.incertidumbre) {
 			// Convertir fechas de incertidumbre a días relativos
 			const diasIncertidumbre = calcularDiasDesdePrimeraFecha(
-				resultado.incertidumbre.dias.map((d) => {
+				resultado.incertidumbre.dias.map((d: string | number) => {
 					// Si ya es fecha ISO, usarla; si es número, convertir desde fecha inicio
 					if (typeof d === 'string' && d.includes('-')) return d;
-					const fechaInicio = new Date(fechas[0] + 'T00:00:00Z');
-					fechaInicio.setDate(fechaInicio.getDate() + d);
+					const fechaInicio = new Date(body.fechas[0] + 'T00:00:00Z');
+					fechaInicio.setDate(fechaInicio.getDate() + (d as number));
 					return fechaInicio.toISOString().split('T')[0];
 				})
 			);
@@ -130,6 +172,12 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 				limiteInferior: resultado.incertidumbre.limite_inferior,
 				limiteSuperior: resultado.incertidumbre.limite_superior
 			};
+		}
+
+		// Recopilar warnings de todas las fuentes
+		const warnings: string[] = [];
+		if (resultado.warnings) {
+			warnings.push(...resultado.warnings);
 		}
 
 		return json({
@@ -147,14 +195,38 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 				rangoDias: [Math.min(...diasRelativos), Math.max(...diasRelativos)],
 				rangoTallas: [Math.min(...body.tallas), Math.max(...body.tallas)],
 				tallaObjetivo: body.tallaObjetivo,
-				totalPuntos: body.fechas.length
+				totalPuntos: body.fechas.length,
+				...(resultado.metadata ?? {})
 			},
 			modeloUsado: resultado.modelo_usado,
 			metricas: resultado.metricas,
-			incertidumbre
+			incertidumbre,
+			warnings: warnings.length > 0 ? warnings : undefined
 		});
 	} catch (error) {
 		console.error('Error en POST /api/proyectar:', error);
+
+		// Manejo de errores tipificado del servicio de predicción
+		if (error instanceof PredictionServiceError) {
+			const statusMap: Record<string, number> = {
+				API_CAIDA: 503,
+				VALIDACION: 422,
+				MODELO_INEXISTENTE: 400,
+				FALLO_INTERNO: 502,
+				TIMEOUT: 504,
+				DESCONOCIDO: 500
+			};
+			return json(
+				{
+					success: false,
+					error: error.message,
+					code: error.code,
+					details: error.details
+				},
+				{ status: statusMap[error.code] || 500 }
+			);
+		}
+
 		return json({ error: 'Error interno del servidor' }, { status: 500 });
 	}
 }

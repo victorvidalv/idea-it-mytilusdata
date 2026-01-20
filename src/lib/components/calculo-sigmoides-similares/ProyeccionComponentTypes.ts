@@ -73,6 +73,19 @@ export interface DegradacionRMSE {
 	rmse: number[];
 }
 
+export interface ModeloPrediccion {
+	id: string;
+	nombre: string;
+	descripcion: string;
+	modelType: 'Matematico' | 'ML' | 'Estadistico';
+	featuresRequired: string[];
+	featuresOptional: string[];
+	minPoints: number;
+	supportsUncertainty: boolean;
+	supportsTargetDate: boolean;
+	status: 'Estable' | 'Experimental';
+}
+
 export interface ResultadoProyeccion {
 	success: boolean;
 	proyeccion?: PuntoProyeccion[];
@@ -83,7 +96,17 @@ export interface ResultadoProyeccion {
 	degradacionRMSE?: DegradacionRMSE;
 	modeloUsado?: string;
 	metricas?: Record<string, number>;
+	warnings?: string[];
+	metadata?: Record<string, unknown>;
 	error?: string;
+}
+
+export interface ProyeccionRequest {
+	fechas: string[];
+	tallas: number[];
+	tallaObjetivo?: number;
+	modelo?: string;
+	horizon?: number;
 }
 
 export function formatearFormulaSigmoidal(p: ParametrosSigmoidal, nombre: string): string {

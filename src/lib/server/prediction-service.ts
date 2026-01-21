@@ -45,10 +45,13 @@ export interface PredictionApiOutput {
 		mae?: number;
 	};
 	incertidumbre?: {
-		dias: number[];
-		mediana: number[];
-		limite_inferior: number[];
-		limite_superior: number[];
+		dias?: number[];
+		mediana?: number[];
+		limite_inferior?: number[];
+		limite_superior?: number[];
+		lower_p10?: number[];
+		upper_p90?: number[];
+		method?: string;
 	};
 	warnings?: string[];
 	metadata?: Record<string, unknown>;
@@ -61,6 +64,13 @@ export interface PredictionModel {
 	id: string;
 	nombre: string;
 	descripcion: string;
+	modelType?: string;
+	featuresRequired?: string[];
+	featuresOptional?: string[];
+	minPoints?: number;
+	supportsUncertainty?: boolean;
+	supportsTargetDate?: boolean;
+	status?: string;
 }
 
 /** Errores tipificados del servicio de predicción */
@@ -142,7 +152,14 @@ export async function obtenerModelosDisponibles(): Promise<PredictionModel[]> {
 		return modelos.map((m: any) => ({
 			id: m.slug || m.id || 'unknown',
 			nombre: m.name || m.nombre || m.id || m.slug || 'Modelo sin nombre',
-			descripcion: m.description || m.descripcion || ''
+			descripcion: m.description || m.descripcion || '',
+			modelType: m.model_type || m.modelType,
+			featuresRequired: m.features_required || m.featuresRequired,
+			featuresOptional: m.features_optional || m.featuresOptional,
+			minPoints: m.min_points || m.minPoints,
+			supportsUncertainty: m.supports_uncertainty ?? m.supportsUncertainty,
+			supportsTargetDate: m.supports_target_date ?? m.supportsTargetDate,
+			status: m.status
 		}));
 	} catch (error) {
 		throw clasificarError(error);

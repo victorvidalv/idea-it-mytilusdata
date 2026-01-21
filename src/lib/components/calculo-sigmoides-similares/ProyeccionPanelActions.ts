@@ -52,18 +52,29 @@ export async function obtenerModelosPrediccion(): Promise<ModeloPrediccion[]> {
 
 	const data = await res.json();
 	const modelos = data.modelos || [];
+	const normalizarTipo = (value: unknown): ModeloPrediccion['modelType'] => {
+		const raw = String(value || '').toLowerCase();
+		if (raw === 'ml') return 'ML';
+		if (raw === 'statistical' || raw === 'estadistico') return 'Estadistico';
+		return 'Matematico';
+	};
+	const normalizarEstado = (value: unknown): ModeloPrediccion['status'] => {
+		const raw = String(value || '').toLowerCase();
+		if (raw === 'experimental') return 'Experimental';
+		return 'Estable';
+	};
 	// Normalizar modelos si vienen en formato legacy (solo id, nombre, descripcion)
 	return modelos.map((m: Record<string, unknown>) => ({
 		id: String(m.id || m.codigo || ''),
 		nombre: String(m.nombre || m.name || ''),
 		descripcion: String(m.descripcion || m.description || ''),
-		modelType: (m.modelType as ModeloPrediccion['modelType']) || 'Matematico',
+		modelType: normalizarTipo(m.modelType),
 		featuresRequired: Array.isArray(m.featuresRequired) ? m.featuresRequired : ['talla'],
 		featuresOptional: Array.isArray(m.featuresOptional) ? m.featuresOptional : [],
 		minPoints: typeof m.minPoints === 'number' ? m.minPoints : 5,
 		supportsUncertainty: Boolean(m.supportsUncertainty ?? true),
 		supportsTargetDate: Boolean(m.supportsTargetDate ?? true),
-		status: (m.status as ModeloPrediccion['status']) || 'Estable'
+		status: normalizarEstado(m.status)
 	}));
 }
 

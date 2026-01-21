@@ -156,21 +156,23 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 		// Normalizar incertidumbre si viene
 		let incertidumbre;
 		if (resultado.incertidumbre) {
-			// Convertir fechas de incertidumbre a días relativos
-			const diasIncertidumbre = calcularDiasDesdePrimeraFecha(
-				resultado.incertidumbre.dias.map((d: string | number) => {
-					// Si ya es fecha ISO, usarla; si es número, convertir desde fecha inicio
-					if (typeof d === 'string' && d.includes('-')) return d;
-					const fechaInicio = new Date(body.fechas[0] + 'T00:00:00Z');
-					fechaInicio.setDate(fechaInicio.getDate() + (d as number));
-					return fechaInicio.toISOString().split('T')[0];
-				})
-			);
+			// Algunos modelos devuelven bandas con dias explicitos; otros, como
+			// ML-Random Forest, devuelven percentiles alineados con predicciones.
+			const diasIncertidumbre = Array.isArray(resultado.incertidumbre.dias)
+				? calcularDiasDesdePrimeraFecha(
+						resultado.incertidumbre.dias.map((d: string | number) => {
+							if (typeof d === 'string' && d.includes('-')) return d;
+							const fechaInicio = new Date(body.fechas[0] + 'T00:00:00Z');
+							fechaInicio.setDate(fechaInicio.getDate() + (d as number));
+							return fechaInicio.toISOString().split('T')[0];
+						})
+					)
+				: diasRelativosProyeccion;
 			incertidumbre = {
 				dias: diasIncertidumbre,
-				mediana: resultado.incertidumbre.mediana,
-				limiteInferior: resultado.incertidumbre.limite_inferior,
-				limiteSuperior: resultado.incertidumbre.limite_superior
+				mediana: resultado.incertidumbre.mediana ?? resultado.predicciones.map((p) => p.talla),
+				limiteInferior: resultado.incertidumbre.limite_inferior ?? resultado.incertidumbre.lower_p10,
+				limiteSuperior: resultado.incertidumbre.limite_superior ?? resultado.incertidumbre.upper_p90
 			};
 		}
 

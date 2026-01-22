@@ -110,3 +110,14 @@ export const consentimientos = sqliteTable('consentimientos', {
 	fechaAceptacion: text('fecha_aceptacion').default(sql`CURRENT_TIMESTAMP`),
 	ipOrigen: text('ip_origen'),
 });
+
+/**
+ * API Keys: Acceso programático a los datos del usuario.
+ * Solo se permite una clave por usuario.
+ */
+export const apiKeys = sqliteTable('api_keys', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	key: text('key').notNull().unique(),
+	userId: integer('user_id').notNull().unique().references(() => usuarios.id),
+	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});

@@ -339,7 +339,7 @@
 													bind:value={editLugarId}
 													required
 													placeholder="Centro..."
-													options={data.centros.map((c) => ({ value: c.id, label: c.nombre }))}
+													options={data.centros.map((c: any) => ({ value: c.id, label: c.nombre }))}
 												/>
 											</div>
 											<div class="space-y-1">
@@ -349,7 +349,7 @@
 													bind:value={editCicloId}
 													disabled={!editLugarId || editCiclosDisponibles.length === 0}
 													placeholder="-- Sin ciclo --"
-													options={editCiclosDisponibles.map((c) => ({ value: c.id, label: c.nombre }))}
+													options={editCiclosDisponibles.map((c: any) => ({ value: c.id, label: c.nombre }))}
 												/>
 											</div>
 											<div class="space-y-1">
@@ -359,7 +359,7 @@
 													bind:value={editTipoId}
 													required
 													placeholder="Tipo..."
-													options={data.tipos.map((t) => ({ value: t.id, label: `${t.codigo} (${t.unidadBase})` }))}
+													options={data.tipos.map((t: any) => ({ value: t.id, label: `${t.codigo} (${t.unidadBase})` }))}
 												/>
 											</div>
 											<div class="space-y-1">
@@ -373,7 +373,7 @@
 													bind:value={editOrigenId}
 													required
 													placeholder="Origen..."
-													options={data.origenes.map((o) => ({ value: o.id, label: o.nombre }))}
+													options={data.origenes.map((o: any) => ({ value: o.id, label: o.nombre }))}
 												/>
 											</div>
 											<div class="space-y-1">

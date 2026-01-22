@@ -9,7 +9,8 @@ import {
     ciclos,
     mediciones,
     consentimientos,
-    magicLinkTokens
+    magicLinkTokens,
+    apiKeys
 } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
@@ -81,29 +82,15 @@ export const actions = {
         }
 
         try {
-            // Cascading Delete Strategy Using transactions (If SQLite driver supports it)
-            // SQLite driver supports simple bulk deletes per table, doing them in order 
-            // of dependencies to avoid foreign key constraint errors
-
-            await db.transaction(async (tx) => {
-                // 1. Delete facts (Mediciones) tied to the user
-                await tx.delete(mediciones).where(eq(mediciones.userId, userId));
-
-                // 2. Delete temporal events (Ciclos)
-                await tx.delete(ciclos).where(eq(ciclos.userId, userId));
-
-                // 3. Delete master entities (Lugares / Centros de Cultivo)
-                await tx.delete(lugares).where(eq(lugares.userId, userId));
-
-                // 4. Delete legal consensos
-                await tx.delete(consentimientos).where(eq(consentimientos.userId, userId));
-
-                // 5. Delete authorization tokens
-                await tx.delete(magicLinkTokens).where(eq(magicLinkTokens.userId, userId));
-
-                // 6. Finally delete the user account entirely
-                await tx.delete(usuarios).where(eq(usuarios.id, userId));
-            });
+            // Borrado en cascada manual respetando orden de dependencias FK
+            // better-sqlite3 es síncrono, no usar db.transaction(async ...)
+            db.delete(mediciones).where(eq(mediciones.userId, userId)).run();
+            db.delete(ciclos).where(eq(ciclos.userId, userId)).run();
+            db.delete(lugares).where(eq(lugares.userId, userId)).run();
+            db.delete(consentimientos).where(eq(consentimientos.userId, userId)).run();
+            db.delete(magicLinkTokens).where(eq(magicLinkTokens.userId, userId)).run();
+            db.delete(apiKeys).where(eq(apiKeys.userId, userId)).run();
+            db.delete(usuarios).where(eq(usuarios.id, userId)).run();
 
             // Destroy the session cookie effectively logging them out
             cookies.set('session', '', {

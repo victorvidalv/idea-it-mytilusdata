@@ -12,11 +12,11 @@ La plataforma implementa un sistema de **Control de Acceso Basado en Roles (RBAC
 
 El rol predeterminado para **cualquier persona que se registra** en la plataforma.
 
-| Capacidad | Descripción |
-|---|---|
-| Agregar datos | Registrar centros de cultivo, ciclos productivos y mediciones propias |
-| Ver datos propios | Acceder **únicamente** a sus propios registros (centros, ciclos, mediciones) |
-| Modificar datos propios | Editar o eliminar sus propios registros |
+| Capacidad               | Descripción                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| Agregar datos           | Registrar centros de cultivo, ciclos productivos y mediciones propias        |
+| Ver datos propios       | Acceder **únicamente** a sus propios registros (centros, ciclos, mediciones) |
+| Modificar datos propios | Editar o eliminar sus propios registros                                      |
 
 > **Restricción:** No puede ver datos de otros usuarios ni acceder a información general consolidada de centros.
 
@@ -26,12 +26,12 @@ El rol predeterminado para **cualquier persona que se registra** en la plataform
 
 Usuario con privilegios extendidos, pensado para **investigadores del equipo** que necesitan una vista panorámica de los datos.
 
-| Capacidad | Descripción |
-|---|---|
-| Todo lo de Usuario | Conserva todas las capacidades del rol Usuario |
-| Vista general de centros | Acceder a información general de **todos** los centros de cultivo registrados |
-| Datos de múltiples usuarios | Consultar mediciones, ciclos y registros de cualquier usuario del sistema |
-| Análisis comparativo | Comparar datos entre centros y ciclos de distintos productores |
+| Capacidad                   | Descripción                                                                   |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| Todo lo de Usuario          | Conserva todas las capacidades del rol Usuario                                |
+| Vista general de centros    | Acceder a información general de **todos** los centros de cultivo registrados |
+| Datos de múltiples usuarios | Consultar mediciones, ciclos y registros de cualquier usuario del sistema     |
+| Análisis comparativo        | Comparar datos entre centros y ciclos de distintos productores                |
 
 > **Restricción:** No puede modificar datos de otros usuarios ni administrar cuentas.
 
@@ -41,12 +41,12 @@ Usuario con privilegios extendidos, pensado para **investigadores del equipo** q
 
 Rol de gestión total del sistema, reservado para **administradores de la plataforma**.
 
-| Capacidad | Descripción |
-|---|---|
-| Todo lo de Investigador | Conserva todas las capacidades de Investigador |
-| Administrar usuarios | Acceder al panel de administración de usuarios |
-| Cambiar roles | Promover o degradar el rol de cualquier usuario |
-| Activar/desactivar cuentas | Habilitar o deshabilitar el acceso de usuarios |
+| Capacidad                  | Descripción                                     |
+| -------------------------- | ----------------------------------------------- |
+| Todo lo de Investigador    | Conserva todas las capacidades de Investigador  |
+| Administrar usuarios       | Acceder al panel de administración de usuarios  |
+| Cambiar roles              | Promover o degradar el rol de cualquier usuario |
+| Activar/desactivar cuentas | Habilitar o deshabilitar el acceso de usuarios  |
 
 > **Nota:** El administrador por defecto es el correo definido en la variable de entorno `ADMIN_EMAIL`. Este usuario obtiene rol `ADMIN` automáticamente al registrarse.
 
@@ -81,16 +81,16 @@ Rol de gestión total del sistema, reservado para **administradores de la plataf
 
 ## 4. Matriz de Permisos por Ruta
 
-| Recurso / Acción | USUARIO | INVESTIGADOR | ADMIN |
-|---|:---:|:---:|:---:|
-| `/dashboard` | ✅ (datos propios) | ✅ (datos generales) | ✅ |
-| `/centros` — ver propios | ✅ | ✅ | ✅ |
-| `/centros` — ver de otros | ❌ | ✅ | ✅ |
-| `/ciclos` — ver propios | ✅ | ✅ | ✅ |
-| `/ciclos` — ver de otros | ❌ | ✅ | ✅ |
-| Agregar registros propios | ✅ | ✅ | ✅ |
-| `/admin/usuarios` | ❌ | ❌ | ✅ |
-| Cambiar roles | ❌ | ❌ | ✅ |
+| Recurso / Acción          |      USUARIO       |     INVESTIGADOR     | ADMIN |
+| ------------------------- | :----------------: | :------------------: | :---: |
+| `/dashboard`              | ✅ (datos propios) | ✅ (datos generales) |  ✅   |
+| `/centros` — ver propios  |         ✅         |          ✅          |  ✅   |
+| `/centros` — ver de otros |         ❌         |          ✅          |  ✅   |
+| `/ciclos` — ver propios   |         ✅         |          ✅          |  ✅   |
+| `/ciclos` — ver de otros  |         ❌         |          ✅          |  ✅   |
+| Agregar registros propios |         ✅         |          ✅          |  ✅   |
+| `/admin/usuarios`         |         ❌         |          ❌          |  ✅   |
+| Cambiar roles             |         ❌         |          ❌          |  ✅   |
 
 ---
 
@@ -99,6 +99,7 @@ Rol de gestión total del sistema, reservado para **administradores de la plataf
 ### 5.1 Base de Datos
 
 La tabla `usuarios` contiene un campo `rol` con los valores posibles:
+
 - `USUARIO` (valor por defecto)
 - `INVESTIGADOR`
 - `ADMIN`
@@ -116,6 +117,6 @@ La tabla `usuarios` contiene un campo `rol` con los valores posibles:
 
 ### 5.4 Variable de Entorno
 
-| Variable | Ejemplo | Descripción |
-|---|---|---|
+| Variable      | Ejemplo                  | Descripción                          |
+| ------------- | ------------------------ | ------------------------------------ |
 | `ADMIN_EMAIL` | `victorvidalv@gmail.com` | Correo del administrador por defecto |

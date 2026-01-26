@@ -6,8 +6,8 @@
 	import toast from 'svelte-french-toast';
 	import DataTable from '$lib/components/DataTable.svelte';
 
-	export let data: any;
-	export let form: any;
+	export let data: import('./$types').PageData;
+	export let form: import('./$types').ActionData;
 
 	// Estado del formulario
 	let showCreateForm = false;
@@ -22,7 +22,12 @@
 	let newLng = '';
 	let showMap = false;
 
-	function startEdit(centro: any) {
+	function startEdit(centro: {
+		id: number;
+		nombre: string;
+		latitud?: number | null;
+		longitud?: number | null;
+	}) {
 		editingId = centro.id;
 		editNombre = centro.nombre;
 		editLat = centro.latitud?.toString() ?? '';
@@ -50,6 +55,7 @@
 		}
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let MapComponent: any = null;
 
 	$: if (form?.success) {

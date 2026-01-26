@@ -1,16 +1,16 @@
-<script lang="ts">
+<script lang="ts" generics="T extends Record<string, unknown>">
 	/**
 	 * DataTable: Componente reutilizable con búsqueda, ordenamiento y paginación.
 	 * Usa slots para renderizar filas personalizadas manteniendo lógica centralizada.
 	 */
 
-	export let data: any[] = [];
+	export let data: T[] = [];
 	export let columns: {
 		key: string;
 		label: string;
 		sortable?: boolean;
 		align?: 'left' | 'center' | 'right';
-		accessor?: (row: any) => any;
+		accessor?: (row: T) => unknown;
 	}[] = [];
 	export let pageSize: number = 25;
 	export let searchPlaceholder: string = 'Buscar...';
@@ -167,7 +167,7 @@
 				bind:value={selectedPageSize}
 				class="h-8 cursor-pointer rounded-md border border-border/60 bg-background px-2 font-body text-xs transition-all focus:border-ocean-light focus:outline-none"
 			>
-				{#each pageSizeOptions as size}
+				{#each pageSizeOptions as size (size)}
 					<option value={size}>{size}</option>
 				{/each}
 			</select>
@@ -179,7 +179,7 @@
 		<table class="w-full font-body text-sm">
 			<thead>
 				<tr class="border-b border-border/40 bg-secondary/30">
-					{#each columns as col}
+					{#each columns as col (col.key)}
 						<th
 							class="px-5 py-3 text-xs font-medium tracking-wider whitespace-nowrap text-muted-foreground uppercase
 								{col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}
@@ -316,7 +316,7 @@
 						>
 					</button>
 
-					{#each visiblePages as page}
+					{#each visiblePages as page (page)}
 						<button
 							onclick={() => {
 								currentPage = page;

@@ -10,7 +10,7 @@
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 
-	export let data: any;
+	export let data: import('./$types').PageData;
 
 	let loadingGenerate = false;
 	let loadingRevoke = false;

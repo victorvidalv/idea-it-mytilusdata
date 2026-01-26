@@ -1,84 +1,117 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 </script>
 
 <svelte:head>
 	<title>Plataforma Idea 2025 — Mitilicultura Inteligente</title>
-	<meta name="description" content="Plataforma digital para la optimización e inteligencia en cultivos de mejillón chileno. Monitoreo, predicción y análisis con tecnología de vanguardia." />
+	<meta
+		name="description"
+		content="Plataforma digital para la optimización e inteligencia en cultivos de mejillón chileno. Monitoreo, predicción y análisis con tecnología de vanguardia."
+	/>
 </svelte:head>
 
-<div class="min-h-screen relative overflow-hidden bg-ocean-gradient">
+<div class="bg-ocean-gradient relative min-h-screen overflow-hidden">
 	<!-- Mesh de fondo -->
-	<div class="absolute inset-0 bg-ocean-mesh"></div>
+	<div class="bg-ocean-mesh absolute inset-0"></div>
 
 	<!-- Partículas decorativas -->
-	<div class="absolute inset-0 pointer-events-none overflow-hidden">
-		<div class="absolute top-[15%] left-[10%] w-64 h-64 rounded-full bg-teal-glow/[0.04] blur-3xl animate-float"></div>
-		<div class="absolute top-[60%] right-[8%] w-80 h-80 rounded-full bg-ocean-light/[0.06] blur-3xl animate-float delay-300"></div>
-		<div class="absolute bottom-[10%] left-[40%] w-48 h-48 rounded-full bg-ocean-mid/[0.05] blur-2xl animate-float delay-500"></div>
+	<div class="pointer-events-none absolute inset-0 overflow-hidden">
+		<div
+			class="animate-float absolute top-[15%] left-[10%] h-64 w-64 rounded-full bg-teal-glow/[0.04] blur-3xl"
+		></div>
+		<div
+			class="animate-float absolute top-[60%] right-[8%] h-80 w-80 rounded-full bg-ocean-light/[0.06] blur-3xl delay-300"
+		></div>
+		<div
+			class="animate-float absolute bottom-[10%] left-[40%] h-48 w-48 rounded-full bg-ocean-mid/[0.05] blur-2xl delay-500"
+		></div>
 	</div>
 
 	<!-- Noise overlay sutil -->
-	<div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E');"></div>
+	<div
+		class="absolute inset-0 opacity-[0.03]"
+		style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E');"
+	></div>
 
-	<div class="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 text-center">
+	<div class="relative z-10 flex min-h-screen flex-col items-center justify-center p-6 text-center">
 		<!-- Logo / marca -->
 		<div class="animate-fade-up mb-10">
-			<div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-white/10 bg-white/[0.05] glass">
-				<div class="h-2.5 w-2.5 rounded-full bg-teal-glow animate-pulse"></div>
-				<span class="text-sm font-body font-medium text-white/70 tracking-widest uppercase">Plataforma Activa</span>
+			<div
+				class="glass inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.05] px-5 py-2.5"
+			>
+				<div class="h-2.5 w-2.5 animate-pulse rounded-full bg-teal-glow"></div>
+				<span class="font-body text-sm font-medium tracking-widest text-white/70 uppercase"
+					>Plataforma Activa</span
+				>
 			</div>
 		</div>
 
 		<!-- Título principal -->
-		<h1 class="animate-fade-up delay-150 text-5xl md:text-7xl lg:text-8xl font-display font-normal text-white leading-[1.05] max-w-4xl mb-6">
+		<h1
+			class="animate-fade-up mb-6 max-w-4xl font-display text-5xl leading-[1.05] font-normal text-white delay-150 md:text-7xl lg:text-8xl"
+		>
 			Mitilicultura
 			<br />
 			<span class="text-gradient-ocean italic">Inteligente</span>
 		</h1>
 
-		<p class="animate-fade-up delay-300 text-lg md:text-xl text-white/50 max-w-xl mb-12 font-body font-light leading-relaxed">
-			Optimización basada en datos para el cultivo de 
-			<span class="text-white/70 font-medium">Mytilus chilensis</span>. 
-			Monitoreo, predicción y análisis en tiempo real.
+		<p
+			class="animate-fade-up mb-12 max-w-xl font-body text-lg leading-relaxed font-light text-white/50 delay-300 md:text-xl"
+		>
+			Optimización basada en datos para el cultivo de
+			<span class="font-medium text-white/70">Mytilus chilensis</span>. Monitoreo, predicción y
+			análisis en tiempo real.
 		</p>
 
 		<!-- CTA -->
-		<div class="animate-fade-up delay-400 flex flex-col sm:flex-row gap-4">
-			<a 
+		<div class="animate-fade-up flex flex-col gap-4 delay-400 sm:flex-row">
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a
 				href="/auth/login"
-				class="group relative inline-flex items-center gap-2 px-8 py-3.5 text-sm font-medium text-ocean-deep bg-white rounded-xl hover:bg-foam-white transition-all duration-300 hover:shadow-lg hover:shadow-white/20 hover:-translate-y-0.5"
+				class="group relative inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-medium text-ocean-deep transition-all duration-300 hover:-translate-y-0.5 hover:bg-foam-white hover:shadow-lg hover:shadow-white/20"
 			>
 				Ingresar a la plataforma
-				<svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+				<svg
+					class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M13 7l5 5m0 0l-5 5m5-5H6"
+					/>
 				</svg>
 			</a>
-			<a 
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a
 				href="/dashboard"
-				class="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-medium text-white/70 border border-white/15 rounded-xl hover:bg-white/[0.06] hover:text-white hover:border-white/25 transition-all duration-300"
+				class="inline-flex items-center gap-2 rounded-xl border border-white/15 px-8 py-3.5 text-sm font-medium text-white/70 transition-all duration-300 hover:border-white/25 hover:bg-white/[0.06] hover:text-white"
 			>
 				Ir al Dashboard
 			</a>
 		</div>
 
 		<!-- Indicadores de fondo -->
-		<div class="animate-fade-up delay-500 mt-20 grid grid-cols-3 gap-8 md:gap-16">
+		<div class="animate-fade-up mt-20 grid grid-cols-3 gap-8 delay-500 md:gap-16">
 			<div class="text-center">
-				<p class="text-2xl md:text-3xl font-display text-white/90">TRL 7</p>
-				<p class="text-xs text-white/30 mt-1 font-body uppercase tracking-wider">Validación</p>
+				<p class="font-display text-2xl text-white/90 md:text-3xl">TRL 7</p>
+				<p class="mt-1 font-body text-xs tracking-wider text-white/30 uppercase">Validación</p>
 			</div>
 			<div class="text-center">
-				<p class="text-2xl md:text-3xl font-display text-white/90">85%+</p>
-				<p class="text-xs text-white/30 mt-1 font-body uppercase tracking-wider">Precisión</p>
+				<p class="font-display text-2xl text-white/90 md:text-3xl">85%+</p>
+				<p class="mt-1 font-body text-xs tracking-wider text-white/30 uppercase">Precisión</p>
 			</div>
 			<div class="text-center">
-				<p class="text-2xl md:text-3xl font-display text-white/90">&lt;2s</p>
-				<p class="text-xs text-white/30 mt-1 font-body uppercase tracking-wider">Respuesta</p>
+				<p class="font-display text-2xl text-white/90 md:text-3xl">&lt;2s</p>
+				<p class="mt-1 font-body text-xs tracking-wider text-white/30 uppercase">Respuesta</p>
 			</div>
 		</div>
 	</div>
 
 	<!-- Borde degradado inferior -->
-	<div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+	<div
+		class="absolute right-0 bottom-0 left-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"
+	></div>
 </div>

@@ -13,7 +13,7 @@ export const usuarios = sqliteTable('usuarios', {
 	email: text('email').notNull().unique(),
 	rol: text('rol', { enum: ['ADMIN', 'INVESTIGADOR', 'USUARIO'] }).default('USUARIO'),
 	activo: integer('activo', { mode: 'boolean' }).default(true),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 /**
@@ -23,10 +23,12 @@ export const usuarios = sqliteTable('usuarios', {
 export const magicLinkTokens = sqliteTable('magic_link_tokens', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	tokenHash: text('token_hash').notNull().unique(),
-	userId: integer('user_id').notNull().references(() => usuarios.id),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => usuarios.id),
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
 	usedAt: integer('used_at', { mode: 'timestamp' }),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 // --- ESTRUCTURA PRODUCTIVA ---
@@ -40,8 +42,10 @@ export const lugares = sqliteTable('lugares', {
 	nombre: text('nombre').notNull(),
 	latitud: real('latitud'), // Necesario para correlación con datos satelitales
 	longitud: real('longitud'),
-	userId: integer('user_id').notNull().references(() => usuarios.id),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => usuarios.id),
+	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 /**
@@ -53,9 +57,13 @@ export const ciclos = sqliteTable('ciclos', {
 	nombre: text('nombre').notNull(), // Ej: "Siembra Primavera 2025"
 	fechaSiembra: integer('fecha_siembra', { mode: 'timestamp' }).notNull(),
 	fechaFinalizacion: integer('fecha_finalizacion', { mode: 'timestamp' }),
-	lugarId: integer('lugar_id').notNull().references(() => lugares.id),
-	userId: integer('user_id').notNull().references(() => usuarios.id),
-	activo: integer('activo', { mode: 'boolean' }).default(true),
+	lugarId: integer('lugar_id')
+		.notNull()
+		.references(() => lugares.id),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => usuarios.id),
+	activo: integer('activo', { mode: 'boolean' }).default(true)
 });
 
 // --- TABLAS MAESTRAS (NORMALIZACIÓN) ---
@@ -67,7 +75,7 @@ export const ciclos = sqliteTable('ciclos', {
 export const tiposRegistro = sqliteTable('tipos_registro', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	codigo: text('codigo').notNull().unique(), // Ej: 'TALLA', 'BIOMASA', 'TEMP_AGUA'
-	unidadBase: text('unidad_base').notNull(), // Ej: 'mm', 'g', 'C'
+	unidadBase: text('unidad_base').notNull() // Ej: 'mm', 'g', 'C'
 });
 
 /**
@@ -75,7 +83,7 @@ export const tiposRegistro = sqliteTable('tipos_registro', {
  */
 export const origenDatos = sqliteTable('origen_datos', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	nombre: text('nombre').notNull(), // Ej: 'Manual', 'Satelital', 'PSMB'
+	nombre: text('nombre').notNull() // Ej: 'Manual', 'Satelital', 'PSMB'
 });
 
 // --- HECHOS (MEDICIONES) ---
@@ -91,13 +99,21 @@ export const mediciones = sqliteTable('mediciones', {
 
 	// Relaciones
 	cicloId: integer('ciclo_id').references(() => ciclos.id), // Null si es dato ambiental de centro
-	lugarId: integer('lugar_id').notNull().references(() => lugares.id),
-	userId: integer('user_id').notNull().references(() => usuarios.id),
-	tipoId: integer('tipo_id').notNull().references(() => tiposRegistro.id),
-	origenId: integer('origen_id').notNull().references(() => origenDatos.id),
+	lugarId: integer('lugar_id')
+		.notNull()
+		.references(() => lugares.id),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => usuarios.id),
+	tipoId: integer('tipo_id')
+		.notNull()
+		.references(() => tiposRegistro.id),
+	origenId: integer('origen_id')
+		.notNull()
+		.references(() => origenDatos.id),
 
 	notas: text('notas'),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 /**
@@ -105,10 +121,12 @@ export const mediciones = sqliteTable('mediciones', {
  */
 export const consentimientos = sqliteTable('consentimientos', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	userId: integer('user_id').notNull().references(() => usuarios.id),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => usuarios.id),
 	versionDocumento: text('version_documento').notNull(),
 	fechaAceptacion: text('fecha_aceptacion').default(sql`CURRENT_TIMESTAMP`),
-	ipOrigen: text('ip_origen'),
+	ipOrigen: text('ip_origen')
 });
 
 /**
@@ -118,6 +136,9 @@ export const consentimientos = sqliteTable('consentimientos', {
 export const apiKeys = sqliteTable('api_keys', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	key: text('key').notNull().unique(),
-	userId: integer('user_id').notNull().unique().references(() => usuarios.id),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+	userId: integer('user_id')
+		.notNull()
+		.unique()
+		.references(() => usuarios.id),
+	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
 });

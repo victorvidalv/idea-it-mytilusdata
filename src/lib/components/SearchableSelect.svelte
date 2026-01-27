@@ -1,7 +1,7 @@
 <script lang="ts">
 	/** Componente Select con búsqueda integrada (estilo Select2) - Svelte 4 */
 	export let value: string | number | null = '';
-	export let options: Array<{ value: string | number; label: string }> = [];
+	export let options: { value: string | number; label: string }[] = [];
 	export let placeholder: string = 'Seleccionar...';
 	export let name: string = '';
 	export let id: string = '';

@@ -254,6 +254,20 @@
 							Retorna los ciclos de cultivo asociados a tu cuenta de investigador.
 						</p>
 					</div>
+
+					<!-- Endpoint 3 -->
+					<div class="space-y-2 rounded-xl border border-border/50 bg-background p-4">
+						<div class="flex items-center gap-2">
+							<span
+								class="rounded bg-green-500/10 px-2 py-0.5 text-xs font-bold tracking-wider text-green-600 uppercase dark:text-green-400"
+								>GET</span
+							>
+							<code class="font-mono text-sm">/api/centros</code>
+						</div>
+						<p class="text-sm text-muted-foreground">
+							Retorna los centros de cultivo (lugares) asociados a tu cuenta.
+						</p>
+					</div>
 				</div>
 			</div>
 

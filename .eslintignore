@@ -1,9 +1,0 @@
-generated/
-node_modules/
-.next/
-out/
-build/
-scripts/
-*.test.ts
-*.test.tsx
-jest.config.js

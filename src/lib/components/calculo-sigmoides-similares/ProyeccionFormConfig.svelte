@@ -10,7 +10,6 @@
 		modelosDisponibles?: ModeloPrediccion[];
 		cargando: boolean;
 		fechasCount: number;
-		horizon?: number;
 		onEjecutarProyeccion: () => void;
 	}
 
@@ -20,7 +19,6 @@
 		modelosDisponibles = [],
 		cargando,
 		fechasCount,
-		horizon = $bindable(90),
 		onEjecutarProyeccion
 	}: Props = $props();
 
@@ -129,16 +127,13 @@
 		{/if}
 		<div class="flex-1 space-y-2">
 			<Label class="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-				Horizonte (días)
+				Horizonte fijo
 			</Label>
-			<Input
-				type="number"
-				min="1"
-				max="365"
-				bind:value={horizon}
-				class="h-11 rounded-xl border-border/50 bg-secondary/50 transition-all focus:border-ocean-light focus:ring-ocean-light/20"
-			/>
-			<p class="text-[10px] text-muted-foreground">Rango: 1 – 365 días</p>
+			<div class="flex h-11 items-center rounded-xl border border-border/50 bg-secondary/30 px-3">
+				<span class="text-sm font-medium text-foreground">24 meses</span>
+				<span class="ml-2 text-xs text-muted-foreground">720 días</span>
+			</div>
+			<p class="text-[10px] text-muted-foreground">La API proyecta siempre 24 meses; el gráfico muestra cortes cada 30 días.</p>
 		</div>
 		<div class="flex items-end">
 			<Button

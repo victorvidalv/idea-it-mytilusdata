@@ -43,6 +43,9 @@ export interface PredictionApiOutput {
 		r_squared?: number;
 		rmse?: number;
 		mae?: number;
+		dias_hasta_objetivo?: number;
+		fecha_talla_objetivo?: string;
+		[key: string]: unknown;
 	};
 	incertidumbre?: {
 		dias?: number[];

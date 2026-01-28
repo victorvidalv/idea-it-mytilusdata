@@ -44,11 +44,19 @@ function validarRequest(body: Partial<ProyeccionRequest>): { valido: boolean; er
  */
 function calcularDiasDesdePrimeraFecha(fechas: string[]): number[] {
 	if (fechas.length === 0) return [];
-	const fechaInicio = new Date(fechas[0] + 'T00:00:00Z');
+	return calcularDiasDesdeFechaBase(fechas, fechas[0]);
+}
+
+function calcularDiasDesdeFechaBase(fechas: string[], fechaBase: string): number[] {
+	const fechaInicio = new Date(fechaBase + 'T00:00:00Z');
 	return fechas.map((f) => {
 		const fecha = new Date(f + 'T00:00:00Z');
 		return Math.round((fecha.getTime() - fechaInicio.getTime()) / (1000 * 60 * 60 * 24));
 	});
+}
+
+function calcularDiaDesdeFechaBase(fecha: string, fechaBase: string): number {
+	return calcularDiasDesdeFechaBase([fecha], fechaBase)[0] ?? 0;
 }
 
 /**
@@ -87,12 +95,7 @@ function construirApiInput(body: ProyeccionRequest): PredictionApiInput {
 	if (body.tallaObjetivo != null) {
 		config.talla_objetivo = body.tallaObjetivo;
 	}
-	if (body.diasMax != null) {
-		config.horizon = body.diasMax;
-	}
-	if (body.horizon != null) {
-		config.horizon = body.horizon;
-	}
+	config.horizon = 720;
 
 	const input: PredictionApiInput = { datos };
 	if (Object.keys(config).length > 0) {
@@ -144,14 +147,28 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 
 		// Calcular días relativos desde la primera fecha para compatibilidad con UI
 		const diasRelativos = calcularDiasDesdePrimeraFecha(body.fechas);
-		const diasRelativosProyeccion = calcularDiasDesdePrimeraFecha(
-			resultado.predicciones.map((p) => p.fecha)
+		const fechaBase = body.fechas[0];
+		const diasRelativosProyeccion = calcularDiasDesdeFechaBase(
+			resultado.predicciones.map((p) => p.fecha),
+			fechaBase
 		);
+		const ultimoDiaHistorico = Math.max(...diasRelativos);
 		const proyeccion = resultado.predicciones.map((p, i) => ({
 			dia: diasRelativosProyeccion[i],
 			talla: p.talla,
 			tipo: 'proyectado' as const
 		}));
+		const diaObjetivoDesdeMetricas =
+			typeof resultado.metricas?.fecha_talla_objetivo === 'string'
+				? calcularDiaDesdeFechaBase(resultado.metricas.fecha_talla_objetivo, fechaBase)
+				: typeof resultado.metricas?.dias_hasta_objetivo === 'number'
+					? ultimoDiaHistorico + resultado.metricas.dias_hasta_objetivo
+					: undefined;
+		const diaObjetivoDesdeProyeccion =
+			body.tallaObjetivo != null
+				? proyeccion.find((p) => p.talla >= body.tallaObjetivo!)?.dia
+				: undefined;
+		const diaObjetivo = diaObjetivoDesdeMetricas ?? diaObjetivoDesdeProyeccion;
 
 		// Normalizar incertidumbre si viene
 		let incertidumbre;
@@ -162,7 +179,7 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 				? calcularDiasDesdePrimeraFecha(
 						resultado.incertidumbre.dias.map((d: string | number) => {
 							if (typeof d === 'string' && d.includes('-')) return d;
-							const fechaInicio = new Date(body.fechas[0] + 'T00:00:00Z');
+					const fechaInicio = new Date(fechaBase + 'T00:00:00Z');
 							fechaInicio.setDate(fechaInicio.getDate() + (d as number));
 							return fechaInicio.toISOString().split('T')[0];
 						})
@@ -197,6 +214,14 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 				rangoDias: [Math.min(...diasRelativos), Math.max(...diasRelativos)],
 				rangoTallas: [Math.min(...body.tallas), Math.max(...body.tallas)],
 				tallaObjetivo: body.tallaObjetivo,
+				diaObjetivo,
+				fechaObjetivo: typeof resultado.metricas?.fecha_talla_objetivo === 'string'
+					? resultado.metricas.fecha_talla_objetivo
+					: undefined,
+				diaInicioProyeccion: ultimoDiaHistorico,
+				horizonteDias: 720,
+				horizonteMeses: 24,
+				modeloUsado: resultado.modelo_usado,
 				totalPuntos: body.fechas.length,
 				...(resultado.metadata ?? {})
 			},

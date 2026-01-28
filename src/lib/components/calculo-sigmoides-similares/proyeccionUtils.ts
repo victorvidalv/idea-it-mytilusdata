@@ -28,6 +28,9 @@ export type {
 };
 export { evaluarSigmoidal, generarCurvaSigmoidal, calcularLEscalado };
 
+const HORIZONTE_PROYECCION_DIAS = 720;
+const PASO_MENSUAL_DIAS = 30;
+
 // Paleta premium para modo incertidumbre
 const PALETA = {
 	real: COLOR_REAL, // oklch(0.55 0.18 200) — azul oceánico
@@ -219,6 +222,60 @@ export function construirSeriesProyeccion(
 	return series;
 }
 
+function encontrarIndiceMasCercano(dias: number[], objetivo: number): number {
+	let mejorIndice = 0;
+	let mejorDistancia = Number.POSITIVE_INFINITY;
+	for (let i = 0; i < dias.length; i += 1) {
+		const distancia = Math.abs(dias[i] - objetivo);
+		if (distancia < mejorDistancia) {
+			mejorDistancia = distancia;
+			mejorIndice = i;
+		}
+	}
+	return mejorIndice;
+}
+
+export function filtrarProyeccionMensual(
+	proyeccion: PuntoProyeccion[],
+	mediciones: Medicion[]
+): PuntoProyeccion[] {
+	if (proyeccion.length === 0) return [];
+	const ultimoDiaHistorico = mediciones.length > 0 ? Math.max(...mediciones.map((m) => m.dia)) : 0;
+	const diasProyeccion = proyeccion.map((p) => p.dia);
+	const seleccionados = new Set<number>();
+
+	for (let mes = 1; mes <= HORIZONTE_PROYECCION_DIAS / PASO_MENSUAL_DIAS; mes += 1) {
+		const objetivo = ultimoDiaHistorico + mes * PASO_MENSUAL_DIAS;
+		seleccionados.add(encontrarIndiceMasCercano(diasProyeccion, objetivo));
+	}
+
+	return Array.from(seleccionados)
+		.sort((a, b) => a - b)
+		.map((index) => proyeccion[index]);
+}
+
+export function filtrarIncertidumbreMensual(
+	incertidumbre: IncertidumbreProyeccion | undefined,
+	mediciones: Medicion[]
+): IncertidumbreProyeccion | undefined {
+	if (!incertidumbre || incertidumbre.dias.length === 0) return incertidumbre;
+	const ultimoDiaHistorico = mediciones.length > 0 ? Math.max(...mediciones.map((m) => m.dia)) : 0;
+	const seleccionados = new Set<number>();
+
+	for (let mes = 1; mes <= HORIZONTE_PROYECCION_DIAS / PASO_MENSUAL_DIAS; mes += 1) {
+		const objetivo = ultimoDiaHistorico + mes * PASO_MENSUAL_DIAS;
+		seleccionados.add(encontrarIndiceMasCercano(incertidumbre.dias, objetivo));
+	}
+
+	const indices = Array.from(seleccionados).sort((a, b) => a - b);
+	return {
+		dias: indices.map((i) => incertidumbre.dias[i]),
+		mediana: indices.map((i) => incertidumbre.mediana[i]),
+		limiteInferior: indices.map((i) => incertidumbre.limiteInferior[i]),
+		limiteSuperior: indices.map((i) => incertidumbre.limiteSuperior[i])
+	};
+}
+
 /**
  * Combina y ordena datos para la tabla.
  */
@@ -241,7 +298,7 @@ export function generarDescripcionGrafico(
 	proyeccion: PuntoProyeccion[]
 ): string {
 	if (mediciones.length > 0) {
-		return `${mediciones.length} reales + ${proyeccion.length} proyectados`;
+		return `${mediciones.length} reales + ${proyeccion.length} cortes mensuales proyectados (24 meses)`;
 	}
-	return `${proyeccion.length} puntos`;
+	return `${proyeccion.length} cortes mensuales proyectados`;
 }

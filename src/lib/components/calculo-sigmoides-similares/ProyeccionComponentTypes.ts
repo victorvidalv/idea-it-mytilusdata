@@ -25,7 +25,7 @@ export interface PuntoProyeccion {
 	tipo: 'dato' | 'proyeccion' | 'interpolado' | 'proyectado';
 }
 
-export interface ParametrosSigmoidal {
+export interface ParametrosSigmoidal extends Record<string, number> {
 	L: number;
 	k: number;
 	x0: number;
@@ -52,6 +52,11 @@ export interface Metadatos {
 	rangoTallas: string | [number, number];
 	tallaObjetivo?: number;
 	diaObjetivo?: number;
+	fechaObjetivo?: string;
+	diaInicioProyeccion?: number;
+	horizonteDias?: number;
+	horizonteMeses?: number;
+	modeloUsado?: string;
 	totalPuntos: number;
 }
 

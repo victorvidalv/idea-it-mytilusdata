@@ -18,6 +18,11 @@ Refactorizado para eliminar referencias a sigmoides y ajuste local.
 	}
 
 	let { curvaUsada, metadatos, mediciones = [] }: Props = $props();
+
+	function tieneParametrosLogisticos(parametros: CurvaUsada['parametros']): boolean {
+		const values = parametros as Record<string, unknown> | undefined;
+		return typeof values?.L === 'number' && typeof values?.k === 'number' && typeof values?.x0 === 'number';
+	}
 </script>
 
 <Card.Root class="border-border/50">
@@ -55,11 +60,11 @@ Refactorizado para eliminar referencias a sigmoides y ajuste local.
 			/>
 			</div>
 
-			{#if metadatos?.diaObjetivo && metadatos.tallaObjetivo && curvaUsada.parametros}
+			{#if metadatos?.diaObjetivo && metadatos.tallaObjetivo && tieneParametrosLogisticos(curvaUsada.parametros)}
 				<CurvaCalculoObjetivo
 					diaObjetivo={metadatos.diaObjetivo}
 					tallaObjetivo={metadatos.tallaObjetivo}
-					parametros={curvaUsada.parametros}
+					parametros={curvaUsada.parametros as any}
 				/>
 			{/if}
 		</Card.Content>

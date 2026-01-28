@@ -9,7 +9,7 @@ export async function ejecutarProyeccion(
 	tallas: number[],
 	tallaObjetivo: string,
 	modelo?: string,
-	horizon?: number
+	_horizon?: number
 ): Promise<ResultadoProyeccion> {
 	const body: Record<string, unknown> = { fechas, tallas };
 	const tallaObj = parseFloat(tallaObjetivo);
@@ -19,9 +19,7 @@ export async function ejecutarProyeccion(
 	if (modelo) {
 		body.modelo = modelo;
 	}
-	if (horizon !== undefined && !isNaN(horizon)) {
-		body.horizon = Math.max(1, Math.min(365, Math.round(horizon)));
-	}
+	body.horizon = 720;
 
 	const res = await fetch('/api/proyectar', {
 		method: 'POST',

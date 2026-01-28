@@ -13,6 +13,8 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 	import {
 		construirSeriesProyeccion,
 		construirTablaDatos,
+		filtrarIncertidumbreMensual,
+		filtrarProyeccionMensual,
 		generarDescripcionGrafico,
 		type CurvaReferencia
 	} from './proyeccionUtils';
@@ -56,16 +58,27 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 		onExportar
 	}: Props = $props();
 
+	let proyeccionMensual = $derived(filtrarProyeccionMensual(proyeccion, mediciones));
+	let incertidumbreMensual = $derived(filtrarIncertidumbreMensual(incertidumbre, mediciones));
 	let chartSeriesData = $derived(
-		construirSeriesProyeccion(proyeccion, mediciones, meta, undefined, incertidumbre)
+		construirSeriesProyeccion(proyeccionMensual, mediciones, meta, undefined, incertidumbreMensual)
 	);
-	let tablaDatos = $derived(construirTablaDatos(proyeccion, mediciones));
-	let chartDescription = $derived(generarDescripcionGrafico(mediciones, proyeccion));
+	let chartSeriesMensual = $derived(
+		chartSeriesData.map((serie) => ({
+			...serie,
+			data: serie.data.map((punto) => ({
+				...punto,
+				dia: Number((punto.dia / 30).toFixed(2))
+			}))
+		}))
+	);
+	let tablaDatos = $derived(construirTablaDatos(proyeccionMensual, mediciones));
+	let chartDescription = $derived(generarDescripcionGrafico(mediciones, proyeccionMensual));
 
-	let seriesConDatos = $derived(chartSeriesData.filter((s) => s.data && s.data.length > 0));
+	let seriesConDatos = $derived(chartSeriesMensual.filter((s) => s.data && s.data.length > 0));
 	let hasMultipleSeries = $derived(seriesConDatos.length > 1);
 	let hasDataToPlot = $derived(seriesConDatos.length > 0);
-	let tieneIncertidumbre = $derived(!!incertidumbre && incertidumbre.dias.length > 0);
+	let tieneIncertidumbre = $derived(!!incertidumbreMensual && incertidumbreMensual.dias.length > 0);
 
 	let chartDomain = $derived.by(() => {
 		const maxDia = Math.max(
@@ -161,12 +174,12 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 	});
 
 	let resumenRiesgo = $derived.by(() => {
-		if (!incertidumbre || incertidumbre.dias.length === 0) return null;
+		if (!incertidumbreMensual || incertidumbreMensual.dias.length === 0) return null;
 
-		const anchoInicial = incertidumbre.limiteSuperior[0] - incertidumbre.limiteInferior[0];
-		const ultimo = incertidumbre.dias.length - 1;
-		const anchoFinal = incertidumbre.limiteSuperior[ultimo] - incertidumbre.limiteInferior[ultimo];
-		const maxDia = Math.max(...incertidumbre.dias);
+		const anchoInicial = incertidumbreMensual.limiteSuperior[0] - incertidumbreMensual.limiteInferior[0];
+		const ultimo = incertidumbreMensual.dias.length - 1;
+		const anchoFinal = incertidumbreMensual.limiteSuperior[ultimo] - incertidumbreMensual.limiteInferior[ultimo];
+		const maxDia = Math.max(...incertidumbreMensual.dias);
 		const ultimoDato = mediciones.length > 0 ? Math.max(...mediciones.map((m) => m.dia)) : 0;
 		const horizonteMeses = Math.max(0, (maxDia - ultimoDato) / 30);
 		const crecimiento = anchoInicial > 0 ? anchoFinal / anchoInicial : 1;
@@ -246,17 +259,18 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 		<Card.Header>
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<div>
-					<Card.Title class="font-display text-lg">Curva de crecimiento proyectada</Card.Title>
+					<Card.Title class="font-display text-lg">Curva de crecimiento mensual</Card.Title>
 					<Card.Description class="mt-1 font-body text-xs">{chartDescription}</Card.Description>
 				</div>
 				{#if metadatos?.diaObjetivo}
 					<div class="text-right">
 						<p class="text-xs font-medium text-muted-foreground">
-							Día objetivo ({metadatos.tallaObjetivo} mm)
+							Objetivo ({metadatos.tallaObjetivo} mm)
 						</p>
 						<p class="font-mono text-lg font-semibold text-ocean-mid">
-							Día {metadatos.diaObjetivo}
+							Mes {Math.max(1, Math.ceil((metadatos.diaObjetivo - (mediciones.length > 0 ? Math.max(...mediciones.map((m) => m.dia)) : 0)) / 30))}
 						</p>
+						<p class="text-[10px] text-muted-foreground">día {metadatos.diaObjetivo}</p>
 					</div>
 				{/if}
 			</div>
@@ -405,7 +419,7 @@ Ahora soporta cono de incertidumbre (bootstrap) y degradación temporal (walk-fo
 				<div>
 					<Card.Title class="font-display text-lg">Datos de la proyección</Card.Title>
 					<Card.Description class="mt-1 font-body text-xs"
-						>Tabla con datos reales y proyectados</Card.Description
+						>Tabla con datos reales y cortes proyectados cada 30 días</Card.Description
 					>
 				</div>
 				<Button

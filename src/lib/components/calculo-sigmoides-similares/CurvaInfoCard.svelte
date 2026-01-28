@@ -26,7 +26,6 @@ Refactorizado para usar tipos compartidos.
 			mediciones,
 			esCurvaLocal: curvaUsada.esCurvaLocal,
 			r2: curvaUsada.r2,
-			parametros: curvaUsada.parametros as any,
 			tallaObjetivo: metadatos?.tallaObjetivo
 		})
 	);

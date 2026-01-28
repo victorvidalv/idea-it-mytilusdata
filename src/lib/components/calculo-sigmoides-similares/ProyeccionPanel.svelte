@@ -23,7 +23,6 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	let tallaObjetivo = $state('');
 	let modeloSeleccionado = $state('');
 	let modelosDisponibles = $state<ModeloPrediccion[]>([]);
-	let horizon = $state(90);
 	let cargando = $state(false);
 	let error = $state('');
 	let resultado = $state<ResultadoProyeccion | null>(null);
@@ -80,7 +79,7 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 		cargando = true;
 		error = '';
 		try {
-			resultado = await Actions.ejecutarProyeccion(fechas, tallas, tallaObjetivo, modeloSeleccionado || undefined, horizon);
+			resultado = await Actions.ejecutarProyeccion(fechas, tallas, tallaObjetivo, modeloSeleccionado || undefined);
 			if (!resultado.success) error = resultado.error || 'Error en proyección';
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error de conexión';
@@ -104,7 +103,6 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 		{modelosDisponibles}
 		{error}
 		{cargando}
-		bind:horizon
 		onAgregarPunto={handleAgregarPunto}
 		onEliminarPunto={handleEliminarPunto}
 		onUsarMedicionesCargadas={handleUsarMediciones}

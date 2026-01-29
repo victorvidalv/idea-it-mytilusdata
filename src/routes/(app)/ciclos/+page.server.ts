@@ -13,13 +13,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	// Obtener ciclos con datos del lugar asociado
 	const allCiclos = canViewAll
-		? await db.select().from(ciclos).all()
-		: await db.select().from(ciclos).where(eq(ciclos.userId, userId!)).all();
+		? await db.select().from(ciclos)
+		: await db.select().from(ciclos).where(eq(ciclos.userId, userId!));
 
 	// Enriquecer ciclos con nombre del centro
 	const ciclosConLugar = await Promise.all(
 		allCiclos.map(async (ciclo) => {
-			const lugar = await db.select().from(lugares).where(eq(lugares.id, ciclo.lugarId)).get();
+			const [lugar] = await db.select().from(lugares).where(eq(lugares.id, ciclo.lugarId)).limit(1);
 			return {
 				...ciclo,
 				lugarNombre: lugar?.nombre ?? 'Desconocido',
@@ -35,8 +35,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	// Obtener centros del usuario (para el selector al crear ciclo)
 	const centrosUsuario = canViewAll
-		? await db.select().from(lugares).all()
-		: await db.select().from(lugares).where(eq(lugares.userId, userId!)).all();
+		? await db.select().from(lugares)
+		: await db.select().from(lugares).where(eq(lugares.userId, userId!));
 
 	return {
 		ciclos: ciclosConLugar,
@@ -68,7 +68,7 @@ export const actions = {
 		}
 
 		// Verificar que el centro existe y pertenece al usuario
-		const lugar = await db.select().from(lugares).where(eq(lugares.id, lugarId)).get();
+		const [lugar] = await db.select().from(lugares).where(eq(lugares.id, lugarId)).limit(1);
 		if (!lugar) return fail(404, { error: true, message: 'Centro de cultivo no encontrado' });
 
 		const isAdmin = hasMinRole(locals.user?.rol as Rol, ROLES.ADMIN);
@@ -98,7 +98,7 @@ export const actions = {
 		const cicloId = Number(data.get('cicloId'));
 		const newActive = data.get('activo') === 'true';
 
-		const ciclo = await db.select().from(ciclos).where(eq(ciclos.id, cicloId)).get();
+		const [ciclo] = await db.select().from(ciclos).where(eq(ciclos.id, cicloId)).limit(1);
 		if (!ciclo) return fail(404, { error: true, message: 'Ciclo no encontrado' });
 
 		const isAdmin = hasMinRole(locals.user?.rol as Rol, ROLES.ADMIN);
@@ -126,7 +126,7 @@ export const actions = {
 		const data = await request.formData();
 		const cicloId = Number(data.get('cicloId'));
 
-		const ciclo = await db.select().from(ciclos).where(eq(ciclos.id, cicloId)).get();
+		const [ciclo] = await db.select().from(ciclos).where(eq(ciclos.id, cicloId)).limit(1);
 		if (!ciclo) return fail(404, { error: true, message: 'Ciclo no encontrado' });
 
 		const isAdmin = hasMinRole(locals.user?.rol as Rol, ROLES.ADMIN);

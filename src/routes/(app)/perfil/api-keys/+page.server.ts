@@ -12,11 +12,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw error(401, 'No autorizado');
 	}
 
-	const existingKey = await db
+	const [existingKey] = await db
 		.select()
 		.from(apiKeys)
 		.where(eq(apiKeys.userId, sessionUser.userId))
-		.get();
+		.limit(1);
 
 	return {
 		apiKey: existingKey ? existingKey.key : null,

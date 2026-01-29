@@ -20,17 +20,32 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const [centrosResult, ciclosResult, medicionesResult] = await Promise.all([
 		// Contar centros
 		canViewAll
-			? db.select({ total: count() }).from(lugares).get()
-			: db.select({ total: count() }).from(lugares).where(eq(lugares.userId, userId!)).get(),
+			? db
+					.select({ total: count() })
+					.from(lugares)
+					.limit(1)
+					.then((res) => res[0])
+			: db
+					.select({ total: count() })
+					.from(lugares)
+					.where(eq(lugares.userId, userId!))
+					.limit(1)
+					.then((res) => res[0]),
 
 		// Contar ciclos activos
 		canViewAll
-			? db.select({ total: count() }).from(ciclos).where(eq(ciclos.activo, true)).get()
+			? db
+					.select({ total: count() })
+					.from(ciclos)
+					.where(eq(ciclos.activo, true))
+					.limit(1)
+					.then((res) => res[0])
 			: db
 					.select({ total: count() })
 					.from(ciclos)
 					.where(and(eq(ciclos.userId, userId!), eq(ciclos.activo, true)))
-					.get(),
+					.limit(1)
+					.then((res) => res[0]),
 
 		// Contar mediciones del mes
 		canViewAll
@@ -38,12 +53,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 					.select({ total: count() })
 					.from(mediciones)
 					.where(gte(mediciones.fechaMedicion, startOfMonth))
-					.get()
+					.limit(1)
+					.then((res) => res[0])
 			: db
 					.select({ total: count() })
 					.from(mediciones)
 					.where(and(eq(mediciones.userId, userId!), gte(mediciones.fechaMedicion, startOfMonth)))
-					.get()
+					.limit(1)
+					.then((res) => res[0])
 	]);
 
 	return {

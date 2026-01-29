@@ -9,7 +9,7 @@ import { requireRole, ROLES, type Rol } from '$lib/server/auth';
 export const load: PageServerLoad = async ({ locals }) => {
 	requireRole(locals.user?.rol as Rol, ROLES.ADMIN);
 
-	const allUsers = await db.select().from(usuarios).all();
+	const allUsers = await db.select().from(usuarios);
 
 	return {
 		usuarios: allUsers.map((u) => ({

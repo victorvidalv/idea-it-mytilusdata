@@ -15,7 +15,7 @@ export async function GET({ request }: RequestEvent) {
 	const key = authHeader.split(' ')[1];
 
 	// Validar la API key
-	const apiKeyRecord = await db.select().from(apiKeys).where(eq(apiKeys.key, key)).get();
+	const [apiKeyRecord] = await db.select().from(apiKeys).where(eq(apiKeys.key, key)).limit(1);
 
 	if (!apiKeyRecord) {
 		return json({ error: 'API Key inválida' }, { status: 401 });

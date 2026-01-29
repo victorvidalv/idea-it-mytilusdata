@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return { authorized: false, origenes: [] };
 	}
 
-	let origenes = await db.select().from(origenDatos).all();
+	let origenes = await db.select().from(origenDatos);
 
 	// Semillas iniciales si la tabla está vacía
 	if (origenes.length === 0) {
@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				{ nombre: 'Sensor IoT' },
 				{ nombre: 'PSMB' }
 			]);
-		origenes = await db.select().from(origenDatos).all();
+		origenes = await db.select().from(origenDatos);
 	}
 
 	return {

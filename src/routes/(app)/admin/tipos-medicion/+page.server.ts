@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return { authorized: false, tipos: [] };
 	}
 
-	let tipos = await db.select().from(tiposRegistro).all();
+	let tipos = await db.select().from(tiposRegistro);
 
 	// Semillas iniciales si la tabla está vacía
 	if (tipos.length === 0) {
@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			{ codigo: 'OXIGENO_DISUELTO', unidadBase: 'mg/L' },
 			{ codigo: 'CLOROFILA_A', unidadBase: 'ug/L' }
 		]);
-		tipos = await db.select().from(tiposRegistro).all();
+		tipos = await db.select().from(tiposRegistro);
 	}
 
 	return {

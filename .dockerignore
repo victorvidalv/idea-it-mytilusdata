@@ -1,0 +1,10 @@
+.git
+.env
+.env.backup*
+node_modules
+build
+.vercel
+*.log
+.DS_Store
+.vscode
+.idea

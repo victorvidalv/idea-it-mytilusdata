@@ -9,9 +9,13 @@ export async function ejecutarProyeccion(
 	tallas: number[],
 	tallaObjetivo: string,
 	modelo?: string,
+	fechaSiembra?: string,
 	_horizon?: number
 ): Promise<ResultadoProyeccion> {
 	const body: Record<string, unknown> = { fechas, tallas };
+	if (fechaSiembra) {
+		body.fechaSiembra = fechaSiembra;
+	}
 	const tallaObj = parseFloat(tallaObjetivo);
 	if (!isNaN(tallaObj) && tallaObj > 0) {
 		body.tallaObjetivo = tallaObj;

@@ -8,6 +8,8 @@
  * Soporta datos multivariables opcionales.
  */
 export interface ProyeccionRequest {
+	/** Fecha de siembra del ciclo: día productivo 0 para calcular dia_cultivo. */
+	fechaSiembra?: string;
 	fechas: string[];
 	tallas: number[];
 	tallaObjetivo?: number;
@@ -39,6 +41,7 @@ export interface ProyeccionCSVRequest {
  */
 export interface MedicionConFecha {
 	fecha: string;
+	diaCultivo?: number;
 	talla: number;
 	biomasa?: number;
 	densidad?: number;

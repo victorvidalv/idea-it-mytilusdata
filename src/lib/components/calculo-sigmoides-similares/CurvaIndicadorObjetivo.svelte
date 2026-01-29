@@ -8,16 +8,19 @@
     let { metadatos, curvaUsada }: Props = $props();
 
     // Extraer talla máxima según el modelo usado
-    function getTallaMaxima(parametros: CurvaUsada['parametros']): number | undefined {
+    function getTallaMaxima(parametros: CurvaUsada['parametros'], modeloUsado: string | undefined): number | undefined {
         if (!parametros) return undefined;
         const values = parametros as Record<string, number>;
+        const slug = modeloUsado || '';
+        // Schnute: usar L calculado (asíntota), no confundir con Gompertz
+        if (slug.includes('schnute')) return values.L;
         if (values.L !== undefined) return values.L;
         if (values.Linf !== undefined) return values.Linf;
         if (values.a !== undefined) return values.a;
         return undefined;
     }
 
-    let tallaMax = $derived(getTallaMaxima(curvaUsada.parametros));
+    let tallaMax = $derived(getTallaMaxima(curvaUsada.parametros, metadatos?.modeloUsado));
     let esMetaSuperada = $derived(metadatos.tallaObjetivo && tallaMax !== undefined && metadatos.tallaObjetivo >= tallaMax);
     let mesObjetivo = $derived(
         metadatos.diaObjetivo != null

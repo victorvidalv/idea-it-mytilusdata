@@ -20,6 +20,7 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 
 	let fechas = $state<string[]>([]);
 	let tallas = $state<number[]>([]);
+	let fechaSiembra = $state<string | undefined>();
 	let tallaObjetivo = $state('');
 	let modeloSeleccionado = $state('');
 	let modelosDisponibles = $state<ModeloPrediccion[]>([]);
@@ -30,17 +31,18 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	const MIN_PUNTOS_PROYECCION = 5;
 	let hayProyeccion = $derived(!!(resultado?.success && resultado.proyeccion?.length));
 
-	// Calcular días relativos desde la primera fecha para mostrar en UI
-	function calcularDiasDesdePrimeraFecha(fechas: string[]): number[] {
+	// Calcular días de cultivo desde siembra. Si no existe siembra, usa origen
+	// relativo legacy desde la primera medición.
+	function calcularDiasCultivo(fechas: string[], fechaSiembra?: string): number[] {
 		if (fechas.length === 0) return [];
-		const fechaInicio = new Date(fechas[0] + 'T00:00:00Z');
+		const fechaInicio = new Date((fechaSiembra || fechas[0]) + 'T00:00:00Z');
 		return fechas.map((f) => {
 			const fecha = new Date(f + 'T00:00:00Z');
 			return Math.round((fecha.getTime() - fechaInicio.getTime()) / (1000 * 60 * 60 * 24));
 		});
 	}
 
-	let dias = $derived(calcularDiasDesdePrimeraFecha(fechas));
+	let dias = $derived(calcularDiasCultivo(fechas, fechaSiembra));
 
 	// Cargar modelos al montar
 	$effect(() => {
@@ -63,9 +65,10 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 		resultado = null;
 	}
 
-	function handleUsarMediciones(mediciones: { fecha: string; talla: number }[]) {
+	function handleUsarMediciones(mediciones: { fecha: string; talla: number }[], nuevaFechaSiembra?: string) {
 		fechas = mediciones.map((m) => m.fecha);
 		tallas = mediciones.map((m) => m.talla);
+		fechaSiembra = nuevaFechaSiembra;
 		resultado = null;
 	}
 
@@ -79,7 +82,13 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 		cargando = true;
 		error = '';
 		try {
-			resultado = await Actions.ejecutarProyeccion(fechas, tallas, tallaObjetivo, modeloSeleccionado || undefined);
+			resultado = await Actions.ejecutarProyeccion(
+				fechas,
+				tallas,
+				tallaObjetivo,
+				modeloSeleccionado || undefined,
+				fechaSiembra
+			);
 			if (!resultado.success) error = resultado.error || 'Error en proyección';
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error de conexión';

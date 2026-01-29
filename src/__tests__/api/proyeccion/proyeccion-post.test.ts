@@ -15,7 +15,12 @@ vi.mock('../../../routes/api/proyeccion/validation', () => ({
 }));
 
 vi.mock('$lib/server/prediction-service', () => ({
-	llamarApiPrediccion: mockLlamarApiPrediccion
+	llamarApiPrediccion: mockLlamarApiPrediccion,
+	PredictionServiceError: class PredictionServiceError extends Error {
+		constructor(message: string, public code = 'DESCONOCIDO') {
+			super(message);
+		}
+	}
 }));
 
 import { handlePostProyeccion } from '../../../routes/api/proyeccion/handlers/post';
@@ -126,7 +131,8 @@ describe('POST /api/proyeccion', () => {
 	describe('Ejecución de proyección', () => {
 		it('debería retornar 200 con resultado exitoso', async () => {
 			const body = {
-				dias: [1, 2, 3],
+				fechaSiembra: '2024-01-01',
+				fechas: ['2024-01-01', '2024-01-02', '2024-01-03'],
 				tallas: [10, 20, 30],
 				tallaObjetivo: 25,
 				diasMax: 90
@@ -148,7 +154,8 @@ describe('POST /api/proyeccion', () => {
 
 		it('debería llamar a la API externa con los parámetros correctos', async () => {
 			const body = {
-				dias: [1, 2, 3],
+				fechaSiembra: '2024-01-01',
+				fechas: ['2024-01-02', '2024-01-03', '2024-01-04'],
 				tallas: [10, 20, 30],
 				tallaObjetivo: 25,
 				diasMax: 90,
@@ -159,12 +166,13 @@ describe('POST /api/proyeccion', () => {
 			await handlePostProyeccion(event);
 
 			expect(mockLlamarApiPrediccion).toHaveBeenCalledWith({
+				fecha_siembra: '2024-01-01',
 				datos: [
 					{ fecha: '2024-01-02', talla: 10 },
 					{ fecha: '2024-01-03', talla: 20 },
 					{ fecha: '2024-01-04', talla: 30 }
 				],
-				config: { talla_objetivo: 25, horizon: 90 },
+				config: { talla_objetivo: 25, horizon: 720 },
 				modelo: 'gompertz'
 			});
 		});
@@ -176,7 +184,7 @@ describe('POST /api/proyeccion', () => {
 			});
 
 			const event = createPostEvent({
-				body: { dias: [1, 2, 3], tallas: [10, 20, 30] }
+				body: { fechas: ['2024-01-01', '2024-01-02', '2024-01-03'], tallas: [10, 20, 30] }
 			});
 			const response = await handlePostProyeccion(event);
 			const data = await response.json();
@@ -191,7 +199,7 @@ describe('POST /api/proyeccion', () => {
 			});
 
 			const event = createPostEvent({
-				body: { dias: [1, 2, 3], tallas: [10, 20, 30] }
+				body: { fechas: ['2024-01-01', '2024-01-02', '2024-01-03'], tallas: [10, 20, 30] }
 			});
 			const response = await handlePostProyeccion(event);
 			const data = await response.json();
@@ -225,7 +233,7 @@ describe('POST /api/proyeccion', () => {
 			mockLlamarApiPrediccion.mockRejectedValue(new Error('Timeout de API'));
 
 			const event = createPostEvent({
-				body: { dias: [1, 2, 3], tallas: [10, 20, 30] }
+				body: { fechas: ['2024-01-01', '2024-01-02', '2024-01-03'], tallas: [10, 20, 30] }
 			});
 
 			const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

@@ -20,6 +20,8 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	function getTallaMaxima(parametros: Record<string, number> | undefined, modeloUsado: string | undefined): number | undefined {
 		if (!parametros) return undefined;
 		const slug = modeloUsado || '';
+		// Schnute: usar L calculado (asíntota), no confundir con Gompertz
+		if (slug.includes('schnute')) return parametros.L;
 		if (slug.includes('logistic') || parametros.L !== undefined) return parametros.L;
 		if (slug.includes('bertalanffy') || parametros.Linf !== undefined) return parametros.Linf;
 		if (slug.includes('gompertz') || parametros.a !== undefined) return parametros.a;

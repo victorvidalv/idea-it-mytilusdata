@@ -38,7 +38,7 @@ Formulario para mediciones. Refactorizado al máximo para svelteqa compliance.
 	<Card.Content class="space-y-6">
 		<ProyeccionFormCarga
 			lugares={s.lugaresLocales} {ciclos} bind:selectedLugarId={s.selectedLugarId} bind:selectedCicloId={s.selectedCicloId}
-			cargandoDatos={s.cargandoDatos} errorCarga={s.errorCarga} medicionesCargadas={s.medicionesCargadas}
+			cargandoDatos={s.cargandoDatos} errorCarga={s.errorCarga} medicionesCargadas={s.medicionesCargadas} fechaSiembraCargada={s.fechaSiembraCargada}
 			onCargarMediciones={hCarga} onUsarMedicionesCargadas={hUsar} onEliminarMedicionCargada={(fecha: string) => hDel(fecha)}
 		/>
 		<div class="relative py-2">

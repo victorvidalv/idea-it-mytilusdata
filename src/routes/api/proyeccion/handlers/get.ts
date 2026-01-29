@@ -7,6 +7,15 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { verificarAutenticacion, validarCicloIdParam, obtenerCicloId } from '../validation';
 import { obtenerCiclo, obtenerMedicionesPorCiclo } from '../queries';
 
+function calcularDiaCultivo(fecha: string, fechaSiembra: Date | string): number {
+	const muestra = new Date(fecha + 'T00:00:00Z');
+	const fechaSiembraIso = fechaSiembra instanceof Date
+		? fechaSiembra.toISOString().split('T')[0]
+		: String(fechaSiembra).split('T')[0];
+	const siembra = new Date(fechaSiembraIso + 'T00:00:00Z');
+	return Math.round((muestra.getTime() - siembra.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 /**
  * GET /api/proyectar?cicloId=123
  * Obtiene las mediciones multivariables de un ciclo para proyección.
@@ -38,7 +47,10 @@ export async function handleGetProyeccion({ locals, url }: RequestEvent): Promis
 			return json({ error: 'Ciclo no encontrado o no pertenece al usuario' }, { status: 404 });
 		}
 
-		const mediciones = await obtenerMedicionesPorCiclo(cicloId, userId);
+		const mediciones = (await obtenerMedicionesPorCiclo(cicloId, userId)).map((medicion) => ({
+			...medicion,
+			diaCultivo: calcularDiaCultivo(medicion.fecha, ciclo.fechaSiembra)
+		}));
 
 		if (mediciones.length < 5) {
 			return json(

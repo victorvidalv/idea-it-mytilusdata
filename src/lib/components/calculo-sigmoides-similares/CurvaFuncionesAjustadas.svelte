@@ -46,7 +46,7 @@ Refactorizado para eliminar referencias a sigmoides y ajuste local.
 		}
 
 		// Gompertz: a, b, c
-		if (slug.includes('gompertz') || parametros.a !== undefined) {
+		if (slug.includes('gompertz')) {
 			return {
 				tipo: 'gompertz',
 				tallaMax: parametros.a,
@@ -55,6 +55,19 @@ Refactorizado para eliminar referencias a sigmoides y ajuste local.
 				tallaMaxLabel: 'Talla máx (a)',
 				tasaLabel: 'Parámetro b',
 				inflexionLabel: 'Parámetro c'
+			};
+		}
+
+		// Schnute: a, b, L1, L3, L (asíntota calculada)
+		if (slug.includes('schnute')) {
+			return {
+				tipo: 'schnute',
+				tallaMax: parametros.L,
+				tasa: parametros.a,
+				inflexion: parametros.b,
+				tallaMaxLabel: 'Talla máx (L)',
+				tasaLabel: 'Parámetro a',
+				inflexionLabel: 'Parámetro b'
 			};
 		}
 

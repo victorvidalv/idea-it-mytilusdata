@@ -5,8 +5,7 @@ const mockVerificarAutenticacion = vi.hoisted(() => vi.fn());
 const mockValidarCicloIdParam = vi.hoisted(() => vi.fn());
 const mockObtenerCicloId = vi.hoisted(() => vi.fn());
 const mockObtenerCiclo = vi.hoisted(() => vi.fn());
-const mockObtenerMedicionesTalla = vi.hoisted(() => vi.fn());
-const mockConvertirMedicionesADias = vi.hoisted(() => vi.fn());
+const mockObtenerMedicionesPorCiclo = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../routes/api/proyeccion/validation', () => ({
 	verificarAutenticacion: mockVerificarAutenticacion,
@@ -16,8 +15,7 @@ vi.mock('../../../routes/api/proyeccion/validation', () => ({
 
 vi.mock('../../../routes/api/proyeccion/queries', () => ({
 	obtenerCiclo: mockObtenerCiclo,
-	obtenerMedicionesTalla: mockObtenerMedicionesTalla,
-	convertirMedicionesADias: mockConvertirMedicionesADias
+	obtenerMedicionesPorCiclo: mockObtenerMedicionesPorCiclo
 }));
 
 import { handleGetProyeccion } from '../../../routes/api/proyeccion/handlers/get';
@@ -110,13 +108,9 @@ describe('GET /api/proyeccion', () => {
 				nombre: 'Ciclo Test',
 				fechaSiembra: '2024-01-01'
 			});
-			mockObtenerMedicionesTalla.mockResolvedValue([
-				{ valor: 10, fechaMedicion: '2024-02-01' },
-				{ valor: 15, fechaMedicion: '2024-03-01' }
-			]);
-			mockConvertirMedicionesADias.mockReturnValue([
-				{ dia: 31, talla: 10 },
-				{ dia: 60, talla: 15 }
+			mockObtenerMedicionesPorCiclo.mockResolvedValue([
+				{ fecha: '2024-02-01', talla: 10 },
+				{ fecha: '2024-03-01', talla: 15 }
 			]);
 
 			const event = createProyeccionEvent({ user: { userId: 1 }, cicloId: '1' });
@@ -139,25 +133,18 @@ describe('GET /api/proyeccion', () => {
 				fechaSiembra: '2024-01-01'
 			};
 			const mockMediciones = [
-				{ dia: 30, talla: 10 },
-				{ dia: 60, talla: 15 },
-				{ dia: 90, talla: 20 },
-				{ dia: 120, talla: 25 },
-				{ dia: 150, talla: 30 }
+				{ fecha: '2024-01-31', talla: 10 },
+				{ fecha: '2024-03-01', talla: 15 },
+				{ fecha: '2024-03-31', talla: 20 },
+				{ fecha: '2024-04-30', talla: 25 },
+				{ fecha: '2024-05-30', talla: 30 }
 			];
 
 			mockVerificarAutenticacion.mockReturnValue(1);
 			mockValidarCicloIdParam.mockReturnValue({ valido: true });
 			mockObtenerCicloId.mockReturnValue(1);
 			mockObtenerCiclo.mockResolvedValue(mockCiclo);
-			mockObtenerMedicionesTalla.mockResolvedValue([
-				{ valor: 10, fechaMedicion: '2024-01-31' },
-				{ valor: 15, fechaMedicion: '2024-03-01' },
-				{ valor: 20, fechaMedicion: '2024-03-31' },
-				{ valor: 25, fechaMedicion: '2024-04-30' },
-				{ valor: 30, fechaMedicion: '2024-05-30' }
-			]);
-			mockConvertirMedicionesADias.mockReturnValue(mockMediciones);
+			mockObtenerMedicionesPorCiclo.mockResolvedValue(mockMediciones);
 
 			const event = createProyeccionEvent({ user: { userId: 1 }, cicloId: '1' });
 			const response = await handleGetProyeccion(event);
@@ -168,7 +155,7 @@ describe('GET /api/proyeccion', () => {
 			expect(data.ciclo).toEqual({ id: 1, nombre: 'Ciclo 2024', fechaSiembra: '2024-01-01' });
 			expect(data.mediciones).toHaveLength(5);
 			expect(data.mediciones[0]).toHaveProperty('fecha');
-			expect(data.mediciones[0]).toHaveProperty('dia');
+			expect(data.mediciones[0]).toHaveProperty('diaCultivo', 30);
 			expect(data.mediciones[0]).toHaveProperty('talla');
 		});
 	});

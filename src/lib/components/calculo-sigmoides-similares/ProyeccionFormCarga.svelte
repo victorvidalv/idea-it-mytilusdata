@@ -12,6 +12,7 @@
 		cargandoDatos: boolean;
 		errorCarga: string;
 		medicionesCargadas: MedicionCargada[];
+		fechaSiembraCargada?: string;
 		onCargarMediciones: () => void;
 		onUsarMedicionesCargadas: () => void;
 		onEliminarMedicionCargada: (fecha: string) => void;
@@ -25,6 +26,7 @@
 		cargandoDatos,
 		errorCarga,
 		medicionesCargadas,
+		fechaSiembraCargada,
 		onCargarMediciones,
 		onUsarMedicionesCargadas,
 		onEliminarMedicionCargada
@@ -84,9 +86,14 @@
 	{#if medicionesCargadas.length > 0}
 		<div class="space-y-2">
 			<div class="flex items-center justify-between">
-				<Label class="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-					Mediciones del ciclo ({medicionesCargadas.length})
-				</Label>
+				<div>
+					<Label class="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+						Mediciones del ciclo ({medicionesCargadas.length})
+					</Label>
+					{#if fechaSiembraCargada}
+						<p class="text-xs text-muted-foreground">Día 0 productivo: {fechaSiembraCargada}</p>
+					{/if}
+				</div>
 				<Button variant="outline" size="sm" onclick={onUsarMedicionesCargadas} class="h-7 text-xs">
 					Usar estos datos
 				</Button>

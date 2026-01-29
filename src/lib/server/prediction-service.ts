@@ -16,8 +16,10 @@ export interface PredictionFeature {
 
 /** Datos de entrada para la API de predicción */
 export interface PredictionApiInput {
+	fecha_siembra?: string;
 	datos: Array<{
 		fecha: string;
+		dia_cultivo?: number;
 		talla: number;
 		biomasa?: number;
 		densidad?: number;
@@ -44,6 +46,7 @@ export interface PredictionApiOutput {
 		rmse?: number;
 		mae?: number;
 		dias_hasta_objetivo?: number;
+		dia_cultivo_talla_objetivo?: number;
 		fecha_talla_objetivo?: string;
 		[key: string]: unknown;
 	};

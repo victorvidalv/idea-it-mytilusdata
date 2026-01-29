@@ -16,7 +16,16 @@ export interface Ciclo {
 
 export interface MedicionCargada {
 	fecha: string;
+	diaCultivo?: number;
 	talla: number;
+	biomasa?: number;
+	densidad?: number;
+	temperatura?: number;
+}
+
+export interface MedicionesCicloCargadas {
+	mediciones: MedicionCargada[];
+	fechaSiembra?: string;
 }
 
 export interface PuntoProyeccion {
@@ -50,6 +59,9 @@ export interface CurvaReferencia {
 export interface Metadatos {
 	rangoDias: string | [number, number];
 	rangoTallas: string | [number, number];
+	fechaSiembra?: string;
+	primerDiaObservado?: number;
+	ultimoDiaObservado?: number;
 	tallaObjetivo?: number;
 	diaObjetivo?: number;
 	fechaObjetivo?: string;
@@ -107,6 +119,7 @@ export interface ResultadoProyeccion {
 }
 
 export interface ProyeccionRequest {
+	fechaSiembra?: string;
 	fechas: string[];
 	tallas: number[];
 	tallaObjetivo?: number;

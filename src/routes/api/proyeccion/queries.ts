@@ -158,3 +158,19 @@ export function convertirMedicionesAFormato(
 		talla: m.valor
 	}));
 }
+
+/**
+ * Convertir mediciones al eje productivo histórico usado por algunos tests/UI.
+ * Día 0 corresponde a fecha_siembra del ciclo, no a la primera medición.
+ */
+export function convertirMedicionesADias(
+	mediciones: Array<{ valor: number; fechaMedicion: Date }>,
+	fechaSiembra: Date
+): Array<{ dia: number; talla: number }> {
+	return mediciones.map((m) => ({
+		dia: Math.round(
+			(m.fechaMedicion.getTime() - fechaSiembra.getTime()) / (1000 * 60 * 60 * 24)
+		),
+		talla: m.valor
+	}));
+}

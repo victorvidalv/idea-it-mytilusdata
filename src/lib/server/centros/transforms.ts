@@ -8,15 +8,14 @@ import type { Lugar, CentroConPermisos, GeoPoint } from './types';
 
 /**
  * Transforma un lugar de la DB al formato esperado por el cliente.
- * Extrae latitud/longitud de la columna geom (PostGIS).
- * geom: { x: longitud, y: latitud }
+ * Usa columnas latitud/longitud directamente.
  */
 export function transformarLugarParaCliente(lugar: Lugar) {
 	return {
 		id: lugar.id,
 		nombre: lugar.nombre,
-		latitud: lugar.geom?.y ?? lugar.latitud ?? null,
-		longitud: lugar.geom?.x ?? lugar.longitud ?? null,
+		latitud: lugar.latitud ?? null,
+		longitud: lugar.longitud ?? null,
 		userId: lugar.userId,
 		createdAt: lugar.createdAt ? new Date(lugar.createdAt).toISOString() : null
 	};

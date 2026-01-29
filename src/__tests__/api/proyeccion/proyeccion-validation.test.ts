@@ -83,72 +83,72 @@ describe('obtenerCicloId', () => {
 });
 
 describe('validarCamposRequeridos', () => {
-	it('returns error when dias is missing', () => {
+	it('returns error when fechas is missing', () => {
 		const result = validarCamposRequeridos({ tallas: [1, 2] });
 		expect(result.valido).toBe(false);
-		expect(result.error).toContain('dias');
+		expect(result.error).toContain('fechas');
 	});
 
-	it('returns error when dias is not array', () => {
-		const result = validarCamposRequeridos({ dias: 'not-array', tallas: [1, 2] });
+	it('returns error when fechas is not array', () => {
+		const result = validarCamposRequeridos({ fechas: 'not-array', tallas: [1, 2] });
 		expect(result.valido).toBe(false);
 	});
 
 	it('returns error when tallas is missing', () => {
-		const result = validarCamposRequeridos({ dias: [1, 2] });
+		const result = validarCamposRequeridos({ fechas: ['2024-01-01', '2024-01-02'] });
 		expect(result.valido).toBe(false);
 		expect(result.error).toContain('tallas');
 	});
 
 	it('returns error when tallas is not array', () => {
-		const result = validarCamposRequeridos({ dias: [1, 2], tallas: 42 });
+		const result = validarCamposRequeridos({ fechas: ['2024-01-01', '2024-01-02'], tallas: 42 });
 		expect(result.valido).toBe(false);
 	});
 
 	it('returns valid when both arrays present', () => {
-		const result = validarCamposRequeridos({ dias: [1, 2], tallas: [3, 4] });
+		const result = validarCamposRequeridos({ fechas: ['2024-01-01', '2024-01-02'], tallas: [3, 4] });
 		expect(result.valido).toBe(true);
 	});
 });
 
 describe('validarLongitudArrays', () => {
 	it('returns error when arrays differ in length', () => {
-		const result = validarLongitudArrays({ dias: [1, 2, 3], tallas: [4, 5] });
+		const result = validarLongitudArrays({ fechas: ['2024-01-01', '2024-01-02', '2024-01-03'], tallas: [4, 5] });
 		expect(result.valido).toBe(false);
 		expect(result.error).toBeDefined();
 	});
 
 	it('returns valid when arrays have same length', () => {
-		const result = validarLongitudArrays({ dias: [1, 2, 3], tallas: [4, 5, 6] });
+		const result = validarLongitudArrays({ fechas: ['2024-01-01', '2024-01-02', '2024-01-03'], tallas: [4, 5, 6] });
 		expect(result.valido).toBe(true);
 	});
 
 	it('returns valid for empty arrays (same length)', () => {
-		const result = validarLongitudArrays({ dias: [], tallas: [] });
+		const result = validarLongitudArrays({ fechas: [], tallas: [] });
 		expect(result.valido).toBe(true);
 	});
 });
 
 describe('validarMinimoPuntos', () => {
 	it('returns error when less than 5 points', () => {
-		const result = validarMinimoPuntos({ dias: [1], tallas: [10] });
+		const result = validarMinimoPuntos({ fechas: ['2024-01-01'], tallas: [10] });
 		expect(result.valido).toBe(false);
 		expect(result.error).toBeDefined();
 	});
 
 	it('returns error for exactly 4 points', () => {
-		const result = validarMinimoPuntos({ dias: [1, 2, 3, 4], tallas: [10, 20, 30, 40] });
+		const result = validarMinimoPuntos({ fechas: ['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04'], tallas: [10, 20, 30, 40] });
 		expect(result.valido).toBe(false);
 	});
 
 	it('returns valid for exactly 5 points', () => {
-		const result = validarMinimoPuntos({ dias: [1, 2, 3, 4, 5], tallas: [10, 20, 30, 40, 50] });
+		const result = validarMinimoPuntos({ fechas: ['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04', '2024-01-05'], tallas: [10, 20, 30, 40, 50] });
 		expect(result.valido).toBe(true);
 	});
 
 	it('returns valid for more than 5 points', () => {
 		const result = validarMinimoPuntos({
-			dias: [1, 2, 3, 4, 5, 6],
+			fechas: ['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04', '2024-01-05', '2024-01-06'],
 			tallas: [10, 20, 30, 40, 50, 60]
 		});
 		expect(result.valido).toBe(true);

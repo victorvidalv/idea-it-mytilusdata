@@ -39,14 +39,9 @@ function validarRequest(body: Partial<ProyeccionRequest>): { valido: boolean; er
 }
 
 /**
- * Calcular días relativos desde la primera fecha.
- * Útil para mantener compatibilidad con la UI que usa días.
+ * Calcular días desde una fecha base. Si existe fecha de siembra, esa fecha
+ * es el día productivo 0; si no, se mantiene el origen relativo legacy.
  */
-function calcularDiasDesdePrimeraFecha(fechas: string[]): number[] {
-	if (fechas.length === 0) return [];
-	return calcularDiasDesdeFechaBase(fechas, fechas[0]);
-}
-
 function calcularDiasDesdeFechaBase(fechas: string[], fechaBase: string): number[] {
 	const fechaInicio = new Date(fechaBase + 'T00:00:00Z');
 	return fechas.map((f) => {
@@ -98,6 +93,9 @@ function construirApiInput(body: ProyeccionRequest): PredictionApiInput {
 	config.horizon = 720;
 
 	const input: PredictionApiInput = { datos };
+	if (body.fechaSiembra) {
+		input.fecha_siembra = body.fechaSiembra;
+	}
 	if (Object.keys(config).length > 0) {
 		input.config = config;
 	}
@@ -145,21 +143,24 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 			);
 		}
 
-		// Calcular días relativos desde la primera fecha para compatibilidad con UI
-		const diasRelativos = calcularDiasDesdePrimeraFecha(body.fechas);
-		const fechaBase = body.fechas[0];
+		// Día de cultivo = fecha de muestra - fecha de siembra. Sin siembra,
+		// se conserva el comportamiento relativo legacy desde la primera muestra.
+		const fechaBase = body.fechaSiembra || body.fechas[0];
+		const diasCultivo = calcularDiasDesdeFechaBase(body.fechas, fechaBase);
 		const diasRelativosProyeccion = calcularDiasDesdeFechaBase(
 			resultado.predicciones.map((p) => p.fecha),
 			fechaBase
 		);
-		const ultimoDiaHistorico = Math.max(...diasRelativos);
+		const ultimoDiaHistorico = Math.max(...diasCultivo);
 		const proyeccion = resultado.predicciones.map((p, i) => ({
 			dia: diasRelativosProyeccion[i],
 			talla: p.talla,
 			tipo: 'proyectado' as const
 		}));
 		const diaObjetivoDesdeMetricas =
-			typeof resultado.metricas?.fecha_talla_objetivo === 'string'
+			typeof resultado.metricas?.dia_cultivo_talla_objetivo === 'number'
+				? resultado.metricas.dia_cultivo_talla_objetivo
+				: typeof resultado.metricas?.fecha_talla_objetivo === 'string'
 				? calcularDiaDesdeFechaBase(resultado.metricas.fecha_talla_objetivo, fechaBase)
 				: typeof resultado.metricas?.dias_hasta_objetivo === 'number'
 					? ultimoDiaHistorico + resultado.metricas.dias_hasta_objetivo
@@ -176,13 +177,10 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 			// Algunos modelos devuelven bandas con dias explicitos; otros, como
 			// ML-Random Forest, devuelven percentiles alineados con predicciones.
 			const diasIncertidumbre = Array.isArray(resultado.incertidumbre.dias)
-				? calcularDiasDesdePrimeraFecha(
-						resultado.incertidumbre.dias.map((d: string | number) => {
-							if (typeof d === 'string' && d.includes('-')) return d;
-					const fechaInicio = new Date(fechaBase + 'T00:00:00Z');
-							fechaInicio.setDate(fechaInicio.getDate() + (d as number));
-							return fechaInicio.toISOString().split('T')[0];
-						})
+				? resultado.incertidumbre.dias.map((d: string | number) =>
+						typeof d === 'string' && d.includes('-')
+							? calcularDiaDesdeFechaBase(d, fechaBase)
+							: Number(d)
 					)
 				: diasRelativosProyeccion;
 			incertidumbre = {
@@ -211,14 +209,17 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 				parametros: resultado.parametros_modelo
 			},
 			metadatos: {
-				rangoDias: [Math.min(...diasRelativos), Math.max(...diasRelativos)],
+				rangoDias: [Math.min(...diasCultivo), Math.max(...diasCultivo)],
 				rangoTallas: [Math.min(...body.tallas), Math.max(...body.tallas)],
+				fechaSiembra: body.fechaSiembra,
+				primerDiaObservado: Math.min(...diasCultivo),
+				ultimoDiaObservado: ultimoDiaHistorico,
 				tallaObjetivo: body.tallaObjetivo,
 				diaObjetivo,
 				fechaObjetivo: typeof resultado.metricas?.fecha_talla_objetivo === 'string'
 					? resultado.metricas.fecha_talla_objetivo
 					: undefined,
-				diaInicioProyeccion: ultimoDiaHistorico,
+				diaInicioProyeccion: ultimoDiaHistorico + 1,
 				horizonteDias: 720,
 				horizonteMeses: 24,
 				modeloUsado: resultado.modelo_usado,

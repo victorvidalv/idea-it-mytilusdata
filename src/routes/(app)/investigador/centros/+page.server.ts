@@ -15,7 +15,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.select({
 			id: lugares.id,
 			nombre: lugares.nombre,
-			geom: lugares.geom,
 			latitud: lugares.latitud,
 			longitud: lugares.longitud,
 			createdAt: lugares.createdAt,
@@ -33,10 +32,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 				.where(eq(ciclos.lugarId, centro.id))
 				.limit(1);
 			
-			// Extraer coordenadas de geom (PostGIS) con fallback a columnas legacy
-			// geom: { x: longitud, y: latitud }
-			const latitud = centro.geom?.y ?? centro.latitud ?? null;
-			const longitud = centro.geom?.x ?? centro.longitud ?? null;
+			// Usar columnas latitud/longitud directamente
+			const latitud = centro.latitud ?? null;
+			const longitud = centro.longitud ?? null;
 			
 			return {
 				id: centro.id,

@@ -46,3 +46,11 @@ next-env.d.ts
 /generated/prisma
 prisma/dev.db
 prisma/dev.db-journal
+
+# sveltekit
+.svelte-kit
+
+# local database
+*.db
+file:local.db
+local.db

@@ -5,10 +5,13 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
+
+# Copy build-time env vars
+COPY .env.docker .env
 
 # Build the application
 RUN npm run build
@@ -23,7 +26,7 @@ COPY --from=builder /app/build ./
 COPY --from=builder /app/package*.json ./
 
 # Install production dependencies only
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # Expose port
 EXPOSE 3000

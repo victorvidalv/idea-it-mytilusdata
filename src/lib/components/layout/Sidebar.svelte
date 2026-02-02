@@ -4,6 +4,7 @@
 	export let data: import('../../../routes/(app)/$types').LayoutData;
 	export let links: { href: string; label: string; icon: string }[];
 	export let adminLinks: { href: string; label: string; icon: string }[];
+	export let investigadorLinks: { href: string; label: string; icon: string }[];
 	export let sidebarCollapsed: boolean;
 	export let toggleSidebar: () => void;
 
@@ -55,37 +56,82 @@
 		>
 			Principal
 		</p>
-		{#each links as link (link.href)}
-			<a
-				href={link.href}
-				class="group flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm font-medium transition-all duration-200 {sidebarCollapsed
-					? 'justify-center'
-					: ''}
-					{$page.url.pathname.startsWith(link.href)
-					? 'bg-white/10 text-white shadow-sm shadow-black/10'
-					: 'text-white/50 hover:bg-white/[0.05] hover:text-white/80'}"
-				title={sidebarCollapsed ? link.label : ''}
-			>
-				<svg
-					class="h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200 {$page.url.pathname.startsWith(
-						link.href
-					)
-						? 'text-teal-glow'
-						: 'text-white/30 group-hover:text-white/50'}"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
+
+		{#if data.user?.rol === 'INVESTIGADOR'}
+			{#each investigadorLinks as link (link.href)}
+				<a
+					href={link.href}
+					class="group flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm font-medium transition-all duration-200 {sidebarCollapsed
+						? 'justify-center'
+						: ''}
+						{$page.url.pathname.startsWith(link.href)
+						? 'bg-white/10 text-white shadow-sm shadow-black/10'
+						: 'text-white/50 hover:bg-white/[0.05] hover:text-white/80'}"
+					title={sidebarCollapsed ? link.label : ''}
 				>
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d={link.icon} />
-				</svg>
-				{#if !sidebarCollapsed}
-					<span class="whitespace-nowrap">{link.label}</span>
-					{#if $page.url.pathname.startsWith(link.href)}
-						<div class="ml-auto h-1.5 w-1.5 rounded-full bg-teal-glow"></div>
+					<svg
+						class="h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200 {$page.url.pathname.startsWith(
+							link.href
+						)
+							? 'text-teal-glow'
+							: 'text-white/30 group-hover:text-white/50'}"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="1.75"
+							d={link.icon}
+						/>
+					</svg>
+					{#if !sidebarCollapsed}
+						<span class="whitespace-nowrap">{link.label}</span>
+						{#if $page.url.pathname.startsWith(link.href)}
+							<div class="ml-auto h-1.5 w-1.5 rounded-full bg-teal-glow"></div>
+						{/if}
 					{/if}
-				{/if}
-			</a>
-		{/each}
+				</a>
+			{/each}
+		{:else}
+			{#each links as link (link.href)}
+				<a
+					href={link.href}
+					class="group flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm font-medium transition-all duration-200 {sidebarCollapsed
+						? 'justify-center'
+						: ''}
+						{$page.url.pathname.startsWith(link.href)
+						? 'bg-white/10 text-white shadow-sm shadow-black/10'
+						: 'text-white/50 hover:bg-white/[0.05] hover:text-white/80'}"
+					title={sidebarCollapsed ? link.label : ''}
+				>
+					<svg
+						class="h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200 {$page.url.pathname.startsWith(
+							link.href
+						)
+							? 'text-teal-glow'
+							: 'text-white/30 group-hover:text-white/50'}"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="1.75"
+							d={link.icon}
+						/>
+					</svg>
+					{#if !sidebarCollapsed}
+						<span class="whitespace-nowrap">{link.label}</span>
+						{#if $page.url.pathname.startsWith(link.href)}
+							<div class="ml-auto h-1.5 w-1.5 rounded-full bg-teal-glow"></div>
+						{/if}
+					{/if}
+				</a>
+			{/each}
+		{/if}
 
 		{#if data.user?.rol === 'ADMIN'}
 			<div class="mt-5 border-t border-white/[0.06] pt-5">

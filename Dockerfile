@@ -10,8 +10,23 @@ RUN npm ci --legacy-peer-deps
 # Copy source code
 COPY . .
 
-# Copy build-time env vars
-COPY .env.docker .env
+# Build arguments for build-time environment variables
+ARG DATABASE_URL
+ARG PUBLIC_TURNSTILE_SITE_KEY
+ARG JWT_SECRET
+ARG RESEND_API_KEY
+ARG EMAIL_FROM
+ARG INITIAL_ADMIN_EMAIL
+ARG PREDICTION_API_URL
+
+# Create .env file from build arguments
+RUN echo "DATABASE_URL=${DATABASE_URL}" > .env && \
+    echo "PUBLIC_TURNSTILE_SITE_KEY=${PUBLIC_TURNSTILE_SITE_KEY}" >> .env && \
+    echo "JWT_SECRET=${JWT_SECRET}" >> .env && \
+    echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env && \
+    echo "EMAIL_FROM=${EMAIL_FROM}" >> .env && \
+    echo "INITIAL_ADMIN_EMAIL=${INITIAL_ADMIN_EMAIL}" >> .env && \
+    echo "PREDICTION_API_URL=${PREDICTION_API_URL}" >> .env
 
 # Build the application
 RUN npm run build

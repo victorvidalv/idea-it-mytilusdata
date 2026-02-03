@@ -10,23 +10,15 @@ RUN npm ci --legacy-peer-deps
 # Copy source code
 COPY . .
 
-# Build arguments for build-time environment variables
-ARG DATABASE_URL
-ARG PUBLIC_TURNSTILE_SITE_KEY
-ARG JWT_SECRET
-ARG RESEND_API_KEY
-ARG EMAIL_FROM
-ARG INITIAL_ADMIN_EMAIL
-ARG PREDICTION_API_URL
-
-# Create .env file from build arguments
-RUN echo "DATABASE_URL=${DATABASE_URL}" > .env && \
-    echo "PUBLIC_TURNSTILE_SITE_KEY=${PUBLIC_TURNSTILE_SITE_KEY}" >> .env && \
-    echo "JWT_SECRET=${JWT_SECRET}" >> .env && \
-    echo "RESEND_API_KEY=${RESEND_API_KEY}" >> .env && \
-    echo "EMAIL_FROM=${EMAIL_FROM}" >> .env && \
-    echo "INITIAL_ADMIN_EMAIL=${INITIAL_ADMIN_EMAIL}" >> .env && \
-    echo "PREDICTION_API_URL=${PREDICTION_API_URL}" >> .env
+# Create a minimal .env with placeholder values for build
+# The actual values will be provided at runtime via environment variables
+RUN echo "DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder" > .env && \
+    echo "PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA" >> .env && \
+    echo "JWT_SECRET=placeholder-jwt-secret" >> .env && \
+    echo "RESEND_API_KEY=placeholder-resend-key" >> .env && \
+    echo "EMAIL_FROM=noreply@mytilusdata.cl" >> .env && \
+    echo "INITIAL_ADMIN_EMAIL=admin@mytilusdata.cl" >> .env && \
+    echo "PREDICTION_API_URL=http://localhost:8000" >> .env
 
 # Build the application
 RUN npm run build

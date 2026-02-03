@@ -16,6 +16,7 @@
 	export let turnstileLoaded: boolean;
 
 	let turnstileWidgetId: string | undefined;
+	let isTurnstileEnabled = turnstileEnabled();
 </script>
 
 <div class="animate-fade-up space-y-4">
@@ -89,7 +90,7 @@
 			</div>
 		</div>
 
-		{#if turnstileEnabled}
+		{#if isTurnstileEnabled}
 			<div class="flex justify-center">
 				<div use:createTurnstileAction></div>
 			</div>
@@ -99,7 +100,7 @@
 			{loading}
 			loadingText="Creando cuenta..."
 			defaultText="Crear cuenta y recibir enlace"
-			disabled={loading || (turnstileEnabled && !turnstileLoaded)}
+			disabled={loading || (isTurnstileEnabled && !turnstileLoaded)}
 		/>
 	</form>
 </div>

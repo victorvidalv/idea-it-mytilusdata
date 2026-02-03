@@ -12,6 +12,7 @@
 
 	let loading = false;
 	let turnstileWidgetId: string | undefined;
+	let isTurnstileEnabled = turnstileEnabled();
 
 	// Inicializar callback global de Turnstile
 	initTurnstileCallback();
@@ -34,7 +35,7 @@
 
 <svelte:head>
 	<title>Iniciar Sesión | MytilusData</title>
-	{#if turnstileEnabled}
+	{#if isTurnstileEnabled}
 		<script
 			src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit"
 			async

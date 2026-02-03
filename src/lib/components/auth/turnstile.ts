@@ -1,9 +1,9 @@
-import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
 /**
  * Verifica si Turnstile está configurado
  */
-export const turnstileEnabled = !!PUBLIC_TURNSTILE_SITE_KEY;
+export const turnstileEnabled = () => !!env.PUBLIC_TURNSTILE_SITE_KEY;
 
 /**
  * Tipo para la API de Turnstile en window
@@ -44,14 +44,14 @@ export function initTurnstileCallback(): void {
 export function createTurnstileAction(
 	node: HTMLElement
 ): { destroy: () => void } | undefined {
-	if (!turnstileEnabled) return;
+	if (!turnstileEnabled()) return;
 
 	let widgetId: string | undefined;
 	const interval = setInterval(() => {
 		if (typeof window.turnstile !== 'undefined') {
 			clearInterval(interval);
 			widgetId = window.turnstile.render(node, {
-				sitekey: PUBLIC_TURNSTILE_SITE_KEY,
+				sitekey: env.PUBLIC_TURNSTILE_SITE_KEY,
 				theme: 'light'
 			});
 		}

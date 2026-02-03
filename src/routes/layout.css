@@ -2,96 +2,102 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* --- Paleta Marina Científica --- */
+/* --- Paleta WhatsApp --- */
 :root {
 	--radius: 0.75rem;
 
-	/* Colores primarios - Azul marino profundo */
-	--background: oklch(0.985 0.004 240);
-	--foreground: oklch(0.145 0.035 250);
+	/* Fondos - Beige cálido estilo WA */
+	--background: oklch(0.96 0.008 80);
+	--foreground: oklch(0.18 0.025 170);
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0.035 250);
+	--card-foreground: oklch(0.18 0.025 170);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0.035 250);
+	--popover-foreground: oklch(0.18 0.025 170);
 
-	/* Primario: Azul oceánico */
-	--primary: oklch(0.35 0.12 240);
-	--primary-foreground: oklch(0.98 0.005 240);
+	/* Primario: Teal WA (#075E54 / #128C7E) */
+	--primary: oklch(0.42 0.10 170);
+	--primary-foreground: oklch(0.99 0 0);
 
-	/* Secundario: Arena suave */
-	--secondary: oklch(0.955 0.012 240);
-	--secondary-foreground: oklch(0.25 0.06 240);
+	/* Secundario: Gris cálido suave */
+	--secondary: oklch(0.95 0.008 80);
+	--secondary-foreground: oklch(0.28 0.04 170);
 
 	/* Mutado */
-	--muted: oklch(0.955 0.012 240);
-	--muted-foreground: oklch(0.5 0.04 240);
+	--muted: oklch(0.94 0.008 80);
+	--muted-foreground: oklch(0.50 0.025 170);
 
-	/* Acento: Teal marino */
-	--accent: oklch(0.92 0.035 190);
-	--accent-foreground: oklch(0.22 0.08 190);
+	/* Acento: Verde claro WA (#DCF8C6) */
+	--accent: oklch(0.94 0.05 145);
+	--accent-foreground: oklch(0.25 0.08 170);
 
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.91 0.015 240);
-	--input: oklch(0.91 0.015 240);
-	--ring: oklch(0.55 0.12 240);
+	--border: oklch(0.90 0.010 80);
+	--input: oklch(0.90 0.012 80);
+	--ring: oklch(0.50 0.12 170);
 
 	/* Gráficos */
-	--chart-1: oklch(0.55 0.18 200);
-	--chart-2: oklch(0.65 0.15 170);
-	--chart-3: oklch(0.45 0.1 240);
-	--chart-4: oklch(0.7 0.14 140);
-	--chart-5: oklch(0.6 0.2 30);
+	--chart-1: oklch(0.50 0.12 170);
+	--chart-2: oklch(0.68 0.16 155);
+	--chart-3: oklch(0.55 0.10 220);
+	--chart-4: oklch(0.72 0.10 130);
+	--chart-5: oklch(0.60 0.15 45);
 
-	/* Sidebar */
-	--sidebar: oklch(0.18 0.045 245);
-	--sidebar-foreground: oklch(0.92 0.01 240);
-	--sidebar-primary: oklch(0.65 0.18 200);
-	--sidebar-primary-foreground: oklch(0.98 0.005 240);
-	--sidebar-accent: oklch(0.25 0.05 245);
-	--sidebar-accent-foreground: oklch(0.92 0.01 240);
-	--sidebar-border: oklch(0.28 0.04 245);
-	--sidebar-ring: oklch(0.55 0.12 240);
+	/* Sidebar - Teal oscuro WA */
+	--sidebar: oklch(0.22 0.06 170);
+	--sidebar-foreground: oklch(0.94 0.008 155);
+	--sidebar-primary: oklch(0.68 0.16 155);
+	--sidebar-primary-foreground: oklch(0.99 0 0);
+	--sidebar-accent: oklch(0.30 0.06 170);
+	--sidebar-accent-foreground: oklch(0.94 0.008 155);
+	--sidebar-border: oklch(0.32 0.05 170);
+	--sidebar-ring: oklch(0.50 0.12 170);
 
 	/* Colores de marca */
-	--ocean-deep: oklch(0.18 0.045 245);
-	--ocean-mid: oklch(0.35 0.12 240);
-	--ocean-light: oklch(0.55 0.18 200);
-	--teal-glow: oklch(0.72 0.15 185);
-	--foam-white: oklch(0.97 0.008 200);
+	--ocean-deep: oklch(0.22 0.06 170);
+	--ocean-mid: oklch(0.42 0.10 170);
+	--ocean-light: oklch(0.68 0.16 155);
+	--teal-glow: oklch(0.78 0.12 145);
+	--foam-white: oklch(0.96 0.015 130);
 }
 
 .dark {
-	--background: oklch(0.13 0.035 245);
-	--foreground: oklch(0.94 0.01 240);
-	--card: oklch(0.18 0.04 245);
-	--card-foreground: oklch(0.94 0.01 240);
-	--popover: oklch(0.18 0.04 245);
-	--popover-foreground: oklch(0.94 0.01 240);
-	--primary: oklch(0.65 0.18 200);
-	--primary-foreground: oklch(0.12 0.03 240);
-	--secondary: oklch(0.25 0.04 245);
-	--secondary-foreground: oklch(0.94 0.01 240);
-	--muted: oklch(0.25 0.04 245);
-	--muted-foreground: oklch(0.65 0.04 240);
-	--accent: oklch(0.25 0.06 200);
-	--accent-foreground: oklch(0.94 0.01 240);
+	--background: oklch(0.14 0.02 175);
+	--foreground: oklch(0.93 0.008 155);
+	--card: oklch(0.20 0.03 175);
+	--card-foreground: oklch(0.93 0.008 155);
+	--popover: oklch(0.20 0.03 175);
+	--popover-foreground: oklch(0.93 0.008 155);
+	--primary: oklch(0.68 0.16 155);
+	--primary-foreground: oklch(0.14 0.02 175);
+	--secondary: oklch(0.24 0.03 175);
+	--secondary-foreground: oklch(0.93 0.008 155);
+	--muted: oklch(0.24 0.03 175);
+	--muted-foreground: oklch(0.62 0.03 170);
+	--accent: oklch(0.28 0.05 170);
+	--accent-foreground: oklch(0.93 0.008 155);
 	--destructive: oklch(0.704 0.191 22.216);
 	--border: oklch(1 0 0 / 8%);
 	--input: oklch(1 0 0 / 12%);
-	--ring: oklch(0.55 0.15 200);
-	--chart-1: oklch(0.55 0.22 200);
-	--chart-2: oklch(0.65 0.17 170);
-	--chart-3: oklch(0.7 0.18 140);
-	--chart-4: oklch(0.6 0.22 280);
-	--chart-5: oklch(0.65 0.22 30);
-	--sidebar: oklch(0.12 0.04 248);
-	--sidebar-foreground: oklch(0.92 0.01 240);
-	--sidebar-primary: oklch(0.65 0.18 200);
-	--sidebar-primary-foreground: oklch(0.98 0.005 240);
-	--sidebar-accent: oklch(0.2 0.045 248);
-	--sidebar-accent-foreground: oklch(0.92 0.01 240);
+	--ring: oklch(0.68 0.16 155);
+	--chart-1: oklch(0.55 0.14 170);
+	--chart-2: oklch(0.70 0.18 155);
+	--chart-3: oklch(0.60 0.12 220);
+	--chart-4: oklch(0.75 0.12 130);
+	--chart-5: oklch(0.65 0.18 45);
+	--sidebar: oklch(0.14 0.025 178);
+	--sidebar-foreground: oklch(0.93 0.008 155);
+	--sidebar-primary: oklch(0.68 0.16 155);
+	--sidebar-primary-foreground: oklch(0.99 0 0);
+	--sidebar-accent: oklch(0.22 0.04 178);
+	--sidebar-accent-foreground: oklch(0.93 0.008 155);
 	--sidebar-border: oklch(1 0 0 / 8%);
-	--sidebar-ring: oklch(0.55 0.15 200);
+	--sidebar-ring: oklch(0.68 0.16 155);
+
+	--ocean-deep: oklch(0.14 0.025 178);
+	--ocean-mid: oklch(0.50 0.12 170);
+	--ocean-light: oklch(0.68 0.16 155);
+	--teal-glow: oklch(0.78 0.12 145);
+	--foam-white: oklch(0.96 0.015 130);
 }
 
 @theme inline {
@@ -256,21 +262,21 @@
 	animation-delay: 500ms;
 }
 
-/* --- Efectos de fondo --- */
+/* --- Efectos de fondo --- Gradiente WA teal */
 .bg-ocean-gradient {
 	background: linear-gradient(
 		135deg,
-		oklch(0.18 0.045 245) 0%,
-		oklch(0.25 0.08 235) 50%,
-		oklch(0.2 0.06 250) 100%
+		oklch(0.22 0.06 170) 0%,
+		oklch(0.30 0.08 168) 50%,
+		oklch(0.26 0.07 175) 100%
 	);
 }
 
 .bg-ocean-mesh {
 	background:
-		radial-gradient(ellipse at 20% 50%, oklch(0.35 0.12 200 / 0.15) 0%, transparent 60%),
-		radial-gradient(ellipse at 80% 20%, oklch(0.55 0.18 240 / 0.08) 0%, transparent 50%),
-		radial-gradient(ellipse at 50% 80%, oklch(0.72 0.15 185 / 0.06) 0%, transparent 60%);
+		radial-gradient(ellipse at 20% 50%, oklch(0.40 0.10 170 / 0.15) 0%, transparent 60%),
+		radial-gradient(ellipse at 80% 20%, oklch(0.68 0.16 155 / 0.08) 0%, transparent 50%),
+		radial-gradient(ellipse at 50% 80%, oklch(0.78 0.12 145 / 0.06) 0%, transparent 60%);
 }
 
 /* --- Utilitarios --- */
@@ -280,7 +286,7 @@
 }
 
 .text-gradient-ocean {
-	background: linear-gradient(135deg, oklch(0.55 0.18 200), oklch(0.72 0.15 185));
+	background: linear-gradient(135deg, oklch(0.42 0.10 170), oklch(0.68 0.16 155));
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
@@ -295,8 +301,8 @@
 .card-hover:hover {
 	transform: translateY(-2px);
 	box-shadow:
-		0 8px 25px -5px oklch(0.35 0.12 240 / 0.12),
-		0 4px 10px -4px oklch(0.35 0.12 240 / 0.06);
+		0 8px 25px -5px oklch(0.42 0.10 170 / 0.12),
+		0 4px 10px -4px oklch(0.42 0.10 170 / 0.06);
 }
 
 /* Scrollbar personalizada */
@@ -307,9 +313,9 @@
 	background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-	background: oklch(0.7 0.03 240 / 0.3);
+	background: oklch(0.7 0.03 170 / 0.3);
 	border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: oklch(0.55 0.05 240 / 0.5);
+	background: oklch(0.55 0.05 170 / 0.5);
 }

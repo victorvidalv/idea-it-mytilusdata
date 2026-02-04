@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { LayoutData } from './$types';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
-	import MobileHeader from '$lib/components/layout/MobileHeader.svelte';
+	import Header from '$lib/components/layout/Header.svelte';
 
 	export let data: LayoutData;
 
@@ -105,7 +105,7 @@
 
 	<!-- Contenido principal -->
 	<main class="flex min-h-0 flex-1 flex-col overflow-hidden">
-		<MobileHeader {data} {links} {investigadorLinks} {mobileMenuOpen} {toggleMobileMenu} />
+		<Header {data} {links} {investigadorLinks} {mobileMenuOpen} {toggleMobileMenu} />
 
 		<!-- Área de contenido con scroll -->
 		<div class="flex-1 overflow-auto p-5 md:p-8 lg:p-10">

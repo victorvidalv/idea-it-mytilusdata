@@ -3,23 +3,41 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import toast from 'svelte-french-toast';
 
 	export let form: import('./$types').ActionData;
 
 	let loading = false;
+	let turnstileLoaded = false;
+
+	// Verificar si Turnstile está configurado
+	const turnstileEnabled = !!PUBLIC_TURNSTILE_SITE_KEY;
 
 	$: if (form?.success) {
 		toast.success('¡Enlace enviado! Revisa tu bandeja de entrada para acceder a la plataforma.');
 		loading = false;
-	} else if (form?.error || form?.missing) {
+	} else if (form?.error || form?.missing || form?.rateLimited || form?.cooldownActive || form?.captchaError) {
 		toast.error('Error: ' + (form?.message || 'Hubo un error al procesar tu solicitud.'));
 		loading = false;
+	}
+
+	// Callback cuando Turnstile se carga
+	function onTurnstileLoad() {
+		turnstileLoaded = true;
+	}
+
+	// Exponer el callback globalmente para el script de Turnstile
+	if (typeof window !== 'undefined') {
+		(window as any).onTurnstileLoad = onTurnstileLoad;
 	}
 </script>
 
 <svelte:head>
 	<title>Iniciar Sesión | Plataforma Idea 2025</title>
+	{#if turnstileEnabled}
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad" async defer></script>
+	{/if}
 </svelte:head>
 
 <div class="relative flex min-h-screen overflow-hidden">
@@ -122,6 +140,33 @@
 							Completa tus datos para crear tu cuenta y acceder a la plataforma.
 						</p>
 					</div>
+
+					<!-- Mensaje de error de CAPTCHA -->
+					{#if form?.captchaError}
+						<div
+							class="rounded-xl border border-red-500/20 bg-red-500/10 p-4"
+						>
+							<div class="flex items-start gap-3">
+								<svg
+									class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+									/>
+								</svg>
+								<p class="text-sm text-red-500">
+									{form?.message || 'Verificación de seguridad fallida. Por favor, completa el CAPTCHA.'}
+								</p>
+							</div>
+						</div>
+					{/if}
+
 					<form
 						method="POST"
 						use:enhance={() => {
@@ -177,10 +222,22 @@
 							</div>
 						</div>
 
+						<!-- Widget de Cloudflare Turnstile -->
+						{#if turnstileEnabled}
+							<div class="flex justify-center">
+								<div
+									class="cf-turnstile"
+									data-sitekey={PUBLIC_TURNSTILE_SITE_KEY}
+									data-theme="light"
+									data-callback="onTurnstileCallback"
+								></div>
+							</div>
+						{/if}
+
 						<Button
 							type="submit"
 							class="h-11 w-full rounded-xl bg-ocean-mid font-medium text-white transition-all duration-300 hover:bg-ocean-deep hover:shadow-lg hover:shadow-ocean-mid/20"
-							disabled={loading}
+							disabled={loading || (turnstileEnabled && !turnstileLoaded)}
 						>
 							{#if loading}
 								<svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -214,6 +271,40 @@
 					</form>
 				</div>
 			{:else}
+				<!-- Mensaje de error de rate limiting -->
+				{#if form?.rateLimited || form?.cooldownActive}
+					<div
+						class="mb-5 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4"
+					>
+						<div class="flex items-start gap-3">
+							<svg
+								class="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+								/>
+							</svg>
+							<div>
+								<p class="mb-1 text-sm font-medium text-foreground">Espera un momento</p>
+								<p class="text-xs leading-relaxed text-muted-foreground">
+									{form?.message || 'Demasiados intentos. Por favor, espera antes de intentar nuevamente.'}
+								</p>
+								{#if form?.remainingSeconds}
+									<p class="mt-2 text-xs font-medium text-amber-500">
+										Tiempo restante: {form.remainingSeconds} segundos
+									</p>
+								{/if}
+							</div>
+						</div>
+					</div>
+				{/if}
+
 				<form
 					method="POST"
 					use:enhance={() => {

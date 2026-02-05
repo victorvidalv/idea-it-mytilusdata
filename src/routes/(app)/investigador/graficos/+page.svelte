@@ -6,7 +6,7 @@
 	export let data: import('./$types').PageData;
 
 	// --- Estado de filtros ---
-	let selectedUserId: string = 'all';
+	let selectedUserId: string | null = null;
 	let selectedCentroId: number | null = null;
 	let selectedCicloId: number | null = null;
 	let selectedTipoIds: Set<number> = new Set();
@@ -36,9 +36,11 @@
 
 	// Centros filtrados por usuario
 	$: centrosFiltrados =
-		selectedUserId === 'all'
-			? data.centros
-			: data.centros.filter((c) => c.userId === Number(selectedUserId));
+		selectedUserId === null
+			? []
+			: selectedUserId === 'all'
+				? data.centros
+				: data.centros.filter((c) => c.userId === Number(selectedUserId));
 
 	// Ciclos filtrados por centro seleccionado
 	$: ciclosFiltrados = selectedCentroId
@@ -61,10 +63,10 @@
 		if (!cicloValido) selectedCicloId = null;
 	}
 
-	// Inicializar tipos seleccionados
-	$: if (selectedTipoIds.size === 0 && data.tipos.length > 0) {
-		selectedTipoIds = new Set(data.tipos.map((t) => t.id));
-	}
+	// Inicializar tipos seleccionados (comentado)
+	// $: if (selectedTipoIds.size === 0 && data.tipos.length > 0) {
+	// 	selectedTipoIds = new Set(data.tipos.map((t) => t.id));
+	// }
 
 	function toggleTipo(tipoId: number) {
 		const newSet = new Set(selectedTipoIds);
@@ -78,6 +80,7 @@
 
 	// --- Filtrar registros ---
 	$: registrosFiltrados = data.registros.filter((r) => {
+		if (selectedUserId === null) return false;
 		if (selectedUserId !== 'all' && r.userId !== Number(selectedUserId)) return false;
 		if (selectedCentroId && r.lugarId !== selectedCentroId) return false;
 		if (selectedCicloId && r.cicloId !== selectedCicloId) return false;
@@ -198,6 +201,7 @@
 				bind:value={selectedUserId}
 				class="w-full rounded-xl border border-border bg-background px-4 py-2 font-body text-sm text-foreground focus:border-teal-glow focus:ring-1 focus:ring-teal-glow focus:outline-none sm:w-64"
 			>
+				<option value={null}>Selecciona un Usuario</option>
 				<option value="all">Todos los Usuarios</option>
 				{#each data.usuarios as usr}
 					<option value={usr.id.toString()}>{usr.nombre}</option>

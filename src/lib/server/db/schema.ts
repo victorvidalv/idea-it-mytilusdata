@@ -142,3 +142,26 @@ export const apiKeys = pgTable('api_keys', {
 		.references(() => usuarios.id),
 	createdAt: timestamp('created_at').defaultNow()
 });
+
+// --- SEGURIDAD Y RATE LIMITING ---
+
+/**
+ * Rate Limit Logs: Registra intentos de login para prevenir abuso.
+ * Se usa para limitar intentos por IP y por email.
+ */
+export const rateLimitLogs = pgTable('rate_limit_logs', {
+	id: serial('id').primaryKey(),
+	identifier: text('identifier').notNull(), // IP o email
+	tipo: text('tipo', { enum: ['IP', 'EMAIL'] }).notNull(),
+	createdAt: timestamp('created_at').defaultNow()
+});
+
+/**
+ * Email Cooldowns: Controla el tiempo entre envíos de email.
+ * Previene spam de magic links al mismo correo.
+ */
+export const emailCooldowns = pgTable('email_cooldowns', {
+	id: serial('id').primaryKey(),
+	email: text('email').notNull().unique(),
+	lastSentAt: timestamp('last_sent_at').notNull()
+});

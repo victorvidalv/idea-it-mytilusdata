@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>Centros de Cultivo Globales | Plataforma Idea 2025</title>
+	<title>Centros de Cultivo Globales | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-6">

@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-	<title>Ciclos Productivos Globales | Plataforma Idea 2025</title>
+	<title>Ciclos Productivos Globales | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-8">

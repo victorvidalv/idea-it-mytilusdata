@@ -106,7 +106,7 @@ export async function createMagicLink(email: string, nombre: string, origin: str
 		subject: 'Tu enlace de acceso a la Plataforma',
 		html: `<div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background: #ffffff; border-radius: 12px; overflow: hidden;">
 			<div style="background: #075E54; padding: 28px 24px; text-align: center;">
-				<h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">Plataforma Idea 2025</h1>
+				<h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">MytilusData</h1>
 				<p style="color: rgba(255,255,255,0.7); margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">Mitilicultura</p>
 			</div>
 			<div style="padding: 32px 24px;">

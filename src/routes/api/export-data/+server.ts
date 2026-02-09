@@ -2,15 +2,57 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
+import {
+	checkApiRateLimit,
+	logApiRateLimit,
+	getApiRateLimitIdentifier
+} from '$lib/server/apiRateLimiter';
+import { logDataExport } from '$lib/server/audit';
 
 import type { RequestEvent } from './$types';
 
-export async function GET({ locals }: RequestEvent) {
+export async function GET({ locals, request, getClientAddress }: RequestEvent) {
 	if (!locals.user) {
 		return new Response('No autorizado', { status: 401 });
 	}
 
 	const userId = locals.user.userId;
+	const clientIp = getClientAddress();
+	const userAgent = request.headers.get('user-agent') ?? undefined;
+
+	// Rate limiting con límite EXPORT más restrictivo
+	const identifier = getApiRateLimitIdentifier(null, clientIp);
+	const rateLimitResult = await checkApiRateLimit(identifier, 'EXPORT');
+
+	if (!rateLimitResult.allowed) {
+		return new Response(
+			JSON.stringify({
+				error: 'Límite de exportaciones excedido',
+				retryAfter: rateLimitResult.resetIn
+			}),
+			{
+				status: 429,
+				headers: {
+					'Content-Type': 'application/json',
+					'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000)),
+					'X-RateLimit-Limit': String(rateLimitResult.limit),
+					'X-RateLimit-Remaining': '0',
+					'X-RateLimit-Reset': String(Date.now() + rateLimitResult.resetIn)
+				}
+			}
+		);
+	}
+
+	// Registrar solicitud para rate limiting
+	await logApiRateLimit(identifier);
+
+	// Registrar exportación en auditoría (sin bloquear)
+	logDataExport({
+		userId,
+		format: 'xlsx',
+		ip: clientIp,
+		userAgent
+	}).catch(() => {});
 
 	try {
 		// 1. Obtener Centros de Cultivo (Lugares)
@@ -112,6 +154,10 @@ export async function GET({ locals }: RequestEvent) {
 			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 		);
 		headers.append('Content-Disposition', 'attachment; filename="Mis_Datos_PlataformaIdea.xlsx"');
+		// Headers de rate limiting
+		headers.append('X-RateLimit-Limit', String(rateLimitResult.limit));
+		headers.append('X-RateLimit-Remaining', String(rateLimitResult.remaining - 1));
+		headers.append('X-RateLimit-Reset', String(Date.now() + rateLimitResult.resetIn));
 
 		return new Response(excelBuffer, {
 			status: 200,

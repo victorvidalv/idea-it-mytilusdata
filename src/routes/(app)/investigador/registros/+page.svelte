@@ -25,7 +25,7 @@
 </script>
 
 <svelte:head>
-	<title>Auditoría de Registros | Plataforma Idea 2025</title>
+	<title>Auditoría de Registros | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-6">

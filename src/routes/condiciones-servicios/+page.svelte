@@ -1,5 +1,5 @@
 <svelte:head>
-	<title>Condiciones del Servicio | Plataforma Idea 2025</title>
+	<title>Condiciones del Servicio | MytilusData</title>
 </svelte:head>
 
 <div
@@ -36,7 +36,7 @@
 			<section>
 				<h2 class="mb-3 text-xl font-semibold">1. Aceptación de los Términos</h2>
 				<p class="leading-relaxed text-muted-foreground">
-					Al acceder y utilizar la Plataforma Idea 2025, aceptas estar sujeto a estas Condiciones
+					Al acceder y utilizar la MytilusData, aceptas estar sujeto a estas Condiciones
 					del Servicio. Si no estás de acuerdo con alguna de las partes, no debes crear una cuenta o
 					utilizar nuestros servicios.
 				</p>

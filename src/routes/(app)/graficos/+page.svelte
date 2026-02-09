@@ -156,7 +156,7 @@
 </script>
 
 <svelte:head>
-	<title>Gráficos | Plataforma Idea 2025</title>
+	<title>Gráficos | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-6">

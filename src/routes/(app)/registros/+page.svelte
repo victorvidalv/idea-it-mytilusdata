@@ -49,7 +49,7 @@
 </script>
 
 <svelte:head>
-	<title>Registros y Mediciones | Plataforma Idea 2025</title>
+	<title>Registros y Mediciones | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-6">

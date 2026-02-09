@@ -49,7 +49,7 @@
 </script>
 
 <svelte:head>
-	<title>Tipos de Medición | Plataforma Idea 2025</title>
+	<title>Tipos de Medición | MytilusData</title>
 </svelte:head>
 
 {#if !data.authorized}

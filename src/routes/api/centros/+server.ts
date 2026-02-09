@@ -2,10 +2,16 @@ import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { apiKeys, lugares } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import {
+	checkApiRateLimit,
+	logApiRateLimit,
+	getApiRateLimitIdentifier
+} from '$lib/server/apiRateLimiter';
+import { logApiAccess } from '$lib/server/audit';
 
 import type { RequestEvent } from './$types';
 
-export async function GET({ request }: RequestEvent) {
+export async function GET({ request, getClientAddress }: RequestEvent) {
 	const authHeader = request.headers.get('Authorization');
 
 	if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -13,6 +19,8 @@ export async function GET({ request }: RequestEvent) {
 	}
 
 	const key = authHeader.split(' ')[1];
+	const clientIp = getClientAddress();
+	const userAgent = request.headers.get('user-agent') ?? undefined;
 
 	// Validar la API key
 	const [apiKeyRecord] = await db.select().from(apiKeys).where(eq(apiKeys.key, key)).limit(1);
@@ -21,6 +29,40 @@ export async function GET({ request }: RequestEvent) {
 		return json({ error: 'API Key inválida' }, { status: 401 });
 	}
 
+	// Rate limiting
+	const identifier = getApiRateLimitIdentifier(key, clientIp);
+	const rateLimitResult = await checkApiRateLimit(identifier, 'DEFAULT');
+
+	if (!rateLimitResult.allowed) {
+		return json(
+			{
+				error: 'Límite de solicitudes excedido',
+				retryAfter: rateLimitResult.resetIn
+			},
+			{
+				status: 429,
+				headers: {
+					'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000)),
+					'X-RateLimit-Limit': String(rateLimitResult.limit),
+					'X-RateLimit-Remaining': '0',
+					'X-RateLimit-Reset': String(Date.now() + rateLimitResult.resetIn)
+				}
+			}
+		);
+	}
+
+	// Registrar solicitud para rate limiting
+	await logApiRateLimit(identifier);
+
+	// Registrar acceso en auditoría (sin bloquear)
+	logApiAccess({
+		userId: apiKeyRecord.userId,
+		endpoint: '/api/centros',
+		method: 'GET',
+		ip: clientIp,
+		userAgent
+	}).catch(() => {});
+
 	try {
 		// Fetch centros (lugares) for this user ID
 		const userCentros = await db
@@ -28,7 +70,17 @@ export async function GET({ request }: RequestEvent) {
 			.from(lugares)
 			.where(eq(lugares.userId, apiKeyRecord.userId));
 
-		return json({ data: userCentros });
+		// Incluir headers de rate limit en la respuesta
+		return json(
+			{ data: userCentros },
+			{
+				headers: {
+					'X-RateLimit-Limit': String(rateLimitResult.limit),
+					'X-RateLimit-Remaining': String(rateLimitResult.remaining - 1),
+					'X-RateLimit-Reset': String(Date.now() + rateLimitResult.resetIn)
+				}
+			}
+		);
 	} catch (error) {
 		console.error('Error obteniendo centros:', error);
 		return json({ error: 'Error interno del servidor' }, { status: 500 });

@@ -25,7 +25,7 @@
 </script>
 
 <svelte:head>
-	<title>API Keys | Plataforma Idea 2025</title>
+	<title>API Keys | MytilusData</title>
 </svelte:head>
 
 <div class="animate-fade-in max-w-3xl space-y-8">

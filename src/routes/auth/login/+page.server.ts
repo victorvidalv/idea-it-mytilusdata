@@ -10,6 +10,7 @@ import {
 	updateEmailCooldown
 } from '$lib/server/rateLimiter';
 import { verifyTurnstile } from '$lib/server/captcha';
+import { logMagicLinkSent, logLoginFailed, logUserCreated } from '$lib/server/audit';
 import type { Actions, RequestEvent } from './$types';
 
 export const actions = {
@@ -21,8 +22,9 @@ export const actions = {
 		const terms = data.get('terms');
 		const turnstileToken = data.get('cf-turnstile-response');
 
-		// Obtener IP del cliente
+		// Obtener IP del cliente y user agent
 		const clientIp = getClientAddress();
+		const userAgent = request.headers.get('user-agent') ?? undefined;
 
 		// Validar email básico
 		if (!email || typeof email !== 'string' || !email.includes('@')) {
@@ -74,6 +76,14 @@ export const actions = {
 				await updateEmailCooldown(email);
 
 				await createMagicLink(email, user.nombre, url.origin);
+
+				// Registrar envío de magic link en auditoría
+				await logMagicLinkSent({
+					userId: user.id,
+					email,
+					ip: clientIp
+				});
+
 				return { success: true };
 			} else {
 				// Usuario nuevo: requiere registro
@@ -111,6 +121,14 @@ export const actions = {
 				);
 
 				if (!captchaValid) {
+					// Registrar intento fallido en auditoría
+					await logLoginFailed({
+						email,
+						ip: clientIp,
+						userAgent,
+						reason: 'CAPTCHA_FAILED'
+					});
+
 					return fail(400, {
 						email,
 						nombre,
@@ -127,10 +145,28 @@ export const actions = {
 
 				// Crear usuario y enviar enlace mágico
 				await createMagicLink(email, nombre, url.origin);
+
+				// Nota: El usuario se crea en createMagicLink, pero no tenemos su ID aquí
+				// El evento USER_CREATED se registrará cuando se complete el callback del magic link
+				// Por ahora registramos el envío del magic link
+				await logMagicLinkSent({
+					email,
+					ip: clientIp
+				});
+
 				return { success: true };
 			}
 		} catch (error) {
 			console.error('Login action error:', error);
+
+			// Registrar error en auditoría
+			await logLoginFailed({
+				email,
+				ip: clientIp,
+				userAgent,
+				reason: 'INTERNAL_ERROR'
+			});
+
 			return fail(500, {
 				email,
 				nombre,

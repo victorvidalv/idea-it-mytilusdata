@@ -51,5 +51,31 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
-	return await resolve(event);
+	// Agregar headers de seguridad para respuestas de API
+	const response = await resolve(event, {
+		transformPageChunk: ({ html }) =>
+			html.replace(
+				'<head>',
+				`<head>
+				<meta http-equiv="X-Content-Type-Options" content="nosniff">
+				<meta http-equiv="X-Frame-Options" content="DENY">
+				<meta http-equiv="X-XSS-Protection" content="1; mode=block">
+				<meta name="referrer" content="strict-origin-when-cross-origin">
+			`
+			)
+	});
+
+	// Agregar headers de seguridad adicionales para rutas de API
+	if (event.url.pathname.startsWith('/api/')) {
+		response.headers.set('X-Content-Type-Options', 'nosniff');
+		response.headers.set('X-Frame-Options', 'DENY');
+		response.headers.set('X-XSS-Protection', '1; mode=block');
+		response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+		// Cache-Control para evitar caching de datos sensibles
+		response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+		response.headers.set('Pragma', 'no-cache');
+		response.headers.set('Expires', '0');
+	}
+
+	return response;
 };

@@ -45,7 +45,7 @@
 </script>
 
 <svelte:head>
-	<title>Orígenes de Datos | Plataforma Idea 2025</title>
+	<title>Orígenes de Datos | MytilusData</title>
 </svelte:head>
 
 {#if !data.authorized}

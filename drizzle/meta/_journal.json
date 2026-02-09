@@ -15,6 +15,13 @@
       "when": 1771994013056,
       "tag": "0001_neat_jane_foster",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771995633009,
+      "tag": "0002_numerous_secret_warriors",
+      "breakpoints": true
     }
   ]
 }

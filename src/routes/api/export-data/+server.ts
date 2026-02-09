@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-import * as xlsx from 'xlsx';
+import ExcelJS from 'exceljs';
 
 import type { RequestEvent } from './$types';
 
@@ -60,27 +60,50 @@ export async function GET({ locals }: RequestEvent) {
 			.innerJoin(table.origenDatos, eq(table.mediciones.origenId, table.origenDatos.id))
 			.where(eq(table.mediciones.userId, userId));
 
-		// Crear libro de Excel
-		const workbook = xlsx.utils.book_new();
+		// Crear libro de Excel con ExcelJS
+		const workbook = new ExcelJS.Workbook();
+		workbook.creator = 'Plataforma Idea';
+		workbook.created = new Date();
 
-		// Convertir datos a hojas de Excel
-		const lugaresSheet = xlsx.utils.json_to_sheet(
-			lugaresData.length > 0 ? lugaresData : [{ Mensaje: 'No hay centros registrados' }]
-		);
-		const ciclosSheet = xlsx.utils.json_to_sheet(
-			ciclosData.length > 0 ? ciclosData : [{ Mensaje: 'No hay ciclos registrados' }]
-		);
-		const registrosSheet = xlsx.utils.json_to_sheet(
-			registrosData.length > 0 ? registrosData : [{ Mensaje: 'No hay registros' }]
-		);
+		// Función auxiliar para agregar una hoja con datos
+		function addSheetWithData(
+			workbook: ExcelJS.Workbook,
+			sheetName: string,
+			data: Record<string, unknown>[]
+		) {
+			const worksheet = workbook.addWorksheet(sheetName);
 
-		// Añadir hojas al libro
-		xlsx.utils.book_append_sheet(workbook, lugaresSheet, 'Centros de Cultivo');
-		xlsx.utils.book_append_sheet(workbook, ciclosSheet, 'Ciclos Productivos');
-		xlsx.utils.book_append_sheet(workbook, registrosSheet, 'Registros');
+			if (data.length === 0) {
+				worksheet.columns = [{ header: 'Mensaje', key: 'Mensaje' }];
+				worksheet.addRow({ Mensaje: 'No hay datos registrados' });
+				return;
+			}
 
-		// Generar buffer binario
-		const excelBuffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+			// Obtener las columnas del primer objeto
+			const columns = Object.keys(data[0]);
+			worksheet.columns = columns.map((col) => ({ header: col, key: col }));
+
+			// Agregar filas
+			data.forEach((row) => {
+				worksheet.addRow(row);
+			});
+
+			// Estilo para el encabezado
+			worksheet.getRow(1).font = { bold: true };
+			worksheet.getRow(1).fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'FFE0E0E0' }
+			};
+		}
+
+		// Agregar hojas
+		addSheetWithData(workbook, 'Centros de Cultivo', lugaresData);
+		addSheetWithData(workbook, 'Ciclos Productivos', ciclosData);
+		addSheetWithData(workbook, 'Registros', registrosData);
+
+		// Generar buffer
+		const excelBuffer = await workbook.xlsx.writeBuffer();
 
 		// Configurar cabeceras para descarga
 		const headers = new Headers();

@@ -12,20 +12,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const canViewAll = hasMinRole(userRol, ROLES.INVESTIGADOR);
 
 	const centrosList = canViewAll
-		? await db.select().from(lugares).all()
-		: await db.select().from(lugares).where(eq(lugares.userId, userId!)).all();
+		? await db.select().from(lugares)
+		: await db.select().from(lugares).where(eq(lugares.userId, userId!));
 
 	const centrosConCiclos = await Promise.all(
 		centrosList.map(async (centro) => {
-			const result = await db
+			const [result] = await db
 				.select({ total: count() })
 				.from(ciclos)
 				.where(eq(ciclos.lugarId, centro.id))
-				.get();
+				.limit(1);
 			return {
 				...centro,
 				totalCiclos: result?.total ?? 0,
-				isOwner: centro.userId === userId
+				isOwner: centro.userId === userId,
+				createdAt: centro.createdAt ? new Date(centro.createdAt).toISOString() : null
 			};
 		})
 	);
@@ -75,7 +76,7 @@ export const actions = {
 		const latitud = parseFloat(data.get('latitud') as string);
 		const longitud = parseFloat(data.get('longitud') as string);
 
-		const centro = await db.select().from(lugares).where(eq(lugares.id, centroId)).get();
+		const [centro] = await db.select().from(lugares).where(eq(lugares.id, centroId)).limit(1);
 		if (!centro) return fail(404, { error: true, message: 'Centro no encontrado' });
 
 		const isAdmin = hasMinRole(locals.user?.rol as Rol, ROLES.ADMIN);
@@ -105,7 +106,7 @@ export const actions = {
 		const data = await request.formData();
 		const centroId = Number(data.get('centroId'));
 
-		const centro = await db.select().from(lugares).where(eq(lugares.id, centroId)).get();
+		const [centro] = await db.select().from(lugares).where(eq(lugares.id, centroId)).limit(1);
 		if (!centro) return fail(404, { error: true, message: 'Centro no encontrado' });
 
 		const isAdmin = hasMinRole(locals.user?.rol as Rol, ROLES.ADMIN);
@@ -113,11 +114,11 @@ export const actions = {
 			return fail(403, { error: true, message: 'No tiene permisos para eliminar este centro' });
 		}
 
-		const ciclosCount = await db
+		const [ciclosCount] = await db
 			.select({ total: count() })
 			.from(ciclos)
 			.where(eq(ciclos.lugarId, centroId))
-			.get();
+			.limit(1);
 
 		if (ciclosCount && ciclosCount.total > 0) {
 			return fail(400, {

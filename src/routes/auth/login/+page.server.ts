@@ -18,7 +18,7 @@ export const actions = {
 
 		try {
 			// Validar si el usuario existe
-			const user = await db.select().from(usuarios).where(eq(usuarios.email, email)).get();
+			const [user] = await db.select().from(usuarios).where(eq(usuarios.email, email)).limit(1);
 
 			if (user) {
 				// Si existe, enviar el enlace mágico con su nombre registrado

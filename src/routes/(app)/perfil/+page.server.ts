@@ -87,14 +87,13 @@ export const actions = {
 
 		try {
 			// Borrado en cascada manual respetando orden de dependencias FK
-			// better-sqlite3 es síncrono, no usar db.transaction(async ...)
-			db.delete(mediciones).where(eq(mediciones.userId, userId)).run();
-			db.delete(ciclos).where(eq(ciclos.userId, userId)).run();
-			db.delete(lugares).where(eq(lugares.userId, userId)).run();
-			db.delete(consentimientos).where(eq(consentimientos.userId, userId)).run();
-			db.delete(magicLinkTokens).where(eq(magicLinkTokens.userId, userId)).run();
-			db.delete(apiKeys).where(eq(apiKeys.userId, userId)).run();
-			db.delete(usuarios).where(eq(usuarios.id, userId)).run();
+			await db.delete(mediciones).where(eq(mediciones.userId, userId));
+			await db.delete(ciclos).where(eq(ciclos.userId, userId));
+			await db.delete(lugares).where(eq(lugares.userId, userId));
+			await db.delete(consentimientos).where(eq(consentimientos.userId, userId));
+			await db.delete(magicLinkTokens).where(eq(magicLinkTokens.userId, userId));
+			await db.delete(apiKeys).where(eq(apiKeys.userId, userId));
+			await db.delete(usuarios).where(eq(usuarios.id, userId));
 
 			// Destroy the session cookie effectively logging them out
 			cookies.set('session', '', {

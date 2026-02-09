@@ -57,12 +57,12 @@ export async function createMagicLink(email: string, nombre: string, origin: str
 	const rolInicial = isAdminEmail ? ROLES.ADMIN : ROLES.USUARIO;
 
 	// Verificar si el usuario existe, si no, crear
-	let user = await db.select().from(usuarios).where(eq(usuarios.email, email)).get();
+	let [user] = await db.select().from(usuarios).where(eq(usuarios.email, email)).limit(1);
 	console.log('Usuario encontrado:', user);
 
 	if (!user) {
 		console.log('Creando nuevo usuario con rol:', rolInicial);
-		const newUser = await db
+		const [newUser] = await db
 			.insert(usuarios)
 			.values({
 				email,
@@ -70,8 +70,7 @@ export async function createMagicLink(email: string, nombre: string, origin: str
 				rol: rolInicial,
 				activo: true
 			})
-			.returning()
-			.get();
+			.returning();
 		user = newUser;
 		console.log('Nuevo usuario creado:', user);
 	}
@@ -124,12 +123,12 @@ export async function createMagicLink(email: string, nombre: string, origin: str
 }
 
 export async function verifyTokenAndGetSession(token: string) {
-	const result = await db
+	const [result] = await db
 		.select({ token: magicLinkTokens, user: usuarios })
 		.from(magicLinkTokens)
 		.innerJoin(usuarios, eq(magicLinkTokens.userId, usuarios.id))
 		.where(eq(magicLinkTokens.tokenHash, token))
-		.get();
+		.limit(1);
 
 	if (!result) return null;
 

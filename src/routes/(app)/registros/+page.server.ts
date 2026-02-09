@@ -12,17 +12,17 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// Obtener los datos base para el formulario
 	// Centros: todos si es ADMIN/INVESTIGADOR, solo propios si es USUARIO
 	const misCentros = hasMinRole(userRol, ROLES.INVESTIGADOR)
-		? await db.select().from(lugares).all()
-		: await db.select().from(lugares).where(eq(lugares.userId, userId)).all();
+		? await db.select().from(lugares)
+		: await db.select().from(lugares).where(eq(lugares.userId, userId));
 
 	const misCiclos = hasMinRole(userRol, ROLES.INVESTIGADOR)
-		? await db.select().from(ciclos).all()
-		: await db.select().from(ciclos).where(eq(ciclos.userId, userId)).all();
+		? await db.select().from(ciclos)
+		: await db.select().from(ciclos).where(eq(ciclos.userId, userId));
 
-	const tipos = await db.select().from(tiposRegistro).all();
+	const tipos = await db.select().from(tiposRegistro);
 
 	// Semillas iniciales origen de datos si está vacío
-	let origenes = await db.select().from(origenDatos).all();
+	let origenes = await db.select().from(origenDatos);
 	if (origenes.length === 0) {
 		await db
 			.insert(origenDatos)
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				{ nombre: 'Sensor IoT' },
 				{ nombre: 'PSMB' }
 			]);
-		origenes = await db.select().from(origenDatos).all();
+		origenes = await db.select().from(origenDatos);
 	}
 
 	// Cargar los últimos registros (join con tablas relacionadas para los nombres)
@@ -65,7 +65,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		registrosBase = registrosBase.where(eq(mediciones.userId, userId)) as any;
 	}
 
-	const registros = await registrosBase.orderBy(desc(mediciones.fechaMedicion)).limit(5000).all();
+	const registros = await registrosBase.orderBy(desc(mediciones.fechaMedicion)).limit(5000);
 
 	// Agregar campo `isOwner` para controlar edición/borrado
 	const registrosConPermisos = registros.map((r) => ({

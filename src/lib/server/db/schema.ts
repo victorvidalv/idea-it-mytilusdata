@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { pgTable, text, integer, real, boolean, timestamp, serial } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // --- SISTEMA DE ACCESO Y SEGURIDAD ---
@@ -7,28 +7,28 @@ import { sql } from 'drizzle-orm';
  * Tabla de Usuarios: Soporta el aislamiento de datos (Multi-tenancy).
  * Cada dato productivo estará anclado a un ID de esta tabla.
  */
-export const usuarios = sqliteTable('usuarios', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const usuarios = pgTable('usuarios', {
+	id: serial('id').primaryKey(),
 	nombre: text('nombre').notNull(),
 	email: text('email').notNull().unique(),
 	rol: text('rol', { enum: ['ADMIN', 'INVESTIGADOR', 'USUARIO'] }).default('USUARIO'),
-	activo: integer('activo', { mode: 'boolean' }).default(true),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
+	activo: boolean('activo').default(true),
+	createdAt: timestamp('created_at').defaultNow()
 });
 
 /**
  * Magic Links: Para autenticación Passwordless vía Resend.
  * Almacena hashes para evitar que el robo de la DB comprometa accesos activos.
  */
-export const magicLinkTokens = sqliteTable('magic_link_tokens', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const magicLinkTokens = pgTable('magic_link_tokens', {
+	id: serial('id').primaryKey(),
 	tokenHash: text('token_hash').notNull().unique(),
 	userId: integer('user_id')
 		.notNull()
 		.references(() => usuarios.id),
-	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
-	usedAt: integer('used_at', { mode: 'timestamp' }),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
+	expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
+	usedAt: timestamp('used_at', { mode: 'date' }),
+	createdAt: timestamp('created_at').defaultNow()
 });
 
 // --- ESTRUCTURA PRODUCTIVA ---
@@ -37,33 +37,33 @@ export const magicLinkTokens = sqliteTable('magic_link_tokens', {
  * Lugares (Centros de Cultivo): Ubicación geográfica de los centros.
  * Incluye latitud y longitud para análisis espacial e investigadores.
  */
-export const lugares = sqliteTable('lugares', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const lugares = pgTable('lugares', {
+	id: serial('id').primaryKey(),
 	nombre: text('nombre').notNull(),
 	latitud: real('latitud'), // Necesario para correlación con datos satelitales
 	longitud: real('longitud'),
 	userId: integer('user_id')
 		.notNull()
 		.references(() => usuarios.id),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
+	createdAt: timestamp('created_at').defaultNow()
 });
 
 /**
  * Ciclos de Cultivo: Define el periodo desde siembra hasta cosecha.
  * Es la unidad temporal clave para el modelo predictivo sigmoidal.
  */
-export const ciclos = sqliteTable('ciclos', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const ciclos = pgTable('ciclos', {
+	id: serial('id').primaryKey(),
 	nombre: text('nombre').notNull(), // Ej: "Siembra Primavera 2025"
-	fechaSiembra: integer('fecha_siembra', { mode: 'timestamp' }).notNull(),
-	fechaFinalizacion: integer('fecha_finalizacion', { mode: 'timestamp' }),
+	fechaSiembra: timestamp('fecha_siembra', { mode: 'date' }).notNull(),
+	fechaFinalizacion: timestamp('fecha_finalizacion', { mode: 'date' }),
 	lugarId: integer('lugar_id')
 		.notNull()
 		.references(() => lugares.id),
 	userId: integer('user_id')
 		.notNull()
 		.references(() => usuarios.id),
-	activo: integer('activo', { mode: 'boolean' }).default(true)
+	activo: boolean('activo').default(true)
 });
 
 // --- TABLAS MAESTRAS (NORMALIZACIÓN) ---
@@ -72,8 +72,8 @@ export const ciclos = sqliteTable('ciclos', {
  * Tipos de Registro: Define qué se mide y su unidad de base.
  * Garantiza que el ETL convierta todo a una unidad canónica (mm, g, etc).
  */
-export const tiposRegistro = sqliteTable('tipos_registro', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const tiposRegistro = pgTable('tipos_registro', {
+	id: serial('id').primaryKey(),
 	codigo: text('codigo').notNull().unique(), // Ej: 'TALLA', 'BIOMASA', 'TEMP_AGUA'
 	unidadBase: text('unidad_base').notNull() // Ej: 'mm', 'g', 'C'
 });
@@ -81,8 +81,8 @@ export const tiposRegistro = sqliteTable('tipos_registro', {
 /**
  * Origen de Datos: Diferencia entre muestreo manual, satélite o PSMB.
  */
-export const origenDatos = sqliteTable('origen_datos', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const origenDatos = pgTable('origen_datos', {
+	id: serial('id').primaryKey(),
 	nombre: text('nombre').notNull() // Ej: 'Manual', 'Satelital', 'PSMB'
 });
 
@@ -92,10 +92,10 @@ export const origenDatos = sqliteTable('origen_datos', {
  * Mediciones: Tabla central que almacena todos los datos.
  * El campo 'valor' debe estar siempre en la 'unidadBase' del tipo correspondiente.
  */
-export const mediciones = sqliteTable('mediciones', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const mediciones = pgTable('mediciones', {
+	id: serial('id').primaryKey(),
 	valor: real('valor').notNull(), // Valor numérico puro normalizado
-	fechaMedicion: integer('fecha_medicion', { mode: 'timestamp' }).notNull(),
+	fechaMedicion: timestamp('fecha_medicion', { mode: 'date' }).notNull(),
 
 	// Relaciones
 	cicloId: integer('ciclo_id').references(() => ciclos.id), // Null si es dato ambiental de centro
@@ -113,19 +113,19 @@ export const mediciones = sqliteTable('mediciones', {
 		.references(() => origenDatos.id),
 
 	notas: text('notas'),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
+	createdAt: timestamp('created_at').defaultNow()
 });
 
 /**
  * Consentimientos: Registro legal para cumplimiento de Ley 19.628.
  */
-export const consentimientos = sqliteTable('consentimientos', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const consentimientos = pgTable('consentimientos', {
+	id: serial('id').primaryKey(),
 	userId: integer('user_id')
 		.notNull()
 		.references(() => usuarios.id),
 	versionDocumento: text('version_documento').notNull(),
-	fechaAceptacion: text('fecha_aceptacion').default(sql`CURRENT_TIMESTAMP`),
+	fechaAceptacion: timestamp('fecha_aceptacion').defaultNow(),
 	ipOrigen: text('ip_origen')
 });
 
@@ -133,12 +133,12 @@ export const consentimientos = sqliteTable('consentimientos', {
  * API Keys: Acceso programático a los datos del usuario.
  * Solo se permite una clave por usuario.
  */
-export const apiKeys = sqliteTable('api_keys', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
+export const apiKeys = pgTable('api_keys', {
+	id: serial('id').primaryKey(),
 	key: text('key').notNull().unique(),
 	userId: integer('user_id')
 		.notNull()
 		.unique()
 		.references(() => usuarios.id),
-	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
+	createdAt: timestamp('created_at').defaultNow()
 });

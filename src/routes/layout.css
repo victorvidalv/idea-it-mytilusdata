@@ -139,8 +139,8 @@
 	--color-foam-white: var(--foam-white);
 
 	/* Tipografía */
-	--font-display: 'DM Serif Display', Georgia, serif;
-	--font-body: 'DM Sans', system-ui, sans-serif;
+	--font-display: 'Inter', system-ui, sans-serif;
+	--font-body: 'Inter', system-ui, sans-serif;
 }
 
 @layer base {

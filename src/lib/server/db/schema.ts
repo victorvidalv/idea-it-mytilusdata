@@ -31,16 +31,39 @@ export const magicLinkTokens = pgTable('magic_link_tokens', {
 	createdAt: timestamp('created_at').defaultNow()
 });
 
+/**
+ * Sesiones: Valida el estado del JWT en cada request.
+ * Permite invalidar sesiones cuando el usuario es desactivado o cambia de rol.
+ * El JWT contiene el sessionId, no solo el userId.
+ */
+export const sesiones = pgTable('sesiones', {
+	id: serial('id').primaryKey(),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => usuarios.id),
+	tokenHash: text('token_hash').notNull().unique(),
+	userAgent: text('user_agent'),
+	ip: text('ip'),
+	expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
+	createdAt: timestamp('created_at').defaultNow(),
+	invalidatedAt: timestamp('invalidated_at', { mode: 'date' })
+});
+
 // --- ESTRUCTURA PRODUCTIVA ---
 
 /**
  * Lugares (Centros de Cultivo): Ubicación geográfica de los centros.
  * Incluye latitud y longitud para análisis espacial e investigadores.
+ *
+ * NOTA DE PRECISIÓN: Se usa `real` (float de 32 bits) que proporciona ~7 dígitos decimales
+ * de precisión (~11mm en el ecuador). Para sistemas de producción con correlación satelital
+ * de alta precisión, se recomienda migrar a PostGIS (extensión PostgreSQL) con tipo `geometry`.
+ * Limitación actual: puede haber pérdida de precisión en cálculos geoespaciales complejos.
  */
 export const lugares = pgTable('lugares', {
 	id: serial('id').primaryKey(),
 	nombre: text('nombre').notNull(),
-	latitud: real('latitud'), // Necesario para correlación con datos satelitales
+	latitud: real('latitud'), // ~7 dígitos decimales = precisión de ~11mm
 	longitud: real('longitud'),
 	userId: integer('user_id')
 		.notNull()

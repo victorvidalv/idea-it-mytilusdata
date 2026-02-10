@@ -1,6 +1,6 @@
 import { db } from './db';
-import { usuarios, magicLinkTokens } from './db/schema';
-import { eq } from 'drizzle-orm';
+import { usuarios, magicLinkTokens, sesiones } from './db/schema';
+import { eq, and, isNull } from 'drizzle-orm';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import pkg from 'jsonwebtoken';
@@ -46,15 +46,118 @@ export function hasMinRole(userRol: Rol | undefined, minRole: Rol): boolean {
 	return ROLE_LEVEL[userRol] >= ROLE_LEVEL[minRole];
 }
 
+// --- Utilidades de Hash ---
+
+/**
+ * Genera un hash SHA-256 de un token para almacenamiento seguro.
+ */
+function hashToken(token: string): string {
+	return require('crypto').createHash('sha256').update(token).digest('hex');
+}
+
+// --- Gestión de Sesiones ---
+
+/**
+ * Crea una nueva sesión en la base de datos.
+ * Retorna el ID de la sesión creada.
+ */
+export async function createSession(
+	userId: number,
+	userAgent?: string,
+	ip?: string
+): Promise<{ sessionId: number; sessionToken: string }> {
+	// Generar token de sesión único
+	const sessionToken = randomBytes(32).toString('hex');
+	const tokenHash = hashToken(sessionToken);
+	const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 días
+
+	const [session] = await db
+		.insert(sesiones)
+		.values({
+			userId,
+			tokenHash,
+			userAgent,
+			ip,
+			expiresAt
+		})
+		.returning();
+
+	if (!session) {
+		throw new Error('No se pudo crear la sesión');
+	}
+
+	return { sessionId: session.id, sessionToken };
+}
+
+/**
+ * Invalida una sesión específica (para logout o actividad sospechosa).
+ */
+export async function invalidateSession(sessionId: number): Promise<void> {
+	await db
+		.update(sesiones)
+		.set({ invalidatedAt: new Date() })
+		.where(eq(sesiones.id, sessionId));
+}
+
+/**
+ * Invalida todas las sesiones de un usuario (para desactivación o cambio de rol).
+ */
+export async function invalidateAllUserSessions(userId: number): Promise<void> {
+	await db
+		.update(sesiones)
+		.set({ invalidatedAt: new Date() })
+		.where(and(eq(sesiones.userId, userId), isNull(sesiones.invalidatedAt)));
+}
+
+/**
+ * Verifica si una sesión es válida.
+ * Retorna la sesión y el usuario si es válida, null si no.
+ */
+export async function validateSession(sessionId: number, tokenHash: string) {
+	const [result] = await db
+		.select({
+			session: sesiones,
+			user: usuarios
+		})
+		.from(sesiones)
+		.innerJoin(usuarios, eq(sesiones.userId, usuarios.id))
+		.where(eq(sesiones.id, sessionId))
+		.limit(1);
+
+	if (!result) return null;
+
+	const { session, user } = result;
+
+	// Verificar que el hash del token coincide
+	if (session.tokenHash !== tokenHash) return null;
+
+	// Verificar que no está invalidada
+	if (session.invalidatedAt) return null;
+
+	// Verificar que no está expirada
+	if (session.expiresAt < new Date()) return null;
+
+	// Verificar que el usuario sigue activo
+	if (!user.activo) return null;
+
+	return { session, user };
+}
+
 // --- Autenticación ---
 
-export async function createMagicLink(email: string, nombre: string, origin: string) {
+export async function createMagicLink(
+	email: string,
+	nombre: string,
+	origin: string,
+	userAgent?: string,
+	ip?: string
+) {
 	const resend = new Resend(env.RESEND_API_KEY);
 	console.log('Iniciando creación de Magic Link para:', email);
 
-	// Determinar rol inicial: ADMIN si coincide con ADMIN_EMAIL
-	const isAdminEmail = env.ADMIN_EMAIL && email.toLowerCase() === env.ADMIN_EMAIL.toLowerCase();
-	const rolInicial = isAdminEmail ? ROLES.ADMIN : ROLES.USUARIO;
+	// RBAC Dinámico: Todo usuario nuevo comienza como USUARIO
+	// Los roles se asignan exclusivamente desde el panel de administración
+	const rolInicial = ROLES.USUARIO;
 
 	// Verificar si el usuario existe, si no, crear
 	let [user] = await db.select().from(usuarios).where(eq(usuarios.email, email)).limit(1);
@@ -76,13 +179,6 @@ export async function createMagicLink(email: string, nombre: string, origin: str
 	}
 
 	if (!user) throw new Error('No se pudo crear el usuario');
-
-	// Si es admin y su rol actual no es ADMIN, promover automáticamente
-	if (isAdminEmail && user.rol !== ROLES.ADMIN) {
-		await db.update(usuarios).set({ rol: ROLES.ADMIN }).where(eq(usuarios.id, user.id));
-		user = { ...user, rol: ROLES.ADMIN };
-		console.log('Usuario promovido a ADMIN automáticamente');
-	}
 
 	// Generar un token único
 	const token = randomBytes(32).toString('hex');
@@ -131,7 +227,11 @@ export async function createMagicLink(email: string, nombre: string, origin: str
 	return true;
 }
 
-export async function verifyTokenAndGetSession(token: string) {
+export async function verifyTokenAndGetSession(
+	token: string,
+	userAgent?: string,
+	ip?: string
+) {
 	const [result] = await db
 		.select({ token: magicLinkTokens, user: usuarios })
 		.from(magicLinkTokens)
@@ -153,34 +253,96 @@ export async function verifyTokenAndGetSession(token: string) {
 		return null;
 	}
 
-	// Marcar como usado
+	// Verificar que el usuario está activo
+	if (!user.activo) {
+		return null;
+	}
+
+	// Marcar el magic link como usado
 	await db
 		.update(magicLinkTokens)
 		.set({ usedAt: new Date() })
 		.where(eq(magicLinkTokens.id, dbToken.id));
 
-	// Generar JWT con rol actualizado
-	const sessionToken = sign(
-		{ userId: user.id, email: user.email, rol: user.rol, nombre: user.nombre },
+	// Crear sesión en la base de datos
+	const { sessionId, sessionToken } = await createSession(user.id, userAgent, ip);
+
+	// Generar JWT con sessionId (no solo userId)
+	const jwtToken = sign(
+		{
+			sessionId,
+			sessionTokenHash: hashToken(sessionToken),
+			userId: user.id,
+			email: user.email,
+			rol: user.rol,
+			nombre: user.nombre
+		},
 		env.JWT_SECRET,
 		{ expiresIn: '7d' }
 	);
 
-	return sessionToken;
+	return jwtToken;
 }
 
-export function authGuard(cookies: import('@sveltejs/kit').Cookies) {
+/**
+ * AuthGuard mejorado: Valida el JWT Y la sesión en base de datos.
+ * Verifica:
+ * 1. JWT válido
+ * 2. Sesión existe en BD
+ * 3. Sesión no está invalidada
+ * 4. Usuario sigue activo
+ * 5. Rol coincide con el actual en BD
+ */
+export async function authGuard(
+	cookies: import('@sveltejs/kit').Cookies
+): Promise<{
+	userId: number;
+	email: string;
+	rol: Rol;
+	nombre: string;
+	sessionId: number;
+} | null> {
 	const token = cookies.get('session');
 	if (!token) return null;
 
 	try {
-		return verify(token, env.JWT_SECRET) as {
+		const decoded = verify(token, env.JWT_SECRET) as {
+			sessionId: number;
+			sessionTokenHash: string;
 			userId: number;
 			email: string;
 			rol: Rol;
 			nombre: string;
 		};
+
+		// Validar sesión en base de datos
+		const sessionResult = await validateSession(decoded.sessionId, decoded.sessionTokenHash);
+
+		if (!sessionResult) {
+			// Sesión inválida: eliminar cookie
+			cookies.delete('session', { path: '/' });
+			return null;
+		}
+
+		const { user } = sessionResult;
+
+		// Verificar que el rol en JWT coincide con rol actual en BD
+		if (decoded.rol !== user.rol) {
+			// Rol cambió: invalidar sesión y eliminar cookie
+			await invalidateSession(decoded.sessionId);
+			cookies.delete('session', { path: '/' });
+			return null;
+		}
+
+		return {
+			userId: user.id,
+			email: user.email,
+			rol: user.rol as Rol,
+			nombre: user.nombre,
+			sessionId: decoded.sessionId
+		};
 	} catch {
+		cookies.delete('session', { path: '/' });
 		return null;
 	}
 }

@@ -6,6 +6,13 @@ import { env } from '$env/dynamic/private';
 import pkg from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 import { redirect } from '@sveltejs/kit';
+import {
+	checkRateLimit,
+	logRateLimitAttempt,
+	checkEmailCooldown,
+	updateEmailCooldown,
+	type RateLimitType
+} from './rateLimiter';
 
 // Acceder correctamente a sign/verify desde el paquete CJS
 const { sign, verify } = pkg;
@@ -145,15 +152,96 @@ export async function validateSession(sessionId: number, tokenHash: string) {
 
 // --- Autenticación ---
 
+/** Resultado de createMagicLink con validaciones defensivas */
+export type MagicLinkResult =
+	| { success: true }
+	| { success: false; error: string; status: number };
+
+/**
+ * Crea y envía un Magic Link al email especificado.
+ *
+ * IMPORTANTE: Esta función incluye validaciones defensivas de rate limiting
+ * para proteger contra abuso económico (envío masivo de emails vía Resend).
+ *
+ * Estas validaciones son OBLIGATORIAS y se ejecutan ANTES de cualquier otra operación,
+ * incluso si el page server ya las validó (defense in depth).
+ *
+ * @param email - Email del usuario
+ * @param nombre - Nombre del usuario (para nuevos usuarios)
+ * @param origin - URL base de la aplicación
+ * @param userAgent - User agent del cliente (opcional)
+ * @param clientIp - IP del cliente para rate limiting (opcional pero recomendado)
+ * @returns Resultado con success o error con status HTTP
+ */
 export async function createMagicLink(
 	email: string,
 	nombre: string,
 	origin: string,
 	userAgent?: string,
-	ip?: string
-) {
-	const resend = new Resend(env.RESEND_API_KEY);
+	clientIp?: string
+): Promise<MagicLinkResult> {
 	console.log('Iniciando creación de Magic Link para:', email);
+
+	// ============================================================
+	// VALIDACIONES DEFENSIVAS - ANTES DE CUALQUIER OTRA COSA
+	// Estas validaciones protegen contra el vector de ataque económico
+	// de envío masivo de emails si alguien llama esta función directamente.
+	// ============================================================
+
+	// 1. Rate limiting por email (OBLIGATORIO)
+	const emailRateLimit = await checkRateLimit(email.toLowerCase(), 'EMAIL');
+	if (!emailRateLimit.allowed) {
+		console.warn('Rate limit excedido para email:', email);
+		return {
+			success: false,
+			error: emailRateLimit.message || 'Demasiados intentos para este correo',
+			status: 429
+		};
+	}
+
+	// 2. Rate limiting por IP si está disponible (OBLIGATORIO)
+	if (clientIp) {
+		const ipRateLimit = await checkRateLimit(clientIp, 'IP');
+		if (!ipRateLimit.allowed) {
+			console.warn('Rate limit excedido para IP:', clientIp);
+			return {
+				success: false,
+				error: ipRateLimit.message || 'Demasiados intentos desde esta dirección',
+				status: 429
+			};
+		}
+	}
+
+	// 3. Cooldown de email (OBLIGATORIO)
+	const cooldownCheck = await checkEmailCooldown(email);
+	if (!cooldownCheck.allowed) {
+		console.warn('Cooldown activo para email:', email);
+		return {
+			success: false,
+			error: cooldownCheck.message || 'Por favor espera antes de solicitar otro enlace',
+			status: 429
+		};
+	}
+
+	// ============================================================
+	// RECÍÉN AHORA, DESPUÉS DE TODAS LAS VALIDACIONES, CONTINUAR
+	// Registrar los intentos ANTES de llamar a Resend
+	// ============================================================
+
+	// Registrar el intento para rate limiting
+	await logRateLimitAttempt(email.toLowerCase(), 'EMAIL');
+	if (clientIp) {
+		await logRateLimitAttempt(clientIp, 'IP');
+	}
+
+	// Actualizar cooldown
+	await updateEmailCooldown(email);
+
+	// ============================================================
+	// LÓGICA DE NEGOCIO - Crear usuario, token y enviar email
+	// ============================================================
+
+	const resend = new Resend(env.RESEND_API_KEY);
 
 	// RBAC Dinámico: Todo usuario nuevo comienza como USUARIO
 	// Los roles se asignan exclusivamente desde el panel de administración
@@ -178,7 +266,13 @@ export async function createMagicLink(
 		console.log('Nuevo usuario creado:', user);
 	}
 
-	if (!user) throw new Error('No se pudo crear el usuario');
+	if (!user) {
+		return {
+			success: false,
+			error: 'No se pudo crear el usuario',
+			status: 500
+		};
+	}
 
 	// Generar un token único
 	const token = randomBytes(32).toString('hex');
@@ -220,11 +314,15 @@ export async function createMagicLink(
 
 	if (resendResult.error) {
 		console.error('Error de Resend:', JSON.stringify(resendResult.error));
-		throw new Error(`Error de email: ${resendResult.error.message}`);
+		return {
+			success: false,
+			error: `Error de email: ${resendResult.error.message}`,
+			status: 500
+		};
 	}
 
 	console.log('Magic Link enviado exitosamente. ID:', resendResult.data?.id);
-	return true;
+	return { success: true };
 }
 
 export async function verifyTokenAndGetSession(

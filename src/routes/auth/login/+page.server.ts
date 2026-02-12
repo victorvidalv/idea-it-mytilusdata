@@ -5,9 +5,7 @@ import { usuarios } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import {
 	checkRateLimit,
-	logRateLimitAttempt,
-	checkEmailCooldown,
-	updateEmailCooldown
+	checkEmailCooldown
 } from '$lib/server/rateLimiter';
 import { verifyTurnstile } from '$lib/server/captcha';
 import { logMagicLinkSent, logLoginFailed, logUserCreated } from '$lib/server/audit';
@@ -74,14 +72,7 @@ export const actions = {
 				// como primera capa de defensa (defense in depth). createMagicLink tiene sus propias
 				// validaciones como segunda capa.
 
-				// PASO 5: Registrar intento en rate limit logs (ANTES de llamar a Resend)
-				await logRateLimitAttempt(clientIp, 'IP');
-				await logRateLimitAttempt(email, 'EMAIL');
-
-				// PASO 6: Actualizar cooldown (ANTES de llamar a Resend)
-				await updateEmailCooldown(email);
-
-				// PASO 7: Llamar a createMagicLink (tiene validaciones defensivas internas)
+				// PASO 5: Llamar a createMagicLink (tiene validaciones defensivas internas)
 				const result = await createMagicLink(email, user.nombre, url.origin, userAgent, clientIp);
 
 				if (!result.success) {
@@ -161,14 +152,7 @@ export const actions = {
 					});
 				}
 
-				// PASO 6: Registrar intento en rate limit logs (ANTES de llamar a Resend)
-				await logRateLimitAttempt(clientIp, 'IP');
-				await logRateLimitAttempt(email, 'EMAIL');
-
-				// PASO 7: Actualizar cooldown (ANTES de llamar a Resend)
-				await updateEmailCooldown(email);
-
-				// PASO 8: Llamar a createMagicLink (tiene validaciones defensivas internas)
+				// PASO 6: Llamar a createMagicLink (tiene validaciones defensivas internas)
 				const result = await createMagicLink(email, nombre, url.origin, userAgent, clientIp);
 
 				if (!result.success) {

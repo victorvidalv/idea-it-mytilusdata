@@ -6,6 +6,7 @@
 	export let data: import('./$types').PageData;
 
 	// --- Estado de filtros ---
+	let selectedUserId: string = 'all';
 	let selectedCentroId: number | null = null;
 	let selectedCicloId: number | null = null;
 	let selectedTipoIds: Set<number> = new Set();
@@ -33,12 +34,28 @@
 		return tipoColorMap.get(tipoId) ?? seriesColors[0];
 	}
 
+	// Centros filtrados por usuario
+	$: centrosFiltrados =
+		selectedUserId === 'all'
+			? data.centros
+			: data.centros.filter((c) => c.userId === Number(selectedUserId));
+
 	// Ciclos filtrados por centro seleccionado
 	$: ciclosFiltrados = selectedCentroId
 		? data.ciclos.filter((c) => c.lugarId === selectedCentroId)
 		: data.ciclos;
 
-	// Reset ciclo si cambia centro
+	// Reset ciclo/centro si cambian sus dependencias
+	$: if (selectedUserId) {
+		if (selectedCentroId) {
+			const centroValido = centrosFiltrados.find((c) => c.id === selectedCentroId);
+			if (!centroValido) {
+				selectedCentroId = null;
+				selectedCicloId = null;
+			}
+		}
+	}
+
 	$: if (selectedCentroId) {
 		const cicloValido = ciclosFiltrados.find((c) => c.id === selectedCicloId);
 		if (!cicloValido) selectedCicloId = null;
@@ -61,6 +78,7 @@
 
 	// --- Filtrar registros ---
 	$: registrosFiltrados = data.registros.filter((r) => {
+		if (selectedUserId !== 'all' && r.userId !== Number(selectedUserId)) return false;
 		if (selectedCentroId && r.lugarId !== selectedCentroId) return false;
 		if (selectedCicloId && r.cicloId !== selectedCicloId) return false;
 		if (!selectedTipoIds.has(r.tipoId)) return false;
@@ -71,7 +89,7 @@
 	$: tiposActivos = data.tipos.filter((t) => selectedTipoIds.has(t.id));
 
 	$: chartSeries = tiposActivos
-		.map((tipo, i) => {
+		.map((tipo) => {
 			const tipoData = registrosFiltrados
 				.filter((r) => r.tipoId === tipo.id)
 				.map((r) => ({
@@ -156,7 +174,7 @@
 </script>
 
 <svelte:head>
-	<title>Gráficos | Plataforma Idea 2025</title>
+	<title>Análisis y Gráficos Globales | Plataforma Idea 2025</title>
 </svelte:head>
 
 <div class="space-y-6">
@@ -166,24 +184,35 @@
 			<p
 				class="mb-2 font-body text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase"
 			>
-				Análisis Visual
+				Área Investigador
 			</p>
 			<h1 class="font-display text-3xl leading-tight text-foreground md:text-4xl">
-				<span class="text-gradient-ocean">Gráficos</span> de Datos
+				Análisis y <span class="text-gradient-ocean">Gráficos Globales</span>
 			</h1>
 			<p class="mt-2 font-body text-sm text-muted-foreground">
-				Visualiza la evolución de tus mediciones a lo largo del tiempo
+				Visualiza la evolución de las mediciones filtradas por usuario a lo largo del tiempo
 			</p>
+		</div>
+		<div class="sm:self-end">
+			<select
+				bind:value={selectedUserId}
+				class="w-full rounded-xl border border-border bg-background px-4 py-2 font-body text-sm text-foreground focus:border-teal-glow focus:ring-1 focus:ring-teal-glow focus:outline-none sm:w-64"
+			>
+				<option value="all">Todos los Usuarios</option>
+				{#each data.usuarios as usr}
+					<option value={usr.id.toString()}>{usr.nombre}</option>
+				{/each}
+			</select>
 		</div>
 	</div>
 
-	<!-- Panel de Filtros -->
+	<!-- Panel de Filtros Secundario -->
 	<div class="animate-fade-up delay-75">
 		<Card.Root class="border-border/50">
 			<Card.Header class="pb-4">
-				<Card.Title class="font-display text-lg">Filtros</Card.Title>
+				<Card.Title class="font-display text-lg">Sub-filtros Espaciales/Técnicos</Card.Title>
 				<Card.Description class="font-body text-xs"
-					>Selecciona centro, ciclo y tipos de registro para visualizar</Card.Description
+					>Restringe los datos del usuario seleccionado por centro, ciclo y tipos</Card.Description
 				>
 			</Card.Header>
 			<Card.Content>
@@ -199,7 +228,7 @@
 							bind:value={selectedCentroId}
 						>
 							<option value={null}>Todos los centros</option>
-							{#each data.centros as centro (centro.id)}
+							{#each centrosFiltrados as centro (centro.id)}
 								<option value={centro.id}>{centro.nombre}</option>
 							{/each}
 						</select>
@@ -229,7 +258,7 @@
 							Tipos de Medición
 						</span>
 						<div class="flex flex-wrap gap-2 pt-1">
-							{#each data.tipos as tipo, i (tipo.id)}
+							{#each data.tipos as tipo (tipo.id)}
 								<button
 									type="button"
 									class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-body text-xs font-medium transition-all duration-200 {selectedTipoIds.has(
@@ -262,7 +291,7 @@
 			<Card.Header>
 				<div class="flex items-center justify-between">
 					<div>
-						<Card.Title class="font-display text-lg">Evolución Temporal</Card.Title>
+						<Card.Title class="font-display text-lg">Evolución Temporal Global</Card.Title>
 						<Card.Description class="mt-1 font-body text-xs">
 							{#if hayDatos}
 								{registrosFiltrados.length} mediciones visualizadas
@@ -356,7 +385,7 @@
 								No hay datos para los filtros seleccionados
 							</p>
 							<p class="mt-1 font-body text-xs text-muted-foreground/60">
-								Ajusta los filtros o registra nuevas mediciones
+								Ajusta los filtros o selecciona otro usuario
 							</p>
 						</div>
 					</div>
@@ -374,7 +403,7 @@
 					<Card.Root class="border-border/50 transition-colors duration-300 hover:border-border">
 						<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 							<Card.Title class="font-body text-sm font-medium text-muted-foreground"
-								>Total Mediciones</Card.Title
+								>Total Mediciones Visualizadas</Card.Title
 							>
 							<div
 								class="flex h-9 w-9 items-center justify-center rounded-xl bg-ocean-light/10 transition-transform duration-300 group-hover:scale-110"
@@ -396,7 +425,7 @@
 						</Card.Header>
 						<Card.Content>
 							<div class="font-display text-3xl text-foreground">{stats.total}</div>
-							<p class="mt-1 font-body text-xs text-muted-foreground">registros visualizados</p>
+							<p class="mt-1 font-body text-xs text-muted-foreground">registros filtrados</p>
 						</Card.Content>
 					</Card.Root>
 				</div>
@@ -455,9 +484,7 @@
 								</span>
 							</Card.Header>
 							<Card.Content>
-								<div class="font-display text-xl text-foreground">
-									x̄ {tipoStat.promedio}
-								</div>
+								<div class="font-display text-xl text-foreground">x̄ {tipoStat.promedio}</div>
 								<div class="mt-1.5 flex items-center gap-3 font-body text-xs text-muted-foreground">
 									<span class="flex items-center gap-1">
 										<svg

@@ -16,7 +16,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 		event.url.pathname.startsWith('/dashboard') ||
 		event.url.pathname.startsWith('/centros') ||
 		event.url.pathname.startsWith('/ciclos') ||
-		event.url.pathname.startsWith('/admin')
+		event.url.pathname.startsWith('/registros') ||
+		event.url.pathname.startsWith('/graficos') ||
+		event.url.pathname.startsWith('/admin') ||
+		event.url.pathname.startsWith('/investigador')
 	) {
 		if (!event.locals.user) {
 			throw redirect(303, '/auth/login');
@@ -26,6 +29,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Proteger rutas de administración: solo rol ADMIN
 	if (event.url.pathname.startsWith('/admin')) {
 		if (event.locals.user && event.locals.user.rol !== 'ADMIN') {
+			throw redirect(303, '/dashboard');
+		}
+	}
+
+	// Proteger rutas de investigador: solo rol INVESTIGADOR (o ADMIN)
+	if (event.url.pathname.startsWith('/investigador')) {
+		if (
+			event.locals.user &&
+			event.locals.user.rol !== 'INVESTIGADOR' &&
+			event.locals.user.rol !== 'ADMIN'
+		) {
 			throw redirect(303, '/dashboard');
 		}
 	}

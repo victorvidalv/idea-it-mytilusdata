@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let data: import('../../../routes/(app)/$types').LayoutData;
 	export let links: { href: string; label: string; icon: string }[];
+	export let investigadorLinks: { href: string; label: string; icon: string }[];
 	export let mobileMenuOpen: boolean;
 	export let toggleMobileMenu: () => void;
 </script>
@@ -51,28 +52,53 @@
 			role="presentation"
 		>
 			<nav class="mt-4 space-y-1">
-				{#each links as link (link.href)}
-					<a
-						href={link.href}
-						class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm text-white/70 transition-colors hover:bg-white/10"
-						onclick={toggleMobileMenu}
-					>
-						<svg
-							class="h-5 w-5 text-white/40"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
+				{#if data.user?.rol === 'INVESTIGADOR'}
+					{#each investigadorLinks as link (link.href)}
+						<a
+							href={link.href}
+							class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm text-white/70 transition-colors hover:bg-white/10"
+							onclick={toggleMobileMenu}
 						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="1.75"
-								d={link.icon}
-							/>
-						</svg>
-						{link.label}
-					</a>
-				{/each}
+							<svg
+								class="h-5 w-5 text-white/40"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="1.75"
+									d={link.icon}
+								/>
+							</svg>
+							{link.label}
+						</a>
+					{/each}
+				{:else}
+					{#each links as link (link.href)}
+						<a
+							href={link.href}
+							class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-sm text-white/70 transition-colors hover:bg-white/10"
+							onclick={toggleMobileMenu}
+						>
+							<svg
+								class="h-5 w-5 text-white/40"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="1.75"
+									d={link.icon}
+								/>
+							</svg>
+							{link.label}
+						</a>
+					{/each}
+				{/if}
 			</nav>
 		</div>
 	</div>

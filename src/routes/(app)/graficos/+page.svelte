@@ -44,10 +44,10 @@
 		if (!cicloValido) selectedCicloId = null;
 	}
 
-	// Inicializar tipos seleccionados
-	$: if (selectedTipoIds.size === 0 && data.tipos.length > 0) {
-		selectedTipoIds = new Set(data.tipos.map((t) => t.id));
-	}
+	// Inicializar tipos seleccionados (Comentado para iniciar sin selección)
+	// $: if (selectedTipoIds.size === 0 && data.tipos.length > 0) {
+	// 	selectedTipoIds = new Set(data.tipos.map((t) => t.id));
+	// }
 
 	function toggleTipo(tipoId: number) {
 		const newSet = new Set(selectedTipoIds);

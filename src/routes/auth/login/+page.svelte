@@ -116,8 +116,31 @@
 	</div>
 
 	<!-- Panel derecho: Formulario -->
-	<div class="flex flex-1 items-center justify-center bg-background p-6">
-		<div class="animate-fade-up w-full max-w-sm">
+	<div class="relative flex flex-1 items-center justify-center bg-background p-6">
+		<div class="absolute top-6 left-6 z-20 sm:top-8 sm:left-8">
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a
+				href="/"
+				class="group inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+			>
+				<svg
+					class="h-4 w-4 transition-transform group-hover:-translate-x-1"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M10 19l-7-7m0 0l7-7m-7 7h18"
+					/>
+				</svg>
+				Volver al inicio
+			</a>
+		</div>
+
+		<div class="animate-fade-up mt-8 w-full max-w-sm sm:mt-0">
 			<!-- Logo -->
 			<div class="mb-10 text-center">
 				<div class="mb-6 inline-flex items-center gap-3">
@@ -414,6 +437,28 @@
 					<strong class="text-foreground">noviembre de 2026</strong>, con el objetivo de alcanzar la
 					Disponibilidad General (GA) en <strong class="text-foreground">agosto de 2027</strong>.
 				</p>
+				<div class="mt-4 border-t border-ocean-light/10 pt-4">
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+					<a
+						href="/acerca-de"
+						class="group inline-flex items-center text-xs font-semibold text-ocean-mid transition-colors hover:text-ocean-light"
+					>
+						Conocer más del proyecto
+						<svg
+							class="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 5l7 7-7 7"
+							/>
+						</svg>
+					</a>
+				</div>
 			</div>
 
 			<div class="mt-10 border-t border-border/50 pt-6 text-center">

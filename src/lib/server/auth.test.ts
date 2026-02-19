@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { Rol } from './auth';
 
 // Use vi.hoisted to create mocks before module import
 const mockSelect = vi.hoisted(() => vi.fn());
@@ -225,10 +224,17 @@ describe('Auth Module', () => {
 				from: mockFrom.mockReturnValue({
 					innerJoin: mockInnerJoin.mockReturnValue({
 						where: mockWhere.mockReturnValue({
-							limit: mockLimit.mockResolvedValue([{
-								session: { id: 1, tokenHash: 'different-hash', invalidatedAt: null, expiresAt: new Date(Date.now() + 86400000) },
-								user: { id: 1, activo: true }
-							}])
+							limit: mockLimit.mockResolvedValue([
+								{
+									session: {
+										id: 1,
+										tokenHash: 'different-hash',
+										invalidatedAt: null,
+										expiresAt: new Date(Date.now() + 86400000)
+									},
+									user: { id: 1, activo: true }
+								}
+							])
 						})
 					})
 				})
@@ -244,10 +250,17 @@ describe('Auth Module', () => {
 				from: mockFrom.mockReturnValue({
 					innerJoin: mockInnerJoin.mockReturnValue({
 						where: mockWhere.mockReturnValue({
-							limit: mockLimit.mockResolvedValue([{
-								session: { id: 1, tokenHash: 'hash', invalidatedAt: new Date(), expiresAt: new Date(Date.now() + 86400000) },
-								user: { id: 1, activo: true }
-							}])
+							limit: mockLimit.mockResolvedValue([
+								{
+									session: {
+										id: 1,
+										tokenHash: 'hash',
+										invalidatedAt: new Date(),
+										expiresAt: new Date(Date.now() + 86400000)
+									},
+									user: { id: 1, activo: true }
+								}
+							])
 						})
 					})
 				})
@@ -263,10 +276,17 @@ describe('Auth Module', () => {
 				from: mockFrom.mockReturnValue({
 					innerJoin: mockInnerJoin.mockReturnValue({
 						where: mockWhere.mockReturnValue({
-							limit: mockLimit.mockResolvedValue([{
-								session: { id: 1, tokenHash: 'hash', invalidatedAt: null, expiresAt: new Date(Date.now() - 86400000) },
-								user: { id: 1, activo: true }
-							}])
+							limit: mockLimit.mockResolvedValue([
+								{
+									session: {
+										id: 1,
+										tokenHash: 'hash',
+										invalidatedAt: null,
+										expiresAt: new Date(Date.now() - 86400000)
+									},
+									user: { id: 1, activo: true }
+								}
+							])
 						})
 					})
 				})
@@ -282,10 +302,17 @@ describe('Auth Module', () => {
 				from: mockFrom.mockReturnValue({
 					innerJoin: mockInnerJoin.mockReturnValue({
 						where: mockWhere.mockReturnValue({
-							limit: mockLimit.mockResolvedValue([{
-								session: { id: 1, tokenHash: 'hash', invalidatedAt: null, expiresAt: new Date(Date.now() + 86400000) },
-								user: { id: 1, activo: false }
-							}])
+							limit: mockLimit.mockResolvedValue([
+								{
+									session: {
+										id: 1,
+										tokenHash: 'hash',
+										invalidatedAt: null,
+										expiresAt: new Date(Date.now() + 86400000)
+									},
+									user: { id: 1, activo: false }
+								}
+							])
 						})
 					})
 				})
@@ -297,17 +324,24 @@ describe('Auth Module', () => {
 		});
 
 		it('should return session and user when valid', async () => {
-			const mockSession = { id: 1, tokenHash: 'hash', invalidatedAt: null, expiresAt: new Date(Date.now() + 86400000) };
+			const mockSession = {
+				id: 1,
+				tokenHash: 'hash',
+				invalidatedAt: null,
+				expiresAt: new Date(Date.now() + 86400000)
+			};
 			const mockUser = { id: 1, activo: true, email: 'test@example.com', rol: 'USUARIO' };
 
 			mockSelect.mockReturnValue({
 				from: mockFrom.mockReturnValue({
 					innerJoin: mockInnerJoin.mockReturnValue({
 						where: mockWhere.mockReturnValue({
-							limit: mockLimit.mockResolvedValue([{
-								session: mockSession,
-								user: mockUser
-							}])
+							limit: mockLimit.mockResolvedValue([
+								{
+									session: mockSession,
+									user: mockUser
+								}
+							])
 						})
 					})
 				})

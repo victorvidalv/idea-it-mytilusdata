@@ -1,7 +1,4 @@
-<script lang="ts">
-	import { slide } from 'svelte/transition';
-	let showEcosistema = false;
-</script>
+<script lang="ts"></script>
 
 <svelte:head>
 	<title>MytilusData — Mitilicultura Inteligente</title>

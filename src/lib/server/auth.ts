@@ -10,8 +10,7 @@ import {
 	checkRateLimit,
 	logRateLimitAttempt,
 	checkEmailCooldown,
-	updateEmailCooldown,
-	type RateLimitType
+	updateEmailCooldown
 } from './rateLimiter';
 
 // Acceder correctamente a sign/verify desde el paquete CJS

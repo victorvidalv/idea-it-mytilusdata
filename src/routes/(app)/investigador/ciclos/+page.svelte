@@ -60,7 +60,7 @@
 				class="w-full rounded-xl border border-border bg-background px-4 py-2 font-body text-sm text-foreground focus:border-teal-glow focus:ring-1 focus:ring-teal-glow focus:outline-none sm:w-64"
 			>
 				<option value="all">Todos los Usuarios</option>
-				{#each data.usuarios as usr}
+				{#each data.usuarios as usr (usr.id)}
 					<option value={usr.id.toString()}>{usr.nombre}</option>
 				{/each}
 			</select>

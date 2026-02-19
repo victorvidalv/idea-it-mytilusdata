@@ -8,11 +8,6 @@
 	export let sidebarCollapsed: boolean;
 	export let toggleSidebar: () => void;
 
-	const rolStyle: Record<string, { color: string; label: string }> = {
-		ADMIN: { color: 'text-red-400', label: 'Administrador' },
-		INVESTIGADOR: { color: 'text-teal-glow', label: 'Investigador' },
-		USUARIO: { color: 'text-white/40', label: 'Usuario' }
-	};
 </script>
 
 <aside
@@ -36,7 +31,8 @@
 		</div>
 		{#if !sidebarCollapsed}
 			<div class="overflow-hidden">
-				<span class="font-display text-lg leading-none whitespace-nowrap text-white">MytilusData</span
+				<span class="font-display text-lg leading-none whitespace-nowrap text-white"
+					>MytilusData</span
 				>
 				<p
 					class="mt-0.5 font-body text-[10px] tracking-wider whitespace-nowrap text-white/30 uppercase"

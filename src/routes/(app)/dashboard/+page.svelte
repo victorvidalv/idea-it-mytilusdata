@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard | Plataforma Idea 2025</title>
+	<title>Dashboard | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-8">

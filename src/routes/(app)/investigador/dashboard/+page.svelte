@@ -40,7 +40,7 @@
 </script>
 
 <svelte:head>
-	<title>Panel de Investigador | Plataforma Idea 2025</title>
+	<title>Panel de Investigador | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-8">

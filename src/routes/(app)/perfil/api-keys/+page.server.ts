@@ -4,6 +4,7 @@ import { db } from '$lib/server/db';
 import { apiKeys } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
+import { logApiKeyGenerated, logApiKeyRevoked } from '$lib/server/audit';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// Require authentication (assuming locals.user exists from hooks)
@@ -25,12 +26,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	generar: async ({ locals }) => {
+	generar: async ({ locals, request, getClientAddress }) => {
 		const sessionUser = locals.user;
 		if (!sessionUser) {
 			return fail(401, { message: 'No autorizado' });
 		}
 
+		const clientIp = getClientAddress();
+		const userAgent = request.headers.get('user-agent') ?? undefined;
 		const newKey = `pi_${randomUUID().replace(/-/g, '')}`;
 
 		try {
@@ -42,20 +45,38 @@ export const actions: Actions = {
 				key: newKey
 			});
 
+			// Registrar generación de API key en auditoría
+			await logApiKeyGenerated({
+				userId: sessionUser.userId,
+				ip: clientIp,
+				userAgent
+			});
+
 			return { success: true, key: newKey };
 		} catch (e) {
 			console.error('Error generando API Key:', e);
 			return fail(500, { message: 'Error interno generardo la clave' });
 		}
 	},
-	revocar: async ({ locals }) => {
+	revocar: async ({ locals, request, getClientAddress }) => {
 		const sessionUser = locals.user;
 		if (!sessionUser) {
 			return fail(401, { message: 'No autorizado' });
 		}
 
+		const clientIp = getClientAddress();
+		const userAgent = request.headers.get('user-agent') ?? undefined;
+
 		try {
 			await db.delete(apiKeys).where(eq(apiKeys.userId, sessionUser.userId));
+
+			// Registrar revocación de API key en auditoría
+			await logApiKeyRevoked({
+				userId: sessionUser.userId,
+				ip: clientIp,
+				userAgent
+			});
+
 			return { success: true };
 		} catch (e) {
 			console.error('Error revocando API Key:', e);

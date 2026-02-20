@@ -74,7 +74,7 @@
 </script>
 
 <svelte:head>
-	<title>Iniciar Sesión | Plataforma Idea 2025</title>
+	<title>Iniciar Sesión | MytilusData</title>
 	{#if turnstileEnabled}
 		<script
 			src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit"
@@ -110,8 +110,7 @@
 				<span class="text-gradient-ocean italic">tus cultivos</span>
 			</h2>
 			<p class="max-w-sm font-body text-sm leading-relaxed text-white/40">
-				Ingresa desde cualquier dispositivo para monitorear la evolución de tus centros de cultivo
-				en tiempo real.
+				Ingresa desde cualquier dispositivo para monitorear la evolución de tus centros de cultivo.
 			</p>
 		</div>
 	</div>
@@ -127,7 +126,7 @@
 					>
 						<div class="h-4 w-4 rounded-sm bg-white/90"></div>
 					</div>
-					<span class="font-display text-xl text-foreground">Idea 2025</span>
+					<span class="font-display text-xl text-foreground">MytilusData</span>
 				</div>
 				<p class="font-body text-sm text-muted-foreground">
 					Ingresa sin contraseña usando tu correo electrónico
@@ -407,9 +406,19 @@
 				</form>
 			{/if}
 
+			<div class="mt-8 rounded-xl border border-ocean-light/20 bg-ocean-light/5 p-4 text-center">
+				<p class="text-xs leading-relaxed text-muted-foreground">
+					<span class="mb-1 block font-medium text-ocean-mid">Proyecto ANID</span>
+					El sistema se encuentra actualmente en fase Alpha. La hoja de ruta proyecta el lanzamiento del
+					Producto Mínimo Viable (MVP) para
+					<strong class="text-foreground">noviembre de 2026</strong>, con el objetivo de alcanzar la
+					Disponibilidad General (GA) en <strong class="text-foreground">agosto de 2027</strong>.
+				</p>
+			</div>
+
 			<div class="mt-10 border-t border-border/50 pt-6 text-center">
 				<p class="font-body text-xs text-muted-foreground/60">
-					Plataforma Mitilicultura — IdeaIT 2025
+					Plataforma Mitilicultura — MytilusData
 				</p>
 			</div>
 		</div>

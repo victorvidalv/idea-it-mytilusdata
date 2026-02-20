@@ -42,7 +42,7 @@
 			<div class="bg-ocean-gradient flex h-6 w-6 items-center justify-center rounded-lg">
 				<div class="h-3 w-3 rounded-sm bg-white/80"></div>
 			</div>
-			<span class="font-display text-base">Idea 2025</span>
+			<span class="font-display text-base">MytilusData</span>
 		</div>
 	</div>
 

@@ -36,7 +36,7 @@
 		</div>
 		{#if !sidebarCollapsed}
 			<div class="overflow-hidden">
-				<span class="font-display text-lg leading-none whitespace-nowrap text-white">Idea 2025</span
+				<span class="font-display text-lg leading-none whitespace-nowrap text-white">MytilusData</span
 				>
 				<p
 					class="mt-0.5 font-body text-[10px] tracking-wider whitespace-nowrap text-white/30 uppercase"

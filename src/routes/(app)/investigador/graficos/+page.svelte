@@ -177,7 +177,7 @@
 </script>
 
 <svelte:head>
-	<title>Análisis y Gráficos Globales | Plataforma Idea 2025</title>
+	<title>Análisis y Gráficos Globales | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-6">

@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition';
+	let showEcosistema = false;
 </script>
 
 <svelte:head>
-	<title>Plataforma Idea 2025 — Mitilicultura Inteligente</title>
+	<title>MytilusData — Mitilicultura Inteligente</title>
 	<meta
 		name="description"
 		content="Plataforma digital para la optimización e inteligencia en cultivos de mejillón chileno. Monitoreo, predicción y análisis con tecnología de vanguardia."
@@ -40,7 +42,7 @@
 			>
 				<div class="h-2.5 w-2.5 animate-pulse rounded-full bg-teal-glow"></div>
 				<span class="font-body text-sm font-medium tracking-widest text-white/70 uppercase"
-					>Plataforma Activa</span
+					>Plataforma Activa: V 01</span
 				>
 			</div>
 		</div>
@@ -59,7 +61,7 @@
 		>
 			Optimización basada en datos para el cultivo de
 			<span class="font-medium text-white/70">Mytilus chilensis</span>. Monitoreo, predicción y
-			análisis en tiempo real.
+			análisis.
 		</p>
 
 		<!-- CTA -->
@@ -93,20 +95,105 @@
 			</a>
 		</div>
 
-		<!-- Indicadores de fondo -->
-		<div class="animate-fade-up mt-20 grid grid-cols-3 gap-8 delay-500 md:gap-16">
-			<div class="text-center">
-				<p class="font-display text-2xl text-white/90 md:text-3xl">TRL 7</p>
-				<p class="mt-1 font-body text-xs tracking-wider text-white/30 uppercase">Validación</p>
-			</div>
-			<div class="text-center">
-				<p class="font-display text-2xl text-white/90 md:text-3xl">85%+</p>
-				<p class="mt-1 font-body text-xs tracking-wider text-white/30 uppercase">Precisión</p>
-			</div>
-			<div class="text-center">
-				<p class="font-display text-2xl text-white/90 md:text-3xl">&lt;2s</p>
-				<p class="mt-1 font-body text-xs tracking-wider text-white/30 uppercase">Respuesta</p>
-			</div>
+		<!-- Entidades Participantes -->
+		<div class="animate-fade-up mt-20 w-full max-w-6xl delay-500">
+			<button
+				type="button"
+				class="group mx-auto mb-8 flex items-center justify-center gap-2 rounded-full border border-white/5 bg-white/[0.02] px-6 py-2.5 transition-all hover:border-white/10 hover:bg-white/[0.05]"
+				onclick={() => {
+					showEcosistema = !showEcosistema;
+				}}
+			>
+				<h2
+					class="font-body text-xs tracking-[0.2em] text-white/50 uppercase transition-colors group-hover:text-white/80"
+				>
+					Ecosistema del Proyecto
+				</h2>
+				<svg
+					class="h-4 w-4 text-white/50 transition-transform duration-300 group-hover:text-white/80 {showEcosistema
+						? 'rotate-180'
+						: ''}"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M19 9l-7 7-7-7"
+					/>
+				</svg>
+			</button>
+			{#if showEcosistema}
+				<div class="flex flex-wrap justify-center gap-4" transition:slide={{ duration: 400 }}>
+					<div
+						class="w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition-all hover:border-white/10 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
+					>
+						<h3 class="font-display text-lg text-white/90">Universidad Santo Tomás</h3>
+						<p
+							class="mt-1 font-body text-xs font-medium tracking-wider text-teal-glow/70 uppercase"
+						>
+							Beneficiario
+						</p>
+						<p class="mt-2 font-body text-sm leading-relaxed text-white/50">
+							Generador de tecnología a través del Centro de Investigación CAPIA.
+						</p>
+					</div>
+					<div
+						class="w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition-all hover:border-white/10 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
+					>
+						<h3 class="font-display text-lg text-white/90">AmiChile</h3>
+						<p
+							class="mt-1 font-body text-xs font-medium tracking-wider text-teal-glow/70 uppercase"
+						>
+							Asociado / Mandante
+						</p>
+						<p class="mt-2 font-body text-sm leading-relaxed text-white/50">
+							Aporta pertinencia sectorial y vinculación para la masificación.
+						</p>
+					</div>
+					<div
+						class="w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition-all hover:border-white/10 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
+					>
+						<h3 class="font-display text-lg text-white/90">Sudmaris Chile S.A.</h3>
+						<p
+							class="mt-1 font-body text-xs font-medium tracking-wider text-teal-glow/70 uppercase"
+						>
+							Asociado Piloto
+						</p>
+						<p class="mt-2 font-body text-sm leading-relaxed text-white/50">
+							Suma centros de cultivo reales para validación operacional y datos.
+						</p>
+					</div>
+					<div
+						class="w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition-all hover:border-white/10 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
+					>
+						<h3 class="font-display text-lg text-white/90">Pesquera Apiao S.A.</h3>
+						<p
+							class="mt-1 font-body text-xs font-medium tracking-wider text-teal-glow/70 uppercase"
+						>
+							Asociado Piloto
+						</p>
+						<p class="mt-2 font-body text-sm leading-relaxed text-white/50">
+							Provee centros a gran escala para pruebas de rendimiento de plataforma.
+						</p>
+					</div>
+					<div
+						class="w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition-all hover:border-white/10 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
+					>
+						<h3 class="font-display text-lg text-white/90">INTEMIT</h3>
+						<p
+							class="mt-1 font-body text-xs font-medium tracking-wider text-teal-glow/70 uppercase"
+						>
+							Usuario Operador
+						</p>
+						<p class="mt-2 font-body text-sm leading-relaxed text-white/50">
+							Entidad que prestará el servicio a nivel industrial a futuro.
+						</p>
+					</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 

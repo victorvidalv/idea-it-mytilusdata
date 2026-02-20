@@ -41,7 +41,7 @@
 </script>
 
 <svelte:head>
-	<title>Administrar Usuarios | Plataforma Idea 2025</title>
+	<title>Administrar Usuarios | MytilusData</title>
 </svelte:head>
 
 <div class="space-y-8">

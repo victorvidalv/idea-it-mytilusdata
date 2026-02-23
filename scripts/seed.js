@@ -4,6 +4,7 @@
  * Uso:
  *   node --env-file=.env scripts/seed.js poblar <email>     → Crear datos de prueba para el usuario
  *   node --env-file=.env scripts/seed.js limpiar <email>    → Eliminar todos los datos del usuario (sin borrar la cuenta)
+ *   node --env-file=.env scripts/seed.js create-admin       → Crear admin inicial desde INITIAL_ADMIN_EMAIL
  */
 
 import { neon } from '@neondatabase/serverless';
@@ -16,13 +17,73 @@ if (!process.env.DATABASE_URL) {
 const sql = neon(process.env.DATABASE_URL);
 
 // Obtener acción y email de los argumentos
-const action = process.argv[2]; // 'poblar' o 'limpiar'
+const action = process.argv[2]; // 'poblar', 'limpiar' o 'create-admin'
 const email = process.argv[3];
 
-if (!email) {
-	console.error('❌ Debes proporcionar un email.');
-	console.error('   Uso: npm run poblar <email>');
-	process.exit(1);
+// ──────────────────────────── CREATE ADMIN ────────────────────────────
+
+/**
+ * Crea el usuario administrador inicial si no existe.
+ * Usa la variable de entorno INITIAL_ADMIN_EMAIL.
+ * Este es el único mecanismo para crear el primer ADMIN en el sistema.
+ */
+async function createInitialAdmin() {
+	const adminEmail = process.env.INITIAL_ADMIN_EMAIL;
+
+	if (!adminEmail) {
+		console.error('❌ INITIAL_ADMIN_EMAIL no está definido en .env');
+		console.error('   Agrega INITIAL_ADMIN_EMAIL=tu-email@dominio.com a tu archivo .env');
+		process.exit(1);
+	}
+
+	console.log(`🔍 Buscando usuario admin con email: ${adminEmail}`);
+
+	const [existing] =
+		await sql`SELECT id, email, rol FROM usuarios WHERE email = ${adminEmail}`;
+
+	if (existing) {
+		if (existing.rol === 'ADMIN') {
+			console.log(`✅ El usuario admin ya existe: ${existing.email} (ID: ${existing.id})`);
+		} else {
+			// Promover a ADMIN si existe pero no es admin
+			await sql`UPDATE usuarios SET rol = 'ADMIN' WHERE id = ${existing.id}`;
+			console.log(`⬆️ Usuario promovido a ADMIN: ${existing.email} (ID: ${existing.id})`);
+		}
+		return existing;
+	}
+
+	// Crear nuevo usuario admin
+	const [newAdmin] =
+		await sql`INSERT INTO usuarios (nombre, email, rol, activo) VALUES ('Administrador', ${adminEmail}, 'ADMIN', true) RETURNING id, email, rol`;
+
+	console.log(`✅ Usuario admin creado exitosamente:`);
+	console.log(`   📧 Email: ${newAdmin.email}`);
+	console.log(`   🆔 ID: ${newAdmin.id}`);
+	console.log(`   🔑 Rol: ${newAdmin.rol}`);
+
+	return newAdmin;
+}
+
+// ──────────────────────────── CREATE ADMIN (sin requerir email en args) ────────────────────────────
+
+if (action === 'create-admin') {
+	createInitialAdmin()
+		.then(() => {
+			console.log('\n🎉 Proceso completado.\n');
+		})
+		.catch((e) => {
+			console.error('Error creando admin:', e);
+			process.exit(1);
+		});
+} else {
+	// Para poblar/limpiar se requiere email
+	if (!email) {
+		console.error('❌ Debes proporcionar un email.');
+		console.error('   Uso: npm run poblar <email>');
+		console.error('   Uso: npm run limpiar <email>');
+		console.error('   Uso: npm run create-admin');
+		process.exit(1);
+	}
 }
 
 async function initMaestros() {

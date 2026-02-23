@@ -1,8 +1,9 @@
-import { authGuard } from '$lib/server/auth';
+import { authGuard, invalidateSession } from '$lib/server/auth';
 import { redirect, type Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const user = authGuard(event.cookies);
+	// AuthGuard ahora es async y valida sesión en BD
+	const user = await authGuard(event.cookies);
 
 	// Inyectar información del usuario en locals
 	if (user) {
@@ -19,7 +20,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 		event.url.pathname.startsWith('/registros') ||
 		event.url.pathname.startsWith('/graficos') ||
 		event.url.pathname.startsWith('/admin') ||
-		event.url.pathname.startsWith('/investigador')
+		event.url.pathname.startsWith('/investigador') ||
+		event.url.pathname.startsWith('/perfil')
 	) {
 		if (!event.locals.user) {
 			throw redirect(303, '/auth/login');

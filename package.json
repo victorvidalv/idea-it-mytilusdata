@@ -17,6 +17,7 @@
 		"test:e2e": "playwright test",
 		"poblar": "node --env-file=.env scripts/seed.js poblar",
 		"limpiar": "node --env-file=.env scripts/seed.js limpiar",
+		"create-admin": "node --env-file=.env scripts/seed.js create-admin",
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",

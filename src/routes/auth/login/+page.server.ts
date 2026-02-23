@@ -26,12 +26,12 @@ export const actions = {
 		const clientIp = getClientAddress();
 		const userAgent = request.headers.get('user-agent') ?? undefined;
 
-		// Validar email básico
+		// PASO 1: Validar formato de email
 		if (!email || typeof email !== 'string' || !email.includes('@')) {
 			return fail(400, { email, missing: true, message: 'Correo electrónico inválido' });
 		}
 
-		// --- Rate Limiting por IP ---
+		// PASO 2: Verificar rate limiting por IP → Si excede, RETORNAR ERROR
 		const ipRateLimit = await checkRateLimit(clientIp, 'IP');
 		if (!ipRateLimit.allowed) {
 			return fail(429, {
@@ -42,7 +42,7 @@ export const actions = {
 			});
 		}
 
-		// --- Rate Limiting por Email ---
+		// PASO 3: Verificar rate limiting por email → Si excede, RETORNAR ERROR
 		const emailRateLimit = await checkRateLimit(email, 'EMAIL');
 		if (!emailRateLimit.allowed) {
 			return fail(429, {
@@ -53,7 +53,7 @@ export const actions = {
 			});
 		}
 
-		// --- Verificar Cooldown de Email ---
+		// PASO 4: Verificar cooldown de email → Si excede, RETORNAR ERROR
 		const cooldown = await checkEmailCooldown(email);
 		if (!cooldown.allowed) {
 			return fail(429, {
@@ -70,12 +70,15 @@ export const actions = {
 
 			if (user) {
 				// Usuario existente: enviar enlace mágico
-				// Registrar intentos de rate limiting
+				// PASO 5: Registrar intento en rate limit logs (ANTES de llamar a Resend)
 				await logRateLimitAttempt(clientIp, 'IP');
 				await logRateLimitAttempt(email, 'EMAIL');
+
+				// PASO 6: Actualizar cooldown (ANTES de llamar a Resend)
 				await updateEmailCooldown(email);
 
-				await createMagicLink(email, user.nombre, url.origin);
+				// PASO 7: RECÍÉN AHORA llamar a createMagicLink (que usa Resend)
+				await createMagicLink(email, user.nombre, url.origin, userAgent, clientIp);
 
 				// Registrar envío de magic link en auditoría
 				await logMagicLinkSent({
@@ -114,7 +117,7 @@ export const actions = {
 					});
 				}
 
-				// --- Verificar CAPTCHA para usuarios nuevos ---
+				// PASO 5 (para usuarios nuevos): Verificar CAPTCHA → Si falla, RETORNAR ERROR
 				const captchaValid = await verifyTurnstile(
 					typeof turnstileToken === 'string' ? turnstileToken : '',
 					clientIp
@@ -138,13 +141,15 @@ export const actions = {
 					});
 				}
 
-				// Registrar intentos de rate limiting
+				// PASO 6: Registrar intento en rate limit logs (ANTES de llamar a Resend)
 				await logRateLimitAttempt(clientIp, 'IP');
 				await logRateLimitAttempt(email, 'EMAIL');
+
+				// PASO 7: Actualizar cooldown (ANTES de llamar a Resend)
 				await updateEmailCooldown(email);
 
-				// Crear usuario y enviar enlace mágico
-				await createMagicLink(email, nombre, url.origin);
+				// PASO 8: RECÍÉN AHORA llamar a createMagicLink (que usa Resend)
+				await createMagicLink(email, nombre, url.origin, userAgent, clientIp);
 
 				// Nota: El usuario se crea en createMagicLink, pero no tenemos su ID aquí
 				// El evento USER_CREATED se registrará cuando se complete el callback del magic link

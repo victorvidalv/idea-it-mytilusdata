@@ -9,6 +9,7 @@ declare global {
 				email: string;
 				nombre: string;
 				rol: 'ADMIN' | 'INVESTIGADOR' | 'USUARIO';
+				sessionId: number;
 			} | null;
 		}
 		// interface PageData {}

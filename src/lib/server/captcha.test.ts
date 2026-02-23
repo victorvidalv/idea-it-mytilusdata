@@ -19,8 +19,8 @@ import { verifyTurnstile, isTurnstileConfigured } from './captcha';
 describe('Captcha Module', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.spyOn(console, 'warn').mockImplementation(() => { });
-		vi.spyOn(console, 'error').mockImplementation(() => { });
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
+		vi.spyOn(console, 'error').mockImplementation(() => {});
 	});
 
 	afterEach(() => {

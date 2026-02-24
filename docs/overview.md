@@ -7,6 +7,7 @@
 ## Propósito y Objetivos
 
 ### Propósito Principal
+
 Proporcionar una herramienta centralizada para la recopilación, análisis y exportación de datos relacionados con la producción de mitílidos, facilitando la toma de decisiones basada en datos.
 
 ### Objetivos Específicos
@@ -21,38 +22,45 @@ Proporcionar una herramienta centralizada para la recopilación, análisis y exp
 ## Funcionalidades Principales
 
 ### Módulo de Autenticación
+
 - **Magic Links**: Autenticación sin contraseña vía email (Resend)
 - **Sesiones JWT**: Tokens con validez de 7 días
 - **Rate Limiting**: Protección contra abuso (5 intentos/IP/15min, 3 intentos/email/hora)
 - **CAPTCHA**: Verificación con Cloudflare Turnstile
 
 ### Módulo de Centros de Cultivo
+
 - Registro de ubicaciones con coordenadas geográficas (latitud/longitud)
 - Visualización en mapa interactivo (Leaflet)
 - Multi-tenancy: cada usuario ve solo sus propios centros
 
 ### Módulo de Ciclos Productivos
+
 - Definición de períodos de cultivo
 - Asociación con centros de cultivo
 - Estado activo/inactivo
 
 ### Módulo de Mediciones (Registros)
+
 - Tipos de registro configurables (talla, biomasa, temperatura, etc.)
 - Origen de datos (manual, satelital, PSMB)
 - Normalización de unidades
 - Notas y observaciones
 
 ### Módulo de Gráficos
+
 - Visualización de datos por centro y ciclo
 - Gráficos de series temporales
 - Filtros dinámicos
 
 ### Módulo de Exportación
+
 - Exportación a Excel (XLSX)
 - Tres hojas: Centros, Ciclos, Registros
 - Formato profesional con estilos
 
 ### Módulo de API REST
+
 - Acceso programático vía API Keys
 - Endpoints para centros, ciclos, registros y exportación
 - Rate limiting diferenciado
@@ -68,6 +76,7 @@ ADMIN > INVESTIGADOR > USUARIO
 ```
 
 ### Rol: USUARIO (Nivel 0)
+
 - **Acceso**: Funcionalidades básicas
 - **Permisos**:
   - Ver sus propios datos
@@ -75,6 +84,7 @@ ADMIN > INVESTIGADOR > USUARIO
   - Generar API Keys
 
 ### Rol: INVESTIGADOR (Nivel 1)
+
 - **Acceso**: Funcionalidades de investigación
 - **Permisos**:
   - Todo lo de USUARIO
@@ -83,6 +93,7 @@ ADMIN > INVESTIGADOR > USUARIO
   - Gráficos avanzados
 
 ### Rol: ADMIN (Nivel 2)
+
 - **Acceso**: Administración completa
 - **Permisos**:
   - Todo lo de INVESTIGADOR
@@ -94,67 +105,74 @@ ADMIN > INVESTIGADOR > USUARIO
 
 ### Tabla de Permisos por Ruta
 
-| Ruta | USUARIO | INVESTIGADOR | ADMIN |
-|------|---------|--------------|-------|
-| `/dashboard` | ✅ | ✅ | ✅ |
-| `/centros` | ✅ | ✅ | ✅ |
-| `/ciclos` | ✅ | ✅ | ✅ |
-| `/registros` | ✅ | ✅ | ✅ |
-| `/graficos` | ✅ | ✅ | ✅ |
-| `/investigador/*` | ❌ | ✅ | ✅ |
-| `/admin/*` | ❌ | ❌ | ✅ |
-| `/perfil` | ✅ | ✅ | ✅ |
+| Ruta              | USUARIO | INVESTIGADOR | ADMIN |
+| ----------------- | ------- | ------------ | ----- |
+| `/dashboard`      | ✅      | ✅           | ✅    |
+| `/centros`        | ✅      | ✅           | ✅    |
+| `/ciclos`         | ✅      | ✅           | ✅    |
+| `/registros`      | ✅      | ✅           | ✅    |
+| `/graficos`       | ✅      | ✅           | ✅    |
+| `/investigador/*` | ❌      | ✅           | ✅    |
+| `/admin/*`        | ❌      | ❌           | ✅    |
+| `/perfil`         | ✅      | ✅           | ✅    |
 
 ## Tecnologías Utilizadas
 
 ### Framework y Runtime
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **SvelteKit** | 2.50.2 | Framework web full-stack |
-| **Svelte** | 5.51.0 | UI reactiva |
-| **TypeScript** | 5.9.3 | Tipado estático |
-| **Vite** | 7.3.1 | Build tool y dev server |
-| **Node.js** | 24+ | Runtime |
+
+| Tecnología     | Versión | Propósito                |
+| -------------- | ------- | ------------------------ |
+| **SvelteKit**  | 2.50.2  | Framework web full-stack |
+| **Svelte**     | 5.51.0  | UI reactiva              |
+| **TypeScript** | 5.9.3   | Tipado estático          |
+| **Vite**       | 7.3.1   | Build tool y dev server  |
+| **Node.js**    | 24+     | Runtime                  |
 
 ### Base de Datos y ORM
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **Drizzle ORM** | 0.45.1 | ORM type-safe |
-| **Neon Database** | 1.0.2 | PostgreSQL serverless |
+
+| Tecnología        | Versión | Propósito             |
+| ----------------- | ------- | --------------------- |
+| **Drizzle ORM**   | 0.45.1  | ORM type-safe         |
+| **Neon Database** | 1.0.2   | PostgreSQL serverless |
 
 ### UI y Estilos
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **TailwindCSS** | 4.1.18 | Framework CSS |
-| **shadcn-svelte** | - | Componentes UI |
-| **bits-ui** | 1.8.0 | Primitivos de UI |
-| **Lucide Icons** | 0.575.0 | Iconografía |
+
+| Tecnología        | Versión | Propósito        |
+| ----------------- | ------- | ---------------- |
+| **TailwindCSS**   | 4.1.18  | Framework CSS    |
+| **shadcn-svelte** | -       | Componentes UI   |
+| **bits-ui**       | 1.8.0   | Primitivos de UI |
+| **Lucide Icons**  | 0.575.0 | Iconografía      |
 
 ### Visualización y Mapas
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **Leaflet** | 1.9.4 | Mapas interactivos |
-| **LayerChart** | 2.0.0-next.46 | Gráficos |
-| **D3 Scale** | 4.0.2 | Escalas para visualización |
+
+| Tecnología     | Versión       | Propósito                  |
+| -------------- | ------------- | -------------------------- |
+| **Leaflet**    | 1.9.4         | Mapas interactivos         |
+| **LayerChart** | 2.0.0-next.46 | Gráficos                   |
+| **D3 Scale**   | 4.0.2         | Escalas para visualización |
 
 ### Servicios Externos
-| Tecnología | Propósito |
-|------------|-----------|
-| **Resend** | Envío de emails (Magic Links) |
-| **Cloudflare Turnstile** | CAPTCHA |
+
+| Tecnología               | Propósito                     |
+| ------------------------ | ----------------------------- |
+| **Resend**               | Envío de emails (Magic Links) |
+| **Cloudflare Turnstile** | CAPTCHA                       |
 
 ### Testing
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **Vitest** | 4.0.18 | Testing unitario |
-| **Playwright** | 1.58.1 | Testing E2E |
+
+| Tecnología     | Versión | Propósito        |
+| -------------- | ------- | ---------------- |
+| **Vitest**     | 4.0.18  | Testing unitario |
+| **Playwright** | 1.58.1  | Testing E2E      |
 
 ### Utilidades
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **ExcelJS** | 4.4.0 | Generación de Excel |
-| **jsonwebtoken** | 9.0.3 | Manejo de JWT |
-| **mode-watcher** | 1.1.0 | Tema claro/oscuro |
+
+| Tecnología       | Versión | Propósito           |
+| ---------------- | ------- | ------------------- |
+| **ExcelJS**      | 4.4.0   | Generación de Excel |
+| **jsonwebtoken** | 9.0.3   | Manejo de JWT       |
+| **mode-watcher** | 1.1.0   | Tema claro/oscuro   |
 
 ## Estructura de Directorios
 
@@ -268,15 +286,18 @@ plataforma_idea2025/
 ## Convenciones de Nomenclatura
 
 ### Archivos
+
 - **Componentes Svelte**: PascalCase (ej: `DataTable.svelte`)
 - **Utilidades**: camelCase (ej: `rateLimiter.ts`)
 - **Rutas**: kebab-case (ej: `tipos-medicion/`)
 
 ### Base de Datos
+
 - **Tablas**: snake_case plural (ej: `rate_limit_logs`)
 - **Columnas**: snake_case (ej: `fecha_medicion`)
 
 ### Código
+
 - **Variables/Funciones**: camelCase
 - **Clases/Tipos/Interfaces**: PascalCase
 - **Constantes**: UPPER_SNAKE_CASE

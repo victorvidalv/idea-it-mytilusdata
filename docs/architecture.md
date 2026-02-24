@@ -42,20 +42,20 @@ graph TB
     UI --> Routes
     Maps --> Routes
     Charts --> Routes
-    
+
     Routes --> Hooks
     Hooks --> Auth
     Hooks --> RateLimiter
-    
+
     ServerLoad --> Auth
     Actions --> Auth
     Actions --> RateLimiter
     Actions --> Captcha
-    
+
     Auth --> UsersTable
     Auth --> SessionsTable
     Auth --> Resend
-    
+
     RateLimiter --> Database
     ApiRateLimiter --> Database
     Captcha --> Turnstile
@@ -70,14 +70,14 @@ La capa de presentación está construida con **Svelte 5** y **SvelteKit**, util
 
 #### Componentes Principales
 
-| Directorio | Propósito |
-|------------|-----------|
-| `src/lib/components/ui/` | Componentes base shadcn-svelte (Button, Input, Card, etc.) |
-| `src/lib/components/layout/` | Componentes de estructura (Header, Sidebar) |
-| `src/lib/components/centros/` | Componentes para gestión de centros |
-| `src/lib/components/ciclos/` | Componentes para gestión de ciclos |
-| `src/lib/components/registros/` | Componentes para gestión de registros |
-| `src/lib/components/graficos/` | Componentes de visualización |
+| Directorio                      | Propósito                                                  |
+| ------------------------------- | ---------------------------------------------------------- |
+| `src/lib/components/ui/`        | Componentes base shadcn-svelte (Button, Input, Card, etc.) |
+| `src/lib/components/layout/`    | Componentes de estructura (Header, Sidebar)                |
+| `src/lib/components/centros/`   | Componentes para gestión de centros                        |
+| `src/lib/components/ciclos/`    | Componentes para gestión de ciclos                         |
+| `src/lib/components/registros/` | Componentes para gestión de registros                      |
+| `src/lib/components/graficos/`  | Componentes de visualización                               |
 
 #### Tecnologías de UI
 
@@ -240,7 +240,7 @@ sequenceDiagram
     S->>S: Verifica CAPTCHA - Turnstile
     S->>S: Verifica Rate Limit - IP/Email
     S->>S: Verifica Email Cooldown
-    
+
     alt Rate Limit Excedido
         S-->>F: Error 429 - Demasiados intentos
         F-->>U: Muestra mensaje de espera
@@ -284,7 +284,7 @@ sequenceDiagram
     A->>A: Verifica JWT - firma y expiración
     A->>A: Extrae sessionId y sessionTokenHash
     A->>DB: validateSession - busca sesión
-    
+
     alt Sesión No Encontrada
         DB-->>A: null
         A->>A: Elimina cookie
@@ -341,27 +341,27 @@ graph TB
     Request[Request Entrante] --> IPCheck
     Request --> EmailCheck
     EmailCheck --> Cooldown
-    
+
     IPCheck --> RateLimitLogs
     EmailCheck --> RateLimitLogs
     Cooldown --> EmailCooldowns
 
     APIRequest[API Request] --> DefaultLimit
     ExportRequest[Export Request] --> ExportLimit
-    
+
     DefaultLimit --> RateLimitLogs
     ExportLimit --> RateLimitLogs
 ```
 
 ### Configuración de Límites
 
-| Tipo | Límite | Ventana | Propósito |
-|------|--------|---------|-----------|
-| IP (Login) | 5 intentos | 15 minutos | Prevenir ataques de fuerza bruta por IP |
-| Email (Login) | 3 intentos | 1 hora | Prevenir spam de magic links |
-| Email Cooldown | 1 envío | 60 segundos | Evitar envíos duplicados |
-| API DEFAULT | 100 solicitudes | 1 minuto | Uso normal de API |
-| API EXPORT | 10 solicitudes | 1 minuto | Exportaciones (más costosas) |
+| Tipo           | Límite          | Ventana     | Propósito                               |
+| -------------- | --------------- | ----------- | --------------------------------------- |
+| IP (Login)     | 5 intentos      | 15 minutos  | Prevenir ataques de fuerza bruta por IP |
+| Email (Login)  | 3 intentos      | 1 hora      | Prevenir spam de magic links            |
+| Email Cooldown | 1 envío         | 60 segundos | Evitar envíos duplicados                |
+| API DEFAULT    | 100 solicitudes | 1 minuto    | Uso normal de API                       |
+| API EXPORT     | 10 solicitudes  | 1 minuto    | Exportaciones (más costosas)            |
 
 ### Flujo de Rate Limiting en Login
 
@@ -370,16 +370,16 @@ flowchart TD
     Start[Inicio Request Login] --> CheckCaptcha{CAPTCHA Válido?}
     CheckCaptcha -->|No| RejectCaptcha[Rechazar - CAPTCHA inválido]
     CheckCaptcha -->|Sí| CheckIP{Rate Limit IP OK?}
-    
+
     CheckIP -->|No| RejectIP[Rechazar - 429 Too Many Requests]
     CheckIP -->|Sí| CheckEmail{Rate Limit Email OK?}
-    
+
     CheckEmail -->|No| RejectEmail[Rechazar - 429 Too Many Requests]
     CheckEmail -->|Sí| CheckCooldown{Email Cooldown OK?}
-    
+
     CheckCooldown -->|No| RejectCooldown[Rechazar - Esperar X segundos]
     CheckCooldown -->|Sí| LogAttempts[Registrar Intentos]
-    
+
     LogAttempts --> UpdateCooldown[Actualizar Cooldown]
     UpdateCooldown --> SendEmail[Enviar Magic Link]
     SendEmail --> Success[Retornar Success]
@@ -400,7 +400,7 @@ sequenceDiagram
 
     C->>H: Request HTTP
     H->>A: Validar sesión
-    
+
     alt Usuario Autenticado
         A-->>H: Datos del usuario
         H->>H: event.locals.user = userData
@@ -410,7 +410,7 @@ sequenceDiagram
     end
 
     H->>H: Verificar rutas protegidas
-    
+
     alt Ruta protegida sin auth
         H-->>C: Redirect 303 /auth/login
     else Ruta admin sin rol ADMIN
@@ -423,7 +423,7 @@ sequenceDiagram
 
     H->>R: resolve - event
     R-->>H: Response
-    
+
     H->>H: Agregar headers de seguridad
     H-->>C: Response con headers
 ```
@@ -432,13 +432,13 @@ sequenceDiagram
 
 Para todas las respuestas de API:
 
-| Header | Valor | Propósito |
-|--------|-------|-----------|
-| `X-Content-Type-Options` | `nosniff` | Prevenir MIME sniffing |
-| `X-Frame-Options` | `DENY` | Prevenir clickjacking |
-| `X-XSS-Protection` | `1; mode=block` | Protección XSS |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Control de referrer |
-| `Cache-Control` | `no-store, no-cache, must-revalidate` | No cachear datos sensibles |
+| Header                   | Valor                                 | Propósito                  |
+| ------------------------ | ------------------------------------- | -------------------------- |
+| `X-Content-Type-Options` | `nosniff`                             | Prevenir MIME sniffing     |
+| `X-Frame-Options`        | `DENY`                                | Prevenir clickjacking      |
+| `X-XSS-Protection`       | `1; mode=block`                       | Protección XSS             |
+| `Referrer-Policy`        | `strict-origin-when-cross-origin`     | Control de referrer        |
+| `Cache-Control`          | `no-store, no-cache, must-revalidate` | No cachear datos sensibles |
 
 ## Estructura de Rutas y Layouts
 
@@ -462,7 +462,7 @@ graph TB
     subgraph AppGroup [Grupo app/ - Requiere Auth]
         AppLayout["app/+layout.svelte"]
         AppLayoutServer["app/+layout.server.ts"]
-        
+
         subgraph AppPages [Páginas de App]
             DashboardPage["dashboard/+page.svelte"]
             CentrosPage["centros/+page.svelte"]
@@ -491,7 +491,7 @@ graph TB
     RootLayout --> AuthGroup
     RootLayout --> AppGroup
     RootLayout --> ApiGroup
-    
+
     AppLayout --> AppPages
     AppLayout --> AdminGroup
     AppLayout --> InvGroup
@@ -499,49 +499,49 @@ graph TB
 
 ### Protección de Rutas
 
-| Patrón de Ruta | Protección | Implementación |
-|----------------|------------|----------------|
-| `/dashboard/*` | Autenticación | `hooks.server.ts` |
-| `/centros/*` | Autenticación | `hooks.server.ts` |
-| `/ciclos/*` | Autenticación | `hooks.server.ts` |
-| `/registros/*` | Autenticación | `hooks.server.ts` |
-| `/graficos/*` | Autenticación | `hooks.server.ts` |
-| `/perfil/*` | Autenticación | `hooks.server.ts` |
-| `/admin/*` | Rol ADMIN | `hooks.server.ts` |
+| Patrón de Ruta    | Protección               | Implementación    |
+| ----------------- | ------------------------ | ----------------- |
+| `/dashboard/*`    | Autenticación            | `hooks.server.ts` |
+| `/centros/*`      | Autenticación            | `hooks.server.ts` |
+| `/ciclos/*`       | Autenticación            | `hooks.server.ts` |
+| `/registros/*`    | Autenticación            | `hooks.server.ts` |
+| `/graficos/*`     | Autenticación            | `hooks.server.ts` |
+| `/perfil/*`       | Autenticación            | `hooks.server.ts` |
+| `/admin/*`        | Rol ADMIN                | `hooks.server.ts` |
 | `/investigador/*` | Rol INVESTIGADOR o ADMIN | `hooks.server.ts` |
-| `/api/*` | API Key o Sesión | Cada endpoint |
-| `/auth/login` | Redirigir si autenticado | `hooks.server.ts` |
+| `/api/*`          | API Key o Sesión         | Cada endpoint     |
+| `/auth/login`     | Redirigir si autenticado | `hooks.server.ts` |
 
 ## Sistema de Auditoría
 
 ### Eventos Registrados
 
-| Evento | Código | Descripción |
-|--------|--------|-------------|
-| Login exitoso | `LOGIN_SUCCESS` | Usuario inició sesión |
-| Login fallido | `LOGIN_FAILED` | Intento de login fallido |
-| Logout | `LOGOUT` | Usuario cerró sesión |
-| Magic Link enviado | `MAGIC_LINK_SENT` | Email de magic link enviado |
-| API Key generada | `API_KEY_GENERATED` | Usuario generó nueva API key |
-| API Key revocada | `API_KEY_REVOKED` | Usuario revocó API key |
-| Acceso a API | `API_ACCESS` | Solicitud a endpoint de API |
-| Exportación de datos | `DATA_EXPORT` | Usuario exportó datos |
-| Cambio de rol | `ROLE_CHANGE` | Admin cambió rol de usuario |
-| Usuario creado | `USER_CREATED` | Nuevo usuario registrado |
+| Evento               | Código              | Descripción                  |
+| -------------------- | ------------------- | ---------------------------- |
+| Login exitoso        | `LOGIN_SUCCESS`     | Usuario inició sesión        |
+| Login fallido        | `LOGIN_FAILED`      | Intento de login fallido     |
+| Logout               | `LOGOUT`            | Usuario cerró sesión         |
+| Magic Link enviado   | `MAGIC_LINK_SENT`   | Email de magic link enviado  |
+| API Key generada     | `API_KEY_GENERATED` | Usuario generó nueva API key |
+| API Key revocada     | `API_KEY_REVOKED`   | Usuario revocó API key       |
+| Acceso a API         | `API_ACCESS`        | Solicitud a endpoint de API  |
+| Exportación de datos | `DATA_EXPORT`       | Usuario exportó datos        |
+| Cambio de rol        | `ROLE_CHANGE`       | Admin cambió rol de usuario  |
+| Usuario creado       | `USER_CREATED`      | Nuevo usuario registrado     |
 
 ### Estructura de Log
 
 ```typescript
 interface AuditLogEntry {
-  id: number;
-  userId?: number;        // Usuario que realizó la acción
-  accion: string;         // Código del evento
-  entidad?: string;       // Entidad afectada (usuario, api_key, etc.)
-  entidadId?: number;     // ID de la entidad
-  ip?: string;            // Dirección IP
-  userAgent?: string;     // User agent del cliente
-  detalles?: string;      // JSON con información adicional
-  createdAt: Date;        // Timestamp del evento
+	id: number;
+	userId?: number; // Usuario que realizó la acción
+	accion: string; // Código del evento
+	entidad?: string; // Entidad afectada (usuario, api_key, etc.)
+	entidadId?: number; // ID de la entidad
+	ip?: string; // Dirección IP
+	userAgent?: string; // User agent del cliente
+	detalles?: string; // JSON con información adicional
+	createdAt: Date; // Timestamp del evento
 }
 ```
 
@@ -557,12 +557,13 @@ El sistema implementa aislamiento de datos por usuario (multi-tenancy):
    - `mediciones.userId`
 
 2. **Consultas filtradas por usuario**:
+
    ```typescript
    // Ejemplo en centros
    const userCentros = await db
-     .select()
-     .from(lugares)
-     .where(eq(lugares.userId, apiKeyRecord.userId));
+   	.select()
+   	.from(lugares)
+   	.where(eq(lugares.userId, apiKeyRecord.userId));
    ```
 
 3. **API Keys vinculadas a usuario**:
@@ -602,6 +603,7 @@ graph TB
 **Decisión**: Usar Magic Links en lugar de contraseñas tradicionales.
 
 **Justificación**:
+
 - Elimina problemas de contraseñas débiles
 - Reduce superficie de ataque (no hay contraseñas que robar)
 - Mejor experiencia de usuario (no recordar contraseñas)
@@ -612,6 +614,7 @@ graph TB
 **Decisión**: Almacenar sesiones en BD en lugar de JWT stateless puro.
 
 **Justificación**:
+
 - Permite invalidar sesiones inmediatamente
 - Control granular (logout, desactivación de usuario, cambio de rol)
 - Auditoría de sesiones activas
@@ -622,6 +625,7 @@ graph TB
 **Decisión**: Usar BD para rate limiting en lugar de memoria.
 
 **Justificación**:
+
 - Funciona en entornos serverless/multi-instancia
 - Persistencia entre reinicios
 - Sin dependencia de Redis u otro servicio
@@ -632,6 +636,7 @@ graph TB
 **Decisión**: Usar Drizzle en lugar de Prisma.
 
 **Justificación**:
+
 - SQL-like, más cercano a la base de datos
 - Sin generación de código adicional
 - Mejor rendimiento en serverless
@@ -642,6 +647,7 @@ graph TB
 **Decisión**: Usar SvelteKit como framework.
 
 **Justificación**:
+
 - Menor bundle size
 - Sintaxis más simple y reactiva
 - Mejor DX para proyectos pequeños/medianos

@@ -7,7 +7,6 @@
 	export let investigadorLinks: { href: string; label: string; icon: string }[];
 	export let sidebarCollapsed: boolean;
 	export let toggleSidebar: () => void;
-
 </script>
 
 <aside

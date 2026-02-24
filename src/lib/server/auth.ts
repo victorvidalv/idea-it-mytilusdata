@@ -4,7 +4,7 @@ import { eq, and, isNull } from 'drizzle-orm';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import pkg from 'jsonwebtoken';
-import { randomBytes } from 'crypto';
+import { randomBytes, createHash } from 'crypto';
 import { redirect } from '@sveltejs/kit';
 import {
 	checkRateLimit,
@@ -59,7 +59,7 @@ export function hasMinRole(userRol: Rol | undefined, minRole: Rol): boolean {
  * Genera un hash SHA-256 de un token para almacenamiento seguro.
  */
 function hashToken(token: string): string {
-	return require('crypto').createHash('sha256').update(token).digest('hex');
+	return createHash('sha256').update(token).digest('hex');
 }
 
 // --- Gestión de Sesiones ---

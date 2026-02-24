@@ -70,6 +70,10 @@ export const actions = {
 
 			if (user) {
 				// Usuario existente: enviar enlace mágico
+				// NOTA: Las validaciones de rate limiting y cooldown se mantienen en el page server
+				// como primera capa de defensa (defense in depth). createMagicLink tiene sus propias
+				// validaciones como segunda capa.
+
 				// PASO 5: Registrar intento en rate limit logs (ANTES de llamar a Resend)
 				await logRateLimitAttempt(clientIp, 'IP');
 				await logRateLimitAttempt(email, 'EMAIL');
@@ -77,8 +81,24 @@ export const actions = {
 				// PASO 6: Actualizar cooldown (ANTES de llamar a Resend)
 				await updateEmailCooldown(email);
 
-				// PASO 7: RECÍÉN AHORA llamar a createMagicLink (que usa Resend)
-				await createMagicLink(email, user.nombre, url.origin, userAgent, clientIp);
+				// PASO 7: Llamar a createMagicLink (tiene validaciones defensivas internas)
+				const result = await createMagicLink(email, user.nombre, url.origin, userAgent, clientIp);
+
+				if (!result.success) {
+					// Registrar intento fallido en auditoría
+					await logLoginFailed({
+						email,
+						ip: clientIp,
+						userAgent,
+						reason: 'RATE_LIMITED_DEFENSIVE'
+					});
+
+					return fail(result.status, {
+						email,
+						rateLimited: true,
+						message: result.error
+					});
+				}
 
 				// Registrar envío de magic link en auditoría
 				await logMagicLinkSent({
@@ -148,8 +168,26 @@ export const actions = {
 				// PASO 7: Actualizar cooldown (ANTES de llamar a Resend)
 				await updateEmailCooldown(email);
 
-				// PASO 8: RECÍÉN AHORA llamar a createMagicLink (que usa Resend)
-				await createMagicLink(email, nombre, url.origin, userAgent, clientIp);
+				// PASO 8: Llamar a createMagicLink (tiene validaciones defensivas internas)
+				const result = await createMagicLink(email, nombre, url.origin, userAgent, clientIp);
+
+				if (!result.success) {
+					// Registrar intento fallido en auditoría
+					await logLoginFailed({
+						email,
+						ip: clientIp,
+						userAgent,
+						reason: 'RATE_LIMITED_DEFENSIVE'
+					});
+
+					return fail(result.status, {
+						email,
+						nombre,
+						requiresRegistration: true,
+						rateLimited: true,
+						message: result.error
+					});
+				}
 
 				// Nota: El usuario se crea en createMagicLink, pero no tenemos su ID aquí
 				// El evento USER_CREATED se registrará cuando se complete el callback del magic link

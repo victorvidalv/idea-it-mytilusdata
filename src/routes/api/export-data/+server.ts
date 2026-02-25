@@ -104,7 +104,7 @@ export async function GET({ locals, request, getClientAddress }: RequestEvent) {
 
 		// Crear libro de Excel con ExcelJS
 		const workbook = new ExcelJS.Workbook();
-		workbook.creator = 'Plataforma Idea';
+		workbook.creator = 'MytilusData';
 		workbook.created = new Date();
 
 		// Función auxiliar para agregar una hoja con datos
@@ -153,7 +153,7 @@ export async function GET({ locals, request, getClientAddress }: RequestEvent) {
 			'Content-Type',
 			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 		);
-		headers.append('Content-Disposition', 'attachment; filename="Mis_Datos_PlataformaIdea.xlsx"');
+		headers.append('Content-Disposition', 'attachment; filename="Mis_Datos_MytilusData.xlsx"');
 		// Headers de rate limiting
 		headers.append('X-RateLimit-Limit', String(rateLimitResult.limit));
 		headers.append('X-RateLimit-Remaining', String(rateLimitResult.remaining - 1));

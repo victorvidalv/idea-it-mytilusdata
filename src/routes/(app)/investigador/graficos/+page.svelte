@@ -2,6 +2,7 @@
 	import { LineChart } from 'layerchart';
 	import { scaleTime, scaleLinear } from 'd3-scale';
 	import * as Card from '$lib/components/ui/card';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	export let data: import('./$types').PageData;
 
@@ -9,7 +10,7 @@
 	let selectedUserId: string | null = null;
 	let selectedCentroId: number | null = null;
 	let selectedCicloId: number | null = null;
-	let selectedTipoIds: Set<number> = new Set();
+	let selectedTipoIds = new SvelteSet<number>();
 
 	// Colores para cada serie (hasta 10)
 	const seriesColors = [
@@ -69,13 +70,11 @@
 	// }
 
 	function toggleTipo(tipoId: number) {
-		const newSet = new Set(selectedTipoIds);
-		if (newSet.has(tipoId)) {
-			newSet.delete(tipoId);
+		if (selectedTipoIds.has(tipoId)) {
+			selectedTipoIds.delete(tipoId);
 		} else {
-			newSet.add(tipoId);
+			selectedTipoIds.add(tipoId);
 		}
-		selectedTipoIds = newSet;
 	}
 
 	// --- Filtrar registros ---
@@ -203,7 +202,7 @@
 			>
 				<option value={null}>Selecciona un Usuario</option>
 				<option value="all">Todos los Usuarios</option>
-				{#each data.usuarios as usr}
+				{#each data.usuarios as usr (usr.id)}
 					<option value={usr.id.toString()}>{usr.nombre}</option>
 				{/each}
 			</select>
@@ -341,7 +340,7 @@
 							points={registrosFiltrados.length < 100}
 							props={{
 								xAxis: {
-									format: (v: any) =>
+									format: (v: Date | number | string) =>
 										v instanceof Date
 											? v.toLocaleDateString('es-CL', { month: 'short', year: '2-digit' })
 											: String(v)
@@ -355,7 +354,7 @@
 					>
 						<div class="absolute inset-0 opacity-[0.03]">
 							<svg width="100%" height="100%">
-								{#each Array(8) as _, i (i)}
+								{#each Array.from({ length: 8 }, (_, k) => k) as i (i)}
 									<line
 										x1="0"
 										y1="{(i + 1) * 12.5}%"

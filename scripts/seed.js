@@ -38,8 +38,7 @@ async function createInitialAdmin() {
 
 	console.log(`🔍 Buscando usuario admin con email: ${adminEmail}`);
 
-	const [existing] =
-		await sql`SELECT id, email, rol FROM usuarios WHERE email = ${adminEmail}`;
+	const [existing] = await sql`SELECT id, email, rol FROM usuarios WHERE email = ${adminEmail}`;
 
 	if (existing) {
 		if (existing.rol === 'ADMIN') {

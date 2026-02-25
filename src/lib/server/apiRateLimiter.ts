@@ -45,7 +45,6 @@ export async function checkApiRateLimit(
 ): Promise<ApiRateLimitResult> {
 	const config = API_RATE_LIMITS[endpoint];
 	const windowStart = new Date(Date.now() - config.windowMs);
-	const rateLimitType = `API_${endpoint}` as 'IP' | 'EMAIL' | `API_${typeof endpoint}`;
 
 	try {
 		// Contar solicitudes en la ventana de tiempo
@@ -75,10 +74,11 @@ export async function checkApiRateLimit(
 		}
 
 		// Si excedió el límite, calcular cuándo se reinicia
-		const oldestAttempt = attempts.sort(
-			(a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-		)[0];
-		const resetAt = oldestAttempt.createdAt.getTime() + config.windowMs;
+		const sortedAttempts = [...attempts].sort(
+			(a, b) => (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
+		);
+		const oldestAttempt = sortedAttempts[0];
+		const resetAt = (oldestAttempt?.createdAt?.getTime() ?? Date.now()) + config.windowMs;
 		const resetIn = Math.max(0, resetAt - Date.now());
 
 		return {

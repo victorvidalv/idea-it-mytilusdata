@@ -19,8 +19,8 @@ import { verifyTurnstile, isTurnstileConfigured } from './captcha';
 describe('Captcha Module', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.spyOn(console, 'warn').mockImplementation(() => {});
-		vi.spyOn(console, 'error').mockImplementation(() => {});
+		vi.spyOn(console, 'warn').mockImplementation(() => { });
+		vi.spyOn(console, 'error').mockImplementation(() => { });
 	});
 
 	afterEach(() => {
@@ -73,7 +73,7 @@ describe('Captcha Module', () => {
 		it('debe retornar false si token es null/undefined', async () => {
 			mockEnv.TURNSTILE_SECRET_KEY = 'test-secret-key';
 
-			const result = await verifyTurnstile(null as any);
+			const result = await verifyTurnstile(null as unknown as string);
 
 			expect(result).toBe(false);
 		});
@@ -103,19 +103,19 @@ describe('Captcha Module', () => {
 
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
-				json: () => Promise.resolve({
-					success: false,
-					error_codes: ['invalid-input-response']
-				})
+				json: () =>
+					Promise.resolve({
+						success: false,
+						error_codes: ['invalid-input-response']
+					})
 			});
 
 			const result = await verifyTurnstile('invalid-token');
 
 			expect(result).toBe(false);
-			expect(console.warn).toHaveBeenCalledWith(
-				'Verificación de Turnstile fallida:',
-				['invalid-input-response']
-			);
+			expect(console.warn).toHaveBeenCalledWith('Verificación de Turnstile fallida:', [
+				'invalid-input-response'
+			]);
 		});
 
 		it('debe retornar false si la respuesta HTTP no es ok', async () => {
@@ -129,10 +129,7 @@ describe('Captcha Module', () => {
 			const result = await verifyTurnstile('test-token');
 
 			expect(result).toBe(false);
-			expect(console.error).toHaveBeenCalledWith(
-				'Error en la respuesta de Turnstile:',
-				500
-			);
+			expect(console.error).toHaveBeenCalledWith('Error en la respuesta de Turnstile:', 500);
 		});
 
 		it('debe retornar true en caso de error de red (para no bloquear usuarios)', async () => {
@@ -220,12 +217,13 @@ describe('Captcha Module', () => {
 
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
-				json: () => Promise.resolve({
-					success: true,
-					challenge_ts: '2024-01-01T12:00:00Z',
-					hostname: 'example.com',
-					action: 'login'
-				})
+				json: () =>
+					Promise.resolve({
+						success: true,
+						challenge_ts: '2024-01-01T12:00:00Z',
+						hostname: 'example.com',
+						action: 'login'
+					})
 			});
 
 			const result = await verifyTurnstile('user-provided-token', '192.168.1.1');
@@ -238,13 +236,11 @@ describe('Captcha Module', () => {
 
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
-				json: () => Promise.resolve({
-					success: false,
-					error_codes: [
-						'invalid-input-response',
-						'timeout-or-duplicate'
-					]
-				})
+				json: () =>
+					Promise.resolve({
+						success: false,
+						error_codes: ['invalid-input-response', 'timeout-or-duplicate']
+					})
 			});
 
 			const result = await verifyTurnstile('expired-token');

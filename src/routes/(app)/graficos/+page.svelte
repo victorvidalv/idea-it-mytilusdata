@@ -2,13 +2,14 @@
 	import { LineChart } from 'layerchart';
 	import { scaleTime, scaleLinear } from 'd3-scale';
 	import * as Card from '$lib/components/ui/card';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	export let data: import('./$types').PageData;
 
 	// --- Estado de filtros ---
 	let selectedCentroId: number | null = null;
 	let selectedCicloId: number | null = null;
-	let selectedTipoIds: Set<number> = new Set();
+	let selectedTipoIds = new SvelteSet<number>();
 
 	// Colores para cada serie (hasta 10)
 	const seriesColors = [
@@ -50,13 +51,11 @@
 	// }
 
 	function toggleTipo(tipoId: number) {
-		const newSet = new Set(selectedTipoIds);
-		if (newSet.has(tipoId)) {
-			newSet.delete(tipoId);
+		if (selectedTipoIds.has(tipoId)) {
+			selectedTipoIds.delete(tipoId);
 		} else {
-			newSet.add(tipoId);
+			selectedTipoIds.add(tipoId);
 		}
-		selectedTipoIds = newSet;
 	}
 
 	// --- Filtrar registros ---
@@ -71,7 +70,7 @@
 	$: tiposActivos = data.tipos.filter((t) => selectedTipoIds.has(t.id));
 
 	$: chartSeries = tiposActivos
-		.map((tipo, i) => {
+		.map((tipo) => {
 			const tipoData = registrosFiltrados
 				.filter((r) => r.tipoId === tipo.id)
 				.map((r) => ({
@@ -229,7 +228,7 @@
 							Tipos de Medición
 						</span>
 						<div class="flex flex-wrap gap-2 pt-1">
-							{#each data.tipos as tipo, i (tipo.id)}
+							{#each data.tipos as tipo (tipo.id)}
 								<button
 									type="button"
 									class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-body text-xs font-medium transition-all duration-200 {selectedTipoIds.has(
@@ -308,7 +307,7 @@
 							points={registrosFiltrados.length < 100}
 							props={{
 								xAxis: {
-									format: (v: any) =>
+									format: (v: Date | number | string) =>
 										v instanceof Date
 											? v.toLocaleDateString('es-CL', { month: 'short', year: '2-digit' })
 											: String(v)
@@ -322,7 +321,7 @@
 					>
 						<div class="absolute inset-0 opacity-[0.03]">
 							<svg width="100%" height="100%">
-								{#each Array(8) as _, i (i)}
+								{#each Array.from({ length: 8 }, (_, k) => k) as i (i)}
 									<line
 										x1="0"
 										y1="{(i + 1) * 12.5}%"

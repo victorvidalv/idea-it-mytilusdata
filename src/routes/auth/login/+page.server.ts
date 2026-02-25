@@ -3,12 +3,9 @@ import { createMagicLink } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { usuarios } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-import {
-	checkRateLimit,
-	checkEmailCooldown
-} from '$lib/server/rateLimiter';
+import { checkRateLimit, checkEmailCooldown } from '$lib/server/rateLimiter';
 import { verifyTurnstile } from '$lib/server/captcha';
-import { logMagicLinkSent, logLoginFailed, logUserCreated } from '$lib/server/audit';
+import { logMagicLinkSent, logLoginFailed } from '$lib/server/audit';
 import type { Actions, RequestEvent } from './$types';
 
 export const actions = {

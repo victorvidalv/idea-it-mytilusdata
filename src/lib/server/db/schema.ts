@@ -1,5 +1,5 @@
 import { pgTable, text, integer, real, boolean, timestamp, serial } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
+
 
 // --- SISTEMA DE ACCESO Y SEGURIDAD ---
 

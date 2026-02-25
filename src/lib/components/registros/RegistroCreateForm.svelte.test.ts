@@ -92,7 +92,7 @@ describe('RegistroCreateForm', () => {
 			});
 
 			// Abrir el select de centros
-			const centroLabel = page.getByText('Centro de Cultivo *').locator('..');
+			const centroLabel = page.getByText('Centro de Cultivo *');
 			await expect.element(centroLabel).toBeInTheDocument();
 		});
 
@@ -116,7 +116,7 @@ describe('RegistroCreateForm', () => {
 			});
 
 			// El select de ciclo debería estar deshabilitado inicialmente
-			const cicloSection = page.getByText('Ciclo Productivo').locator('..');
+			const cicloSection = page.getByText('Ciclo Productivo');
 			await expect.element(cicloSection).toBeInTheDocument();
 		});
 

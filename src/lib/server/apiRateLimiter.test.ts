@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { ApiRateLimitType, ApiRateLimitResult } from './apiRateLimiter';
+
 
 // Use vi.hoisted to create mocks before module import
 const mockSelect = vi.hoisted(() => vi.fn());

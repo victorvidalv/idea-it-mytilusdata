@@ -9,7 +9,6 @@ const mockDelete = vi.hoisted(() => vi.fn());
 const mockInsert = vi.hoisted(() => vi.fn());
 const mockValues = vi.hoisted(() => vi.fn());
 const mockUpdate = vi.hoisted(() => vi.fn());
-const mockSet = vi.hoisted(() => vi.fn());
 
 vi.mock('./db', () => ({
 	db: {
@@ -216,7 +215,9 @@ describe('RateLimiter Module', () => {
 			mockSelect.mockReturnValue({
 				from: mockFrom.mockReturnValue({
 					where: mockWhere.mockReturnValue({
-						limit: mockLimit.mockResolvedValue([{ email: 'test@example.com', lastSentAt: twoMinutesAgo }])
+						limit: mockLimit.mockResolvedValue([
+							{ email: 'test@example.com', lastSentAt: twoMinutesAgo }
+						])
 					})
 				})
 			});
@@ -232,7 +233,9 @@ describe('RateLimiter Module', () => {
 			mockSelect.mockReturnValue({
 				from: mockFrom.mockReturnValue({
 					where: mockWhere.mockReturnValue({
-						limit: mockLimit.mockResolvedValue([{ email: 'test@example.com', lastSentAt: thirtySecondsAgo }])
+						limit: mockLimit.mockResolvedValue([
+							{ email: 'test@example.com', lastSentAt: thirtySecondsAgo }
+						])
 					})
 				})
 			});
@@ -281,13 +284,15 @@ describe('RateLimiter Module', () => {
 
 		it('should update existing cooldown', async () => {
 			const oldDate = new Date(Date.now() - 60 * 1000);
-			
+
 			// Configure mocks
-			const mockLimitFn = vi.fn().mockResolvedValue([{ email: 'test@example.com', lastSentAt: oldDate }]);
+			const mockLimitFn = vi
+				.fn()
+				.mockResolvedValue([{ email: 'test@example.com', lastSentAt: oldDate }]);
 			const mockWhereFn = vi.fn().mockReturnValue({ limit: mockLimitFn });
 			const mockFromFn = vi.fn().mockReturnValue({ where: mockWhereFn });
 			mockSelect.mockReturnValue({ from: mockFromFn });
-			
+
 			const mockUpdateWhereFn = vi.fn().mockResolvedValue(undefined);
 			const mockSetFn = vi.fn().mockReturnValue({ where: mockUpdateWhereFn });
 			mockUpdate.mockReturnValue({ set: mockSetFn });

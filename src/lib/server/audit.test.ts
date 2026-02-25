@@ -21,7 +21,7 @@ vi.mock('./db/schema', () => ({
 }));
 
 // Import after mocks are set up
-import { 
+import {
 	logAuditEvent,
 	logLoginSuccess,
 	logLoginFailed,

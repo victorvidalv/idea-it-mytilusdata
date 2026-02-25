@@ -79,10 +79,11 @@ export async function checkRateLimit(
 		}
 
 		// Si excedió el límite, calcular cuándo se reinicia
-		const oldestAttempt = attempts.sort(
-			(a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-		)[0];
-		const resetAt = oldestAttempt.createdAt.getTime() + config.windowMs;
+		const sortedAttempts = [...attempts].sort(
+			(a, b) => (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
+		);
+		const oldestAttempt = sortedAttempts[0];
+		const resetAt = (oldestAttempt?.createdAt?.getTime() ?? Date.now()) + config.windowMs;
 		const resetIn = Math.max(0, resetAt - Date.now());
 
 		return {
@@ -109,10 +110,7 @@ export async function checkRateLimit(
  * @param identifier - La dirección IP o email
  * @param tipo - 'IP' o 'EMAIL'
  */
-export async function logRateLimitAttempt(
-	identifier: string,
-	tipo: RateLimitType
-): Promise<void> {
+export async function logRateLimitAttempt(identifier: string, tipo: RateLimitType): Promise<void> {
 	try {
 		await db.insert(rateLimitLogs).values({
 			identifier,
@@ -211,9 +209,7 @@ export async function cleanupOldRateLimits(): Promise<void> {
 
 		// Limpiar cooldowns expirados
 		const cooldownThreshold = new Date(Date.now() - EMAIL_COOLDOWN_MS);
-		await db
-			.delete(emailCooldowns)
-			.where(lt(emailCooldowns.lastSentAt, cooldownThreshold));
+		await db.delete(emailCooldowns).where(lt(emailCooldowns.lastSentAt, cooldownThreshold));
 
 		console.log('Rate limit cleanup completed');
 	} catch (error) {

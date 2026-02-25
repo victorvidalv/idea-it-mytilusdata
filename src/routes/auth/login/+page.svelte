@@ -27,12 +27,14 @@
 		toast.error('Error: ' + (form?.message || 'Hubo un error al procesar tu solicitud.'));
 		loading = false;
 		// Refresh Turnstile on error so the user can try again
+		const turnstile = (window as unknown as { turnstile: { reset: (id: string) => void } })
+			.turnstile;
 		if (
 			typeof window !== 'undefined' &&
-			typeof (window as any).turnstile !== 'undefined' &&
+			typeof turnstile !== 'undefined' &&
 			turnstileWidgetId !== undefined
 		) {
-			(window as any).turnstile.reset(turnstileWidgetId);
+			turnstile.reset(turnstileWidgetId);
 		}
 	}
 
@@ -43,7 +45,7 @@
 
 	// Exponer el callback globalmente para el script de Turnstile
 	if (typeof window !== 'undefined') {
-		(window as any).onTurnstileLoad = onTurnstileLoad;
+		(window as unknown as { onTurnstileLoad: () => void }).onTurnstileLoad = onTurnstileLoad;
 	}
 
 	let turnstileWidgetId: string | undefined;
@@ -53,9 +55,12 @@
 		if (!turnstileEnabled) return;
 
 		const interval = setInterval(() => {
-			if (typeof (window as any).turnstile !== 'undefined') {
+			const turnstile = (
+				window as unknown as { turnstile: { render: (n: HTMLElement, c: object) => string } }
+			).turnstile;
+			if (typeof turnstile !== 'undefined') {
 				clearInterval(interval);
-				turnstileWidgetId = (window as any).turnstile.render(node, {
+				turnstileWidgetId = turnstile.render(node, {
 					sitekey: PUBLIC_TURNSTILE_SITE_KEY,
 					theme: 'light'
 				});
@@ -65,8 +70,10 @@
 		return {
 			destroy() {
 				clearInterval(interval);
-				if (turnstileWidgetId !== undefined && typeof (window as any).turnstile !== 'undefined') {
-					(window as any).turnstile.remove(turnstileWidgetId);
+				const turnstile = (window as unknown as { turnstile: { remove: (id: string) => void } })
+					.turnstile;
+				if (turnstileWidgetId !== undefined && typeof turnstile !== 'undefined') {
+					turnstile.remove(turnstileWidgetId);
 				}
 			}
 		};

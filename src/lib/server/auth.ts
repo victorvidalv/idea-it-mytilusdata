@@ -100,10 +100,7 @@ export async function createSession(
  * Invalida una sesión específica (para logout o actividad sospechosa).
  */
 export async function invalidateSession(sessionId: number): Promise<void> {
-	await db
-		.update(sesiones)
-		.set({ invalidatedAt: new Date() })
-		.where(eq(sesiones.id, sessionId));
+	await db.update(sesiones).set({ invalidatedAt: new Date() }).where(eq(sesiones.id, sessionId));
 }
 
 /**
@@ -153,9 +150,7 @@ export async function validateSession(sessionId: number, tokenHash: string) {
 // --- Autenticación ---
 
 /** Resultado de createMagicLink con validaciones defensivas */
-export type MagicLinkResult =
-	| { success: true }
-	| { success: false; error: string; status: number };
+export type MagicLinkResult = { success: true } | { success: false; error: string; status: number };
 
 /**
  * Crea y envía un Magic Link al email especificado.
@@ -291,7 +286,7 @@ export async function createMagicLink(
 
 	// Enviar correo con Resend
 	const resendResult = await resend.emails.send({
-		from: env.EMAIL_FROM || 'Plataforma Idea <onboarding@resend.dev>',
+		from: env.EMAIL_FROM || 'MytilusData <onboarding@resend.dev>',
 		to: email,
 		subject: 'Tu enlace de acceso a la Plataforma',
 		html: `<div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background: #ffffff; border-radius: 12px; overflow: hidden;">
@@ -307,7 +302,7 @@ export async function createMagicLink(
 				<p style="color: #8696A0; font-size: 12px; margin: 8px 0 0;">Si no solicitaste este acceso, puedes ignorar este correo.</p>
 			</div>
 			<div style="border-top: 1px solid #E9EDEF; padding: 16px 24px; text-align: center;">
-				<p style="color: #8696A0; font-size: 11px; margin: 0;">© 2025 Plataforma Idea · Mitilicultura</p>
+				<p style="color: #8696A0; font-size: 11px; margin: 0;">© 2026 MytilusData · Mitilicultura</p>
 			</div>
 		</div>`
 	});
@@ -325,11 +320,7 @@ export async function createMagicLink(
 	return { success: true };
 }
 
-export async function verifyTokenAndGetSession(
-	token: string,
-	userAgent?: string,
-	ip?: string
-) {
+export async function verifyTokenAndGetSession(token: string, userAgent?: string, ip?: string) {
 	const [result] = await db
 		.select({ token: magicLinkTokens, user: usuarios })
 		.from(magicLinkTokens)
@@ -391,9 +382,7 @@ export async function verifyTokenAndGetSession(
  * 4. Usuario sigue activo
  * 5. Rol coincide con el actual en BD
  */
-export async function authGuard(
-	cookies: import('@sveltejs/kit').Cookies
-): Promise<{
+export async function authGuard(cookies: import('@sveltejs/kit').Cookies): Promise<{
 	userId: number;
 	email: string;
 	rol: Rol;

@@ -5,7 +5,7 @@ import Header from './Header.svelte';
 
 // Tipo para el usuario del layout
 type LayoutData = {
-	user?: {
+	user: {
 		userId: number;
 		nombre: string;
 		email: string;
@@ -50,7 +50,7 @@ describe('Header', () => {
 	describe('Renderizado básico', () => {
 		it('debería renderizar el header', async () => {
 			render(Header, {
-				data: { user: undefined } as LayoutData,
+				data: { user: null } as LayoutData,
 				links: mockLinks,
 				investigadorLinks: mockInvestigadorLinks,
 				mobileMenuOpen: false,
@@ -62,7 +62,7 @@ describe('Header', () => {
 
 		it('debería mostrar el logo y nombre de la aplicación', async () => {
 			render(Header, {
-				data: { user: undefined } as LayoutData,
+				data: { user: null } as LayoutData,
 				links: mockLinks,
 				investigadorLinks: mockInvestigadorLinks,
 				mobileMenuOpen: false,
@@ -74,7 +74,7 @@ describe('Header', () => {
 
 		it('debería mostrar el botón del menú móvil', async () => {
 			render(Header, {
-				data: { user: undefined } as LayoutData,
+				data: { user: null } as LayoutData,
 				links: mockLinks,
 				investigadorLinks: mockInvestigadorLinks,
 				mobileMenuOpen: false,
@@ -293,7 +293,7 @@ describe('Header', () => {
 	describe('Menú móvil', () => {
 		it('debería llamar toggleMobileMenu al hacer clic en el botón', async () => {
 			render(Header, {
-				data: { user: undefined } as LayoutData,
+				data: { user: null } as LayoutData,
 				links: mockLinks,
 				investigadorLinks: mockInvestigadorLinks,
 				mobileMenuOpen: false,
@@ -356,7 +356,7 @@ describe('Header', () => {
 
 		it('no debería mostrar el menú móvil cuando mobileMenuOpen es false', async () => {
 			render(Header, {
-				data: { user: undefined } as LayoutData,
+				data: { user: null } as LayoutData,
 				links: mockLinks,
 				investigadorLinks: mockInvestigadorLinks,
 				mobileMenuOpen: false,
@@ -371,7 +371,7 @@ describe('Header', () => {
 	describe('Accesibilidad', () => {
 		it('debería tener el botón del menú móvil con aria-label', async () => {
 			render(Header, {
-				data: { user: undefined } as LayoutData,
+				data: { user: null } as LayoutData,
 				links: mockLinks,
 				investigadorLinks: mockInvestigadorLinks,
 				mobileMenuOpen: false,
@@ -384,7 +384,7 @@ describe('Header', () => {
 
 		it('debería tener el header con role banner', async () => {
 			render(Header, {
-				data: { user: undefined } as LayoutData,
+				data: { user: null } as LayoutData,
 				links: mockLinks,
 				investigadorLinks: mockInvestigadorLinks,
 				mobileMenuOpen: false,

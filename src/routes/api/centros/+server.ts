@@ -1,74 +1,26 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { apiKeys, lugares } from '$lib/server/db/schema';
+import { lugares } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-import {
-	checkApiRateLimit,
-	logApiRateLimit,
-	getApiRateLimitIdentifier
-} from '$lib/server/apiRateLimiter';
-import { logApiAccess } from '$lib/server/audit';
+import { validateApiKeyAndRateLimit } from '$lib/server/apiAuth';
 
 import type { RequestEvent } from './$types';
 
-export async function GET({ request, getClientAddress }: RequestEvent) {
-	const authHeader = request.headers.get('Authorization');
+export async function GET({ request, getClientAddress, url }: RequestEvent) {
+	const authResult = await validateApiKeyAndRateLimit(request, getClientAddress, url.pathname, 'GET');
 
-	if (!authHeader || !authHeader.startsWith('Bearer ')) {
-		return json({ error: 'Falta la API Key en el header Authorization' }, { status: 401 });
+	if (authResult.errorResponse) {
+		return authResult.errorResponse;
 	}
 
-	const key = authHeader.split(' ')[1];
-	const clientIp = getClientAddress();
-	const userAgent = request.headers.get('user-agent') ?? undefined;
-
-	// Validar la API key
-	const [apiKeyRecord] = await db.select().from(apiKeys).where(eq(apiKeys.key, key)).limit(1);
-
-	if (!apiKeyRecord) {
-		return json({ error: 'API Key inválida' }, { status: 401 });
-	}
-
-	// Rate limiting
-	const identifier = getApiRateLimitIdentifier(key, clientIp);
-	const rateLimitResult = await checkApiRateLimit(identifier, 'DEFAULT');
-
-	if (!rateLimitResult.allowed) {
-		return json(
-			{
-				error: 'Límite de solicitudes excedido',
-				retryAfter: rateLimitResult.resetIn
-			},
-			{
-				status: 429,
-				headers: {
-					'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000)),
-					'X-RateLimit-Limit': String(rateLimitResult.limit),
-					'X-RateLimit-Remaining': '0',
-					'X-RateLimit-Reset': String(Date.now() + rateLimitResult.resetIn)
-				}
-			}
-		);
-	}
-
-	// Registrar solicitud para rate limiting
-	await logApiRateLimit(identifier);
-
-	// Registrar acceso en auditoría (sin bloquear)
-	logApiAccess({
-		userId: apiKeyRecord.userId,
-		endpoint: '/api/centros',
-		method: 'GET',
-		ip: clientIp,
-		userAgent
-	}).catch(() => {});
+	const { userId, rateLimitResult } = authResult;
 
 	try {
 		// Fetch centros (lugares) for this user ID
 		const userCentros = await db
 			.select()
 			.from(lugares)
-			.where(eq(lugares.userId, apiKeyRecord.userId));
+			.where(eq(lugares.userId, userId));
 
 		// Incluir headers de rate limit en la respuesta
 		return json(

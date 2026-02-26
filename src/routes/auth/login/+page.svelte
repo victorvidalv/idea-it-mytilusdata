@@ -5,6 +5,8 @@
 	import { Label } from '$lib/components/ui/label';
 	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import toast from 'svelte-french-toast';
+	import LoginVisualPanel from '$lib/components/auth/LoginVisualPanel.svelte';
+	import LoginFooter from '$lib/components/auth/LoginFooter.svelte';
 
 	export let form: import('./$types').ActionData;
 
@@ -93,34 +95,7 @@
 
 <div class="relative flex min-h-screen overflow-hidden">
 	<!-- Panel izquierdo: Visual -->
-	<div class="bg-ocean-gradient relative hidden items-end overflow-hidden p-12 lg:flex lg:w-1/2">
-		<div class="bg-ocean-mesh absolute inset-0"></div>
-
-		<!-- Círculos decorativos -->
-		<div
-			class="animate-float absolute top-[20%] left-[15%] h-72 w-72 rounded-full border border-white/[0.06]"
-		></div>
-		<div
-			class="animate-float absolute top-[50%] right-[10%] h-48 w-48 rounded-full border border-teal-glow/10 delay-300"
-		></div>
-		<div
-			class="animate-float absolute bottom-[25%] left-[40%] h-32 w-32 rounded-full bg-ocean-light/[0.05] blur-2xl delay-500"
-		></div>
-
-		<!-- Texto decorativo -->
-		<div class="animate-fade-up relative z-10">
-			<p class="mb-4 font-body text-sm font-medium tracking-[0.3em] text-white/30 uppercase">
-				Acceso seguro
-			</p>
-			<h2 class="mb-4 font-display text-5xl leading-tight text-white/90">
-				Control de<br />
-				<span class="text-gradient-ocean italic">tus cultivos</span>
-			</h2>
-			<p class="max-w-sm font-body text-sm leading-relaxed text-white/40">
-				Ingresa desde cualquier dispositivo para monitorear la evolución de tus centros de cultivo.
-			</p>
-		</div>
-	</div>
+	<LoginVisualPanel />
 
 	<!-- Panel derecho: Formulario -->
 	<div class="relative flex flex-1 items-center justify-center bg-background p-6">
@@ -436,43 +411,7 @@
 				</form>
 			{/if}
 
-			<div class="mt-8 rounded-xl border border-ocean-light/20 bg-ocean-light/5 p-4 text-center">
-				<p class="text-xs leading-relaxed text-muted-foreground">
-					<span class="mb-1 block font-medium text-ocean-mid">Proyecto ANID</span>
-					El sistema se encuentra actualmente en fase Alpha. La hoja de ruta proyecta el lanzamiento del
-					Producto Mínimo Viable (MVP) para
-					<strong class="text-foreground">noviembre de 2026</strong>, con el objetivo de alcanzar la
-					Disponibilidad General (GA) en <strong class="text-foreground">agosto de 2027</strong>.
-				</p>
-				<div class="mt-4 border-t border-ocean-light/10 pt-4">
-					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-					<a
-						href="/acerca-de"
-						class="group inline-flex items-center text-xs font-semibold text-ocean-mid transition-colors hover:text-ocean-light"
-					>
-						Conocer más del proyecto
-						<svg
-							class="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 5l7 7-7 7"
-							/>
-						</svg>
-					</a>
-				</div>
-			</div>
-
-			<div class="mt-10 border-t border-border/50 pt-6 text-center">
-				<p class="font-body text-xs text-muted-foreground/60">
-					Plataforma Mitilicultura — MytilusData
-				</p>
-			</div>
+			<LoginFooter />
 		</div>
 	</div>
 </div>

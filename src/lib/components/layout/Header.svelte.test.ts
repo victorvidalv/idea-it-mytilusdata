@@ -6,11 +6,12 @@ import Header from './Header.svelte';
 // Tipo para el usuario del layout
 type LayoutData = {
 	user?: {
-		id: number;
+		userId: number;
 		nombre: string;
 		email: string;
 		rol: 'ADMIN' | 'INVESTIGADOR' | 'USUARIO';
-	};
+		sessionId: number;
+	} | null;
 };
 
 describe('Header', () => {
@@ -89,10 +90,11 @@ describe('Header', () => {
 		it('debería mostrar el nombre del usuario', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Juan Pérez',
 					email: 'juan@test.com',
-					rol: 'ADMIN'
+					rol: 'ADMIN',
+					sessionId: 1
 				}
 			};
 
@@ -110,10 +112,11 @@ describe('Header', () => {
 		it('debería mostrar la inicial del usuario en el avatar', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'María García',
 					email: 'maria@test.com',
-					rol: 'INVESTIGADOR'
+					rol: 'INVESTIGADOR',
+					sessionId: 1
 				}
 			};
 
@@ -136,10 +139,11 @@ describe('Header', () => {
 		it('debería mostrar "Administrador" para rol ADMIN', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Admin User',
 					email: 'admin@test.com',
-					rol: 'ADMIN'
+					rol: 'ADMIN',
+					sessionId: 1
 				}
 			};
 
@@ -157,10 +161,11 @@ describe('Header', () => {
 		it('debería mostrar "Usuario" para rol USUARIO', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Normal User',
 					email: 'user@test.com',
-					rol: 'USUARIO'
+					rol: 'USUARIO',
+					sessionId: 1
 				}
 			};
 
@@ -181,10 +186,11 @@ describe('Header', () => {
 		it('debería abrir el menú de usuario al hacer clic', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Juan Pérez',
 					email: 'juan@test.com',
-					rol: 'ADMIN'
+					rol: 'ADMIN',
+					sessionId: 1
 				}
 			};
 
@@ -197,7 +203,7 @@ describe('Header', () => {
 			});
 
 			// Hacer clic en el botón de usuario
-			const userButton = page.getByText('Juan Pérez').locator('..');
+			const userButton = page.getByRole('button', { name: /Juan Pérez/i });
 			await userButton.click();
 
 			// Verificar que el menú se abrió
@@ -207,10 +213,11 @@ describe('Header', () => {
 		it('debería mostrar el email del usuario en el menú', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Juan Pérez',
 					email: 'juan.perez@test.com',
-					rol: 'ADMIN'
+					rol: 'ADMIN',
+					sessionId: 1
 				}
 			};
 
@@ -223,7 +230,7 @@ describe('Header', () => {
 			});
 
 			// Abrir el menú
-			const userButton = page.getByText('Juan Pérez').locator('..');
+			const userButton = page.getByRole('button', { name: /Juan Pérez/i });
 			await userButton.click();
 
 			await expect.element(page.getByText('juan.perez@test.com')).toBeInTheDocument();
@@ -232,10 +239,11 @@ describe('Header', () => {
 		it('debería mostrar el enlace al perfil', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Juan Pérez',
 					email: 'juan@test.com',
-					rol: 'ADMIN'
+					rol: 'ADMIN',
+					sessionId: 1
 				}
 			};
 
@@ -248,7 +256,7 @@ describe('Header', () => {
 			});
 
 			// Abrir el menú
-			const userButton = page.getByText('Juan Pérez').locator('..');
+			const userButton = page.getByRole('button', { name: /Juan Pérez/i });
 			await userButton.click();
 
 			const perfilLink = page.getByRole('link', { name: /Mi Perfil/ });
@@ -258,10 +266,11 @@ describe('Header', () => {
 		it('debería mostrar el botón de cerrar sesión', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Juan Pérez',
 					email: 'juan@test.com',
-					rol: 'ADMIN'
+					rol: 'ADMIN',
+					sessionId: 1
 				}
 			};
 
@@ -274,7 +283,7 @@ describe('Header', () => {
 			});
 
 			// Abrir el menú
-			const userButton = page.getByText('Juan Pérez').locator('..');
+			const userButton = page.getByRole('button', { name: /Juan Pérez/i });
 			await userButton.click();
 
 			await expect.element(page.getByText('Cerrar Sesión')).toBeInTheDocument();
@@ -300,10 +309,11 @@ describe('Header', () => {
 		it('debería mostrar el menú móvil cuando mobileMenuOpen es true', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Juan Pérez',
 					email: 'juan@test.com',
-					rol: 'ADMIN'
+					rol: 'ADMIN',
+					sessionId: 1
 				}
 			};
 
@@ -323,10 +333,11 @@ describe('Header', () => {
 		it('debería mostrar enlaces de investigador cuando el rol es INVESTIGADOR', async () => {
 			const userData: LayoutData = {
 				user: {
-					id: 1,
+					userId: 1,
 					nombre: 'Investigador',
 					email: 'investigador@test.com',
-					rol: 'INVESTIGADOR'
+					rol: 'INVESTIGADOR',
+					sessionId: 1
 				}
 			};
 

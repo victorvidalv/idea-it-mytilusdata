@@ -6,12 +6,12 @@ Esta guía proporciona instrucciones detalladas para configurar y ejecutar el pr
 
 ### Software Necesario
 
-| Software | Versión Mínima | Versión Recomendada | Verificación |
-|----------|----------------|---------------------|--------------|
-| **Node.js** | 20.x | 24.x | `node --version` |
-| **npm** | 10.x | 11.x | `npm --version` |
-| **PostgreSQL** | 15.x | 16.x | `psql --version` |
-| **Git** | 2.x | último | `git --version` |
+| Software       | Versión Mínima | Versión Recomendada | Verificación     |
+| -------------- | -------------- | ------------------- | ---------------- |
+| **Node.js**    | 20.x           | 24.x                | `node --version` |
+| **npm**        | 10.x           | 11.x                | `npm --version`  |
+| **PostgreSQL** | 15.x           | 16.x                | `psql --version` |
+| **Git**        | 2.x            | último              | `git --version`  |
 
 ### Cuentas de Servicios Externos
 
@@ -39,15 +39,15 @@ cp .env.example .env
 
 ### Descripción de Variables
 
-| Variable | Requerido | Descripción | Ejemplo |
-|----------|-----------|-------------|---------|
-| `DATABASE_URL` | ✅ | URL de conexión a PostgreSQL | `postgresql://user:pass@host:5432/db?sslmode=require` |
-| `RESEND_API_KEY` | ✅ | API Key de Resend para envío de emails | `re_123456789...` |
-| `JWT_SECRET` | ✅ | Secreto para firmar JWT (mínimo 32 caracteres) | `tu-secreto-muy-seguro-de-32-chars-minimo` |
-| `EMAIL_FROM` | ✅ | Email remitente para Magic Links | `MytilusData <noreply@tudominio.com>` |
-| `INITIAL_ADMIN_EMAIL` | ⚠️ | Email del administrador inicial | `admin@tudominio.com` |
-| `TURNSTILE_SECRET_KEY` | 🔶 | Clave secreta de Cloudflare Turnstile | `0x4AAAA...` |
-| `PUBLIC_TURNSTILE_SITE_KEY` | 🔶 | Clave pública de Cloudflare Turnstile | `0x4AAAA...` |
+| Variable                    | Requerido | Descripción                                    | Ejemplo                                               |
+| --------------------------- | --------- | ---------------------------------------------- | ----------------------------------------------------- |
+| `DATABASE_URL`              | ✅        | URL de conexión a PostgreSQL                   | `postgresql://user:pass@host:5432/db?sslmode=require` |
+| `RESEND_API_KEY`            | ✅        | API Key de Resend para envío de emails         | `re_123456789...`                                     |
+| `JWT_SECRET`                | ✅        | Secreto para firmar JWT (mínimo 32 caracteres) | `tu-secreto-muy-seguro-de-32-chars-minimo`            |
+| `EMAIL_FROM`                | ✅        | Email remitente para Magic Links               | `MytilusData <noreply@tudominio.com>`                 |
+| `INITIAL_ADMIN_EMAIL`       | ⚠️        | Email del administrador inicial                | `admin@tudominio.com`                                 |
+| `TURNSTILE_SECRET_KEY`      | 🔶        | Clave secreta de Cloudflare Turnstile          | `0x4AAAA...`                                          |
+| `PUBLIC_TURNSTILE_SITE_KEY` | 🔶        | Clave pública de Cloudflare Turnstile          | `0x4AAAA...`                                          |
 
 > **Leyenda**: ✅ Requerido | ⚠️ Requerido para setup inicial | 🔶 Opcional (recomendado para producción)
 
@@ -64,6 +64,7 @@ openssl rand -hex 64
 ### Configuración por Ambiente
 
 #### Desarrollo Local
+
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mytilusdata"
 RESEND_API_KEY="re_dev_..."
@@ -74,6 +75,7 @@ INITIAL_ADMIN_EMAIL="admin@localhost.com"
 ```
 
 #### Producción
+
 ```env
 DATABASE_URL="postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require"
 RESEND_API_KEY="re_live_..."
@@ -151,11 +153,13 @@ npm run create-admin
 ```
 
 Este comando:
+
 1. Busca el usuario con el email especificado
 2. Si existe, actualiza su rol a `ADMIN`
 3. Si no existe, muestra un error indicando que el usuario debe registrarse primero
 
 **Flujo recomendado:**
+
 1. Configura `INITIAL_ADMIN_EMAIL` con tu email
 2. Inicia la aplicación: `npm run dev`
 3. Regístrate en la aplicación con ese email
@@ -171,6 +175,7 @@ npm run poblar
 ```
 
 Esto creará:
+
 - Tipos de registro (talla, biomasa, temperatura agua, etc.)
 - Orígenes de datos (manual, satelital, PSMB)
 - Usuario administrador de prueba
@@ -185,45 +190,45 @@ npm run limpiar
 
 ### Desarrollo
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Inicia servidor de desarrollo en `http://localhost:5173` |
-| `npm run build` | Compila la aplicación para producción |
-| `npm run preview` | Previsualiza la build de producción |
+| Comando           | Descripción                                              |
+| ----------------- | -------------------------------------------------------- |
+| `npm run dev`     | Inicia servidor de desarrollo en `http://localhost:5173` |
+| `npm run build`   | Compila la aplicación para producción                    |
+| `npm run preview` | Previsualiza la build de producción                      |
 
 ### Calidad de Código
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run check` | Verificación de tipos con svelte-check |
-| `npm run check:watch` | Verificación en modo watch |
-| `npm run lint` | Ejecuta ESLint y Prettier check |
-| `npm run format` | Formatea código con Prettier |
+| Comando               | Descripción                            |
+| --------------------- | -------------------------------------- |
+| `npm run check`       | Verificación de tipos con svelte-check |
+| `npm run check:watch` | Verificación en modo watch             |
+| `npm run lint`        | Ejecuta ESLint y Prettier check        |
+| `npm run format`      | Formatea código con Prettier           |
 
 ### Testing
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run test:unit` | Ejecuta tests unitarios con Vitest |
-| `npm run test:e2e` | Ejecuta tests E2E con Playwright |
-| `npm run test` | Ejecuta todos los tests (unit + e2e) |
+| Comando             | Descripción                          |
+| ------------------- | ------------------------------------ |
+| `npm run test:unit` | Ejecuta tests unitarios con Vitest   |
+| `npm run test:e2e`  | Ejecuta tests E2E con Playwright     |
+| `npm run test`      | Ejecuta todos los tests (unit + e2e) |
 
 ### Base de Datos
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run db:push` | Sincroniza esquema con BD (desarrollo) |
+| Comando               | Descripción                                |
+| --------------------- | ------------------------------------------ |
+| `npm run db:push`     | Sincroniza esquema con BD (desarrollo)     |
 | `npm run db:generate` | Genera migraciones desde cambios en schema |
-| `npm run db:migrate` | Aplica migraciones pendientes |
-| `npm run db:studio` | Abre Drizzle Studio |
+| `npm run db:migrate`  | Aplica migraciones pendientes              |
+| `npm run db:studio`   | Abre Drizzle Studio                        |
 
 ### Scripts de Utilidad
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run poblar` | Pobla BD con datos de ejemplo |
-| `npm run limpiar` | Limpia datos de ejemplo |
-| `npm run create-admin` | Crea administrador inicial |
+| Comando                | Descripción                   |
+| ---------------------- | ----------------------------- |
+| `npm run poblar`       | Pobla BD con datos de ejemplo |
+| `npm run limpiar`      | Limpia datos de ejemplo       |
+| `npm run create-admin` | Crea administrador inicial    |
 
 ## Configuración de Base de Datos con Drizzle
 
@@ -235,27 +240,27 @@ El esquema de la base de datos está definido en [`src/lib/server/db/schema.ts`]
 
 ```typescript
 // Sistema de Acceso
-usuarios         // Usuarios del sistema
-magicLinkTokens  // Tokens para autenticación passwordless
-sesiones         // Sesiones activas
+usuarios; // Usuarios del sistema
+magicLinkTokens; // Tokens para autenticación passwordless
+sesiones; // Sesiones activas
 
 // Estructura Productiva
-lugares          // Centros de cultivo (con coordenadas)
-ciclos           // Ciclos productivos
+lugares; // Centros de cultivo (con coordenadas)
+ciclos; // Ciclos productivos
 
 // Tablas Maestras
-tiposRegistro    // Tipos de medición (talla, biomasa, etc.)
-origenDatos      // Origen de datos (manual, satelital, PSMB)
+tiposRegistro; // Tipos de medición (talla, biomasa, etc.)
+origenDatos; // Origen de datos (manual, satelital, PSMB)
 
 // Hechos
-mediciones       // Mediciones registradas
+mediciones; // Mediciones registradas
 
 // Seguridad y Auditoría
-rateLimitLogs    // Logs de rate limiting
-emailCooldowns   // Control de envío de emails
-auditLogs        // Registro de auditoría
-apiKeys          // Claves de API
-consentimientos  // Consentimientos legales
+rateLimitLogs; // Logs de rate limiting
+emailCooldowns; // Control de envío de emails
+auditLogs; // Registro de auditoría
+apiKeys; // Claves de API
+consentimientos; // Consentimientos legales
 ```
 
 ### Archivo de Configuración
@@ -266,12 +271,12 @@ consentimientos  // Consentimientos legales
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
-  schema: './src/lib/server/db/schema.ts',
-  out: './drizzle',
-  dialect: 'postgresql',
-  dbCredentials: {
-    url: process.env.DATABASE_URL!
-  }
+	schema: './src/lib/server/db/schema.ts',
+	out: './drizzle',
+	dialect: 'postgresql',
+	dbCredentials: {
+		url: process.env.DATABASE_URL!
+	}
 });
 ```
 

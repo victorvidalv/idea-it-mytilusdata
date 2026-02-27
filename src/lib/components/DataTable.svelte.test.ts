@@ -389,7 +389,7 @@ describe('DataTable', () => {
 				{
 					key: 'nombre',
 					label: 'Nombre Completo',
-					accessor: (row: (typeof mockData)[0]) => `${row.nombre} (${row.codigo})`
+					accessor: (row: Record<string, unknown>) => `${row.nombre} (${row.codigo})`
 				}
 			];
 

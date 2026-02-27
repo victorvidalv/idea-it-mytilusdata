@@ -504,6 +504,36 @@ X-RateLimit-Reset: 1709012345678
 
 ---
 
+## Validación de Datos
+
+Los endpoints de API aplican validación del lado del servidor utilizando esquemas Zod centralizados.
+
+### Esquemas de Validación
+
+Los esquemas están definidos en [`src/lib/validations/index.ts`](../src/lib/validations/index.ts):
+
+| Esquema          | Endpoint Aplicado     | Validaciones                              |
+| ---------------- | --------------------- | ----------------------------------------- |
+| `centroSchema`   | POST centros (web)    | nombre 2-100 chars, latitud -90 a 90, longitud -180 a 180 |
+| `cicloSchema`    | POST ciclos (web)     | nombre 2-100 chars, fechaSiembra requerida, lugarId positivo |
+| `registroSchema` | POST registros (web)  | valor numérico, fechaMedicion requerida, tipoId/origenId positivos |
+
+### Errores de Validación
+
+Cuando un formulario envía datos inválidos, la respuesta incluye:
+
+```json
+{
+    "error": true,
+    "message": "El nombre debe tener al menos 2 caracteres",
+    "errors": {
+        "nombre": ["El nombre debe tener al menos 2 caracteres"]
+    }
+}
+```
+
+---
+
 ## Códigos de Error HTTP
 
 ### Resumen de Códigos

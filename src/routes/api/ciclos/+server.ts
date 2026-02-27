@@ -7,7 +7,12 @@ import { validateApiKeyAndRateLimit } from '$lib/server/apiAuth';
 import type { RequestEvent } from './$types';
 
 export async function GET({ request, getClientAddress, url }: RequestEvent) {
-	const authResult = await validateApiKeyAndRateLimit(request, getClientAddress, url.pathname, 'GET');
+	const authResult = await validateApiKeyAndRateLimit(
+		request,
+		getClientAddress,
+		url.pathname,
+		'GET'
+	);
 
 	if (authResult.errorResponse) {
 		return authResult.errorResponse;

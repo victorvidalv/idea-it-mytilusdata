@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { RequestEvent } from '@sveltejs/kit';
+import type { RouteParams } from '../../routes/auth/logout/$types';
 
 // Crear mocks con vi.hoisted antes de las importaciones
 const mockInvalidateSession = vi.hoisted(() => vi.fn());
@@ -37,7 +38,9 @@ interface LogoutTestOptions {
 }
 
 // Helper para crear RequestEvent mock para POST
-function createLogoutRequestEvent(overrides: LogoutTestOptions = {}): RequestEvent {
+function createLogoutRequestEvent(
+	overrides: LogoutTestOptions = {}
+): RequestEvent<RouteParams, '/auth/logout'> {
 	const event = {
 		cookies: {
 			get: vi.fn(),
@@ -63,7 +66,7 @@ function createLogoutRequestEvent(overrides: LogoutTestOptions = {}): RequestEve
 		method: 'POST'
 	};
 
-	return event as unknown as RequestEvent;
+	return event as unknown as RequestEvent<RouteParams, '/auth/logout'>;
 }
 
 // Importar después de configurar los mocks

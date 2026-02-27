@@ -7,7 +7,12 @@ import { validateApiKeyAndRateLimit } from '$lib/server/apiAuth';
 import type { RequestEvent } from './$types';
 
 export async function GET({ request, getClientAddress, url }: RequestEvent) {
-	const authResult = await validateApiKeyAndRateLimit(request, getClientAddress, url.pathname, 'GET');
+	const authResult = await validateApiKeyAndRateLimit(
+		request,
+		getClientAddress,
+		url.pathname,
+		'GET'
+	);
 
 	if (authResult.errorResponse) {
 		return authResult.errorResponse;
@@ -17,10 +22,7 @@ export async function GET({ request, getClientAddress, url }: RequestEvent) {
 
 	try {
 		// Fetch centros (lugares) for this user ID
-		const userCentros = await db
-			.select()
-			.from(lugares)
-			.where(eq(lugares.userId, userId));
+		const userCentros = await db.select().from(lugares).where(eq(lugares.userId, userId));
 
 		// Incluir headers de rate limit en la respuesta
 		return json(

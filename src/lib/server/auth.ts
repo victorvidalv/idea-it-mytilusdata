@@ -13,12 +13,7 @@ import {
 } from './rateLimiter';
 
 import { ROLES, type Rol } from './auth/roles';
-import {
-	hashToken,
-	createSession,
-	invalidateSession,
-	validateSession
-} from './auth/sessions';
+import { hashToken, createSession, invalidateSession, validateSession } from './auth/sessions';
 
 // Re-export roles explicitly so other code doesn't break
 export { ROLES, requireRole, hasMinRole } from './auth/roles';

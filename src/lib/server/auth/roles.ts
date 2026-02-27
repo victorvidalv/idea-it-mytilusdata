@@ -4,18 +4,18 @@ import { redirect } from '@sveltejs/kit';
 
 /** Jerarquía de roles: mayor índice = mayor privilegio */
 export const ROLES = {
-    USUARIO: 'USUARIO',
-    INVESTIGADOR: 'INVESTIGADOR',
-    ADMIN: 'ADMIN'
+	USUARIO: 'USUARIO',
+	INVESTIGADOR: 'INVESTIGADOR',
+	ADMIN: 'ADMIN'
 } as const;
 
 export type Rol = (typeof ROLES)[keyof typeof ROLES];
 
 /** Niveles numéricos para comparación jerárquica */
 const ROLE_LEVEL: Record<Rol, number> = {
-    USUARIO: 0,
-    INVESTIGADOR: 1,
-    ADMIN: 2
+	USUARIO: 0,
+	INVESTIGADOR: 1,
+	ADMIN: 2
 };
 
 /**
@@ -23,15 +23,15 @@ const ROLE_LEVEL: Record<Rol, number> = {
  * Lanza redirect a /dashboard si no tiene permisos.
  */
 export function requireRole(userRol: Rol | undefined, minRole: Rol): void {
-    if (!userRol || ROLE_LEVEL[userRol] < ROLE_LEVEL[minRole]) {
-        throw redirect(303, '/dashboard');
-    }
+	if (!userRol || ROLE_LEVEL[userRol] < ROLE_LEVEL[minRole]) {
+		throw redirect(303, '/dashboard');
+	}
 }
 
 /**
  * Verificar si un rol es igual o superior a otro (sin lanzar redirect).
  */
 export function hasMinRole(userRol: Rol | undefined, minRole: Rol): boolean {
-    if (!userRol) return false;
-    return ROLE_LEVEL[userRol] >= ROLE_LEVEL[minRole];
+	if (!userRol) return false;
+	return ROLE_LEVEL[userRol] >= ROLE_LEVEL[minRole];
 }

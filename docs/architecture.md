@@ -249,10 +249,12 @@ sequenceDiagram
         F-->>U: Muestra countdown
     else OK
         S->>DB: Busca/crea usuario
-        S->>DB: Crea magic_link_token
+        S->>S: Genera token aleatorio (32 bytes)
+        S->>S: Hashea token con SHA-256
+        S->>DB: Almacena hash en magic_link_token
         S->>DB: Registra rate limit attempt
         S->>DB: Actualiza email cooldown
-        S->>R: Envía email con magic link
+        S->>R: Envía email con token original
         R-->>U: Email entregado
         S-->>F: Success - Email enviado
         F-->>U: Muestra confirmación
@@ -262,13 +264,38 @@ sequenceDiagram
 
     U->>F: Clic en magic link
     F->>S: GET /auth/callback?token=xxx
+    S->>S: Hashea token recibido con SHA-256
+    S->>DB: Busca token por hash
     S->>DB: Verifica token - válido, no usado, no expirado
     S->>DB: Marca token como usado
-    S->>DB: Crea sesión en BD
+    S->>DB: Crea sesión en BD (token hasheado)
     S->>S: Genera JWT con sessionId
     S-->>F: Set-Cookie: session=jwt
     F->>F: Redirige a /dashboard
 ```
+
+### Seguridad de Tokens
+
+Los tokens de Magic Link y sesiones utilizan hash SHA-256 para almacenamiento seguro:
+
+| Tipo de Token    | Almacenamiento | Validación                    |
+| ---------------- | -------------- | ----------------------------- |
+| Magic Link Token | Hash SHA-256   | Token original solo en URL    |
+| Session Token    | Hash SHA-256   | Hash en JWT, hash en BD       |
+
+**Implementación** ([`src/lib/server/auth/sessions.ts`](../src/lib/server/auth/sessions.ts)):
+
+```typescript
+// Generación de hash para almacenamiento
+export function hashToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+}
+```
+
+**Beneficios**:
+- Si la BD se compromete, los tokens hasheados son inútiles sin el original
+- El token original nunca se almacena, solo se usa en la URL del email
+- Las sesiones también usan hash para mayor seguridad
 
 ### Validación de Sesión
 
@@ -595,6 +622,105 @@ graph TB
     UsuarioB --> |Solo ve sus datos| DB
     Admin --> |Ve todos los usuarios| DB
 ```
+
+## Sistema de Validación de Datos
+
+El sistema utiliza **Zod** para validación type-safe de datos de entrada en formularios y API.
+
+### Ubicación
+
+Los esquemas de validación están centralizados en [`src/lib/validations/index.ts`](../src/lib/validations/index.ts).
+
+### Esquemas Disponibles
+
+| Esquema         | Uso                                    | Campos Principales                          |
+| --------------- | -------------------------------------- | ------------------------------------------- |
+| `loginSchema`   | Autenticación                          | `email`, `nombre` (opcional)                |
+| `centroSchema`  | Crear/editar centros de cultivo        | `nombre`, `latitud`, `longitud`             |
+| `cicloSchema`   | Crear/editar ciclos productivos        | `nombre`, `fechaSiembra`, `lugarId`         |
+| `registroSchema`| Crear registros de medición            | `valor`, `fechaMedicion`, `tipoId`, `origenId`, `cicloId` |
+
+### Uso en Form Actions
+
+```typescript
+import { centroSchema, parseFormData } from '$lib/validations';
+
+export const actions = {
+    create: async ({ request, locals }) => {
+        const formData = await request.formData();
+        const validated = await parseFormData(centroSchema, formData);
+        
+        if (!validated.success) {
+            return validated.response; // Retorna fail(400, { errors })
+        }
+        
+        const { nombre, latitud, longitud } = validated.data;
+        // ... lógica de negocio
+    }
+};
+```
+
+### Funciones de Utilidad
+
+| Función            | Propósito                                      |
+| ------------------ | ---------------------------------------------- |
+| `validateFormData()` | Valida datos contra esquema, retorna resultado estructurado |
+| `parseFormData()`    | Parsea FormData, valida y retorna datos o fail() |
+
+### Beneficios
+
+- **Type safety**: Tipos inferidos automáticamente con `z.infer<typeof schema>`
+- **Mensajes consistentes**: Errores en español para usuario final
+- **Validación centralizada**: Un solo lugar para reglas de validación
+- **Integración SvelteKit**: Retorna `fail()` directamente para form actions
+
+## Optimizaciones de Rendimiento
+
+### Resolución de Problemas N+1
+
+El sistema implementa optimizaciones para evitar consultas N+1 en cargas de datos relacionales.
+
+#### Ejemplo: Carga de Centros con Conteo de Ciclos
+
+**Problema original** (N+1 queries):
+```typescript
+// ❌ Ineficiente: 1 query por cada centro
+for (const centro of centros) {
+    const ciclos = await db.select().from(ciclos).where(eq(ciclos.lugarId, centro.id));
+    centro.totalCiclos = ciclos.length;
+}
+```
+
+**Solución implementada** ([`src/routes/(app)/centros/+page.server.ts`](../src/routes/(app)/centros/+page.server.ts)):
+```typescript
+// ✅ Eficiente: 1 query con GROUP BY
+const lugarIds = centrosList.map((c) => c.id);
+const ciclosPorLugar = await db
+    .select({ lugarId: ciclos.lugarId, total: count() })
+    .from(ciclos)
+    .where(inArray(ciclos.lugarId, lugarIds))
+    .groupBy(ciclos.lugarId);
+
+// Mapa para acceso O(1)
+const conteoMap = new Map(ciclosPorLugar.map((c) => [c.lugarId, c.total]));
+```
+
+#### Patrón General
+
+1. **Cargar entidades principales** en una query
+2. **Extraer IDs** de las entidades cargadas
+3. **Ejecutar una query agregada** con `GROUP BY` para obtener conteos/sumas
+4. **Crear mapa** para acceso O(1) por ID
+5. **Combinar datos** en memoria
+
+### Otras Optimizaciones
+
+| Área              | Técnica                              | Beneficio                      |
+| ----------------- | ------------------------------------ | ------------------------------ |
+| Autenticación     | Hash SHA-256 + índice único          | Búsqueda rápida de tokens      |
+| Rate Limiting     | Consulta con ventana temporal        | Solo registros recientes       |
+| API Keys          | Índice en `key_hash`                 | Validación rápida              |
+| Sesiones          | Índice compuesto (userId, expiresAt) | Listado de sesiones activas    |
 
 ## Decisiones Arquitectónicas
 

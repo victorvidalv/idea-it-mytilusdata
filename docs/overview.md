@@ -166,13 +166,14 @@ ADMIN > INVESTIGADOR > USUARIO
 | **Vitest**     | 4.0.18  | Testing unitario |
 | **Playwright** | 1.58.1  | Testing E2E      |
 
-### Utilidades
+### Validación y Utilidades
 
-| Tecnología       | Versión | Propósito           |
-| ---------------- | ------- | ------------------- |
-| **ExcelJS**      | 4.4.0   | Generación de Excel |
-| **jsonwebtoken** | 9.0.3   | Manejo de JWT       |
-| **mode-watcher** | 1.1.0   | Tema claro/oscuro   |
+| Tecnología       | Versión | Propósito                    |
+| ---------------- | ------- | ---------------------------- |
+| **Zod**          | 3.24.4  | Validación de esquemas       |
+| **ExcelJS**      | 4.4.0   | Generación de Excel          |
+| **jsonwebtoken** | 9.0.3   | Manejo de JWT                |
+| **mode-watcher** | 1.1.0   | Tema claro/oscuro            |
 
 ## Estructura de Directorios
 
@@ -216,10 +217,12 @@ plataforma_idea2025/
 │   │   │   ├── rateLimiter.ts   # Rate limiting login
 │   │   │   ├── apiRateLimiter.ts # Rate limiting API
 │   │   │   ├── captcha.ts       # Verificación CAPTCHA
-│   │   │   └── audit.ts         # Registro de auditoría
+│   │   │             └── audit.ts         # Registro de auditoría
 │   │   │
 │   │   ├── hooks/               # Hooks personalizados
 │   │   ├── assets/              # Recursos estáticos
+│   │   ├── validations/         # Esquemas Zod para validación
+│   │   │   └── index.ts         # Esquemas y helpers de validación
 │   │   ├── utils.ts             # Utilidades generales
 │   │   └── index.ts             # Exports públicos
 │   │

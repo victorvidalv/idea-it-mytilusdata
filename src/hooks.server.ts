@@ -1,5 +1,6 @@
 import { authGuard } from '$lib/server/auth';
-import { redirect, type Handle } from '@sveltejs/kit';
+import { validateApiKey } from '$lib/server/apiAuth';
+import { redirect, json, type Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// AuthGuard ahora es async y valida sesión en BD
@@ -10,6 +11,31 @@ export const handle: Handle = async ({ event, resolve }) => {
 		event.locals.user = user;
 	} else {
 		event.locals.user = null;
+	}
+
+	// Protección de rutas /api/ - requiere autenticación (sesión O API Key)
+	if (event.url.pathname.startsWith('/api/')) {
+		let isAuthenticated = false;
+
+		// Si ya hay sesión de usuario válida, está autenticado
+		if (event.locals.user) {
+			isAuthenticated = true;
+		} else {
+			// Intentar autenticación por API Key usando la función extraída
+			const authHeader = event.request.headers.get('Authorization');
+			const apiKeyResult = await validateApiKey(authHeader);
+
+			if (apiKeyResult.valid && apiKeyResult.userId) {
+				// API Key válida - inyectar userId en locals para uso de endpoints
+				event.locals.apiUserId = apiKeyResult.userId;
+				isAuthenticated = true;
+			}
+		}
+
+		// Si no hay autenticación válida, rechazar
+		if (!isAuthenticated) {
+			return json({ error: 'Se requiere autenticación' }, { status: 401 });
+		}
 	}
 
 	// Redirigir si no está logeado y trata de acceder a rutas protegidas

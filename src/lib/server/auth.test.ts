@@ -81,7 +81,9 @@ import {
 	createSession,
 	invalidateSession,
 	invalidateAllUserSessions,
-	validateSession
+	validateSession,
+	authGuard,
+	createMagicLink
 } from './auth';
 
 describe('Auth Module', () => {
@@ -124,6 +126,15 @@ describe('Auth Module', () => {
 			expect(hasMinRole(undefined, 'USUARIO')).toBe(false);
 			expect(hasMinRole(undefined, 'ADMIN')).toBe(false);
 		});
+
+		it('should return false when user has an unrecognized role (fail-closed)', () => {
+			// @ts-expect-error - Testing runtime behavior with invalid role
+			expect(hasMinRole('HACKER', 'USUARIO')).toBe(false);
+			// @ts-expect-error - Testing runtime behavior with invalid role
+			expect(hasMinRole('INVALID_ROLE', 'ADMIN')).toBe(false);
+			// @ts-expect-error - Testing runtime behavior with invalid role
+			expect(hasMinRole('SUPERADMIN', 'USUARIO')).toBe(false);
+		});
 	});
 
 	describe('requireRole', () => {
@@ -143,6 +154,15 @@ describe('Auth Module', () => {
 
 		it('should throw redirect when user has no role', () => {
 			expect(() => requireRole(undefined, 'USUARIO')).toThrow();
+		});
+
+		it('should throw redirect when user has an unrecognized role (fail-closed)', () => {
+			// @ts-expect-error - Testing runtime behavior with invalid role
+			expect(() => requireRole('HACKER', 'USUARIO')).toThrow();
+			// @ts-expect-error - Testing runtime behavior with invalid role
+			expect(() => requireRole('INVALID_ROLE', 'ADMIN')).toThrow();
+			// @ts-expect-error - Testing runtime behavior with invalid role
+			expect(() => requireRole('SUPERADMIN', 'USUARIO')).toThrow();
 		});
 	});
 
@@ -352,6 +372,219 @@ describe('Auth Module', () => {
 			expect(result).not.toBeNull();
 			expect(result?.session).toEqual(mockSession);
 			expect(result?.user).toEqual(mockUser);
+		});
+	});
+
+	describe('authGuard - Privilege Escalation Prevention', () => {
+		const mockCookies = {
+			get: vi.fn(),
+			set: vi.fn(),
+			delete: vi.fn(),
+			getAll: vi.fn()
+		};
+
+		it('should reject access when JWT role does not match current DB role (privilege escalation)', async () => {
+			// Simular JWT con rol ADMIN (escalado)
+			mockVerify.mockReturnValue({
+				sessionId: 1,
+				sessionTokenHash: 'hash',
+				userId: 1,
+				email: 'test@example.com',
+				rol: 'ADMIN', // Rol en JWT es ADMIN
+				nombre: 'Test User'
+			});
+
+			// Simular sesión válida pero con rol USUARIO en BD (rol fue degradado)
+			const mockSession = {
+				id: 1,
+				tokenHash: 'hash',
+				invalidatedAt: null,
+				expiresAt: new Date(Date.now() + 86400000)
+			};
+			const mockUser = {
+				id: 1,
+				activo: true,
+				email: 'test@example.com',
+				rol: 'USUARIO', // Rol en BD es USUARIO (diferente al JWT)
+				nombre: 'Test User'
+			};
+
+			mockCookies.get.mockReturnValue('valid-jwt-token');
+			mockSelect.mockReturnValue({
+				from: mockFrom.mockReturnValue({
+					innerJoin: mockInnerJoin.mockReturnValue({
+						where: mockWhere.mockReturnValue({
+							limit: mockLimit.mockResolvedValue([
+								{ session: mockSession, user: mockUser }
+							])
+						})
+					})
+				})
+			});
+			mockUpdate.mockReturnValue({
+				set: mockSet.mockReturnValue({
+					where: mockWhere.mockResolvedValue(undefined)
+				})
+			});
+
+			const result = await authGuard(mockCookies as unknown as import('@sveltejs/kit').Cookies);
+
+			// Debe rechazar el acceso (retorna null)
+			expect(result).toBeNull();
+			// Debe eliminar la cookie de sesión
+			expect(mockCookies.delete).toHaveBeenCalledWith('session', { path: '/' });
+		});
+
+		it('should reject access when JWT has INVESTIGADOR but DB has USUARIO (downgrade)', async () => {
+			mockVerify.mockReturnValue({
+				sessionId: 1,
+				sessionTokenHash: 'hash',
+				userId: 1,
+				email: 'test@example.com',
+				rol: 'INVESTIGADOR',
+				nombre: 'Test User'
+			});
+
+			const mockSession = {
+				id: 1,
+				tokenHash: 'hash',
+				invalidatedAt: null,
+				expiresAt: new Date(Date.now() + 86400000)
+			};
+			const mockUser = {
+				id: 1,
+				activo: true,
+				email: 'test@example.com',
+				rol: 'USUARIO',
+				nombre: 'Test User'
+			};
+
+			mockCookies.get.mockReturnValue('valid-jwt-token');
+			mockSelect.mockReturnValue({
+				from: mockFrom.mockReturnValue({
+					innerJoin: mockInnerJoin.mockReturnValue({
+						where: mockWhere.mockReturnValue({
+							limit: mockLimit.mockResolvedValue([
+								{ session: mockSession, user: mockUser }
+							])
+						})
+					})
+				})
+			});
+			mockUpdate.mockReturnValue({
+				set: mockSet.mockReturnValue({
+					where: mockWhere.mockResolvedValue(undefined)
+				})
+			});
+
+			const result = await authGuard(mockCookies as unknown as import('@sveltejs/kit').Cookies);
+
+			expect(result).toBeNull();
+			expect(mockCookies.delete).toHaveBeenCalledWith('session', { path: '/' });
+		});
+
+		it('should allow access when JWT role matches DB role', async () => {
+			mockVerify.mockReturnValue({
+				sessionId: 1,
+				sessionTokenHash: 'hash',
+				userId: 1,
+				email: 'test@example.com',
+				rol: 'ADMIN',
+				nombre: 'Test User'
+			});
+
+			const mockSession = {
+				id: 1,
+				tokenHash: 'hash',
+				invalidatedAt: null,
+				expiresAt: new Date(Date.now() + 86400000)
+			};
+			const mockUser = {
+				id: 1,
+				activo: true,
+				email: 'test@example.com',
+				rol: 'ADMIN', // Mismo rol en JWT y BD
+				nombre: 'Test User'
+			};
+
+			mockCookies.get.mockReturnValue('valid-jwt-token');
+			mockSelect.mockReturnValue({
+				from: mockFrom.mockReturnValue({
+					innerJoin: mockInnerJoin.mockReturnValue({
+						where: mockWhere.mockReturnValue({
+							limit: mockLimit.mockResolvedValue([
+								{ session: mockSession, user: mockUser }
+							])
+						})
+					})
+				})
+			});
+
+			const result = await authGuard(mockCookies as unknown as import('@sveltejs/kit').Cookies);
+
+			expect(result).not.toBeNull();
+			expect(result?.rol).toBe('ADMIN');
+		});
+	});
+
+	describe('createMagicLink - Blocked IP', () => {
+		it('should reject authentication when IP is blocked by rate limiting', async () => {
+			// Simular email rate limit OK
+			mockCheckRateLimit.mockResolvedValueOnce({
+				allowed: true,
+				remainingAttempts: 3
+			});
+
+			// Simular IP bloqueada por rate limiting
+			mockCheckRateLimit.mockResolvedValueOnce({
+				allowed: false,
+				remainingAttempts: 0,
+				resetIn: 600000,
+				message: 'Demasiados intentos desde esta dirección. Intenta nuevamente en 10 minutos.'
+			});
+
+			mockCheckEmailCooldown.mockResolvedValue({
+				allowed: true,
+				remainingSeconds: 0
+			});
+
+			const result = await createMagicLink(
+				'test@example.com',
+				'Test User',
+				'http://localhost:5173',
+				'Mozilla/5.0',
+				'192.168.1.100' // IP bloqueada
+			);
+
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.status).toBe(429);
+				expect(result.error).toContain('Demasiados intentos desde esta dirección');
+			}
+		});
+
+		it('should reject authentication when email is blocked by rate limiting', async () => {
+			// Simular email bloqueado por rate limiting
+			mockCheckRateLimit.mockResolvedValueOnce({
+				allowed: false,
+				remainingAttempts: 0,
+				resetIn: 3600000,
+				message: 'Demasiados intentos para este correo. Intenta nuevamente en 1 hora.'
+			});
+
+			const result = await createMagicLink(
+				'spam@example.com',
+				'Spam User',
+				'http://localhost:5173',
+				'Mozilla/5.0',
+				'10.0.0.1'
+			);
+
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.status).toBe(429);
+				expect(result.error).toContain('Demasiados intentos para este correo');
+			}
 		});
 	});
 });

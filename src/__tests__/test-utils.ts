@@ -1,12 +1,15 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import { vi } from 'vitest';
 
-// Tipos parciales para mocks
-export type PartialRequestEvent = Partial<RequestEvent>;
+// Tipos parciales para mocks (se usa Record para evitar conflictos con tipos internos de SvelteKit)
+export type PartialRequestEvent = Record<string, unknown>;
 
-// Factory function para crear RequestEvent mockeado
+/**
+ * Crear un RequestEvent mock genérico para tests.
+ * Se usa doble cast a `unknown` para evitar que TS rechace el tipo literal de route.id.
+ */
 export function createMockRequestEvent(overrides: PartialRequestEvent = {}): RequestEvent {
-	return {
+	const base = {
 		cookies: {
 			get: vi.fn(),
 			set: vi.fn(),
@@ -27,7 +30,9 @@ export function createMockRequestEvent(overrides: PartialRequestEvent = {}): Req
 		isSubRequest: false,
 		method: 'GET',
 		...overrides
-	} as RequestEvent;
+	};
+
+	return base as unknown as RequestEvent;
 }
 
 // Mock de usuario autenticado
@@ -66,7 +71,10 @@ interface ApiRequestEventOptions {
 	user?: { userId: number; rol: string } | null;
 }
 
-// Helper para crear RequestEvent mock para endpoints de API con autenticación por API Key
+/**
+ * Crear un RequestEvent mock para endpoints de API con autenticación por API Key.
+ * Se usa doble cast a `unknown` para evitar que TS rechace el tipo literal de route.id.
+ */
 export function createApiRequestEvent(options: ApiRequestEventOptions = {}): RequestEvent {
 	const headers = new Map<string, string>();
 	if (options.authorization !== undefined && options.authorization !== null) {

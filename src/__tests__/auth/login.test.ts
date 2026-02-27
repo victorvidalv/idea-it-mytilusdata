@@ -1,3 +1,4 @@
+// @ts-nocheck — Los tipos de ruta generados por SvelteKit crean incompatibilidades en mocks de test
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { RequestEvent } from '@sveltejs/kit';
 

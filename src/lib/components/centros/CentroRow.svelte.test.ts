@@ -108,5 +108,16 @@ describe('CentroRow', () => {
 			render(CentroRow, { ...defaultProps, editingId: 99 });
 			await expect.element(page.getByRole('button', { name: 'Guardar' })).not.toBeInTheDocument();
 		});
+
+		it('debería mostrar botón para seleccionar desde mapa', async () => {
+			render(CentroRow, { ...defaultProps, editingId: 1 });
+			await expect.element(page.getByText('Seleccionar desde mapa')).toBeInTheDocument();
+		});
+
+		it('no debería mostrar el mapa por defecto', async () => {
+			render(CentroRow, { ...defaultProps, editingId: 1 });
+			// El mapa no debe estar visible inicialmente
+			await expect.element(page.getByText('Haga clic en el mapa para seleccionar coordenadas')).not.toBeInTheDocument();
+		});
 	});
 });

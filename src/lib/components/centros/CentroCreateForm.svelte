@@ -27,8 +27,8 @@
 	function toggleMap() {
 		showMap = !showMap;
 		if (showMap && browser && !MapComponent) {
-			// Importar el componente Leaflet dinámicamente
-			import('$lib/components/LeafletMap.svelte').then((mod) => {
+			// Importar el componente MapLibre dinámicamente
+			import('$lib/components/MapLibreMap.svelte').then((mod) => {
 				MapComponent = mod.default;
 			});
 		}

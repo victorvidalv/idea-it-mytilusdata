@@ -35,20 +35,62 @@ const { sign, verify } = pkg;
 export type MagicLinkResult = { success: true } | { success: false; error: string; status: number };
 
 /**
- * Crea y envía un Magic Link al email especificado.
+ * Validar rate limits defensivos antes de enviar un Magic Link.
+ * Protege contra abuso económico (envío masivo de emails vía Resend).
+ * Retorna objeto de error o null si todo está dentro de los límites.
+ */
+async function validateMagicLinkRateLimits(
+	email: string,
+	clientIp?: string
+): Promise<MagicLinkResult | null> {
+	const emailCheck = await checkRateLimit(email.toLowerCase(), 'EMAIL');
+	if (!emailCheck.allowed) {
+		return { success: false, error: emailCheck.message || 'Demasiados intentos para este correo', status: 429 };
+	}
+
+	if (clientIp) {
+		const ipCheck = await checkRateLimit(clientIp, 'IP');
+		if (!ipCheck.allowed) {
+			return { success: false, error: ipCheck.message || 'Demasiados intentos desde esta dirección', status: 429 };
+		}
+	}
+
+	const cooldown = await checkEmailCooldown(email);
+	if (!cooldown.allowed) {
+		return { success: false, error: cooldown.message || 'Por favor espera antes de solicitar otro enlace', status: 429 };
+	}
+
+	return null;
+}
+
+/** Construir el HTML del email de Magic Link */
+function buildMagicLinkEmailHtml(nombre: string, magicUrl: string): string {
+	return `<div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background: #ffffff; border-radius: 12px; overflow: hidden;">
+		<div style="background: #075E54; padding: 28px 24px; text-align: center;">
+			<h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">MytilusData</h1>
+			<p style="color: rgba(255,255,255,0.7); margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">Mitilicultura</p>
+		</div>
+		<div style="padding: 32px 24px;">
+			<h2 style="color: #111B21; margin: 0 0 8px; font-size: 18px; font-weight: 600;">Hola ${nombre},</h2>
+			<p style="color: #54656F; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">Haz clic en el siguiente botón para acceder a la plataforma de forma segura:</p>
+			<a href="${magicUrl}" style="display: inline-block; background: #25D366; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-size: 15px; font-weight: 600; letter-spacing: 0.01em;">Acceder a la Plataforma</a>
+			<p style="color: #8696A0; font-size: 13px; margin: 24px 0 0; line-height: 1.5;">Este enlace expirará en 15 minutos.</p>
+			<p style="color: #8696A0; font-size: 12px; margin: 8px 0 0;">Si no solicitaste este acceso, puedes ignorar este correo.</p>
+		</div>
+		<div style="border-top: 1px solid #E9EDEF; padding: 16px 24px; text-align: center;">
+			<p style="color: #8696A0; font-size: 11px; margin: 0;">© 2026 MytilusData · Mitilicultura</p>
+		</div>
+	</div>`;
+}
+
+// Constante para expiración de Magic Link
+const MAGIC_LINK_EXPIRATION_MS = 15 * 60 * 1000; // 15 minutos
+
+/**
+ * Crear y enviar un Magic Link al email especificado.
  *
- * IMPORTANTE: Esta función incluye validaciones defensivas de rate limiting
- * para proteger contra abuso económico (envío masivo de emails vía Resend).
- *
- * Estas validaciones son OBLIGATORIAS y se ejecutan ANTES de cualquier otra operación,
- * incluso si el page server ya las validó (defense in depth).
- *
- * @param email - Email del usuario
- * @param nombre - Nombre del usuario (para nuevos usuarios)
- * @param origin - URL base de la aplicación
- * @param userAgent - User agent del cliente (opcional)
- * @param clientIp - IP del cliente para rate limiting (opcional pero recomendado)
- * @returns Resultado con success o error con status HTTP
+ * Incluye validaciones defensivas de rate limiting (defense in depth)
+ * para proteger contra abuso económico de envío masivo de emails.
  */
 export async function createMagicLink(
 	email: string,
@@ -57,148 +99,59 @@ export async function createMagicLink(
 	userAgent?: string,
 	clientIp?: string
 ): Promise<MagicLinkResult> {
-	console.log('Iniciando creación de Magic Link para:', email);
+	// Validaciones defensivas obligatorias
+	const rateLimitError = await validateMagicLinkRateLimits(email, clientIp);
+	if (rateLimitError) return rateLimitError;
 
-	// ============================================================
-	// VALIDACIONES DEFENSIVAS - ANTES DE CUALQUIER OTRA COSA
-	// Estas validaciones protegen contra el vector de ataque económico
-	// de envío masivo de emails si alguien llama esta función directamente.
-	// ============================================================
-
-	// 1. Rate limiting por email (OBLIGATORIO)
-	const emailRateLimit = await checkRateLimit(email.toLowerCase(), 'EMAIL');
-	if (!emailRateLimit.allowed) {
-		console.warn('Rate limit excedido para email:', email);
-		return {
-			success: false,
-			error: emailRateLimit.message || 'Demasiados intentos para este correo',
-			status: 429
-		};
-	}
-
-	// 2. Rate limiting por IP si está disponible (OBLIGATORIO)
-	if (clientIp) {
-		const ipRateLimit = await checkRateLimit(clientIp, 'IP');
-		if (!ipRateLimit.allowed) {
-			console.warn('Rate limit excedido para IP:', clientIp);
-			return {
-				success: false,
-				error: ipRateLimit.message || 'Demasiados intentos desde esta dirección',
-				status: 429
-			};
-		}
-	}
-
-	// 3. Cooldown de email (OBLIGATORIO)
-	const cooldownCheck = await checkEmailCooldown(email);
-	if (!cooldownCheck.allowed) {
-		console.warn('Cooldown activo para email:', email);
-		return {
-			success: false,
-			error: cooldownCheck.message || 'Por favor espera antes de solicitar otro enlace',
-			status: 429
-		};
-	}
-
-	// ============================================================
-	// RECÍÉN AHORA, DESPUÉS DE TODAS LAS VALIDACIONES, CONTINUAR
-	// Registrar los intentos ANTES de llamar a Resend
-	// ============================================================
-
-	// Registrar el intento para rate limiting
+	// Registrar intentos para rate limiting
 	await logRateLimitAttempt(email.toLowerCase(), 'EMAIL');
 	if (clientIp) {
 		await logRateLimitAttempt(clientIp, 'IP');
 	}
-
-	// Actualizar cooldown
 	await updateEmailCooldown(email);
 
-	// ============================================================
-	// LÓGICA DE NEGOCIO - Crear usuario, token y enviar email
-	// ============================================================
-
+	// Crear/obtener usuario
 	const resend = new Resend(env.RESEND_API_KEY);
-
-	// RBAC Dinámico: Todo usuario nuevo comienza como USUARIO
-	// Los roles se asignan exclusivamente desde el panel de administración
 	const rolInicial = ROLES.USUARIO;
 
-	// Verificar si el usuario existe, si no, crear
 	let [user] = await db.select().from(usuarios).where(eq(usuarios.email, email)).limit(1);
-	console.log('Usuario encontrado:', user);
 
 	if (!user) {
-		console.log('Creando nuevo usuario con rol:', rolInicial);
 		const [newUser] = await db
 			.insert(usuarios)
-			.values({
-				email,
-				nombre,
-				rol: rolInicial,
-				activo: true
-			})
+			.values({ email, nombre, rol: rolInicial, activo: true })
 			.returning();
 		user = newUser;
-		console.log('Nuevo usuario creado:', user);
 	}
 
 	if (!user) {
-		return {
-			success: false,
-			error: 'No se pudo crear el usuario',
-			status: 500
-		};
+		return { success: false, error: 'No se pudo crear el usuario', status: 500 };
 	}
 
-	// Generar un token único
+	// Generar token y almacenar hash seguro
 	const token = randomBytes(32).toString('hex');
-	const tokenHash = hashToken(token); // Hash SHA-256 para almacenamiento seguro
-	const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+	const expiresAt = new Date(Date.now() + MAGIC_LINK_EXPIRATION_MS);
 
-	console.log('Insertando token en DB...');
 	await db.insert(magicLinkTokens).values({
-		tokenHash,
+		tokenHash: hashToken(token),
 		userId: user.id,
 		expiresAt
 	});
 
-	const magicUrl = `${origin}/auth/callback?token=${token}`;
-	console.log('Enviando email vía Resend a:', email);
-
 	// Enviar correo con Resend
+	const magicUrl = `${origin}/auth/callback?token=${token}`;
 	const resendResult = await resend.emails.send({
 		from: env.EMAIL_FROM || 'MytilusData <onboarding@resend.dev>',
 		to: email,
 		subject: 'Tu enlace de acceso a la Plataforma',
-		html: `<div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background: #ffffff; border-radius: 12px; overflow: hidden;">
-			<div style="background: #075E54; padding: 28px 24px; text-align: center;">
-				<h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">MytilusData</h1>
-				<p style="color: rgba(255,255,255,0.7); margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">Mitilicultura</p>
-			</div>
-			<div style="padding: 32px 24px;">
-				<h2 style="color: #111B21; margin: 0 0 8px; font-size: 18px; font-weight: 600;">Hola ${user.nombre},</h2>
-				<p style="color: #54656F; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">Haz clic en el siguiente botón para acceder a la plataforma de forma segura:</p>
-				<a href="${magicUrl}" style="display: inline-block; background: #25D366; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-size: 15px; font-weight: 600; letter-spacing: 0.01em;">Acceder a la Plataforma</a>
-				<p style="color: #8696A0; font-size: 13px; margin: 24px 0 0; line-height: 1.5;">Este enlace expirará en 15 minutos.</p>
-				<p style="color: #8696A0; font-size: 12px; margin: 8px 0 0;">Si no solicitaste este acceso, puedes ignorar este correo.</p>
-			</div>
-			<div style="border-top: 1px solid #E9EDEF; padding: 16px 24px; text-align: center;">
-				<p style="color: #8696A0; font-size: 11px; margin: 0;">© 2026 MytilusData · Mitilicultura</p>
-			</div>
-		</div>`
+		html: buildMagicLinkEmailHtml(user.nombre, magicUrl)
 	});
 
 	if (resendResult.error) {
 		console.error('Error de Resend:', JSON.stringify(resendResult.error));
-		return {
-			success: false,
-			error: `Error de email: ${resendResult.error.message}`,
-			status: 500
-		};
+		return { success: false, error: `Error de email: ${resendResult.error.message}`, status: 500 };
 	}
 
-	console.log('Magic Link enviado exitosamente. ID:', resendResult.data?.id);
 	return { success: true };
 }
 

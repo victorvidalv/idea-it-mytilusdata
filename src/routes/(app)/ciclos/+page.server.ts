@@ -4,6 +4,7 @@ import { ciclos, lugares } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { hasMinRole, ROLES, type Rol } from '$lib/server/auth';
+import { cicloSchema, parseFormData } from '$lib/validations';
 
 /** Cargar ciclos productivos según rol del usuario */
 export const load: PageServerLoad = async ({ locals }) => {
@@ -51,21 +52,12 @@ export const actions = {
 		const userId = locals.user?.userId;
 		if (!userId) return fail(401, { error: true, message: 'No autenticado' });
 
-		const data = await request.formData();
-		const nombre = data.get('nombre') as string;
-		const lugarId = Number(data.get('lugarId'));
-		const fechaSiembraStr = data.get('fechaSiembra') as string;
+		const formData = await request.formData();
+		const validated = await parseFormData(cicloSchema, formData);
 
-		// Validar campos
-		if (!nombre || nombre.length < 2) {
-			return fail(400, { error: true, message: 'El nombre debe tener al menos 2 caracteres' });
-		}
-		if (!lugarId || isNaN(lugarId)) {
-			return fail(400, { error: true, message: 'Seleccione un centro de cultivo' });
-		}
-		if (!fechaSiembraStr) {
-			return fail(400, { error: true, message: 'La fecha de siembra es obligatoria' });
-		}
+		if (!validated.success) return validated.response;
+
+		const { nombre, lugarId, fechaSiembra } = validated.data;
 
 		// Verificar que el centro existe y pertenece al usuario
 		const [lugar] = await db.select().from(lugares).where(eq(lugares.id, lugarId)).limit(1);
@@ -76,11 +68,9 @@ export const actions = {
 			return fail(403, { error: true, message: 'No tiene permisos sobre este centro' });
 		}
 
-		const fechaSiembra = new Date(fechaSiembraStr);
-
 		await db.insert(ciclos).values({
 			nombre,
-			fechaSiembra,
+			fechaSiembra: new Date(fechaSiembra),
 			lugarId,
 			userId,
 			activo: true

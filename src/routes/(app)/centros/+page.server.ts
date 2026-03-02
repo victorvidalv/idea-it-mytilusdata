@@ -73,11 +73,13 @@ export const actions = {
 		const userId = locals.user?.userId;
 		if (!userId) return fail(401, { error: true, message: 'No autenticado' });
 
-		const data = await request.formData();
-		const centroId = Number(data.get('centroId'));
-		const nombre = data.get('nombre') as string;
-		const latitud = parseFloat(data.get('latitud') as string);
-		const longitud = parseFloat(data.get('longitud') as string);
+		const formData = await request.formData();
+		const centroId = Number(formData.get('centroId'));
+
+		const validated = await parseFormData(centroSchema, formData);
+		if (!validated.success) return validated.response;
+
+		const { nombre, latitud, longitud } = validated.data;
 
 		const [centro] = await db.select().from(lugares).where(eq(lugares.id, centroId)).limit(1);
 		if (!centro) return fail(404, { error: true, message: 'Centro no encontrado' });
@@ -87,16 +89,9 @@ export const actions = {
 			return fail(403, { error: true, message: 'No tiene permisos para editar este centro' });
 		}
 
-		if (!nombre || nombre.length < 2) {
-			return fail(400, { error: true, message: 'El nombre debe tener al menos 2 caracteres' });
-		}
-
-		const latVal = isNaN(latitud) ? null : latitud;
-		const lngVal = isNaN(longitud) ? null : longitud;
-
 		await db
 			.update(lugares)
-			.set({ nombre, latitud: latVal, longitud: lngVal })
+			.set({ nombre, latitud: latitud ?? null, longitud: longitud ?? null })
 			.where(eq(lugares.id, centroId));
 		return { success: true, message: 'Centro actualizado exitosamente' };
 	},

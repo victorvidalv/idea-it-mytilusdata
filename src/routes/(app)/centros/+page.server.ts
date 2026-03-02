@@ -1,9 +1,10 @@
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
 import { lugares, ciclos } from '$lib/server/db/schema';
-import { eq, count } from 'drizzle-orm';
+import { eq, count, inArray } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { hasMinRole, ROLES, type Rol } from '$lib/server/auth';
+import { centroSchema, parseFormData } from '$lib/validations';
 
 /** Cargar centros de cultivo según rol del usuario */
 export const load: PageServerLoad = async ({ locals }) => {
@@ -15,21 +16,26 @@ export const load: PageServerLoad = async ({ locals }) => {
 		? await db.select().from(lugares)
 		: await db.select().from(lugares).where(eq(lugares.userId, userId!));
 
-	const centrosConCiclos = await Promise.all(
-		centrosList.map(async (centro) => {
-			const [result] = await db
-				.select({ total: count() })
-				.from(ciclos)
-				.where(eq(ciclos.lugarId, centro.id))
-				.limit(1);
-			return {
-				...centro,
-				totalCiclos: result?.total ?? 0,
-				isOwner: centro.userId === userId,
-				createdAt: centro.createdAt ? new Date(centro.createdAt).toISOString() : null
-			};
-		})
-	);
+	// Resolver N+1: una sola query con GROUP BY para contar ciclos por lugar
+	const lugarIds = centrosList.map((c) => c.id);
+	const ciclosPorLugar =
+		lugarIds.length > 0
+			? await db
+					.select({ lugarId: ciclos.lugarId, total: count() })
+					.from(ciclos)
+					.where(inArray(ciclos.lugarId, lugarIds))
+					.groupBy(ciclos.lugarId)
+			: [];
+
+	// Crear mapa de conteo para acceso O(1)
+	const conteoMap = new Map(ciclosPorLugar.map((c) => [c.lugarId, c.total]));
+
+	const centrosConCiclos = centrosList.map((centro) => ({
+		...centro,
+		totalCiclos: conteoMap.get(centro.id) ?? 0,
+		isOwner: centro.userId === userId,
+		createdAt: centro.createdAt ? new Date(centro.createdAt).toISOString() : null
+	}));
 
 	return {
 		centros: centrosConCiclos,
@@ -43,22 +49,19 @@ export const actions = {
 		const userId = locals.user?.userId;
 		if (!userId) return fail(401, { error: true, message: 'No autenticado' });
 
-		const data = await request.formData();
-		const nombre = data.get('nombre') as string;
-		const latitud = parseFloat(data.get('latitud') as string);
-		const longitud = parseFloat(data.get('longitud') as string);
-
-		if (!nombre || nombre.length < 2) {
-			return fail(400, { error: true, message: 'El nombre debe tener al menos 2 caracteres' });
+		const formData = await request.formData();
+		const validated = await parseFormData(centroSchema, formData);
+		
+		if (!validated.success) {
+			return validated.response;
 		}
-		// Permitir coordenadas NaN — se guardan como null
-		const latVal = isNaN(latitud) ? null : latitud;
-		const lngVal = isNaN(longitud) ? null : longitud;
+
+		const { nombre, latitud, longitud } = validated.data;
 
 		await db.insert(lugares).values({
 			nombre,
-			latitud: latVal,
-			longitud: lngVal,
+			latitud: latitud ?? null,
+			longitud: longitud ?? null,
 			userId
 		});
 

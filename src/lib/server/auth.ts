@@ -153,7 +153,7 @@ export async function createMagicLink(
 
 	// Generar un token único
 	const token = randomBytes(32).toString('hex');
-	const tokenHash = token;
+	const tokenHash = hashToken(token); // Hash SHA-256 para almacenamiento seguro
 	const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
 	console.log('Insertando token en DB...');
@@ -203,11 +203,14 @@ export async function createMagicLink(
 }
 
 export async function verifyTokenAndGetSession(token: string, userAgent?: string, ip?: string) {
+	// Hashear el token recibido para buscar en la base de datos
+	const tokenHash = hashToken(token);
+
 	const [result] = await db
 		.select({ token: magicLinkTokens, user: usuarios })
 		.from(magicLinkTokens)
 		.innerJoin(usuarios, eq(magicLinkTokens.userId, usuarios.id))
-		.where(eq(magicLinkTokens.tokenHash, token))
+		.where(eq(magicLinkTokens.tokenHash, tokenHash))
 		.limit(1);
 
 	if (!result) return null;

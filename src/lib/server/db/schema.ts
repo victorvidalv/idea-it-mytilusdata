@@ -72,7 +72,9 @@ export const lugares = pgTable('lugares', {
 		.notNull()
 		.references(() => usuarios.id),
 	createdAt: timestamp('created_at').defaultNow()
-});
+}, (table) => [
+	index('idx_lugares_geom').using('gist', table.geom)
+]);
 
 /**
  * Ciclos de Cultivo: Define el periodo desde siembra hasta cosecha.

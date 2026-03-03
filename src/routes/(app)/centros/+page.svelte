@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import toast from 'svelte-french-toast';
-	import DataTable from '$lib/components/DataTable.svelte';
+	import SvarDataGrid from '$lib/components/SvarDataGrid.svelte';
 	import CentroCreateForm from '$lib/components/centros/CentroCreateForm.svelte';
 	import CentroRow from '$lib/components/centros/CentroRow.svelte';
 
@@ -91,7 +91,7 @@
 	<!-- Tabla de centros -->
 	<div class="animate-fade-up delay-100">
 		<Card.Root class="overflow-hidden border-border/50">
-			<DataTable
+			<SvarDataGrid
 				data={data.centros}
 				columns={[
 					{ key: 'nombre', label: 'Nombre', sortable: true },
@@ -119,7 +119,7 @@
 						onError={handleError}
 					/>
 				{/each}
-			</DataTable>
+			</SvarDataGrid>
 		</Card.Root>
 	</div>
 </div>

@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import toast from 'svelte-french-toast';
-	import DataTable from '$lib/components/DataTable.svelte';
+	import SvarDataGrid from '$lib/components/SvarDataGrid.svelte';
 	import RegistroCreateForm from '$lib/components/registros/RegistroCreateForm.svelte';
 	import RegistroRow from '$lib/components/registros/RegistroRow.svelte';
 
@@ -143,7 +143,7 @@
 	<!-- Lista de Registros -->
 	<div class="animate-fade-up delay-100">
 		<Card.Root class="overflow-hidden border-border/50">
-			<DataTable
+			<SvarDataGrid
 				data={data.registros}
 				columns={[
 					{
@@ -175,7 +175,7 @@
 						onCancel={cancelEdit}
 					/>
 				{/each}
-			</DataTable>
+			</SvarDataGrid>
 		</Card.Root>
 	</div>
 </div>

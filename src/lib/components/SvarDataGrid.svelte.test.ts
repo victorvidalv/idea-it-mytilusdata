@@ -1,9 +1,9 @@
 import { page } from 'vitest/browser';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import DataTable from './DataTable.svelte';
+import SvarDataGrid from './SvarDataGrid.svelte';
 
-describe('DataTable', () => {
+describe('SvarDataGrid', () => {
 	const mockData = [
 		{ id: 1, nombre: 'Centro A', codigo: 'CA', valor: 100 },
 		{ id: 2, nombre: 'Centro B', codigo: 'CB', valor: 200 },
@@ -18,9 +18,10 @@ describe('DataTable', () => {
 
 	describe('Renderizado básico', () => {
 		it('debería renderizar la tabla con datos', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'grid'
 			});
 
 			// Verificar que los encabezados están presentes usando texto
@@ -30,9 +31,10 @@ describe('DataTable', () => {
 		});
 
 		it('debería renderizar el placeholder de búsqueda por defecto', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'grid'
 			});
 
 			const searchInput = page.getByPlaceholder('Buscar...');
@@ -40,10 +42,11 @@ describe('DataTable', () => {
 		});
 
 		it('debería aceptar un placeholder de búsqueda personalizado', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
 				columns: mockColumns,
-				searchPlaceholder: 'Buscar centros...'
+				searchPlaceholder: 'Buscar centros...',
+				mode: 'grid'
 			});
 
 			const searchInput = page.getByPlaceholder('Buscar centros...');
@@ -51,20 +54,22 @@ describe('DataTable', () => {
 		});
 
 		it('debería mostrar estado vacío cuando no hay datos', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: [],
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'grid'
 			});
 
 			await expect.element(page.getByText('Sin datos')).toBeInTheDocument();
 		});
 
 		it('debería mostrar título y descripción personalizados para estado vacío', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: [],
 				columns: mockColumns,
 				emptyTitle: 'No hay centros',
-				emptyDescription: 'Agrega un nuevo centro para comenzar'
+				emptyDescription: 'Agrega un nuevo centro para comenzar',
+				mode: 'grid'
 			});
 
 			await expect.element(page.getByText('No hay centros')).toBeInTheDocument();
@@ -76,10 +81,11 @@ describe('DataTable', () => {
 
 	describe('Funcionalidad de búsqueda', () => {
 		it('debería filtrar datos al escribir en el campo de búsqueda', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
 				columns: mockColumns,
-				searchKeys: ['nombre']
+				searchKeys: ['nombre'],
+				mode: 'grid'
 			});
 
 			const searchInput = page.getByPlaceholder('Buscar...');
@@ -90,9 +96,10 @@ describe('DataTable', () => {
 		});
 
 		it('debería mostrar mensaje de sin resultados cuando la búsqueda no coincide', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'grid'
 			});
 
 			const searchInput = page.getByPlaceholder('Buscar...');
@@ -102,9 +109,10 @@ describe('DataTable', () => {
 		});
 
 		it('debería limpiar la búsqueda al hacer clic en el botón limpiar', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'grid'
 			});
 
 			const searchInput = page.getByPlaceholder('Buscar...');
@@ -123,9 +131,10 @@ describe('DataTable', () => {
 
 	describe('Funcionalidad de ordenamiento', () => {
 		it('debería ordenar ascendente al hacer clic en una columna ordenable', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'table'
 			});
 
 			// Usar el elemento th que contiene "Nombre"
@@ -137,9 +146,10 @@ describe('DataTable', () => {
 		});
 
 		it('debería cambiar a orden descendente al hacer clic nuevamente', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'table'
 			});
 
 			const nombreHeader = page.getByText('Nombre');
@@ -151,9 +161,10 @@ describe('DataTable', () => {
 		});
 
 		it('debería remover ordenamiento al hacer clic tres veces', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'table'
 			});
 
 			const nombreHeader = page.getByText('Nombre');
@@ -168,19 +179,21 @@ describe('DataTable', () => {
 
 	describe('Funcionalidad de paginación', () => {
 		it('debería mostrar selector de filas por página', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'grid'
 			});
 
 			await expect.element(page.getByText('Filas:')).toBeInTheDocument();
 		});
 
 		it('debería respetar el pageSize inicial', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
 				columns: mockColumns,
-				pageSize: 10
+				pageSize: 10,
+				mode: 'grid'
 			});
 
 			const select = page.getByRole('combobox');
@@ -195,10 +208,11 @@ describe('DataTable', () => {
 				valor: i * 10
 			}));
 
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: manyItems,
 				columns: mockColumns,
-				pageSize: 10
+				pageSize: 10,
+				mode: 'grid'
 			});
 
 			// Verificar botones de paginación
@@ -222,10 +236,11 @@ describe('DataTable', () => {
 				valor: i * 10
 			}));
 
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: manyItems,
 				columns: mockColumns,
-				pageSize: 10
+				pageSize: 10,
+				mode: 'grid'
 			});
 
 			const nextButton = page.getByRole('button', { name: 'Página siguiente' });
@@ -243,10 +258,11 @@ describe('DataTable', () => {
 				valor: i * 10
 			}));
 
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: manyItems,
 				columns: mockColumns,
-				pageSize: 10
+				pageSize: 10,
+				mode: 'grid'
 			});
 
 			const firstButton = page.getByRole('button', { name: 'Primera página' });
@@ -264,10 +280,11 @@ describe('DataTable', () => {
 				valor: i * 10
 			}));
 
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: manyItems,
 				columns: mockColumns,
-				pageSize: 10
+				pageSize: 10,
+				mode: 'grid'
 			});
 
 			const lastButton = page.getByRole('button', { name: 'Última página' });
@@ -280,19 +297,21 @@ describe('DataTable', () => {
 
 	describe('Contador de resultados', () => {
 		it('debería mostrar el contador de resultados correcto', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
 				columns: mockColumns,
-				pageSize: 25
+				pageSize: 25,
+				mode: 'grid'
 			});
 
 			await expect.element(page.getByText('1–3 de 3')).toBeInTheDocument();
 		});
 
 		it('debería mostrar contador con filtro cuando se busca', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'grid'
 			});
 
 			const searchInput = page.getByPlaceholder('Buscar...');
@@ -305,9 +324,10 @@ describe('DataTable', () => {
 
 	describe('Slots', () => {
 		it('debería pasar datos paginados al slot', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'table'
 			});
 
 			// El slot se renderiza con los datos paginados
@@ -326,10 +346,11 @@ describe('DataTable', () => {
 				valor: i * 10
 			}));
 
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: manyItems,
 				columns: mockColumns,
-				pageSize: 10
+				pageSize: 10,
+				mode: 'grid'
 			});
 
 			await expect
@@ -345,9 +366,10 @@ describe('DataTable', () => {
 		});
 
 		it('debería tener label accesible para el botón de limpiar búsqueda', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'grid'
 			});
 
 			const searchInput = page.getByPlaceholder('Buscar...');
@@ -361,9 +383,10 @@ describe('DataTable', () => {
 
 	describe('Columnas con align', () => {
 		it('debería aplicar alineación derecha cuando se especifica', async () => {
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: mockColumns
+				columns: mockColumns,
+				mode: 'table'
 			});
 
 			const valorHeader = page.getByText('Valor');
@@ -373,9 +396,10 @@ describe('DataTable', () => {
 		it('debería aplicar alineación centro cuando se especifica', async () => {
 			const columnsWithCenter = [{ key: 'nombre', label: 'Nombre', align: 'center' as const }];
 
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: columnsWithCenter
+				columns: columnsWithCenter,
+				mode: 'table'
 			});
 
 			const nombreHeader = page.getByText('Nombre');
@@ -393,9 +417,10 @@ describe('DataTable', () => {
 				}
 			];
 
-			render(DataTable, {
+			render(SvarDataGrid, {
 				data: mockData,
-				columns: columnsWithAccessor
+				columns: columnsWithAccessor,
+				mode: 'table'
 			});
 
 			await expect.element(page.getByText('Nombre Completo')).toBeInTheDocument();

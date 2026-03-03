@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import DataTable from '$lib/components/DataTable.svelte';
+	import SvarDataGrid from '$lib/components/SvarDataGrid.svelte';
 
 	export let data: import('./$types').PageData;
 
@@ -70,7 +70,7 @@
 	<!-- Lista de ciclos -->
 	<div class="animate-fade-up delay-150">
 		<Card.Root class="overflow-hidden border-border/50">
-			<DataTable
+			<SvarDataGrid
 				data={filteredCiclos}
 				columns={[
 					{ key: 'activo', label: 'Estado', sortable: true },
@@ -174,7 +174,7 @@
 						</td>
 					</tr>
 				{/each}
-			</DataTable>
+			</SvarDataGrid>
 		</Card.Root>
 	</div>
 </div>

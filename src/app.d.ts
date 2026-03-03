@@ -11,6 +11,8 @@ declare global {
 				rol: 'ADMIN' | 'INVESTIGADOR' | 'USUARIO';
 				sessionId: number;
 			} | null;
+			// API Key authentication - userId from valid API key
+			apiUserId?: number;
 		}
 		// interface PageData {}
 		// interface PageState {}

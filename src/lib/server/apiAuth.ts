@@ -10,6 +10,44 @@ import {
 } from '$lib/server/apiRateLimiter';
 import { logApiAccess } from '$lib/server/audit';
 
+// --- Tipos ---
+
+/** Resultado de validación de API Key para hooks */
+export interface ApiKeyValidationResult {
+	valid: boolean;
+	userId?: number;
+}
+
+// --- Funciones de validación ---
+
+/**
+ * Valida una API Key desde el header Authorization.
+ * Versión simplificada para usar en hooks.server.ts (sin rate limiting).
+ * Los endpoints individuales aplican rate limiting con validateApiKeyAndRateLimit().
+ * 
+ * @param authHeader - El header Authorization completo
+ * @returns Resultado con validación y userId si es válido
+ */
+export async function validateApiKey(authHeader: string | null): Promise<ApiKeyValidationResult> {
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		return { valid: false };
+	}
+
+	const key = authHeader.split(' ')[1];
+	const [apiKeyRecord] = await db.select().from(apiKeys).where(eq(apiKeys.key, key)).limit(1);
+
+	if (!apiKeyRecord) {
+		return { valid: false };
+	}
+
+	return {
+		valid: true,
+		userId: apiKeyRecord.userId
+	};
+}
+
+// --- Funciones de validación con Rate Limiting (para endpoints) ---
+
 export async function validateApiKeyAndRateLimit(
 	request: Request,
 	getClientAddress: () => string,

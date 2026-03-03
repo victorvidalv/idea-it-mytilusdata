@@ -1,4 +1,4 @@
-import { pgTable, text, integer, real, boolean, timestamp, serial } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, real, boolean, timestamp, serial, geometry, index } from 'drizzle-orm/pg-core';
 
 // --- SISTEMA DE ACCESO Y SEGURIDAD ---
 
@@ -52,17 +52,21 @@ export const sesiones = pgTable('sesiones', {
 
 /**
  * Lugares (Centros de Cultivo): Ubicación geográfica de los centros.
- * Incluye latitud y longitud para análisis espacial e investigadores.
+ * Incluye columna geom (PostGIS) para operaciones espaciales, junto con
+ * columnas latitud/longitud legacy para compatibilidad durante la migración.
  *
- * NOTA DE PRECISIÓN: Se usa `real` (float de 32 bits) que proporciona ~7 dígitos decimales
- * de precisión (~11mm en el ecuador). Para sistemas de producción con correlación satelital
- * de alta precisión, se recomienda migrar a PostGIS (extensión PostgreSQL) con tipo `geometry`.
- * Limitación actual: puede haber pérdida de precisión en cálculos geoespaciales complejos.
+ * TIPO GEOMETRY: Usa PostGIS geometry(Point, 4326) con SRID WGS84.
+ * - x = longitud, y = latitud
+ * - Permite consultas espaciales eficientes con índice GIST
+ * - Compatible con GeoJSON y MapLibre
  */
 export const lugares = pgTable('lugares', {
 	id: serial('id').primaryKey(),
 	nombre: text('nombre').notNull(),
-	latitud: real('latitud'), // ~7 dígitos decimales = precisión de ~11mm
+	// Columna PostGIS para almacenar punto geográfico (x=longitud, y=latitud)
+	geom: geometry('geom', { type: 'point', mode: 'xy', srid: 4326 }),
+	// Columnas legacy - mantener durante migración para rollback
+	latitud: real('latitud'),
 	longitud: real('longitud'),
 	userId: integer('user_id')
 		.notNull()

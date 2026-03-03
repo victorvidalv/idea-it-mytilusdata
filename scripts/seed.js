@@ -168,10 +168,12 @@ async function poblar(userId) {
 	const sensorOrigen = origenSensor || defaultOrigen;
 
 	// ─── Crear 2 centros de cultivo ───
+	// Usar columna geom (PostGIS) con ST_SetSRID(ST_MakePoint(longitud, latitud), 4326)
+	// Nota: ST_MakePoint usa orden (x, y) = (longitud, latitud)
 	const [centro1] =
-		await sql`INSERT INTO lugares (nombre, latitud, longitud, user_id) VALUES ('Bahía Quellón - Línea Norte', -43.116, -73.615, ${userId}) RETURNING id`;
+		await sql`INSERT INTO lugares (nombre, geom, user_id) VALUES ('Bahía Quellón - Línea Norte', ST_SetSRID(ST_MakePoint(-73.615, -43.116), 4326), ${userId}) RETURNING id`;
 	const [centro2] =
-		await sql`INSERT INTO lugares (nombre, latitud, longitud, user_id) VALUES ('Estero Castro - Línea Sur', -42.48, -73.765, ${userId}) RETURNING id`;
+		await sql`INSERT INTO lugares (nombre, geom, user_id) VALUES ('Estero Castro - Línea Sur', ST_SetSRID(ST_MakePoint(-73.765, -42.48), 4326), ${userId}) RETURNING id`;
 
 	const centroId1 = centro1.id;
 	const centroId2 = centro2.id;

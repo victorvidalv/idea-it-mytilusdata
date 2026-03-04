@@ -1,0 +1,40 @@
+{
+  "maxComplexity": 10,
+  "maxLines": 200,
+  "excludeDirs": [
+    "node_modules",
+    "dist",
+    "build",
+    "out",
+    ".git",
+    ".svn",
+    ".hg",
+    "coverage",
+    ".nyc_output",
+    "vendor",
+    "__pycache__",
+    "tmp",
+    "temp",
+    "report"
+  ],
+  "excludeFiles": [
+    "*.min.js",
+    "*.test.ts",
+    "*.bundle.js",
+    "package-lock.json",
+    "yarn.lock",
+    ".DS_Store",
+    "*.pyc"
+  ],
+  "excludeExtensions": [
+    "json",
+    "js",
+    "jsx"
+  ],
+  "includeExtensions": [
+    "ts",
+    "tsx"
+  ],
+  "minDuplicateLines": 5,
+  "showTopDuplicates": 5
+}

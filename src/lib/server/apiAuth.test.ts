@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// --- Tipo para el resultado del mock de json() ---
+interface MockJsonResponse {
+	data: Record<string, unknown>;
+	options?: { status: number; headers?: Record<string, string> };
+}
+
 // Crear mocks con vi.hoisted antes de la importación del módulo
 const mockSelect = vi.hoisted(() => vi.fn());
 const mockFrom = vi.hoisted(() => vi.fn());
@@ -40,7 +46,7 @@ vi.mock('$lib/server/audit', () => ({
 	logApiAccess: mockLogApiAccess.mockResolvedValue(undefined)
 }));
 
-// Mock de @sveltejs/kit
+// Mock de @sveltejs/kit — retorna un objeto plano para facilitar assertions
 vi.mock('@sveltejs/kit', () => ({
 	json: vi.fn((data, options) => ({ data, options }))
 }));
@@ -107,7 +113,8 @@ describe('apiAuth', () => {
 				expect(result).not.toHaveProperty('errorResponse');
 				if ('userId' in result) {
 					expect(result.userId).toBe(42);
-					expect(result.rateLimitResult.allowed).toBe(true);
+					const rateLimitResult = (result as { rateLimitResult: { allowed: boolean } }).rateLimitResult;
+					expect(rateLimitResult.allowed).toBe(true);
 				}
 				expect(mockLogApiRateLimit).toHaveBeenCalledWith('apikey:test1234...');
 				expect(mockLogApiAccess).toHaveBeenCalledWith(
@@ -233,10 +240,11 @@ describe('apiAuth', () => {
 				// Assert
 				expect(result).toHaveProperty('errorResponse');
 				if ('errorResponse' in result) {
-					expect(result.errorResponse.data.error).toBe(
+					const errorResp = result.errorResponse as unknown as MockJsonResponse;
+					expect(errorResp.data.error).toBe(
 						'Falta la API Key en el header Authorization'
 					);
-					expect(result.errorResponse.options.status).toBe(401);
+					expect(errorResp.options?.status).toBe(401);
 				}
 				expect(mockSelect).not.toHaveBeenCalled();
 			});
@@ -259,10 +267,11 @@ describe('apiAuth', () => {
 				// Assert
 				expect(result).toHaveProperty('errorResponse');
 				if ('errorResponse' in result) {
-					expect(result.errorResponse.data.error).toBe(
+					const errorResp = result.errorResponse as unknown as MockJsonResponse;
+					expect(errorResp.data.error).toBe(
 						'Falta la API Key en el header Authorization'
 					);
-					expect(result.errorResponse.options.status).toBe(401);
+					expect(errorResp.options?.status).toBe(401);
 				}
 			});
 
@@ -284,7 +293,8 @@ describe('apiAuth', () => {
 				// Assert - "Bearer" sin espacio no cumple startsWith('Bearer ')
 				expect(result).toHaveProperty('errorResponse');
 				if ('errorResponse' in result) {
-					expect(result.errorResponse.data.error).toBe(
+					const errorResp = result.errorResponse as unknown as MockJsonResponse;
+					expect(errorResp.data.error).toBe(
 						'Falta la API Key en el header Authorization'
 					);
 				}
@@ -317,7 +327,8 @@ describe('apiAuth', () => {
 				// Assert - llegará a la BD y no encontrará la key vacía
 				expect(result).toHaveProperty('errorResponse');
 				if ('errorResponse' in result) {
-					expect(result.errorResponse.data.error).toBe('API Key inválida');
+					const errorResp = result.errorResponse as unknown as MockJsonResponse;
+					expect(errorResp.data.error).toBe('API Key inválida');
 				}
 			});
 		});
@@ -349,8 +360,9 @@ describe('apiAuth', () => {
 				// Assert
 				expect(result).toHaveProperty('errorResponse');
 				if ('errorResponse' in result) {
-					expect(result.errorResponse.data.error).toBe('API Key inválida');
-					expect(result.errorResponse.options.status).toBe(401);
+					const errorResp = result.errorResponse as unknown as MockJsonResponse;
+					expect(errorResp.data.error).toBe('API Key inválida');
+					expect(errorResp.options?.status).toBe(401);
 				}
 				expect(mockCheckApiRateLimit).not.toHaveBeenCalled();
 			});
@@ -397,12 +409,13 @@ describe('apiAuth', () => {
 				// Assert
 				expect(result).toHaveProperty('errorResponse');
 				if ('errorResponse' in result) {
-					expect(result.errorResponse.data.error).toBe('Límite de solicitudes excedido');
-					expect(result.errorResponse.data.retryAfter).toBe(30000);
-					expect(result.errorResponse.options.status).toBe(429);
-					expect(result.errorResponse.options.headers).toHaveProperty('Retry-After');
-					expect(result.errorResponse.options.headers).toHaveProperty('X-RateLimit-Limit');
-					expect(result.errorResponse.options.headers).toHaveProperty('X-RateLimit-Remaining', '0');
+					const errorResp = result.errorResponse as unknown as MockJsonResponse;
+					expect(errorResp.data.error).toBe('Límite de solicitudes excedido');
+					expect(errorResp.data.retryAfter).toBe(30000);
+					expect(errorResp.options?.status).toBe(429);
+					expect(errorResp.options?.headers).toHaveProperty('Retry-After');
+					expect(errorResp.options?.headers).toHaveProperty('X-RateLimit-Limit');
+					expect(errorResp.options?.headers).toHaveProperty('X-RateLimit-Remaining', '0');
 				}
 				// No debe registrar el acceso ni el rate limit
 				expect(mockLogApiRateLimit).not.toHaveBeenCalled();
@@ -448,14 +461,18 @@ describe('apiAuth', () => {
 				);
 
 				// Assert
-				if ('errorResponse' in result && result.errorResponse.options.headers) {
-					const headers = result.errorResponse.options.headers;
-					expect(headers['Retry-After']).toBe('45'); // 45000ms / 1000 = 45s
-					expect(headers['X-RateLimit-Limit']).toBe('100');
-					expect(headers['X-RateLimit-Remaining']).toBe('0');
-					// X-RateLimit-Reset debe ser un timestamp futuro
-					const resetTimestamp = parseInt(headers['X-RateLimit-Reset'] as string);
-					expect(resetTimestamp).toBeGreaterThan(Date.now());
+				if ('errorResponse' in result) {
+					const errorResp = result.errorResponse as unknown as MockJsonResponse;
+					const headers = errorResp.options?.headers;
+					expect(headers).toBeDefined();
+					if (headers) {
+						expect(headers['Retry-After']).toBe('45'); // 45000ms / 1000 = 45s
+						expect(headers['X-RateLimit-Limit']).toBe('100');
+						expect(headers['X-RateLimit-Remaining']).toBe('0');
+						// X-RateLimit-Reset debe ser un timestamp futuro
+						const resetTimestamp = parseInt(headers['X-RateLimit-Reset'] as string);
+						expect(resetTimestamp).toBeGreaterThan(Date.now());
+					}
 				}
 			});
 		});

@@ -1,5 +1,6 @@
+// @ts-nocheck — Los tipos de ruta generados por SvelteKit crean incompatibilidades en mocks de test
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { RequestEvent } from '@sveltejs/kit';
+
 
 // Create all mock functions with vi.hoisted
 const mockSelect = vi.hoisted(() => vi.fn());
@@ -47,7 +48,7 @@ function createApiRequestEvent(options: {
 	authorization?: string | null;
 	clientAddress?: string;
 	userAgent?: string;
-}): RequestEvent {
+}) {
 	const headers = new Map<string, string>();
 	if (options.authorization !== undefined && options.authorization !== null) {
 		headers.set('Authorization', options.authorization);
@@ -79,7 +80,7 @@ function createApiRequestEvent(options: {
 		isDataRequest: false,
 		isSubRequest: false,
 		method: 'GET'
-	} as unknown as RequestEvent;
+	} as never;
 }
 
 describe('API /api/registros', () => {

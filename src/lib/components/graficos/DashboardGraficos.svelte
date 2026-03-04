@@ -4,8 +4,68 @@
 	import * as Card from '$lib/components/ui/card';
 	import { SvelteSet } from 'svelte/reactivity';
 
-	// Usamos any o un tipo intersección para tolerar tanto PageData normal como del investigador
-	export let data: any;
+	// --- Interfaces de datos del dashboard ---
+
+	interface TipoRegistro {
+		id: number;
+		codigo: string;
+		unidadBase: string;
+	}
+
+	interface Centro {
+		id: number;
+		nombre: string;
+		userId: number;
+	}
+
+	interface Ciclo {
+		id: number;
+		nombre: string;
+		lugarId: number;
+	}
+
+	interface Registro {
+		userId: number;
+		lugarId: number;
+		cicloId: number | null;
+		tipoId: number;
+		valor: number;
+		fechaMedicion: string;
+		tipoCodigo?: string;
+		tipoUnidad?: string;
+	}
+
+	interface Usuario {
+		id: number;
+		nombre: string;
+	}
+
+	interface DashboardData {
+		tipos: TipoRegistro[];
+		centros: Centro[];
+		ciclos: Ciclo[];
+		registros: Registro[];
+		usuarios?: Usuario[];
+	}
+
+	interface TipoEstadistica {
+		codigo: string;
+		unidad: string;
+		promedio: number;
+		min: number;
+		max: number;
+		cuenta: number;
+	}
+
+	interface ChartSeriesItem {
+		key: string;
+		label: string;
+		data: { date: Date; value: number }[];
+		color: string;
+	}
+
+	// --- Props del componente ---
+	export let data: DashboardData;
 	export let isInvestigador: boolean = false;
 
 	// --- Estado de filtros ---
@@ -30,7 +90,7 @@
 
 	// Mapa estable de tipo.id → color (asignado una vez, nunca cambia)
 	$: tipoColorMap = new Map<number, string>(
-		data.tipos.map((t: any, i: number) => [t.id, seriesColors[i % seriesColors.length]])
+		data.tipos.map((t: TipoRegistro, i: number) => [t.id, seriesColors[i % seriesColors.length]])
 	);
 
 	function getColorForTipo(tipoId: number): string {
@@ -43,17 +103,17 @@
 			? []
 			: selectedUserId === 'all'
 				? data.centros
-				: data.centros.filter((c: any) => c.userId === Number(selectedUserId));
+				: data.centros.filter((c: Centro) => c.userId === Number(selectedUserId));
 
 	// Ciclos filtrados por centro seleccionado
 	$: ciclosFiltrados = selectedCentroId
-		? data.ciclos.filter((c: any) => c.lugarId === selectedCentroId)
+		? data.ciclos.filter((c: Ciclo) => c.lugarId === selectedCentroId)
 		: data.ciclos;
 
 	// Reset ciclo/centro si cambian sus dependencias
 	$: if (selectedUserId) {
 		if (selectedCentroId) {
-			const centroValido = centrosFiltrados.find((c: any) => c.id === selectedCentroId);
+			const centroValido = centrosFiltrados.find((c: Centro) => c.id === selectedCentroId);
 			if (!centroValido) {
 				selectedCentroId = null;
 				selectedCicloId = null;
@@ -62,7 +122,7 @@
 	}
 
 	$: if (selectedCentroId) {
-		const cicloValido = ciclosFiltrados.find((c: any) => c.id === selectedCicloId);
+		const cicloValido = ciclosFiltrados.find((c: Ciclo) => c.id === selectedCicloId);
 		if (!cicloValido) selectedCicloId = null;
 	}
 
@@ -75,7 +135,7 @@
 	}
 
 	// --- Filtrar registros ---
-	$: registrosFiltrados = data.registros.filter((r: any) => {
+	$: registrosFiltrados = data.registros.filter((r: Registro) => {
 		if (selectedUserId === null) return false;
 		if (selectedUserId !== 'all' && r.userId !== Number(selectedUserId)) return false;
 		if (selectedCentroId && r.lugarId !== selectedCentroId) return false;
@@ -85,17 +145,20 @@
 	});
 
 	// --- Preparar datos para el gráfico ---
-	$: tiposActivos = data.tipos.filter((t: any) => selectedTipoIds.has(t.id));
+	$: tiposActivos = data.tipos.filter((t: TipoRegistro) => selectedTipoIds.has(t.id));
 
 	$: chartSeries = tiposActivos
-		.map((tipo: any) => {
+		.map((tipo: TipoRegistro) => {
 			const tipoData = registrosFiltrados
-				.filter((r: any) => r.tipoId === tipo.id)
-				.map((r: any) => ({
+				.filter((r: Registro) => r.tipoId === tipo.id)
+				.map((r: Registro) => ({
 					date: new Date(r.fechaMedicion),
 					value: r.valor
 				}))
-				.sort((a: any, b: any) => a.date.getTime() - b.date.getTime());
+				.sort(
+					(a: { date: Date; value: number }, b: { date: Date; value: number }) =>
+						a.date.getTime() - b.date.getTime()
+				);
 
 			if (tipoData.length === 0) return null;
 
@@ -106,12 +169,7 @@
 				color: getColorForTipo(tipo.id)
 			};
 		})
-		.filter(Boolean) as {
-		key: string;
-		label: string;
-		data: { date: Date; value: number }[];
-		color: string;
-	}[];
+		.filter(Boolean) as ChartSeriesItem[];
 
 	$: hayDatos = chartSeries.length > 0 && chartSeries.some((s) => s.data.length > 0);
 
@@ -120,22 +178,15 @@
 		if (registrosFiltrados.length === 0) {
 			return {
 				total: 0,
-				porTipo: [] as {
-					codigo: string;
-					unidad: string;
-					promedio: number;
-					min: number;
-					max: number;
-					cuenta: number;
-				}[]
+				porTipo: [] as TipoEstadistica[]
 			};
 		}
 
 		const porTipo = tiposActivos
-			.map((tipo: any) => {
+			.map((tipo: TipoRegistro) => {
 				const valores = registrosFiltrados
-					.filter((r: any) => r.tipoId === tipo.id)
-					.map((r: any) => r.valor);
+					.filter((r: Registro) => r.tipoId === tipo.id)
+					.map((r: Registro) => r.valor);
 
 				if (valores.length === 0)
 					return {
@@ -159,7 +210,7 @@
 					cuenta: valores.length
 				};
 			})
-			.filter((s: any) => s.cuenta > 0);
+			.filter((s: TipoEstadistica) => s.cuenta > 0);
 
 		return { total: registrosFiltrados.length, porTipo };
 	})();

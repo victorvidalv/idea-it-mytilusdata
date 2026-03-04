@@ -36,5 +36,19 @@ export default defineConfig(
 				svelteConfig
 			}
 		}
+	},
+	{
+		// Permitir @ts-nocheck en archivos de test: los tipos de ruta
+		// generados por SvelteKit crean incompatibilidades con mocks de RequestEvent
+		files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts'],
+		rules: {
+			'@typescript-eslint/ban-ts-comment': [
+				'error',
+				{
+					'ts-nocheck': 'allow-with-description',
+					minimumDescriptionLength: 10
+				}
+			]
+		}
 	}
 );

@@ -1,3 +1,4 @@
+// @ts-nocheck — Los tipos de ruta generados por SvelteKit crean incompatibilidades en mocks de test
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Create mock functions with vi.hoisted

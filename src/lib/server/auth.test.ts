@@ -32,7 +32,9 @@ vi.mock('./db', () => ({
 vi.mock('./db/schema', () => ({
 	usuarios: { symbol: Symbol('usuarios') },
 	magicLinkTokens: { symbol: Symbol('magicLinkTokens') },
-	sesiones: { symbol: Symbol('sesiones') }
+	sesiones: { symbol: Symbol('sesiones') },
+	rateLimitLogs: { symbol: Symbol('rateLimitLogs') },
+	emailCooldowns: { symbol: Symbol('emailCooldowns') }
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -42,6 +44,13 @@ vi.mock('drizzle-orm', () => ({
 }));
 
 vi.mock('./rateLimiter', () => ({
+	checkRateLimit: mockCheckRateLimit,
+	logRateLimitAttempt: mockLogRateLimitAttempt,
+	checkEmailCooldown: mockCheckEmailCooldown,
+	updateEmailCooldown: mockUpdateEmailCooldown
+}));
+
+vi.mock('./rate-limiter', () => ({
 	checkRateLimit: mockCheckRateLimit,
 	logRateLimitAttempt: mockLogRateLimitAttempt,
 	checkEmailCooldown: mockCheckEmailCooldown,

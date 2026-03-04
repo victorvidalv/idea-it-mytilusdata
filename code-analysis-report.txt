@@ -2,7 +2,7 @@
                     REPORTE DE ANÁLISIS DE CÓDIGO
 ══════════════════════════════════════════════════════════════════════
 
-Fecha: 2026-03-15T22:56:36.950Z
+Fecha: 2026-03-15T23:07:31.347Z
 Directorio: /Users/vmvv/work/idea-it-mytilusdata
 Configuración: .qa
 
@@ -16,12 +16,12 @@ Extensiones: ts, tsx
 ──────────────────────────────────────────────────────────────────────
 RESUMEN
 ──────────────────────────────────────────────────────────────────────
-Archivos analizados: 59
-Total líneas: 4327
-Complejidad promedio: 6.8
-Código duplicado: 7.38%
+Archivos analizados: 66
+Total líneas: 4361
+Complejidad promedio: 6.2
+Código duplicado: 7.33%
 Archivos con errores: 0
-Archivos que fallan: 13
+Archivos que fallan: 12
 
 ──────────────────────────────────────────────────────────────────────
 DETALLE POR ARCHIVO
@@ -40,7 +40,6 @@ src/lib/components/graficos/filtroUtils.ts         107 15      FALLA
 src/routes/(app)/admin/origenes/+page.server.      101 13      FALLA
 src/lib/server/apiRateLimiter.ts                   144 11      FALLA
 src/lib/server/audit.ts                            243 8      FALLA
-src/lib/server/db/schema.ts                        214 1      FALLA
 src/routes/(app)/perfil/+page.server.ts            115 10         OK
 src/routes/(app)/perfil/api-keys/+page.server       87 10         OK
 src/routes/(app)/investigador/centros/+page.s       68 10         OK
@@ -69,12 +68,19 @@ src/routes/auth/logout/+server.ts                   28 3         OK
 drizzle.config.ts                                   12 2         OK
 src/lib/server/db/index.ts                          11 2         OK
 src/lib/components/graficos/types.ts                71 1         OK
+src/lib/server/db/schema/security.ts                52 1         OK
+src/lib/server/db/schema/auth.ts                    49 1         OK
+src/lib/server/db/schema/productive.ts              48 1         OK
 vite.config.ts                                      38 1         OK
 src/lib/server/hooks/routes.ts                      36 1         OK
+src/lib/server/db/schema/measurements.ts            35 1         OK
 src/lib/components/graficos/index.ts                30 1         OK
 src/lib/components/ui/card/index.ts                 26 1         OK
 src/app.d.ts                                        24 1         OK
 src/lib/server/hooks/security.ts                    23 1         OK
+src/lib/server/db/schema/master.ts                  21 1         OK
+src/lib/server/db/schema/audit.ts                   20 1         OK
+src/lib/server/db/schema/index.ts                   20 1         OK
 src/lib/components/ui/button/index.ts               18 1         OK
 src/lib/server/hooks/index.ts                       15 1         OK
 src/lib/utils.ts                                    14 1         OK
@@ -85,6 +91,7 @@ src/lib/components/ui/input/index.ts                 8 1         OK
 src/lib/components/ui/label/index.ts                 8 1         OK
 playwright.config.ts                                 7 1         OK
 src/lib/components/datagrid/index.ts                 4 1         OK
+src/lib/server/db/schema.ts                          3 1         OK
 src/lib/index.ts                                     2 1         OK
 src/lib/components/ui/sonner/index.ts                2 1         OK
 

@@ -4,6 +4,7 @@ import { mediciones, lugares, ciclos, tiposRegistro, origenDatos } from '$lib/se
 import { eq, desc, and } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { hasMinRole, ROLES, type Rol } from '$lib/server/auth';
+import { registroSchema, parseFormData } from '$lib/validations';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const userRol = locals.user?.rol as Rol;
@@ -122,26 +123,24 @@ export const actions = {
 		const userRol = locals.user?.rol as Rol;
 		if (!userId) return fail(401, { error: true, message: 'No autenticado' });
 
-		const data = await request.formData();
-		const id = Number(data.get('id'));
-		const lugarId = Number(data.get('lugarId'));
-		const cicloId = data.get('cicloId') ? Number(data.get('cicloId')) : null;
-		const tipoId = Number(data.get('tipoId'));
-		const origenId = Number(data.get('origenId'));
-		const valor = Number(data.get('valor'));
-		const fechaString = data.get('fechaMedicion') as string;
-		const notas = data.get('notas') as string;
+		const formData = await request.formData();
+		const id = Number(formData.get('id'));
+		const notas = formData.get('notas') as string;
 
-		if (!id || !lugarId || !tipoId || !origenId || isNaN(valor) || !fechaString) {
-			return fail(400, { error: true, message: 'Faltan campos requeridos o valor no válido' });
-		}
+		if (!id) return fail(400, { error: true, message: 'ID no proporcionado' });
+
+		const validated = await parseFormData(registroSchema, formData);
+		if (!validated.success) return validated.response;
+
+		const { valor, fechaMedicion, tipoId, origenId, cicloId } = validated.data;
+		const lugarId = Number(formData.get('lugarId'));
 
 		try {
 			const updateData = {
 				valor,
-				fechaMedicion: new Date(fechaString),
+				fechaMedicion: new Date(fechaMedicion),
 				lugarId,
-				cicloId,
+				cicloId: cicloId ?? null,
 				tipoId,
 				origenId,
 				notas

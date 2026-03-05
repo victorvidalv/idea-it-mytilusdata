@@ -8,195 +8,160 @@ import { verifyTurnstile } from '$lib/server/captcha';
 import { logMagicLinkSent, logLoginFailed } from '$lib/server/audit';
 import type { Actions, RequestEvent } from './$types';
 
+// --- Contexto compartido entre helpers ---
+
+interface LoginContext {
+	email: string;
+	clientIp: string;
+	userAgent: string | undefined;
+	origin: string;
+}
+
+// --- Helpers con responsabilidad única ---
+
+/**
+ * Verificar rate limits: IP, email y cooldown.
+ * Retorna respuesta de error o null si todo está dentro de los límites.
+ */
+async function checkAllRateLimits(email: string, clientIp: string) {
+	const ipCheck = await checkRateLimit(clientIp, 'IP');
+	if (!ipCheck.allowed) {
+		return fail(429, {
+			email,
+			rateLimited: true,
+			message: ipCheck.message || 'Demasiados intentos. Intenta más tarde.',
+			resetIn: ipCheck.resetIn
+		});
+	}
+
+	const emailCheck = await checkRateLimit(email, 'EMAIL');
+	if (!emailCheck.allowed) {
+		return fail(429, {
+			email,
+			rateLimited: true,
+			message: emailCheck.message || 'Demasiados intentos para este correo.',
+			resetIn: emailCheck.resetIn
+		});
+	}
+
+	const cooldown = await checkEmailCooldown(email);
+	if (!cooldown.allowed) {
+		return fail(429, {
+			email,
+			cooldownActive: true,
+			message: cooldown.message || 'Espera antes de solicitar otro enlace.',
+			remainingSeconds: cooldown.remainingSeconds
+		});
+	}
+
+	return null;
+}
+
+/**
+ * Enviar magic link a usuario existente y registrar en auditoría.
+ */
+async function handleExistingUserLogin(
+	user: { id: number; nombre: string },
+	ctx: LoginContext
+) {
+	const result = await createMagicLink(ctx.email, user.nombre, ctx.origin, ctx.userAgent, ctx.clientIp);
+
+	if (!result.success) {
+		await logLoginFailed({ email: ctx.email, ip: ctx.clientIp, userAgent: ctx.userAgent, reason: 'RATE_LIMITED_DEFENSIVE' });
+		return fail(result.status, { email: ctx.email, rateLimited: true, message: result.error });
+	}
+
+	await logMagicLinkSent({ userId: user.id, email: ctx.email, ip: ctx.clientIp });
+	return { success: true };
+}
+
+/**
+ * Validar datos de registro, verificar CAPTCHA, crear usuario y enviar magic link.
+ */
+async function handleNewUserRegistration(
+	nombre: FormDataEntryValue | null,
+	terms: FormDataEntryValue | null,
+	turnstileToken: FormDataEntryValue | null,
+	ctx: LoginContext
+) {
+	// Sin nombre: mostrar formulario de registro
+	if (!nombre) {
+		return { requiresRegistration: true, email: ctx.email };
+	}
+
+	// Validar nombre
+	if (typeof nombre !== 'string' || nombre.length < 2) {
+		return fail(400, { email: ctx.email, nombre, requiresRegistration: true, missing: true, message: 'Nombre es requerido' });
+	}
+
+	// Validar aceptación de términos
+	if (terms !== 'on' && terms !== 'true') {
+		return fail(400, { email: ctx.email, nombre, requiresRegistration: true, missing: true, message: 'Debes aceptar las condiciones del servicio' });
+	}
+
+	// Verificar CAPTCHA
+	const captchaValid = await verifyTurnstile(
+		typeof turnstileToken === 'string' ? turnstileToken : '',
+		ctx.clientIp
+	);
+
+	if (!captchaValid) {
+		await logLoginFailed({ email: ctx.email, ip: ctx.clientIp, userAgent: ctx.userAgent, reason: 'CAPTCHA_FAILED' });
+		return fail(400, { email: ctx.email, nombre, requiresRegistration: true, captchaError: true, message: 'Verificación de seguridad fallida. Por favor, completa el CAPTCHA.' });
+	}
+
+	// Crear usuario y enviar magic link
+	const result = await createMagicLink(ctx.email, nombre, ctx.origin, ctx.userAgent, ctx.clientIp);
+
+	if (!result.success) {
+		await logLoginFailed({ email: ctx.email, ip: ctx.clientIp, userAgent: ctx.userAgent, reason: 'RATE_LIMITED_DEFENSIVE' });
+		return fail(result.status, { email: ctx.email, nombre, requiresRegistration: true, rateLimited: true, message: result.error });
+	}
+
+	await logMagicLinkSent({ email: ctx.email, ip: ctx.clientIp });
+	return { success: true };
+}
+
+// --- Action principal (orquestador) ---
+
 export const actions = {
 	default: async (event: RequestEvent) => {
 		const { request, url, getClientAddress } = event;
 		const data = await request.formData();
 		const email = data.get('email');
-		const nombre = data.get('nombre');
-		const terms = data.get('terms');
-		const turnstileToken = data.get('cf-turnstile-response');
 
-		// Obtener IP del cliente y user agent
 		const clientIp = getClientAddress();
 		const userAgent = request.headers.get('user-agent') ?? undefined;
 
-		// PASO 1: Validar formato de email
+		// Validar formato de email
 		if (!email || typeof email !== 'string' || !email.includes('@')) {
 			return fail(400, { email, missing: true, message: 'Correo electrónico inválido' });
 		}
 
-		// PASO 2: Verificar rate limiting por IP → Si excede, RETORNAR ERROR
-		const ipRateLimit = await checkRateLimit(clientIp, 'IP');
-		if (!ipRateLimit.allowed) {
-			return fail(429, {
-				email,
-				rateLimited: true,
-				message: ipRateLimit.message || 'Demasiados intentos. Intenta más tarde.',
-				resetIn: ipRateLimit.resetIn
-			});
-		}
+		// Verificar todos los rate limits
+		const rateLimitError = await checkAllRateLimits(email, clientIp);
+		if (rateLimitError) return rateLimitError;
 
-		// PASO 3: Verificar rate limiting por email → Si excede, RETORNAR ERROR
-		const emailRateLimit = await checkRateLimit(email, 'EMAIL');
-		if (!emailRateLimit.allowed) {
-			return fail(429, {
-				email,
-				rateLimited: true,
-				message: emailRateLimit.message || 'Demasiados intentos para este correo.',
-				resetIn: emailRateLimit.resetIn
-			});
-		}
-
-		// PASO 4: Verificar cooldown de email → Si excede, RETORNAR ERROR
-		const cooldown = await checkEmailCooldown(email);
-		if (!cooldown.allowed) {
-			return fail(429, {
-				email,
-				cooldownActive: true,
-				message: cooldown.message || 'Espera antes de solicitar otro enlace.',
-				remainingSeconds: cooldown.remainingSeconds
-			});
-		}
+		const ctx: LoginContext = { email, clientIp, userAgent, origin: url.origin };
 
 		try {
-			// Validar si el usuario existe
 			const [user] = await db.select().from(usuarios).where(eq(usuarios.email, email)).limit(1);
 
 			if (user) {
-				// Usuario existente: enviar enlace mágico
-				// NOTA: Las validaciones de rate limiting y cooldown se mantienen en el page server
-				// como primera capa de defensa (defense in depth). createMagicLink tiene sus propias
-				// validaciones como segunda capa.
-
-				// PASO 5: Llamar a createMagicLink (tiene validaciones defensivas internas)
-				const result = await createMagicLink(email, user.nombre, url.origin, userAgent, clientIp);
-
-				if (!result.success) {
-					// Registrar intento fallido en auditoría
-					await logLoginFailed({
-						email,
-						ip: clientIp,
-						userAgent,
-						reason: 'RATE_LIMITED_DEFENSIVE'
-					});
-
-					return fail(result.status, {
-						email,
-						rateLimited: true,
-						message: result.error
-					});
-				}
-
-				// Registrar envío de magic link en auditoría
-				await logMagicLinkSent({
-					userId: user.id,
-					email,
-					ip: clientIp
-				});
-
-				return { success: true };
-			} else {
-				// Usuario nuevo: requiere registro
-				if (!nombre) {
-					// Primer paso: mostrar formulario de registro
-					return { requiresRegistration: true, email };
-				}
-
-				// Validar nombre
-				if (typeof nombre !== 'string' || nombre.length < 2) {
-					return fail(400, {
-						email,
-						nombre,
-						requiresRegistration: true,
-						missing: true,
-						message: 'Nombre es requerido'
-					});
-				}
-
-				// Validar términos
-				if (terms !== 'on' && terms !== 'true') {
-					return fail(400, {
-						email,
-						nombre,
-						requiresRegistration: true,
-						missing: true,
-						message: 'Debes aceptar las condiciones del servicio'
-					});
-				}
-
-				// PASO 5 (para usuarios nuevos): Verificar CAPTCHA → Si falla, RETORNAR ERROR
-				const captchaValid = await verifyTurnstile(
-					typeof turnstileToken === 'string' ? turnstileToken : '',
-					clientIp
-				);
-
-				if (!captchaValid) {
-					// Registrar intento fallido en auditoría
-					await logLoginFailed({
-						email,
-						ip: clientIp,
-						userAgent,
-						reason: 'CAPTCHA_FAILED'
-					});
-
-					return fail(400, {
-						email,
-						nombre,
-						requiresRegistration: true,
-						captchaError: true,
-						message: 'Verificación de seguridad fallida. Por favor, completa el CAPTCHA.'
-					});
-				}
-
-				// PASO 6: Llamar a createMagicLink (tiene validaciones defensivas internas)
-				const result = await createMagicLink(email, nombre, url.origin, userAgent, clientIp);
-
-				if (!result.success) {
-					// Registrar intento fallido en auditoría
-					await logLoginFailed({
-						email,
-						ip: clientIp,
-						userAgent,
-						reason: 'RATE_LIMITED_DEFENSIVE'
-					});
-
-					return fail(result.status, {
-						email,
-						nombre,
-						requiresRegistration: true,
-						rateLimited: true,
-						message: result.error
-					});
-				}
-
-				// Nota: El usuario se crea en createMagicLink, pero no tenemos su ID aquí
-				// El evento USER_CREATED se registrará cuando se complete el callback del magic link
-				// Por ahora registramos el envío del magic link
-				await logMagicLinkSent({
-					email,
-					ip: clientIp
-				});
-
-				return { success: true };
+				return handleExistingUserLogin(user, ctx);
 			}
+
+			return handleNewUserRegistration(
+				data.get('nombre'),
+				data.get('terms'),
+				data.get('cf-turnstile-response'),
+				ctx
+			);
 		} catch (error) {
 			console.error('Login action error:', error);
-
-			// Registrar error en auditoría
-			await logLoginFailed({
-				email,
-				ip: clientIp,
-				userAgent,
-				reason: 'INTERNAL_ERROR'
-			});
-
-			return fail(500, {
-				email,
-				nombre,
-				error: true,
-				message: 'No se pudo procesar la solicitud. Inténtalo de nuevo.'
-			});
+			await logLoginFailed({ email, ip: clientIp, userAgent, reason: 'INTERNAL_ERROR' });
+			return fail(500, { email, error: true, message: 'No se pudo procesar la solicitud. Inténtalo de nuevo.' });
 		}
 	}
 } satisfies Actions;
+

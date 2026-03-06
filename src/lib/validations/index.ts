@@ -40,12 +40,20 @@ export const registroSchema = z.object({
 	cicloId: z.number().int().positive('Debe seleccionar un ciclo').optional()
 });
 
+/** Esquema completo para crear un registro (incluye lugarId y notas) */
+export const registroCreateSchema = registroSchema.extend({
+	lugarId: z.number().int().positive('Debe seleccionar un centro de cultivo'),
+	cicloId: z.number().int().positive('Debe seleccionar un ciclo').optional().nullable(),
+	notas: z.string().optional().default('')
+});
+
 // --- Tipos inferidos ---
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type CentroInput = z.infer<typeof centroSchema>;
 export type CicloInput = z.infer<typeof cicloSchema>;
 export type RegistroInput = z.infer<typeof registroSchema>;
+export type RegistroCreateInput = z.infer<typeof registroCreateSchema>;
 
 // --- Helper para validación ---
 

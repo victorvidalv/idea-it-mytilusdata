@@ -25,7 +25,7 @@ export type RegistroConPermisos = {
 /** Datos del formulario de creación/edición de registro */
 export type RegistroFormData = {
 	lugarId: number;
-	cicloId: number | null;
+	cicloId?: number | null | undefined;
 	tipoId: number;
 	origenId: number;
 	valor: number;

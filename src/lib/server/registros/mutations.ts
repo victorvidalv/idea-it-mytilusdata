@@ -19,7 +19,7 @@ export async function createRegistro(
 		valor: data.valor,
 		fechaMedicion: new Date(data.fechaMedicion),
 		lugarId: data.lugarId,
-		cicloId: data.cicloId,
+		cicloId: data.cicloId ?? null,
 		tipoId: data.tipoId,
 		origenId: data.origenId,
 		notas: data.notas,

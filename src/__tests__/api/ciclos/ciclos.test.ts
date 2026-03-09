@@ -25,7 +25,9 @@ vi.mock('$lib/server/db/schema', () => ({
 }));
 
 vi.mock('drizzle-orm', () => ({
-	eq: vi.fn((_, value) => ({ eq: value }))
+	eq: vi.fn((_, value) => ({ eq: value })),
+	sql: vi.fn(),
+	desc: vi.fn()
 }));
 
 vi.mock('$lib/server/apiRateLimiter', () => ({
@@ -101,19 +103,27 @@ describe('API /api/ciclos', () => {
 		apiKeyResult: { userId: number; key: string } | null,
 		ciclosResults: unknown[]
 	) {
-		// First call: API key query (needs .limit())
+		// 1st call: API key query (needs .limit())
 		const limitMock = vi.fn().mockResolvedValue(apiKeyResult ? [apiKeyResult] : []);
 		const whereMockWithLimit = vi.fn().mockReturnValue({ limit: limitMock });
 		const fromMockFirst = vi.fn().mockReturnValue({ where: whereMockWithLimit });
 
-		// Second call: ciclos query (no .limit())
-		const whereMockNoLimit = vi.fn().mockResolvedValue(ciclosResults);
-		const fromMockSecond = vi.fn().mockReturnValue({ where: whereMockNoLimit });
+		// 2nd call: COUNT query
+		const whereMockCount = vi.fn().mockResolvedValue([{ count: ciclosResults.length }]);
+		const fromMockCount = vi.fn().mockReturnValue({ where: whereMockCount });
 
-		// Chain the mocks
+		// 3rd call: data query con paginación (where → orderBy → limit → offset)
+		const offsetMock = vi.fn().mockResolvedValue(ciclosResults);
+		const dataLimitMock = vi.fn().mockReturnValue({ offset: offsetMock });
+		const orderByMock = vi.fn().mockReturnValue({ limit: dataLimitMock });
+		const whereMockData = vi.fn().mockReturnValue({ orderBy: orderByMock });
+		const fromMockData = vi.fn().mockReturnValue({ where: whereMockData });
+
+		// Encadenar las 3 llamadas
 		mockSelect
 			.mockReturnValueOnce({ from: fromMockFirst })
-			.mockReturnValueOnce({ from: fromMockSecond });
+			.mockReturnValueOnce({ from: fromMockCount })
+			.mockReturnValueOnce({ from: fromMockData });
 	}
 
 	beforeEach(() => {
@@ -298,12 +308,12 @@ describe('API /api/ciclos', () => {
 
 		describe('Manejo de errores', () => {
 			it('debería retornar 500 si hay error de base de datos', async () => {
-				// First call: API key query succeeds
+				// 1st call: API key query succeeds
 				const limitMock = vi.fn().mockResolvedValue([{ userId: 1, key: 'test-key' }]);
 				const whereMockWithLimit = vi.fn().mockReturnValue({ limit: limitMock });
 				const fromMockFirst = vi.fn().mockReturnValue({ where: whereMockWithLimit });
 
-				// Second call: ciclos query fails
+				// 2nd call: COUNT query fails
 				const whereMockError = vi.fn().mockRejectedValue(new Error('DB connection error'));
 				const fromMockSecond = vi.fn().mockReturnValue({ where: whereMockError });
 

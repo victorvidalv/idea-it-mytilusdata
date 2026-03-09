@@ -25,7 +25,9 @@ vi.mock('$lib/server/db/schema', () => ({
 }));
 
 vi.mock('drizzle-orm', () => ({
-	eq: vi.fn((_, value) => ({ eq: value }))
+	eq: vi.fn((_, value) => ({ eq: value })),
+	sql: vi.fn(),
+	desc: vi.fn()
 }));
 
 vi.mock('$lib/server/apiRateLimiter', () => ({
@@ -84,6 +86,36 @@ function createApiRequestEvent(options: {
 }
 
 describe('API /api/registros', () => {
+	/**
+	 * Helper para mockear las 3 queries: API key + COUNT + data paginada
+	 */
+	function mockPaginatedQueries(
+		apiKeyResult: { userId: number; key: string } | null,
+		dataResults: unknown[]
+	) {
+		// 1st call: API key query (needs .limit())
+		const limitMock = vi.fn().mockResolvedValue(apiKeyResult ? [apiKeyResult] : []);
+		const whereMockWithLimit = vi.fn().mockReturnValue({ limit: limitMock });
+		const fromMockFirst = vi.fn().mockReturnValue({ where: whereMockWithLimit });
+
+		// 2nd call: COUNT query
+		const whereMockCount = vi.fn().mockResolvedValue([{ count: dataResults.length }]);
+		const fromMockCount = vi.fn().mockReturnValue({ where: whereMockCount });
+
+		// 3rd call: data query con paginación (where → orderBy → limit → offset)
+		const offsetMock = vi.fn().mockResolvedValue(dataResults);
+		const dataLimitMock = vi.fn().mockReturnValue({ offset: offsetMock });
+		const orderByMock = vi.fn().mockReturnValue({ limit: dataLimitMock });
+		const whereMockData = vi.fn().mockReturnValue({ orderBy: orderByMock });
+		const fromMockData = vi.fn().mockReturnValue({ where: whereMockData });
+
+		// Encadenar las 3 llamadas
+		mockSelect
+			.mockReturnValueOnce({ from: fromMockFirst })
+			.mockReturnValueOnce({ from: fromMockCount })
+			.mockReturnValueOnce({ from: fromMockData });
+	}
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mockCheckApiRateLimit.mockResolvedValue({
@@ -169,18 +201,7 @@ describe('API /api/registros', () => {
 			});
 
 			it('debería llamar a checkApiRateLimit con el identificador correcto', async () => {
-				// First call: API key query
-				const limitMock1 = vi.fn().mockResolvedValue([{ userId: 1, key: 'test-key' }]);
-				const whereMock1 = vi.fn().mockReturnValue({ limit: limitMock1 });
-				const fromMock1 = vi.fn().mockReturnValue({ where: whereMock1 });
-
-				// Second call: registros query
-				const whereMock2 = vi.fn().mockResolvedValue([]);
-				const fromMock2 = vi.fn().mockReturnValue({ where: whereMock2 });
-
-				mockSelect
-					.mockReturnValueOnce({ from: fromMock1 })
-					.mockReturnValueOnce({ from: fromMock2 });
+				mockPaginatedQueries({ userId: 1, key: 'test-key' }, []);
 
 				const event = createApiRequestEvent({
 					authorization: 'Bearer test-key',
@@ -194,18 +215,7 @@ describe('API /api/registros', () => {
 			});
 
 			it('debería registrar la solicitud en el rate limiter', async () => {
-				// First call: API key query
-				const limitMock1 = vi.fn().mockResolvedValue([{ userId: 1, key: 'test-key' }]);
-				const whereMock1 = vi.fn().mockReturnValue({ limit: limitMock1 });
-				const fromMock1 = vi.fn().mockReturnValue({ where: whereMock1 });
-
-				// Second call: registros query
-				const whereMock2 = vi.fn().mockResolvedValue([]);
-				const fromMock2 = vi.fn().mockReturnValue({ where: whereMock2 });
-
-				mockSelect
-					.mockReturnValueOnce({ from: fromMock1 })
-					.mockReturnValueOnce({ from: fromMock2 });
+				mockPaginatedQueries({ userId: 1, key: 'test-key' }, []);
 
 				const event = createApiRequestEvent({ authorization: 'Bearer test-key' });
 
@@ -217,18 +227,7 @@ describe('API /api/registros', () => {
 
 		describe('Casos exitosos', () => {
 			it('debería retornar lista de registros vacía si no hay registros', async () => {
-				// First call: API key query
-				const limitMock1 = vi.fn().mockResolvedValue([{ userId: 1, key: 'test-key' }]);
-				const whereMock1 = vi.fn().mockReturnValue({ limit: limitMock1 });
-				const fromMock1 = vi.fn().mockReturnValue({ where: whereMock1 });
-
-				// Second call: registros query
-				const whereMock2 = vi.fn().mockResolvedValue([]);
-				const fromMock2 = vi.fn().mockReturnValue({ where: whereMock2 });
-
-				mockSelect
-					.mockReturnValueOnce({ from: fromMock1 })
-					.mockReturnValueOnce({ from: fromMock2 });
+				mockPaginatedQueries({ userId: 1, key: 'test-key' }, []);
 
 				const event = createApiRequestEvent({ authorization: 'Bearer test-key' });
 
@@ -259,18 +258,7 @@ describe('API /api/registros', () => {
 					}
 				];
 
-				// First call: API key query
-				const limitMock1 = vi.fn().mockResolvedValue([{ userId: 1, key: 'test-key' }]);
-				const whereMock1 = vi.fn().mockReturnValue({ limit: limitMock1 });
-				const fromMock1 = vi.fn().mockReturnValue({ where: whereMock1 });
-
-				// Second call: registros query
-				const whereMock2 = vi.fn().mockResolvedValue(mockRegistros);
-				const fromMock2 = vi.fn().mockReturnValue({ where: whereMock2 });
-
-				mockSelect
-					.mockReturnValueOnce({ from: fromMock1 })
-					.mockReturnValueOnce({ from: fromMock2 });
+				mockPaginatedQueries({ userId: 1, key: 'test-key' }, mockRegistros);
 
 				const event = createApiRequestEvent({ authorization: 'Bearer test-key' });
 
@@ -282,18 +270,7 @@ describe('API /api/registros', () => {
 			});
 
 			it('debería incluir headers de rate limit en la respuesta exitosa', async () => {
-				// First call: API key query
-				const limitMock1 = vi.fn().mockResolvedValue([{ userId: 1, key: 'test-key' }]);
-				const whereMock1 = vi.fn().mockReturnValue({ limit: limitMock1 });
-				const fromMock1 = vi.fn().mockReturnValue({ where: whereMock1 });
-
-				// Second call: registros query
-				const whereMock2 = vi.fn().mockResolvedValue([]);
-				const fromMock2 = vi.fn().mockReturnValue({ where: whereMock2 });
-
-				mockSelect
-					.mockReturnValueOnce({ from: fromMock1 })
-					.mockReturnValueOnce({ from: fromMock2 });
+				mockPaginatedQueries({ userId: 1, key: 'test-key' }, []);
 
 				const event = createApiRequestEvent({ authorization: 'Bearer test-key' });
 
@@ -305,18 +282,7 @@ describe('API /api/registros', () => {
 			});
 
 			it('debería registrar acceso en auditoría', async () => {
-				// First call: API key query
-				const limitMock1 = vi.fn().mockResolvedValue([{ userId: 1, key: 'test-key' }]);
-				const whereMock1 = vi.fn().mockReturnValue({ limit: limitMock1 });
-				const fromMock1 = vi.fn().mockReturnValue({ where: whereMock1 });
-
-				// Second call: registros query
-				const whereMock2 = vi.fn().mockResolvedValue([]);
-				const fromMock2 = vi.fn().mockReturnValue({ where: whereMock2 });
-
-				mockSelect
-					.mockReturnValueOnce({ from: fromMock1 })
-					.mockReturnValueOnce({ from: fromMock2 });
+				mockPaginatedQueries({ userId: 1, key: 'test-key' }, []);
 
 				const event = createApiRequestEvent({
 					authorization: 'Bearer test-key',
@@ -338,12 +304,12 @@ describe('API /api/registros', () => {
 
 		describe('Manejo de errores', () => {
 			it('debería retornar 500 si hay error de base de datos', async () => {
-				// First call: API key query succeeds
+				// 1st call: API key query succeeds
 				const limitMock1 = vi.fn().mockResolvedValue([{ userId: 1, key: 'test-key' }]);
 				const whereMock1 = vi.fn().mockReturnValue({ limit: limitMock1 });
 				const fromMock1 = vi.fn().mockReturnValue({ where: whereMock1 });
 
-				// Second call: registros query fails
+				// 2nd call: COUNT query fails
 				const whereMock2 = vi.fn().mockRejectedValue(new Error('DB connection error'));
 				const fromMock2 = vi.fn().mockReturnValue({ where: whereMock2 });
 

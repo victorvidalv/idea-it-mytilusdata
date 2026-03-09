@@ -1,8 +1,9 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { lugares } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql, desc } from 'drizzle-orm';
 import { validateApiKeyAndRateLimit } from '$lib/server/apiAuth';
+import { parsePaginationParams, buildPaginationMeta } from '$lib/server/pagination';
 
 import type { RequestEvent } from './$types';
 
@@ -19,14 +20,31 @@ export async function GET({ request, getClientAddress, url }: RequestEvent) {
 	}
 
 	const { userId, rateLimitResult } = authResult;
+	const pagination = parsePaginationParams(url.searchParams);
 
 	try {
-		// Fetch centros (lugares) for this user ID
-		const userCentros = await db.select().from(lugares).where(eq(lugares.userId, userId));
+		// Contar total de registros para metadatos de paginación
+		const [countResult] = await db
+			.select({ count: sql<number>`count(*)::int` })
+			.from(lugares)
+			.where(eq(lugares.userId, userId));
 
-		// Incluir headers de rate limit en la respuesta
+		const total = countResult?.count ?? 0;
+
+		// Consultar con paginación y orden determinístico
+		const userCentros = await db
+			.select()
+			.from(lugares)
+			.where(eq(lugares.userId, userId))
+			.orderBy(desc(lugares.createdAt))
+			.limit(pagination.limit)
+			.offset(pagination.offset);
+
 		return json(
-			{ data: userCentros },
+			{
+				data: userCentros,
+				pagination: buildPaginationMeta(pagination, total)
+			},
 			{
 				headers: {
 					'X-RateLimit-Limit': String(rateLimitResult.limit),

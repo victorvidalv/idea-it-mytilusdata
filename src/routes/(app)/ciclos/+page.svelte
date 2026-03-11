@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import toast from 'svelte-french-toast';
-	import DataTable from '$lib/components/DataTable.svelte';
+	import SvarDataGrid from '$lib/components/SvarDataGrid.svelte';
 	import CicloCreateForm from '$lib/components/ciclos/CicloCreateForm.svelte';
 	import CicloRow from '$lib/components/ciclos/CicloRow.svelte';
 
@@ -160,7 +160,7 @@
 	{:else if data.ciclos.length > 0}
 		<div class="animate-fade-up delay-150">
 			<Card.Root class="overflow-hidden border-border/50">
-				<DataTable
+				<SvarDataGrid
 					data={data.ciclos}
 					columns={[
 						{ key: 'activo', label: 'Estado', sortable: true },
@@ -191,7 +191,7 @@
 					{#each items as ciclo (ciclo.id)}
 						<CicloRow {ciclo} canViewAll={data.canViewAll} {formatDate} {diasCultivo} />
 					{/each}
-				</DataTable>
+				</SvarDataGrid>
 			</Card.Root>
 		</div>
 	{/if}

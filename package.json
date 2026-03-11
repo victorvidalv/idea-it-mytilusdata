@@ -76,6 +76,7 @@
 		"svelte-sonner": "^1.0.7",
 		"tailwind-merge": "^3.5.0",
 		"tailwind-variants": "^3.2.2",
+		"wx-svelte-grid": "^2.5.1",
 		"zod": "^4.3.6"
 	}
 }

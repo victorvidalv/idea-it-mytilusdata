@@ -1,6 +1,8 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import type { Centro, Ciclo, TipoRegistro, Usuario } from './types';
+	import FiltrosPanelHeader from './FiltrosPanelHeader.svelte';
+	import TipoMedicionButton from './TipoMedicionButton.svelte';
 
 	export let isInvestigador: boolean = false;
 	export let usuarios: Usuario[] | undefined = undefined;
@@ -27,41 +29,7 @@
 
 <div class="space-y-6">
 	<!-- Encabezado con selector de usuario (solo investigador) -->
-	<div class="animate-fade-up flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-		<div>
-			<p class="mb-2 font-body text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase">
-				{isInvestigador ? 'Área Investigador' : 'Análisis Visual'}
-			</p>
-			<h1 class="font-display text-3xl leading-tight text-foreground md:text-4xl">
-				{#if isInvestigador}
-					Análisis y <span class="text-gradient-ocean">Gráficos Globales</span>
-				{:else}
-					<span class="text-gradient-ocean">Gráficos</span> de Datos
-				{/if}
-			</h1>
-			<p class="mt-2 font-body text-sm text-muted-foreground">
-				{#if isInvestigador}
-					Visualiza la evolución de las mediciones filtradas por usuario a lo largo del tiempo
-				{:else}
-					Visualiza la evolución de tus mediciones a lo largo del tiempo
-				{/if}
-			</p>
-		</div>
-		<div class="sm:self-end">
-			{#if isInvestigador && usuarios}
-					<select
-						bind:value={selectedUserId}
-						class="w-full rounded-xl border border-border bg-background px-4 py-2 font-body text-sm text-foreground focus:border-teal-glow focus:ring-1 focus:ring-teal-glow focus:outline-none sm:w-64"
-					>
-						<option value="">Selecciona un Usuario</option>
-						<option value="all">Todos los Usuarios</option>
-						{#each usuarios as usr (usr.id)}
-							<option value={usr.id.toString()}>{usr.nombre}</option>
-						{/each}
-					</select>
-				{/if}
-		</div>
-	</div>
+	<FiltrosPanelHeader {isInvestigador} {usuarios} bind:selectedUserId />
 
 	<!-- Panel de Filtros Secundario -->
 	<div class="animate-fade-up delay-75">
@@ -120,22 +88,12 @@
 						</span>
 						<div class="flex flex-wrap gap-2 pt-1">
 							{#each tipos as tipo (tipo.id)}
-								<button
-									type="button"
-									class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-body text-xs font-medium transition-all duration-200 {selectedTipoIds.has(tipo.id)
-										? 'border-ocean-light/40 bg-ocean-light/10 text-ocean-light'
-										: 'border-border/50 text-muted-foreground hover:border-border hover:bg-secondary/50'}"
-									onclick={() => toggleTipo(tipo.id)}
-								>
-									<div
-										class="h-2.5 w-2.5 rounded-full transition-opacity {selectedTipoIds.has(tipo.id)
-											? 'opacity-100'
-											: 'opacity-30'}"
-										style="background-color: {getColorForTipo(tipo.id)}"
-									></div>
-									{tipo.codigo}
-									<span class="text-[10px] opacity-60">({tipo.unidadBase})</span>
-								</button>
+								<TipoMedicionButton
+									{tipo}
+									isSelected={selectedTipoIds.has(tipo.id)}
+									{getColorForTipo}
+									onToggle={toggleTipo}
+								/>
 							{/each}
 						</div>
 					</div>

@@ -3,7 +3,7 @@
 	 * Encabezado de tabla con soporte para ordenamiento.
 	 */
 	import { createEventDispatcher } from 'svelte';
-	import type { ColumnConfig } from './datagrid-utils';
+	import type { ColumnConfig } from './datagrid-types';
 
 	export let columns: ColumnConfig[];
 	export let sortKey: string;

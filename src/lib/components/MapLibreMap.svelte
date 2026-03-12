@@ -3,11 +3,17 @@
 	import MapEvents from 'svelte-maplibre/MapEvents.svelte';
 	import DefaultMarker from 'svelte-maplibre/DefaultMarker.svelte';
 	import 'maplibre-gl/dist/maplibre-gl.css';
-	import type { LngLat, MapMouseEvent, Map as MapLibreMap } from 'maplibre-gl';
+	import type { LngLat, MapMouseEvent, Map as MapLibreMapType } from 'maplibre-gl';
+	import {
+		DEFAULT_LATITUDE,
+		DEFAULT_LONGITUDE,
+		createLngLat,
+		hasCustomCoordinates
+	} from './map-utils';
 
 	let {
-		latitude = -41.4689,
-		longitude = -72.9411,
+		latitude = DEFAULT_LATITUDE,
+		longitude = DEFAULT_LONGITUDE,
 		zoom = 8,
 		readonly = false,
 		height = '360px',
@@ -24,33 +30,28 @@
 	} = $props();
 
 	// Estado del marcador seleccionado
-	let selectedLngLat: LngLat | null = $state(
-		latitude !== -41.4689 || longitude !== -72.9411
-			? { lng: longitude, lat: latitude } as LngLat
-			: null
-	);
+	let selectedLngLat: LngLat | null = $state(null);
 
 	// Referencia al mapa
-	let mapInstance: MapLibreMap | null = $state(null);
+	let mapInstance: MapLibreMapType | null = $state(null);
 
 	function handleMapClick(e: MapMouseEvent) {
 		if (readonly) return;
-
 		selectedLngLat = e.lngLat;
 		onselect?.({ lat: e.lngLat.lat, lng: e.lngLat.lng });
 	}
 
-	function handleMapLoad(map: MapLibreMap) {
+	function handleMapLoad(map: MapLibreMapType) {
 		mapInstance = map;
 		// Invalidar tamaño para asegurar renderizado correcto
 		setTimeout(() => mapInstance?.resize(), 100);
 		setTimeout(() => mapInstance?.resize(), 300);
 	}
 
-	// Sincronizar props con estado interno
+	// Sincronizar props con estado interno usando $effect
 	$effect(() => {
-		if (latitude !== -41.4689 || longitude !== -72.9411) {
-			selectedLngLat = { lng: longitude, lat: latitude } as LngLat;
+		if (hasCustomCoordinates(latitude, longitude)) {
+			selectedLngLat = createLngLat(longitude, latitude);
 		}
 	});
 </script>

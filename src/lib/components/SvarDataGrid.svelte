@@ -8,6 +8,9 @@
 	 */
 	import { Grid, Willow } from 'wx-svelte-grid';
 	import type { IColumnConfig, IApi, IRow } from 'wx-svelte-grid';
+	import DataGridEmptyState from './datagrid/DataGridEmptyState.svelte';
+	import DataGridSearchBar from './datagrid/DataGridSearchBar.svelte';
+	import DataGridPagination from './datagrid/DataGridPagination.svelte';
 
 	// Tipo para filas de datos - usar any para máxima flexibilidad
 	type RowData = any;
@@ -46,8 +49,6 @@
 	let currentPage = 1;
 	let selectedPageSize = pageSize;
 	let gridApi: IApi | null = null;
-
-	const pageSizeOptions = [10, 25, 50, 100];
 
 	// Resetear página al cambiar búsqueda o tamaño
 	$: if (searchQuery !== undefined || selectedPageSize) {
@@ -171,19 +172,6 @@
 		return result;
 	});
 
-	// Páginas visibles para navegación
-	$: visiblePages = (() => {
-		const pages: number[] = [];
-		const maxVisible = 5;
-		let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-		let end = Math.min(totalPages, start + maxVisible - 1);
-		if (end - start < maxVisible - 1) {
-			start = Math.max(1, end - maxVisible + 1);
-		}
-		for (let i = start; i <= end; i++) pages.push(i);
-		return pages;
-	})();
-
 	// Inicializar API del grid (modo grid)
 	function initGrid(api: IApi) {
 		gridApi = api;
@@ -218,64 +206,11 @@
 
 <div class="svar-datagrid-wrapper">
 	<!-- Barra de controles: búsqueda + filas por página -->
-	<div
-		class="flex flex-col justify-between gap-3 rounded-t-xl border-b border-border/40 bg-secondary/10 px-5 py-3 sm:flex-row sm:items-center"
-	>
-		<!-- Búsqueda -->
-		<div class="relative max-w-sm flex-1">
-			<svg
-				class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground/50"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-			>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-				/>
-			</svg>
-			<input
-				type="text"
-				bind:value={searchQuery}
-				placeholder={searchPlaceholder}
-				class="h-9 w-full rounded-lg border border-border/60 bg-background pr-3 pl-9 font-body text-sm transition-all placeholder:text-muted-foreground/50 focus:border-ocean-light focus:ring-2 focus:ring-ocean-light/20 focus:outline-none"
-			/>
-			{#if searchQuery}
-				<button
-					type="button"
-					onclick={() => {
-						searchQuery = '';
-					}}
-					class="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
-					aria-label="Limpiar búsqueda"
-				>
-					<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M6 18L18 6M6 6l12 12"
-						/>
-					</svg>
-				</button>
-			{/if}
-		</div>
-
-		<!-- Filas por página -->
-		<div class="flex items-center gap-2 font-body text-xs text-muted-foreground">
-			<span>Filas:</span>
-			<select
-				bind:value={selectedPageSize}
-				class="h-8 cursor-pointer rounded-md border border-border/60 bg-background px-2 font-body text-xs transition-all focus:border-ocean-light focus:outline-none"
-			>
-				{#each pageSizeOptions as size (size)}
-					<option value={size}>{size}</option>
-				{/each}
-			</select>
-		</div>
-	</div>
+	<DataGridSearchBar
+		bind:searchQuery
+		bind:selectedPageSize
+		{searchPlaceholder}
+	/>
 
 	{#if mode === 'table'}
 		<!-- Modo Table: Tabla nativa con slots -->
@@ -337,27 +272,12 @@
 					{#if paginatedData.length === 0}
 						<tr>
 							<td colspan={columns.length} class="py-12">
-								<div class="flex flex-col items-center justify-center text-muted-foreground">
-									<svg
-										class="mb-3 h-12 w-12 text-muted-foreground/30"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1"
-											d={emptyIcon}
-										/>
-									</svg>
-									<p class="text-sm font-medium">{searchQuery ? 'Sin resultados' : emptyTitle}</p>
-									<p class="mt-1 text-xs">
-										{searchQuery
-											? `No se encontraron coincidencias para "${searchQuery}"`
-											: emptyDescription}
-									</p>
-								</div>
+								<DataGridEmptyState
+									{searchQuery}
+									{emptyIcon}
+									{emptyTitle}
+									{emptyDescription}
+								/>
 							</td>
 						</tr>
 					{:else}
@@ -370,27 +290,12 @@
 		<!-- Modo Grid: wx-svelte-grid -->
 		<div class="svar-grid-container overflow-hidden rounded-b-xl border border-border/50">
 			{#if paginatedData.length === 0}
-				<div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
-					<svg
-						class="mb-3 h-12 w-12 text-muted-foreground/30"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="1"
-							d={emptyIcon}
-						/>
-					</svg>
-					<p class="text-sm font-medium">{searchQuery ? 'Sin resultados' : emptyTitle}</p>
-					<p class="mt-1 text-xs">
-						{searchQuery
-							? `No se encontraron coincidencias para "${searchQuery}"`
-							: emptyDescription}
-					</p>
-				</div>
+				<DataGridEmptyState
+					{searchQuery}
+					{emptyIcon}
+					{emptyTitle}
+					{emptyDescription}
+				/>
 			{:else}
 				<Willow>
 					<Grid
@@ -412,110 +317,14 @@
 	{/if}
 
 	<!-- Pie: paginación + contador -->
-	{#if data.length > 0}
-		<div
-			class="flex flex-col items-center justify-between gap-2 rounded-b-xl border-t border-border/30 bg-secondary/10 px-5 py-3 sm:flex-row"
-		>
-			<p class="font-body text-[11px] text-muted-foreground">
-				{#if dataForPagination.length === 0}
-					0 resultados
-				{:else}
-					{startIndex}–{endIndex} de {dataForPagination.length}
-					{#if dataForPagination.length !== data.length}
-						<span class="opacity-60">(filtro: {data.length} total)</span>
-					{/if}
-				{/if}
-			</p>
-
-			{#if totalPages > 1}
-				<div class="flex items-center gap-1">
-					<button
-						onclick={() => {
-							currentPage = 1;
-						}}
-						disabled={currentPage === 1}
-						class="flex h-7 w-7 items-center justify-center rounded-md text-xs text-muted-foreground transition-all hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-30"
-						aria-label="Primera página"
-					>
-						<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-							><path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-							/></svg
-						>
-					</button>
-					<button
-						onclick={() => {
-							currentPage = Math.max(1, currentPage - 1);
-						}}
-						disabled={currentPage === 1}
-						class="flex h-7 w-7 items-center justify-center rounded-md text-xs text-muted-foreground transition-all hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-30"
-						aria-label="Página anterior"
-					>
-						<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-							><path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M15 19l-7-7 7-7"
-							/></svg
-						>
-					</button>
-
-					{#each visiblePages as page (page)}
-						<button
-							onclick={() => {
-								currentPage = page;
-							}}
-							class="flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 font-body text-xs font-medium transition-all
-								{page === currentPage
-								? 'bg-ocean-mid text-white shadow-sm'
-								: 'text-muted-foreground hover:bg-secondary'}"
-						>
-							{page}
-						</button>
-					{/each}
-
-					<button
-						onclick={() => {
-							currentPage = Math.min(totalPages, currentPage + 1);
-						}}
-						disabled={currentPage === totalPages}
-						class="flex h-7 w-7 items-center justify-center rounded-md text-xs text-muted-foreground transition-all hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-30"
-						aria-label="Página siguiente"
-					>
-						<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-							><path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 5l7 7-7 7"
-							/></svg
-						>
-					</button>
-					<button
-						onclick={() => {
-							currentPage = totalPages;
-						}}
-						disabled={currentPage === totalPages}
-						class="flex h-7 w-7 items-center justify-center rounded-md text-xs text-muted-foreground transition-all hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-30"
-						aria-label="Última página"
-					>
-						<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-							><path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M13 5l7 7-7 7M5 5l7 7-7 7"
-							/></svg
-						>
-					</button>
-				</div>
-			{/if}
-		</div>
-	{/if}
+	<DataGridPagination
+		{currentPage}
+		{totalPages}
+		{startIndex}
+		{endIndex}
+		filteredCount={dataForPagination.length}
+		totalCount={data.length}
+	/>
 </div>
 
 <style>

@@ -6,6 +6,22 @@ import { fail } from '@sveltejs/kit';
 import { hasMinRole, ROLES, type Rol } from '$lib/server/auth';
 import { centroSchema, parseFormData } from '$lib/validations';
 
+/**
+ * Transforma un lugar de la DB al formato esperado por el cliente.
+ * Extrae latitud/longitud de la columna geom (PostGIS).
+ * geom: { x: longitud, y: latitud }
+ */
+function transformarLugarParaCliente(lugar: typeof lugares.$inferSelect) {
+	return {
+		id: lugar.id,
+		nombre: lugar.nombre,
+		latitud: lugar.geom?.y ?? lugar.latitud ?? null,
+		longitud: lugar.geom?.x ?? lugar.longitud ?? null,
+		userId: lugar.userId,
+		createdAt: lugar.createdAt ? new Date(lugar.createdAt).toISOString() : null
+	};
+}
+
 /** Cargar centros de cultivo según rol del usuario */
 export const load: PageServerLoad = async ({ locals }) => {
 	const userId = locals.user?.userId;
@@ -31,10 +47,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const conteoMap = new Map(ciclosPorLugar.map((c) => [c.lugarId, c.total]));
 
 	const centrosConCiclos = centrosList.map((centro) => ({
-		...centro,
+		...transformarLugarParaCliente(centro),
 		totalCiclos: conteoMap.get(centro.id) ?? 0,
-		isOwner: centro.userId === userId,
-		createdAt: centro.createdAt ? new Date(centro.createdAt).toISOString() : null
+		isOwner: centro.userId === userId
 	}));
 
 	return {
@@ -58,10 +73,15 @@ export const actions = {
 
 		const { nombre, latitud, longitud } = validated.data;
 
+		// Crear punto PostGIS si hay coordenadas válidas
+		// geom espera { x: longitud, y: latitud }
+		const geom = (latitud != null && longitud != null)
+			? { x: longitud, y: latitud }
+			: null;
+
 		await db.insert(lugares).values({
 			nombre,
-			latitud: latitud ?? null,
-			longitud: longitud ?? null,
+			geom,
 			userId
 		});
 
@@ -89,9 +109,14 @@ export const actions = {
 			return fail(403, { error: true, message: 'No tiene permisos para editar este centro' });
 		}
 
+		// Crear punto PostGIS si hay coordenadas válidas
+		const geom = (latitud != null && longitud != null)
+			? { x: longitud, y: latitud }
+			: null;
+
 		await db
 			.update(lugares)
-			.set({ nombre, latitud: latitud ?? null, longitud: longitud ?? null })
+			.set({ nombre, geom })
 			.where(eq(lugares.id, centroId));
 		return { success: true, message: 'Centro actualizado exitosamente' };
 	},

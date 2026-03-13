@@ -1,0 +1,512 @@
+══════════════════════════════════════════════════════════════════════
+              REPORTE DE ANÁLISIS DE CÓDIGO SVELTE
+══════════════════════════════════════════════════════════════════════
+
+Fecha: 2026-03-16T16:38:50.482Z
+Directorio: /Users/vmvv/work/idea-it-mytilusdata
+Configuración: .qa
+
+──────────────────────────────────────────────────────────────────────
+LÍMITES CONFIGURADOS
+──────────────────────────────────────────────────────────────────────
+Complejidad Máxima: 10
+Líneas Máximas: 200
+Extensiones: svelte
+
+──────────────────────────────────────────────────────────────────────
+RESUMEN
+──────────────────────────────────────────────────────────────────────
+Archivos analizados: 124
+Total líneas: 7685
+Complejidad promedio: 3.5
+Código duplicado: 4.55%
+Archivos con errores: 0
+Archivos que fallan: 0
+
+──────────────────────────────────────────────────────────────────────
+DETALLE POR ARCHIVO
+──────────────────────────────────────────────────────────────────────
+Archivo                                         Líneas  Complejidad     Estado
+----------------------------------------------------------------------
+src/lib/components/SearchableSelect.svelte         177 10         OK
+src/lib/components/centros/CentroEditForm.sve      157 10         OK
+src/lib/components/SvarDataGrid.svelte             108 10         OK
+src/routes/(app)/admin/usuarios/+page.svelte        99 10         OK
+src/routes/(app)/admin/tipos-medicion/+page.s       77 10         OK
+src/routes/(app)/admin/origenes/+page.svelte        74 10         OK
+src/routes/(app)/ciclos/+page.svelte                58 10         OK
+src/lib/components/centros/CentroDeleteButton       52 10         OK
+src/routes/(app)/investigador/ciclos/+page.sv      181 9         OK
+src/lib/components/datagrid/DataGridPaginatio      129 9         OK
+src/lib/components/usuarios/UsuarioRow.svelte      115 9         OK
+src/lib/components/graficos/DashboardGraficos      102 9         OK
+src/lib/components/registros/RegistroRowConte       74 9         OK
+src/lib/components/centros/CentroRowDisplay.s       68 9         OK
+src/lib/components/MapContainer.svelte              61 9         OK
+src/lib/components/datagrid/DataGridTableHead       58 9         OK
+src/lib/components/MapLibreMap.svelte               50 9         OK
+src/routes/(app)/perfil/api-keys/+page.svelte      139 8         OK
+src/lib/components/graficos/GraficoEvolucion.      131 8         OK
+src/routes/(app)/centros/+page.svelte              126 7         OK
+src/lib/components/auth/LoginRegistrationForm      105 7         OK
+src/routes/auth/login/+page.svelte                  67 7         OK
+src/lib/components/graficos/FiltrosPanelHeade       43 7         OK
+src/lib/components/graficos/EstadisticasPanel      191 6         OK
+src/routes/(app)/investigador/registros/+page      145 6         OK
+src/lib/components/graficos/FiltrosPanel.svel      104 6         OK
+src/lib/components/registros/RegistroCreateFo       91 6         OK
+src/lib/components/registros/RegistroEditForm       77 6         OK
+src/routes/(app)/dashboard/+page.svelte             71 6         OK
+src/lib/components/registros/RegistroFormCont       69 6         OK
+src/lib/components/ui/input/input.svelte            53 6         OK
+src/lib/components/centros/CentroRow.svelte         38 6         OK
+src/lib/components/MapMarkers.svelte                20 6         OK
+src/lib/components/centros/CentroCreateForm.s      160 5         OK
+src/lib/components/ciclos/CicloRow.svelte          122 5         OK
+src/lib/components/ui/button/button.svelte          83 5         OK
+src/lib/components/datagrid/DataGridGridView.       82 5         OK
+src/lib/components/ciclos/CiclosPageHeader.sv       41 5         OK
+src/routes/(app)/registros/+page.svelte             96 4         OK
+src/routes/(app)/investigador/centros/+page.s       95 4         OK
+src/lib/components/registros/RegistroRowActio       70 4         OK
+src/lib/components/tipos-medicion/TiposMedici       64 4         OK
+src/lib/components/origenes/OrigenesTable.sve       57 4         OK
+src/lib/components/auth/LoginSubmitButton.sve       46 4         OK
+src/lib/components/acerca-de/AcercaDeSection.       30 4         OK
+src/lib/components/tipos-medicion/TipoMedicio      118 3         OK
+src/lib/components/perfil/PerfilDangerZoneSec      114 3         OK
+src/lib/components/perfil/PerfilInfoSection.s      101 3         OK
+src/lib/components/origenes/OrigenRow.svelte       100 3         OK
+src/lib/components/datagrid/DataGridSearchBar       69 3         OK
+src/routes/(app)/perfil/api-keys/_components/       54 3         OK
+src/lib/components/registros/RegistrosPageHea       45 3         OK
+src/lib/components/origenes/OrigenesPageHeade       43 3         OK
+src/lib/components/tipos-medicion/TiposMedici       43 3         OK
+src/lib/components/datagrid/DataGridTableView       41 3         OK
+src/lib/components/centros/CentroRowActions.s       35 3         OK
+src/lib/components/legal/TermSection.svelte         31 3         OK
+src/lib/components/registros/RegistroRow.svel       25 3         OK
+src/lib/components/auth/LoginFormContent.svel       19 3         OK
+src/lib/components/registros/RegistroRowCentr       14 3         OK
+src/routes/(app)/investigador/dashboard/+page      173 2         OK
+src/lib/components/registros/RegistroFormMedi      111 2         OK
+src/lib/components/registros/RegistroEditMedi      102 2         OK
+src/lib/components/dashboard/DashboardChartPl       69 2         OK
+src/lib/components/ciclos/CiclosGrid.svelte         49 2         OK
+src/lib/components/registros/RegistroEditCont       49 2         OK
+src/lib/components/home/HomeEntitiesSection.s       47 2         OK
+src/lib/components/auth/LoginEmailForm.svelte       45 2         OK
+src/lib/components/auth/LoginRateLimitWarning       34 2         OK
+src/routes/(app)/admin/tipos-medicion/_compon       34 2         OK
+src/routes/(app)/admin/origenes/_components/O       32 2         OK
+src/lib/components/registros/RegistroRowOrige       19 2         OK
+src/lib/components/auth/LoginDefaultState.sve       17 2         OK
+src/routes/(app)/+layout.svelte                    116 1         OK
+src/routes/condiciones-servicios/+page.svelte      114 1         OK
+src/lib/components/ciclos/CicloCreateForm.sve      105 1         OK
+src/routes/+page.svelte                            104 1         OK
+src/routes/acerca-de/+page.svelte                  102 1         OK
+src/lib/components/usuarios/UsuariosSummaryCa       96 1         OK
+src/routes/(app)/perfil/api-keys/_components/       85 1         OK
+src/lib/components/dashboard/DashboardActivit       73 1         OK
+src/lib/components/tipos-medicion/TipoMedicio       63 1         OK
+src/lib/components/legal/sections/SectionDere       51 1         OK
+src/lib/components/origenes/OrigenCreateForm.       46 1         OK
+src/routes/(app)/perfil/api-keys/_components/       44 1         OK
+src/lib/components/perfil/PerfilExportSection       43 1         OK
+src/lib/components/dashboard/DashboardStatCar       42 1         OK
+src/lib/components/perfil/PerfilApiKeysSectio       39 1         OK
+src/lib/components/legal/sections/SectionSegu       37 1         OK
+src/lib/components/registros/RegistrosNoCentr       35 1         OK
+src/lib/components/ui/sonner/sonner.svelte          35 1         OK
+src/lib/components/auth/LoginSuccessState.sve       34 1         OK
+src/lib/components/legal/sections/SectionLegi       34 1         OK
+src/lib/components/datagrid/DataGridEmptyStat       33 1         OK
+src/lib/components/auth/LoginFooter.svelte          31 1         OK
+src/lib/components/legal/sections/SectionProt       31 1         OK
+src/routes/(app)/perfil/+page.svelte                31 1         OK
+src/lib/components/auth/LoginVisualPanel.svel       29 1         OK
+src/lib/components/ciclos/CiclosNoCentrosAler       27 1         OK
+src/lib/components/home/HomeEntityCard.svelte       27 1         OK
+src/lib/components/tipos-medicion/AccessDenie       27 1         OK
+src/lib/components/legal/sections/SectionGobe       26 1         OK
+src/lib/components/legal/sections/SectionProp       25 1         OK
+src/lib/components/auth/LoginCaptchaError.sve       24 1         OK
+src/lib/components/ui/card/card-header.svelte       24 1         OK
+src/lib/components/ui/card/card.svelte              24 1         OK
+src/lib/components/auth/LoginBackLink.svelte        23 1         OK
+src/lib/components/graficos/TipoMedicionButto       23 1         OK
+src/lib/components/ciclos/CiclosEmptyState.sv       22 1         OK
+src/lib/components/legal/sections/SectionIden       21 1         OK
+src/lib/components/ui/card/card-action.svelte       21 1         OK
+src/lib/components/ui/card/card-description.s       21 1         OK
+src/lib/components/ui/card/card-footer.svelte       21 1         OK
+src/lib/components/ui/card/card-title.svelte        21 1         OK
+src/lib/components/ui/label/label.svelte            21 1         OK
+src/lib/components/acerca-de/SectionEjeEconom       19 1         OK
+src/lib/components/acerca-de/SectionEjeTecnic       19 1         OK
+src/lib/components/acerca-de/SectionEjeOperat       18 1         OK
+src/routes/+layout.svelte                           18 1         OK
+src/lib/components/acerca-de/SectionPropuesta       17 1         OK
+src/lib/components/auth/LoginHeader.svelte          16 1         OK
+src/lib/components/ui/card/card-content.svelt       16 1         OK
+src/routes/(app)/graficos/+page.svelte              11 1         OK
+src/routes/(app)/investigador/graficos/+page.       11 1         OK
+
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+DETALLES DE COMPLEJIDAD DEL TEMPLATE
+──────────────────────────────────────────────────────────────────────
+
+src/lib/components/SearchableSelect.svelte:
+  Template: 3 directivas {#if}, 1 directivas {:else/:else if}, 1 directivas {#each}
+
+src/lib/components/centros/CentroEditForm.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/SvarDataGrid.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/routes/(app)/admin/usuarios/+page.svelte:
+  Template: 1 directivas {#each}
+
+src/routes/(app)/admin/tipos-medicion/+page.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/routes/(app)/admin/origenes/+page.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/routes/(app)/ciclos/+page.svelte:
+  Template: 3 directivas {#if}
+
+src/routes/(app)/investigador/ciclos/+page.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}, 2 directivas {#each}
+
+src/lib/components/datagrid/DataGridPagination.svelte:
+  Template: 4 directivas {#if}, 1 directivas {:else/:else if}, 1 directivas {#each}
+
+src/lib/components/usuarios/UsuarioRow.svelte:
+  Template: 4 directivas {#if}, 3 directivas {:else/:else if}
+
+src/lib/components/centros/CentroRowDisplay.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/datagrid/DataGridTableHeader.svelte:
+  Template: 2 directivas {#if}, 1 directivas {:else/:else if}, 1 directivas {#each}
+
+src/routes/(app)/perfil/api-keys/+page.svelte:
+  Template: 3 directivas {#if}, 3 directivas {:else/:else if}
+
+src/lib/components/graficos/GraficoEvolucion.svelte:
+  Template: 3 directivas {#if}, 2 directivas {:else/:else if}, 2 directivas {#each}
+
+src/routes/(app)/centros/+page.svelte:
+  Template: 3 directivas {#if}, 2 directivas {:else/:else if}, 1 directivas {#each}
+
+src/lib/components/auth/LoginRegistrationForm.svelte:
+  Template: 2 directivas {#if}
+
+src/routes/auth/login/+page.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/graficos/FiltrosPanelHeader.svelte:
+  Template: 3 directivas {#if}, 2 directivas {:else/:else if}, 1 directivas {#each}
+
+src/lib/components/graficos/EstadisticasPanel.svelte:
+  Template: 3 directivas {#if}, 2 directivas {#each}
+
+src/routes/(app)/investigador/registros/+page.svelte:
+  Template: 1 directivas {#if}, 2 directivas {#each}
+
+src/lib/components/graficos/FiltrosPanel.svelte:
+  Template: 3 directivas {#each}
+
+src/routes/(app)/dashboard/+page.svelte:
+  Template: 2 directivas {#if}, 2 directivas {:else/:else if}, 1 directivas {#each}
+
+src/lib/components/registros/RegistroFormContexto.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/ui/input/input.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/centros/CentroRow.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/MapMarkers.svelte:
+  Template: 1 directivas {#if}, 1 directivas {#each}
+
+src/lib/components/centros/CentroCreateForm.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/ciclos/CicloRow.svelte:
+  Template: 3 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/ui/button/button.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/datagrid/DataGridGridView.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/ciclos/CiclosPageHeader.svelte:
+  Template: 2 directivas {#if}, 2 directivas {:else/:else if}
+
+src/routes/(app)/registros/+page.svelte:
+  Template: 2 directivas {#if}, 1 directivas {#each}
+
+src/routes/(app)/investigador/centros/+page.svelte:
+  Template: 2 directivas {#each}
+
+src/lib/components/registros/RegistroRowActions.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/tipos-medicion/TiposMedicionTable.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}, 1 directivas {#each}
+
+src/lib/components/origenes/OrigenesTable.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}, 1 directivas {#each}
+
+src/lib/components/auth/LoginSubmitButton.svelte:
+  Template: 2 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/tipos-medicion/TipoMedicionRow.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/perfil/PerfilDangerZoneSection.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/perfil/PerfilInfoSection.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/origenes/OrigenRow.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/datagrid/DataGridSearchBar.svelte:
+  Template: 1 directivas {#if}, 1 directivas {#each}
+
+src/routes/(app)/perfil/api-keys/_components/ApiKeyEmptyState.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/registros/RegistrosPageHeader.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/origenes/OrigenesPageHeader.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/tipos-medicion/TiposMedicionPageHeader.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/datagrid/DataGridTableView.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/centros/CentroRowActions.svelte:
+  Template: 2 directivas {#if}
+
+src/lib/components/legal/TermSection.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/registros/RegistroRow.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/auth/LoginFormContent.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/registros/RegistroRowCentro.svelte:
+  Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/routes/(app)/investigador/dashboard/+page.svelte:
+  Template: 1 directivas {#each}
+
+src/lib/components/dashboard/DashboardChartPlaceholder.svelte:
+  Template: 1 directivas {#each}
+
+src/lib/components/ciclos/CiclosGrid.svelte:
+  Template: 1 directivas {#each}
+
+src/lib/components/home/HomeEntitiesSection.svelte:
+  Template: 1 directivas {#each}
+
+src/lib/components/auth/LoginRateLimitWarning.svelte:
+  Template: 1 directivas {#if}
+
+src/routes/(app)/admin/tipos-medicion/_components/TiposMedicionContent.svelte:
+  Template: 1 directivas {#if}
+
+src/routes/(app)/admin/origenes/_components/OrigenesContent.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/registros/RegistroRowOrigen.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/auth/LoginDefaultState.svelte:
+  Template: 1 directivas {#if}
+
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+FRAGMENTOS MÁS REPETIDOS
+──────────────────────────────────────────────────────────────────────
+
+1. 5 líneas, 18 veces en:
+   - SearchableSelect.svelte
+   - LoginBackLink.svelte
+   - LoginCaptchaError.svelte
+
+2. 5 líneas, 18 veces en:
+   - SearchableSelect.svelte
+   - LoginBackLink.svelte
+   - LoginCaptchaError.svelte
+
+3. 5 líneas, 18 veces en:
+   - SearchableSelect.svelte
+   - LoginBackLink.svelte
+   - LoginCaptchaError.svelte
+
+4. 5 líneas, 14 veces en:
+   - SearchableSelect.svelte
+   - LoginBackLink.svelte
+   - LoginCaptchaError.svelte
+
+5. 5 líneas, 7 veces en:
+   - RegistrosPageHeader.svelte
+   - +page.svelte
+   - +page.svelte
+
+══════════════════════════════════════════════════════════════════════
+FIN DEL REPORTE
+══════════════════════════════════════════════════════════════════════

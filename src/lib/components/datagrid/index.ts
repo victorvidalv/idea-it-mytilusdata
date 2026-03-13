@@ -3,6 +3,8 @@ export { default as DataGridEmptyState } from './DataGridEmptyState.svelte';
 export { default as DataGridSearchBar } from './DataGridSearchBar.svelte';
 export { default as DataGridPagination } from './DataGridPagination.svelte';
 export { default as DataGridTableHeader } from './DataGridTableHeader.svelte';
+export { default as DataGridTableView } from './DataGridTableView.svelte';
+export { default as DataGridGridView } from './DataGridGridView.svelte';
 
 // Tipos compartidos
 export { type RowData, type ColumnConfig, type SortState } from './datagrid-types';

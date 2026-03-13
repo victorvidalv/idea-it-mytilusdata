@@ -1,7 +1,7 @@
 /**
  * Utilidades para el componente MapLibreMap
  */
-import type { LngLat } from 'maplibre-gl';
+import type { LngLat, Map as MapLibreMapType } from 'maplibre-gl';
 
 /** Coordenadas por defecto (Puerto Montt, Chile) */
 export const DEFAULT_LATITUDE = -41.4689;
@@ -27,4 +27,12 @@ export function createLngLat(lng: number, lat: number): LngLat {
  */
 export function getInitialMarkerPosition(lat: number, lng: number): LngLat | null {
 	return hasCustomCoordinates(lat, lng) ? createLngLat(lng, lat) : null;
+}
+
+/**
+ * Programa llamadas a resize para asegurar renderizado correcto del mapa
+ */
+export function scheduleMapResize(map: MapLibreMapType): void {
+	setTimeout(() => map.resize(), 100);
+	setTimeout(() => map.resize(), 300);
 }

@@ -11,11 +11,16 @@
 
 	let showForm = false;
 
-	$: if (form?.success) {
-		toast.success('¡Operación exitosa! ' + (form?.message || ''));
-		showForm = false;
-	} else if (form?.error) {
-		toast.error('Error: ' + (form?.message || ''));
+	$: handleFormResult(form);
+
+	function handleFormResult(formData: typeof form) {
+		if (!formData) return;
+		if (formData.success) {
+			toast.success('¡Operación exitosa! ' + (formData.message || ''));
+			showForm = false;
+		} else if (formData.error) {
+			toast.error('Error: ' + (formData.message || ''));
+		}
 	}
 
 	// Estadísticas

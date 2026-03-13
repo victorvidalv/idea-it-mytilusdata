@@ -40,10 +40,12 @@ describe('RegistroRow', () => {
 
 	const defaultProps = {
 		reg: baseReg,
-		editingId: null,
 		data: baseData,
-		onEdit: vi.fn(),
-		onCancel: vi.fn(),
+		editState: {
+			editingId: null,
+			onEdit: vi.fn(),
+			onCancel: vi.fn()
+		},
 		handleAction: vi.fn(),
 		formatDateTime
 	};
@@ -114,13 +116,19 @@ describe('RegistroRow', () => {
 
 	describe('Modo edición', () => {
 		it('debería mostrar formulario de edición cuando editingId coincide', async () => {
-			render(RegistroRow, { ...defaultProps, editingId: 1 });
+			render(RegistroRow, {
+				...defaultProps,
+				editState: { ...defaultProps.editState, editingId: 1 }
+			});
 			await expect.element(page.getByRole('button', { name: 'Guardar' })).toBeInTheDocument();
 			await expect.element(page.getByRole('button', { name: 'Cancelar' })).toBeInTheDocument();
 		});
 
 		it('no debería mostrar formulario cuando editingId no coincide', async () => {
-			render(RegistroRow, { ...defaultProps, editingId: 99 });
+			render(RegistroRow, {
+				...defaultProps,
+				editState: { ...defaultProps.editState, editingId: 99 }
+			});
 			await expect.element(page.getByRole('button', { name: 'Guardar' })).not.toBeInTheDocument();
 		});
 	});

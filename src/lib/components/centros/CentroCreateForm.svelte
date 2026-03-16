@@ -3,25 +3,29 @@
 	import { browser } from '$app/environment';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
+	import { processMapCoordinates } from '$lib/components/map-utils';
 
-	export let onCancel: () => void;
-	export let onSuccess: (message: string) => void;
-	export let onError: (message: string) => void;
+	interface Props {
+		onCancel: () => void;
+		onSuccess: (message: string) => void;
+		onError: (message: string) => void;
+	}
+
+	let { onCancel, onSuccess, onError }: Props = $props();
 
 	// Estado del formulario de creación
-	let newNombre = '';
-	let newLat = '';
-	let newLng = '';
-	let showMap = false;
+	let newNombre = $state('');
+	let newLat = $state('');
+	let newLng = $state('');
+	let showMap = $state(false);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let MapComponent: any = null;
+	let MapComponent: any = $state(null);
 
 	function handleMapSelect(coords: { lat: number; lng: number }) {
-		const lat = Math.round(coords.lat * 10000) / 10000;
-		const lng = Math.round(coords.lng * 10000) / 10000;
-		newLat = lat.toString();
-		newLng = lng.toString();
+		const formatted = processMapCoordinates(coords);
+		newLat = formatted.lat;
+		newLng = formatted.lng;
 	}
 
 	function toggleMap() {
@@ -128,7 +132,7 @@
 
 					{#if showMap && MapComponent}
 						<div class="mt-3">
-							<svelte:component this={MapComponent} height="280px" onselect={handleMapSelect} />
+							<MapComponent height="280px" onselect={handleMapSelect} />
 							<p class="mt-1.5 font-body text-[11px] text-muted-foreground">
 								Haga clic en el mapa para seleccionar coordenadas
 							</p>

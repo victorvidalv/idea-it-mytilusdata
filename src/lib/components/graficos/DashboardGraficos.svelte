@@ -3,9 +3,15 @@
 	import FiltrosPanel from './FiltrosPanel.svelte';
 	import GraficoEvolucion from './GraficoEvolucion.svelte';
 	import EstadisticasPanel from './EstadisticasPanel.svelte';
-	import { buildTipoColorMap, filterCentrosByUser, filterCiclosByCentro, filterRegistros, validarSelecciones } from './index';
+	import {
+		buildTipoColorMap,
+		filterCentrosByUser,
+		filterCiclosByCentro,
+		filterRegistros,
+		validarSelecciones
+	} from './index';
 	import { buildChartSeries, calculateStats } from './dashboardUtils';
-	import type { DashboardData, ChartSeriesItem, Stats, Registro, TipoRegistro } from './types';
+	import type { DashboardData, ChartSeriesItem, TipoRegistro } from './types';
 
 	// --- Props del componente ---
 	interface Props {
@@ -16,9 +22,9 @@
 	let { data, isInvestigador = false }: Props = $props();
 
 	// --- Estado de filtros ---
-	let selectedUserId: string = isInvestigador ? '' : 'all';
-	let selectedCentroId: number = 0;
-	let selectedCicloId: number = 0;
+	let selectedUserId = $state(isInvestigador ? '' : 'all');
+	let selectedCentroId = $state(0);
+	let selectedCicloId = $state(0);
 	let selectedTipoIds = new SvelteSet<number>();
 
 	// --- Mapa de colores estable ---
@@ -51,27 +57,31 @@
 	});
 
 	// --- Filtrar registros ---
-	let registrosFiltrados = $derived(filterRegistros(data.registros, {
-		selectedUserId,
-		selectedCentroId,
-		selectedCicloId,
-		selectedTipoIds
-	}));
+	let registrosFiltrados = $derived(
+		filterRegistros(data.registros, {
+			selectedUserId,
+			selectedCentroId,
+			selectedCicloId,
+			selectedTipoIds
+		})
+	);
 
 	// --- Preparar datos para el gráfico ---
 	let tiposActivos = $derived(data.tipos.filter((t: TipoRegistro) => selectedTipoIds.has(t.id)));
 
 	let chartSeries = $derived(buildChartSeries(tiposActivos, registrosFiltrados, tipoColorMap));
 
-	let hayDatos = $derived(chartSeries.length > 0 && chartSeries.some((s: ChartSeriesItem) => s.data.length > 0));
+	let hayDatos = $derived(
+		chartSeries.length > 0 && chartSeries.some((s: ChartSeriesItem) => s.data.length > 0)
+	);
 
 	// --- Estadísticas rápidas ---
 	let stats = $derived(calculateStats(registrosFiltrados, tiposActivos));
 
 	// --- Última medición ---
-	let ultimaMedicion = $derived(registrosFiltrados.length > 0 
-		? registrosFiltrados[registrosFiltrados.length - 1] 
-		: null);
+	let ultimaMedicion = $derived(
+		registrosFiltrados.length > 0 ? registrosFiltrados[registrosFiltrados.length - 1] : null
+	);
 </script>
 
 <div class="space-y-6">
@@ -90,17 +100,8 @@
 	/>
 
 	<!-- Gráfico Principal -->
-	<GraficoEvolucion
-		{isInvestigador}
-		{chartSeries}
-		{hayDatos}
-		{registrosFiltrados}
-	/>
+	<GraficoEvolucion {isInvestigador} {chartSeries} {hayDatos} {registrosFiltrados} />
 
 	<!-- Estadísticas Rápidas -->
-	<EstadisticasPanel
-		{isInvestigador}
-		{stats}
-		{ultimaMedicion}
-	/>
+	<EstadisticasPanel {isInvestigador} {stats} {ultimaMedicion} />
 </div>

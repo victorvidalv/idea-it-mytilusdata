@@ -76,11 +76,31 @@ La aplicación estará disponible en `http://localhost:5173`.
 
 ### Calidad de Código
 
-| Comando               | Descripción                       |
-| --------------------- | --------------------------------- |
-| `npm run check`       | Verificación de tipos             |
-| `npm run lint`        | ESLint y Prettier                 |
-| `npm run format`      | Formatear código                  |
+| Comando               | Descripción                                           |
+| --------------------- | ----------------------------------------------------- |
+| `npm run check`       | Verificación de tipos                                 |
+| `npm run lint`        | ESLint y Prettier                                     |
+| `npm run format`      | Formatear código                                      |
+| `npm run analyze`     | Analizar calidad del código y generar reporte         |
+
+### Nivel de Calidad Actual
+
+> 🟢 **AVANZADO** — Código bien organizado, baja complejidad y duplicación. Buena cobertura de pruebas.
+
+| Métrica                  | Valor  | Umbral Profesional |
+| ------------------------ | ------ | ------------------ |
+| Complejidad promedio     | 3.5    | ≤ 4                |
+| Código duplicado         | 9.81%  | ≤ 8%               |
+| Ratio tests/fuente       | 8.6%   | ≥ 15%              |
+| Archivos con advertencia | 2.4%   | 0%                 |
+
+Ejecuta `npm run analyze` para regenerar el reporte completo en `code-quality-report.txt`.
+
+**Escala de niveles:**
+- ⭐ **Profesional** — Alta calidad, mínima complejidad/duplicación, tests sólidos
+- 🟢 **Avanzado** — Buena calidad, complejidad controlada, tests presentes
+- 🟡 **Intermedio** — Calidad aceptable, margen de mejora
+- 🔴 **Básico** — Requiere refactorización importante
 
 ### Testing
 

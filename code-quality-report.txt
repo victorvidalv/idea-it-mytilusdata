@@ -1,0 +1,369 @@
+══════════════════════════════════════════════════════════════════════
+         REPORTE DE CALIDAD DE CÓDIGO - MytilusData
+══════════════════════════════════════════════════════════════════════
+
+Fecha    : 2026-03-17T02:39:32.057Z
+Directorio: /home/runner/work/idea-it-mytilusdata/idea-it-mytilusdata
+
+──────────────────────────────────────────────────────────────────────
+LÍMITES CONFIGURADOS
+──────────────────────────────────────────────────────────────────────
+Complejidad Máxima : 10
+Líneas Máximas     : 200
+Extensiones        : ts, svelte
+
+──────────────────────────────────────────────────────────────────────
+RESUMEN
+──────────────────────────────────────────────────────────────────────
+Archivos fuente analizados : 291
+Archivos de tests          : 25
+Ratio tests/fuente         : 8.6%
+Total líneas               : 15052
+Complejidad promedio       : 3.5
+Código duplicado           : 9.81%
+Archivos con advertencias  : 7
+
+──────────────────────────────────────────────────────────────────────
+NIVEL DE CALIDAD
+──────────────────────────────────────────────────────────────────────
+
+  🟢  NIVEL: AVANZADO
+
+  Código bien organizado, baja complejidad y duplicación. Buena cobertura de pruebas.
+
+  Criterios de evaluación:
+    Complejidad promedio : 3.5  (umbral profesional ≤ 4)
+    Duplicación          : 9.81%  (umbral profesional ≤ 8%)
+    Cobertura de tests   : 8.6%  (umbral profesional ≥ 15%)
+    Archivos con warn    : 7 (2.4%)  (umbral profesional = 0%)
+
+  Escala de niveles:
+    ⭐ Profesional — Alta calidad, mínima complejidad/duplicación, tests sólidos
+    🟢 Avanzado    — Buena calidad, complejidad controlada, tests presentes
+    🟡 Intermedio  — Calidad aceptable, margen de mejora
+    🔴 Básico      — Requiere refactorización importante
+
+──────────────────────────────────────────────────────────────────────
+DETALLE POR ARCHIVO (ordenado por complejidad)
+──────────────────────────────────────────────────────────────────────
+Archivo                                        Líneas  Complejidad  Estado
+----------------------------------------------------------------------
+src/routes/(app)/ciclos/+page.server.ts            94           15  ⚠ WARN
+src/routes/(app)/centros/+page.server.ts           99           14  ⚠ WARN
+src/lib/components/layout/Sidebar.svelte          200           13  ⚠ WARN
+src/lib/components/centros/CentroEditForm.sve…    171           12  ⚠ WARN
+src/routes/(app)/ciclos/+page.svelte               58           12  ⚠ WARN
+src/lib/components/datagrid/DataGridTableHead…     58           11  ⚠ WARN
+src/lib/components/graficos/filtroRegistros.ts     50           10      OK
+src/lib/server/apiAuth.ts                         120           10      OK
+src/lib/server/auth/login/handlers.ts             116           10      OK
+src/lib/server/auth/magic-links/core.ts           136           10      OK
+src/lib/server/ciclos/mutations.ts                112           10      OK
+src/lib/validations/utils.ts                       80           10      OK
+src/routes/(app)/admin/origenes/+page.svelte       74           10      OK
+src/routes/(app)/admin/tipos-medicion/+page.s…     77           10      OK
+src/routes/(app)/admin/usuarios/+page.svelte       99           10      OK
+src/routes/(app)/perfil/+page.server.ts           115           10      OK
+src/routes/(app)/perfil/api-keys/+page.server…     87           10      OK
+src/lib/components/SearchableSelect.svelte         86            9      OK
+src/lib/components/SvarDataGrid.svelte            108            9      OK
+src/lib/components/auth/loginFormState.ts          49            9      OK
+src/lib/components/auth/turnstile.ts               81            9      OK
+src/lib/components/datagrid/DataGridPaginatio…    129            9      OK
+src/lib/components/datagrid/sort-comparator.ts     48            9      OK
+src/lib/components/usuarios/UsuarioRow.svelte     115            9      OK
+src/routes/(app)/admin/usuarios/+page.server.…     71            9      OK
+src/routes/(app)/investigador/ciclos/+page.sv…    181            9      OK
+src/hooks.server.ts                                52            8      OK
+src/lib/components/centros/CentroDeleteButton…     52            8      OK
+src/lib/components/datagrid/sort-utils.ts          52            8      OK
+src/lib/components/graficos/DashboardGraficos…    108            8      OK
+src/lib/components/graficos/validacionSelecci…     58            8      OK
+src/lib/server/audit/log.ts                        28            8      OK
+src/lib/server/auth/magic-links/validation.ts      43            8      OK
+src/lib/server/hooks/authorization.ts              15            8      OK
+src/routes/(app)/investigador/centros/+page.s…     68            8      OK
+src/routes/(app)/investigador/ciclos/+page.se…     56            8      OK
+src/routes/(app)/perfil/api-keys/+page.svelte     139            8      OK
+src/routes/auth/login/+page.server.ts              59            8      OK
+src/lib/components/ciclos/CicloRow.svelte         122            7      OK
+src/lib/components/datagrid/svar-column-conve…     50            7      OK
+src/lib/components/graficos/FiltrosPanelHeade…     43            7      OK
+src/lib/components/graficos/GraficoEvolucion.…     80            7      OK
+src/lib/components/layout/Header.svelte           204            7  ⚠ WARN
+src/lib/server/auth/login/rate-limits.ts           44            7      OK
+src/lib/server/auth/login/validation.ts            75            7      OK
+src/lib/server/auth/sessions.ts                    99            7      OK
+src/lib/server/captcha.ts                          84            7      OK
+src/lib/server/centros/transforms.ts               52            7      OK
+src/lib/server/rate-limiter/email-cooldown.ts      72            7      OK
+src/lib/server/tipos-medicion/mutations.ts         84            7      OK
+src/lib/server/tipos-medicion/validation.ts        69            7      OK
+src/routes/(app)/centros/+page.svelte             126            7      OK
+src/routes/api/export-data/+server.ts             171            7      OK
+src/routes/auth/login/+page.svelte                 67            7      OK
+src/lib/components/ciclos/ciclo-utils.ts           32            6      OK
+src/lib/components/datagrid/filter-utils.ts        31            6      OK
+src/lib/components/datagrid/svar-editor-confi…     41            6      OK
+src/lib/components/graficos/EstadisticasPanel…    191            6      OK
+src/lib/components/registros/RegistroCreateFo…     91            6      OK
+src/lib/components/registros/RegistroFormCont…     69            6      OK
+src/lib/components/registros/registro-edit-ut…     57            6      OK
+src/lib/components/registros/registros-page-u…     58            6      OK
+src/lib/server/api-rate-limiter/utils.ts           48            6      OK
+src/lib/server/centros/mutations.ts                93            6      OK
+src/lib/server/rate-limiter/rate-limits.ts        108            6      OK
+src/routes/(app)/admin/tipos-medicion/actions…     36            6      OK
+src/routes/(app)/admin/tipos-medicion/actions…     36            6      OK
+src/routes/(app)/admin/tipos-medicion/actions…     36            6      OK
+src/routes/(app)/dashboard/+page.server.ts         75            6      OK
+src/routes/(app)/dashboard/+page.svelte            71            6      OK
+src/routes/(app)/investigador/dashboard/+page…     52            6      OK
+src/routes/(app)/investigador/registros/+page…    145            6      OK
+src/routes/(app)/registros/actions/update.ts       59            6      OK
+src/lib/components/auth/LoginFormContent.svel…     19            5      OK
+src/lib/components/centros/CentroCreateForm.s…    163            5      OK
+src/lib/components/centros/CentroRowDisplay.s…     68            5      OK
+src/lib/components/ciclos/CiclosPageHeader.sv…     41            5      OK
+src/lib/components/datagrid/svar-grid-api.ts       38            5      OK
+src/lib/components/graficos/FiltrosPanel.svel…    104            5      OK
+src/lib/components/graficos/dashboardUtils.ts      80            5      OK
+src/lib/server/auth/roles.ts                       50            5      OK
+src/lib/server/origenes/validation.ts              60            5      OK
+src/lib/server/pagination.ts                       59            5      OK
+src/routes/(app)/admin/origenes/actions/creat…     36            5      OK
+src/routes/(app)/admin/origenes/actions/delet…     36            5      OK
+src/routes/(app)/admin/origenes/actions/updat…     36            5      OK
+src/routes/(app)/investigador/graficos/+page.…     69            5      OK
+src/routes/(app)/investigador/registros/+page…     61            5      OK
+src/lib/components/auth/LoginSubmitButton.sve…     46            4      OK
+src/lib/components/graficos/filtroEntidades.ts     23            4      OK
+src/lib/components/origenes/OrigenesTable.sve…     57            4      OK
+src/lib/components/registros/RegistroRowActio…     70            4      OK
+src/lib/components/tipos-medicion/TiposMedici…     64            4      OK
+src/lib/server/auth/auth-guard.ts                  68            4      OK
+src/lib/server/centros/authorization.ts            49            4      OK
+src/lib/server/ciclos/authorization.ts             49            4      OK
+src/lib/server/ciclos/transforms.ts                52            4      OK
+src/lib/server/hooks/apiAuth.ts                    21            4      OK
+src/lib/server/rate-limiter/utils.ts               15            4      OK
+src/lib/server/registros/authorization.ts          49            4      OK
+src/lib/server/registros/mutations.ts              66            4      OK
+src/lib/server/registros/queries.ts                83            4      OK
+src/routes/(app)/graficos/+page.server.ts          64            4      OK
+src/routes/(app)/investigador/centros/+page.s…     95            4      OK
+src/routes/(app)/registros/+page.svelte            96            4      OK
+src/routes/(app)/registros/actions/delete.ts       33            4      OK
+src/routes/(app)/registros/auth-helpers.ts         23            4      OK
+src/routes/api/centros/+server.ts                  61            4      OK
+src/routes/api/ciclos/+server.ts                   61            4      OK
+src/routes/api/registros/+server.ts                70            4      OK
+src/routes/auth/callback/+server.ts                33            4      OK
+src/lib/components/MapContainer.svelte             61            3      OK
+src/lib/components/MapMarkers.svelte               20            3      OK
+src/lib/components/auth/LoginRegistrationForm…    105            3      OK
+src/lib/components/centros/CentroRow.svelte        38            3      OK
+src/lib/components/centros/CentroRowActions.s…     35            3      OK
+src/lib/components/datagrid/DataGridGridView.…     82            3      OK
+src/lib/components/datagrid/DataGridSearchBar…     69            3      OK
+src/lib/components/datagrid/DataGridTableView…     41            3      OK
+src/lib/components/map-utils.ts                    59            3      OK
+src/lib/components/origenes/OrigenRow.svelte      100            3      OK
+src/lib/components/origenes/OrigenesPageHeade…     43            3      OK
+src/lib/components/perfil/PerfilDangerZoneSec…    114            3      OK
+src/lib/components/perfil/PerfilInfoSection.s…    101            3      OK
+src/lib/components/registros/RegistroRow.svel…     25            3      OK
+src/lib/components/registros/RegistroRowCentr…     14            3      OK
+src/lib/components/registros/RegistrosPageHea…     45            3      OK
+src/lib/components/tipos-medicion/TipoMedicio…    118            3      OK
+src/lib/components/tipos-medicion/TiposMedici…     43            3      OK
+src/lib/components/ui/button/button.svelte         83            3      OK
+src/lib/components/ui/input/input.svelte           53            3      OK
+src/lib/server/api-rate-limiter/core.ts            36            3      OK
+src/lib/server/auth/magic-links/email.ts           52            3      OK
+src/lib/server/auth/magic-links/users.ts           36            3      OK
+src/lib/server/centros/queries.ts                  64            3      OK
+src/lib/server/ciclos/queries.ts                   56            3      OK
+src/lib/utils.ts                                   14            3      OK
+src/routes/(app)/admin/origenes/auth-helpers.…     16            3      OK
+src/routes/(app)/admin/tipos-medicion/auth-he…     16            3      OK
+src/routes/(app)/perfil/api-keys/_components/…     54            3      OK
+src/routes/(app)/registros/actions/create.ts       26            3      OK
+src/routes/(app)/registros/load.ts                 34            3      OK
+src/routes/auth/logout/+server.ts                  28            3      OK
+src/lib/components/auth/LoginDefaultState.sve…     17            2      OK
+src/lib/components/auth/LoginRateLimitWarning…     34            2      OK
+src/lib/components/ciclos/CiclosGrid.svelte        49            2      OK
+src/lib/components/dashboard/DashboardChartPl…     69            2      OK
+src/lib/components/graficos/GraficoEmptyState…     57            2      OK
+src/lib/components/home/HomeEntitiesSection.s…     47            2      OK
+src/lib/components/legal/TermSection.svelte        31            2      OK
+src/lib/components/registros/RegistroEditCont…     49            2      OK
+src/lib/components/registros/RegistroEditMedi…    102            2      OK
+src/lib/components/registros/RegistroFormMedi…    111            2      OK
+src/lib/components/registros/RegistroRowOrige…     19            2      OK
+src/lib/server/api-rate-limiter/result-builde…     59            2      OK
+src/lib/server/db/index.ts                         11            2      OK
+src/lib/server/origenes/queries.ts                 58            2      OK
+src/lib/server/rate-limiter/cleanup.ts             25            2      OK
+src/lib/server/registros/seeds.ts                  30            2      OK
+src/lib/server/tipos-medicion/queries.ts           43            2      OK
+src/routes/(app)/admin/origenes/_components/O…     32            2      OK
+src/routes/(app)/admin/origenes/load.ts            15            2      OK
+src/routes/(app)/admin/tipos-medicion/_compon…     34            2      OK
+src/routes/(app)/admin/tipos-medicion/load.ts      18            2      OK
+src/routes/(app)/investigador/dashboard/+page…    173            2      OK
+src/app.d.ts                                       24            1      OK
+src/lib/components/MapLibreMap.svelte              50            1      OK
+src/lib/components/acerca-de/AcercaDeSection.…     30            1      OK
+src/lib/components/acerca-de/SectionEjeEconom…     19            1      OK
+src/lib/components/acerca-de/SectionEjeOperat…     18            1      OK
+src/lib/components/acerca-de/SectionEjeTecnic…     19            1      OK
+src/lib/components/acerca-de/SectionPropuesta…     17            1      OK
+src/lib/components/acerca-de/index.ts               5            1      OK
+src/lib/components/auth/LoginBackLink.svelte       23            1      OK
+src/lib/components/auth/LoginCaptchaError.sve…     24            1      OK
+src/lib/components/auth/LoginEmailForm.svelte      45            1      OK
+src/lib/components/auth/LoginFooter.svelte         31            1      OK
+src/lib/components/auth/LoginHeader.svelte         16            1      OK
+src/lib/components/auth/LoginSuccessState.sve…     34            1      OK
+src/lib/components/auth/LoginVisualPanel.svel…     29            1      OK
+src/lib/components/ciclos/CicloCreateForm.sve…    105            1      OK
+src/lib/components/ciclos/CiclosEmptyState.sv…     22            1      OK
+src/lib/components/ciclos/CiclosNoCentrosAler…     27            1      OK
+src/lib/components/dashboard/DashboardActivit…     73            1      OK
+src/lib/components/dashboard/DashboardStatCar…     42            1      OK
+src/lib/components/dashboard/index.ts              32            1      OK
+src/lib/components/datagrid/DataGridEmptyStat…     33            1      OK
+src/lib/components/datagrid/datagrid-types.ts      22            1      OK
+src/lib/components/datagrid/index.ts               21            1      OK
+src/lib/components/graficos/TipoMedicionButto…     23            1      OK
+src/lib/components/graficos/index.ts               38            1      OK
+src/lib/components/graficos/seriesColors.ts        24            1      OK
+src/lib/components/graficos/types.ts               71            1      OK
+src/lib/components/home/HomeEntityCard.svelte      27            1      OK
+src/lib/components/home/index.ts                    2            1      OK
+src/lib/components/legal/index.ts                   8            1      OK
+src/lib/components/legal/sections/SectionDere…     51            1      OK
+src/lib/components/legal/sections/SectionGobe…     26            1      OK
+src/lib/components/legal/sections/SectionIden…     21            1      OK
+src/lib/components/legal/sections/SectionLegi…     34            1      OK
+src/lib/components/legal/sections/SectionProp…     25            1      OK
+src/lib/components/legal/sections/SectionProt…     31            1      OK
+src/lib/components/legal/sections/SectionSegu…     37            1      OK
+src/lib/components/origenes/OrigenCreateForm.…     46            1      OK
+src/lib/components/perfil/PerfilApiKeysSectio…     39            1      OK
+src/lib/components/perfil/PerfilExportSection…     43            1      OK
+src/lib/components/perfil/index.ts                  4            1      OK
+src/lib/components/registros/RegistroEditForm…     77            1      OK
+src/lib/components/registros/RegistroRowConte…     74            1      OK
+src/lib/components/registros/RegistrosNoCentr…     35            1      OK
+src/lib/components/registros/registro-row-typ…     37            1      OK
+src/lib/components/tipos-medicion/AccessDenie…     27            1      OK
+src/lib/components/tipos-medicion/TipoMedicio…     63            1      OK
+src/lib/components/ui/button/index.ts              18            1      OK
+src/lib/components/ui/card/card-action.svelte      21            1      OK
+src/lib/components/ui/card/card-content.svelte     16            1      OK
+src/lib/components/ui/card/card-description.s…     21            1      OK
+src/lib/components/ui/card/card-footer.svelte      21            1      OK
+src/lib/components/ui/card/card-header.svelte      24            1      OK
+src/lib/components/ui/card/card-title.svelte       21            1      OK
+src/lib/components/ui/card/card.svelte             24            1      OK
+src/lib/components/ui/card/index.ts                26            1      OK
+src/lib/components/ui/input/index.ts                8            1      OK
+src/lib/components/ui/label/index.ts                8            1      OK
+src/lib/components/ui/label/label.svelte           21            1      OK
+src/lib/components/ui/sonner/index.ts               2            1      OK
+src/lib/components/ui/sonner/sonner.svelte         35            1      OK
+src/lib/components/usuarios/UsuariosSummaryCa…     96            1      OK
+src/lib/components/usuarios/rolConfig.ts           33            1      OK
+src/lib/index.ts                                    2            1      OK
+src/lib/server/api-rate-limiter/config.ts          22            1      OK
+src/lib/server/api-rate-limiter/helpers.ts         37            1      OK
+src/lib/server/api-rate-limiter/index.ts           14            1      OK
+src/lib/server/api-rate-limiter/types.ts           23            1      OK
+src/lib/server/apiRateLimiter.ts                    5            1      OK
+src/lib/server/audit/convenience.ts               190            1      OK
+src/lib/server/audit/index.ts                      15            1      OK
+src/lib/server/audit/types.ts                      25            1      OK
+src/lib/server/audit.ts                             2            1      OK
+src/lib/server/auth/index.ts                       23            1      OK
+src/lib/server/auth/login/index.ts                  8            1      OK
+src/lib/server/auth/login/types.ts                 18            1      OK
+src/lib/server/auth/magic-links/index.ts            5            1      OK
+src/lib/server/auth/magic-links/types.ts            7            1      OK
+src/lib/server/auth.ts                              3            1      OK
+src/lib/server/centros/index.ts                    45            1      OK
+src/lib/server/centros/types.ts                    30            1      OK
+src/lib/server/ciclos/index.ts                     43            1      OK
+src/lib/server/ciclos/types.ts                     33            1      OK
+src/lib/server/db/schema/audit.ts                  20            1      OK
+src/lib/server/db/schema/auth.ts                   49            1      OK
+src/lib/server/db/schema/index.ts                  20            1      OK
+src/lib/server/db/schema/master.ts                 21            1      OK
+src/lib/server/db/schema/measurements.ts           35            1      OK
+src/lib/server/db/schema/productive.ts             48            1      OK
+src/lib/server/db/schema/security.ts               52            1      OK
+src/lib/server/db/schema.ts                         3            1      OK
+src/lib/server/hooks/index.ts                      15            1      OK
+src/lib/server/hooks/routes.ts                     36            1      OK
+src/lib/server/hooks/security.ts                   23            1      OK
+src/lib/server/origenes/authorization.ts           13            1      OK
+src/lib/server/origenes/index.ts                   43            1      OK
+src/lib/server/origenes/mutations.ts               44            1      OK
+src/lib/server/origenes/types.ts                   24            1      OK
+src/lib/server/rate-limiter/index.ts               14            1      OK
+src/lib/server/rate-limiter/types.ts               36            1      OK
+src/lib/server/rateLimiter.ts                       3            1      OK
+src/lib/server/registros/index.ts                  41            1      OK
+src/lib/server/registros/types.ts                  57            1      OK
+src/lib/server/tipos-medicion/authorization.ts     21            1      OK
+src/lib/server/tipos-medicion/index.ts             38            1      OK
+src/lib/server/tipos-medicion/types.ts             32            1      OK
+src/lib/validations/index.ts                       22            1      OK
+src/lib/validations/schemas.ts                     55            1      OK
+src/routes/(app)/+layout.server.ts                  8            1      OK
+src/routes/(app)/+layout.svelte                   116            1      OK
+src/routes/(app)/admin/origenes/+page.server.…      6            1      OK
+src/routes/(app)/admin/origenes/actions/index…      3            1      OK
+src/routes/(app)/admin/tipos-medicion/+page.s…      6            1      OK
+src/routes/(app)/admin/tipos-medicion/actions…      3            1      OK
+src/routes/(app)/graficos/+page.svelte             11            1      OK
+src/routes/(app)/investigador/graficos/+page.…     11            1      OK
+src/routes/(app)/perfil/+page.svelte               31            1      OK
+src/routes/(app)/perfil/api-keys/_components/…     85            1      OK
+src/routes/(app)/perfil/api-keys/_components/…     44            1      OK
+src/routes/(app)/registros/+page.server.ts          6            1      OK
+src/routes/(app)/registros/actions/index.ts         3            1      OK
+src/routes/+layout.svelte                          18            1      OK
+src/routes/+page.svelte                           104            1      OK
+src/routes/acerca-de/+page.svelte                 102            1      OK
+src/routes/condiciones-servicios/+page.svelte     114            1      OK
+
+──────────────────────────────────────────────────────────────────────
+FRAGMENTOS MÁS REPETIDOS (top 5)
+──────────────────────────────────────────────────────────────────────
+1. 5 líneas, 7 veces en:
+   - card-action.svelte
+   - card-content.svelte
+   - card-description.svelte
+2. 5 líneas, 6 veces en:
+   - card-action.svelte
+   - card-content.svelte
+   - card-footer.svelte
+3. 5 líneas, 6 veces en:
+   - card-action.svelte
+   - card-content.svelte
+   - card-footer.svelte
+4. 5 líneas, 6 veces en:
+   - create.ts
+   - delete.ts
+   - update.ts
+5. 5 líneas, 6 veces en:
+   - create.ts
+   - delete.ts
+   - update.ts
+
+══════════════════════════════════════════════════════════════════════
+FIN DEL REPORTE
+══════════════════════════════════════════════════════════════════════

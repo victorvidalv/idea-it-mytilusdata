@@ -33,7 +33,8 @@
   ],
   "includeExtensions": [
     "ts",
-    "tsx"
+    "tsx",
+    "svelte"
   ],
   "minDuplicateLines": 5,
   "showTopDuplicates": 5

@@ -13,6 +13,9 @@ export { tiposRegistro, origenDatos } from './master';
 // Mediciones (tabla de hechos)
 export { mediciones } from './measurements';
 
+// Biblioteca de parámetros sigmoidales
+export { biblioteca, type PuntosTalla, type ParametrosSigmoidal, type MetadatosBiblioteca } from './library';
+
 // Seguridad
 export { consentimientos, apiKeys, rateLimitLogs, emailCooldowns } from './security';
 

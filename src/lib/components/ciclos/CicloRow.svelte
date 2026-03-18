@@ -16,6 +16,9 @@
 </script>
 
 <tr class="group transition-colors hover:bg-secondary/20">
+	<td class="px-5 py-3 text-center">
+		<span class="font-mono text-sm text-muted-foreground">{ciclo.id}</span>
+	</td>
 	<td class="px-5 py-3">
 		{#if ciclo.activo}
 			<span

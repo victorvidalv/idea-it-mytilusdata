@@ -21,6 +21,7 @@
 		<SvarDataGrid
 			data={ciclos}
 			columns={[
+				{ key: 'id', label: 'ID', sortable: true, align: 'center' },
 				{ key: 'activo', label: 'Estado', sortable: true },
 				{ key: 'nombre', label: 'Nombre', sortable: true },
 				{ key: 'lugarNombre', label: 'Centro', sortable: true },

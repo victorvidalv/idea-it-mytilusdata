@@ -65,7 +65,7 @@ function calcularR2(
  * Restricciones biológicas para los parámetros (bounds).
  * Igual que en el ETL.py:
  * - L: [40, 110] mm (talla máxima de mitilidos)
- * - k: [0.005, 0.06] (tasa de crecimiento)
+ * - k: [0.005, 0.06] 1/día (tasa de crecimiento)
  * - x0: [0, 500] días (punto de inflexión)
  */
 const MIN_VALUES = [40, 0.005, 0];

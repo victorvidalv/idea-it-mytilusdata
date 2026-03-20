@@ -1,60 +1,36 @@
 import type { PageServerLoad, Actions } from './$types';
-import { db } from '$lib/server/db';
-import { lugares, ciclos } from '$lib/server/db/schema';
-import { eq, count, inArray } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
-import { hasMinRole, ROLES, type Rol } from '$lib/server/auth';
 import { centroSchema, parseFormData } from '$lib/validations';
-
-/**
- * Transforma un lugar de la DB al formato esperado por el cliente.
- * Extrae latitud/longitud de la columna geom (PostGIS).
- * geom: { x: longitud, y: latitud }
- */
-function transformarLugarParaCliente(lugar: typeof lugares.$inferSelect) {
-	return {
-		id: lugar.id,
-		nombre: lugar.nombre,
-		latitud: lugar.geom?.y ?? lugar.latitud ?? null,
-		longitud: lugar.geom?.x ?? lugar.longitud ?? null,
-		userId: lugar.userId,
-		createdAt: lugar.createdAt ? new Date(lugar.createdAt).toISOString() : null
-	};
-}
+import type { Rol } from '$lib/server/auth';
+import {
+	canViewAll,
+	getCentrosByUser,
+	getCiclosCountByLugares,
+	transformarCentrosConPermisos,
+	createCentro,
+	updateCentro,
+	deleteCentro
+} from '$lib/server/centros';
 
 /** Cargar centros de cultivo según rol del usuario */
 export const load: PageServerLoad = async ({ locals }) => {
 	const userId = locals.user?.userId;
 	const userRol = locals.user?.rol as Rol;
-	const canViewAll = hasMinRole(userRol, ROLES.INVESTIGADOR);
 
-	const centrosList = canViewAll
-		? await db.select().from(lugares)
-		: await db.select().from(lugares).where(eq(lugares.userId, userId!));
-
-	// Resolver N+1: una sola query con GROUP BY para contar ciclos por lugar
+	const centrosList = await getCentrosByUser(userId!, userRol);
 	const lugarIds = centrosList.map((c) => c.id);
-	const ciclosPorLugar =
-		lugarIds.length > 0
-			? await db
-					.select({ lugarId: ciclos.lugarId, total: count() })
-					.from(ciclos)
-					.where(inArray(ciclos.lugarId, lugarIds))
-					.groupBy(ciclos.lugarId)
-			: [];
+	const conteoCiclos = await getCiclosCountByLugares(lugarIds);
 
-	// Crear mapa de conteo para acceso O(1)
-	const conteoMap = new Map(ciclosPorLugar.map((c) => [c.lugarId, c.total]));
-
-	const centrosConCiclos = centrosList.map((centro) => ({
-		...transformarLugarParaCliente(centro),
-		totalCiclos: conteoMap.get(centro.id) ?? 0,
-		isOwner: centro.userId === userId
-	}));
+	const centros = transformarCentrosConPermisos(
+		centrosList,
+		conteoCiclos,
+		userId!,
+		userRol
+	);
 
 	return {
-		centros: centrosConCiclos,
-		canViewAll
+		centros,
+		canViewAll: canViewAll(userRol)
 	};
 };
 
@@ -66,25 +42,12 @@ export const actions = {
 
 		const formData = await request.formData();
 		const validated = await parseFormData(centroSchema, formData);
-		
+
 		if (!validated.success) {
 			return validated.response;
 		}
 
-		const { nombre, latitud, longitud } = validated.data;
-
-		// Crear punto PostGIS si hay coordenadas válidas
-		// geom espera { x: longitud, y: latitud }
-		const geom = (latitud != null && longitud != null)
-			? { x: longitud, y: latitud }
-			: null;
-
-		await db.insert(lugares).values({
-			nombre,
-			geom,
-			userId
-		});
-
+		await createCentro(validated.data, userId);
 		return { success: true, message: 'Centro creado exitosamente' };
 	},
 
@@ -99,25 +62,17 @@ export const actions = {
 		const validated = await parseFormData(centroSchema, formData);
 		if (!validated.success) return validated.response;
 
-		const { nombre, latitud, longitud } = validated.data;
+		const result = await updateCentro(
+			centroId,
+			validated.data,
+			userId,
+			locals.user?.rol as Rol
+		);
 
-		const [centro] = await db.select().from(lugares).where(eq(lugares.id, centroId)).limit(1);
-		if (!centro) return fail(404, { error: true, message: 'Centro no encontrado' });
-
-		const isAdmin = hasMinRole(locals.user?.rol as Rol, ROLES.ADMIN);
-		if (centro.userId !== userId && !isAdmin) {
-			return fail(403, { error: true, message: 'No tiene permisos para editar este centro' });
+		if (!result.success) {
+			return fail(result.status, { error: true, message: result.error });
 		}
 
-		// Crear punto PostGIS si hay coordenadas válidas
-		const geom = (latitud != null && longitud != null)
-			? { x: longitud, y: latitud }
-			: null;
-
-		await db
-			.update(lugares)
-			.set({ nombre, geom })
-			.where(eq(lugares.id, centroId));
 		return { success: true, message: 'Centro actualizado exitosamente' };
 	},
 
@@ -129,28 +84,16 @@ export const actions = {
 		const data = await request.formData();
 		const centroId = Number(data.get('centroId'));
 
-		const [centro] = await db.select().from(lugares).where(eq(lugares.id, centroId)).limit(1);
-		if (!centro) return fail(404, { error: true, message: 'Centro no encontrado' });
+		const result = await deleteCentro(
+			centroId,
+			userId,
+			locals.user?.rol as Rol
+		);
 
-		const isAdmin = hasMinRole(locals.user?.rol as Rol, ROLES.ADMIN);
-		if (centro.userId !== userId && !isAdmin) {
-			return fail(403, { error: true, message: 'No tiene permisos para eliminar este centro' });
+		if (!result.success) {
+			return fail(result.status, { error: true, message: result.error });
 		}
 
-		const [ciclosCount] = await db
-			.select({ total: count() })
-			.from(ciclos)
-			.where(eq(ciclos.lugarId, centroId))
-			.limit(1);
-
-		if (ciclosCount && ciclosCount.total > 0) {
-			return fail(400, {
-				error: true,
-				message: 'No se puede eliminar un centro con ciclos asociados'
-			});
-		}
-
-		await db.delete(lugares).where(eq(lugares.id, centroId));
 		return { success: true, message: 'Centro eliminado exitosamente' };
 	}
 } satisfies Actions;

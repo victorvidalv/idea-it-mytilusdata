@@ -8,7 +8,7 @@ Este documento describe la arquitectura técnica del sistema MytilusData, incluy
 graph TB
     subgraph Cliente [Navegador Web]
         UI[Interfaz de Usuario - Svelte]
-        Maps[Leaflet Maps]
+        Maps[MapLibre GL Maps]
         Charts[LayerChart]
     end
 
@@ -84,7 +84,8 @@ La capa de presentación está construida con **Svelte 5** y **SvelteKit**, util
 - **TailwindCSS 4**: Estilos utilitarios
 - **bits-ui**: Primitivos de UI accesibles
 - **Lucide Icons**: Iconografía
-- **mode-watcher**: Tema claro/osculo
+- **mode-watcher**: Tema claro/oscuro
+- **MapLibre GL**: Mapas vectoriales interactivos (vía svelte-maplibre)
 
 ### 2. Capa de Aplicación (Backend)
 
@@ -802,4 +803,9 @@ const conteoMap = new Map(ciclosPorLugar.map((c) => [c.lugarId, c.total]));
 
 ## Próximos Pasos
 
-Para más detalles sobre la API REST, consultar [api.md](./api.md).
+Para más detalles sobre los componentes del sistema:
+
+- [api.md](./api.md): Documentación de la API REST
+- [database.md](./database.md): Esquema de base de datos
+- [security.md](./security.md): Arquitectura de seguridad
+- [components.md](./components.md): Catálogo de componentes UI

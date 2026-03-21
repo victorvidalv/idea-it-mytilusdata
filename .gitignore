@@ -1,5 +1,10 @@
 node_modules
-/.kilocode
+
+# IDE & AI tools
+.kilocode/
+.vscode/
+.claude/
+.idea/
 
 # Output
 .output

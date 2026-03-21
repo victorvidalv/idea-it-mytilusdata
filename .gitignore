@@ -26,3 +26,6 @@ vite.config.ts.timestamp-*
 test-results
 # SQLite
 *.db
+
+# Scripts (contiene credenciales de prueba)
+/scripts

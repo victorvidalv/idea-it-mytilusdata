@@ -85,7 +85,7 @@
 			<div
 				class="animate-fade-in absolute top-[110%] right-0 z-50 mt-2 w-56 transform rounded-xl border border-border bg-card p-1 shadow-xl shadow-black/10"
 			>
-				<!-- Overlay oculto para click out -->
+				<!-- Overlay para click out - se cierra al hacer click fuera -->
 				<div class="fixed inset-0 z-[-1]" onclick={toggleUserMenu} aria-hidden="true"></div>
 
 				<div class="mb-1 border-b border-border/50 px-3 py-3">

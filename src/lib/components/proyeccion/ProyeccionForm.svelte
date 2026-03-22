@@ -32,6 +32,7 @@ Soporta ingreso manual y carga desde ciclo existente.
 		ciclos?: Ciclo[];
 		dias: number[];
 		tallas: number[];
+		tallaObjetivo?: string;
 		onAgregarPunto: (dia: number, talla: number) => void;
 		onEliminarPunto: (dia: number) => void;
 		onEjecutarProyeccion: () => void;
@@ -44,6 +45,7 @@ Soporta ingreso manual y carga desde ciclo existente.
 		ciclos = [],
 		dias,
 		tallas,
+		tallaObjetivo = $bindable(''),
 		onAgregarPunto,
 		onEliminarPunto,
 		onEjecutarProyeccion,
@@ -65,7 +67,7 @@ Soporta ingreso manual y carga desde ciclo existente.
 	// --- Inputs manual ---
 	let nuevoDia = $state('');
 	let nuevaTalla = $state('');
-	let tallaObjetivo = $state('');
+
 
 	// --- Efecto: usar props si existen, sino cargar desde API ---
 	$effect(() => {

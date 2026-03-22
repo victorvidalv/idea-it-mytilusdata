@@ -93,6 +93,65 @@ export function calcularSSE(datos: DatosUsuario, curva: BibliotecaRecord): numbe
 }
 
 /**
+ * Normalizar array de tallas al rango [0, 1].
+ * Usado para comparar solo la forma de las curvas, no su escala absoluta.
+ */
+function normalizarArray(valores: number[]): number[] {
+	const min = Math.min(...valores);
+	const max = Math.max(...valores);
+	const rango = max - min;
+	if (rango === 0) return valores.map(() => 0.5);
+	return valores.map((v) => (v - min) / rango);
+}
+
+/**
+ * Crear modelo logístico normalizado que devuelve valores en [0, 1].
+ * Mantiene la forma de la curva pero sin escala absoluta.
+ */
+function crearModeloLogisticoNormalizado(
+	L: number,
+	k: number,
+	x0: number,
+	diasReferencia: number[]
+): (x: number) => number {
+	const modelo = crearModeloLogistico([L, k, x0]);
+	// Evaluar la curva en los mismos días para obtener su propio rango
+	const valoresRef = diasReferencia.map((d) => modelo(d));
+	const minRef = Math.min(...valoresRef);
+	const maxRef = Math.max(...valoresRef);
+
+	return (x: number) => {
+		const valor = modelo(x);
+		return (valor - minRef) / (maxRef - minRef || 1);
+	};
+}
+
+/**
+ * Calcular SSE normalizado (solo compara la forma, no la escala).
+ * Tanto los datos del usuario como el modelo se normalizan a [0, 1].
+ * Esto permite encontrar curvas con forma similar aunque tengan diferentes magnitudes.
+ */
+export function calcularSSENormalizado(datos: DatosUsuario, curva: BibliotecaRecord): number {
+	const { dias, tallas } = datos;
+	const { L, k, x0 } = curva.parametrosCalculados;
+
+	// Normalizar tallas del usuario a [0, 1]
+	const tallasNorm = normalizarArray(tallas);
+
+	// Crear modelo normalizado
+	const modeloNorm = crearModeloLogisticoNormalizado(L, k, x0, dias);
+
+	let sse = 0;
+	for (let i = 0; i < dias.length; i++) {
+		const salida = modeloNorm(dias[i]);
+		const residuo = tallasNorm[i] - salida;
+		sse += residuo * residuo;
+	}
+
+	return sse;
+}
+
+/**
  * Encontrar la curva más similar en la biblioteca usando SSE.
  */
 export async function encontrarCurvaMasSimilar(
@@ -117,7 +176,7 @@ export async function encontrarCurvaMasSimilar(
 	let menorSSE = Infinity;
 
 	for (const curva of biblioteca) {
-		const sse = calcularSSE(datos, curva);
+		const sse = calcularSSENormalizado(datos, curva);
 
 		if (sse < menorSSE) {
 			menorSSE = sse;
@@ -160,17 +219,15 @@ export function calcularDiaObjetivo(
 ): number | undefined {
 	const { L, k, x0 } = parametros;
 
-	if (tallaObjetivo >= L) {
+	// La talla objetivo debe estar en (0, L) para que la inversa tenga solución
+	if (tallaObjetivo >= L || tallaObjetivo <= 0) {
 		return undefined;
 	}
 
-	const proporcion = (L - tallaObjetivo) / tallaObjetivo;
-	if (proporcion <= 0) {
-		return undefined;
-	}
-
-	const diaCalculado = x0 - (1 / k) * Math.log(proporcion);
-	if (diaCalculado > 0 && diaCalculado < 500) {
+	// Inversa de la logística: t = x0 - (1/k) * ln(L/y - 1)
+	const argLog = L / tallaObjetivo - 1;
+	const diaCalculado = x0 - (1 / k) * Math.log(argLog);
+	if (diaCalculado > 0 && diaCalculado < LIMITE_DIAS) {
 		return Math.ceil(diaCalculado);
 	}
 
@@ -251,4 +308,33 @@ export function crearResultadoError(
 		},
 		error
 	};
+}
+
+/**
+ * Escalar parámetros de una curva de biblioteca para ajustarse a los datos del usuario.
+ * Mantiene k y x0 (forma), solo recalcula L por mínimos cuadrados analíticos.
+ * L_opt = ∑(y_i / g_i) / ∑(1 / g_i²)  donde g_i = 1 + exp(-k*(t_i - x0))
+ */
+export function escalarParametros(
+	parametros: ParametrosSigmoidal,
+	datos: DatosUsuario
+): ParametrosSigmoidal {
+	const { k, x0 } = parametros;
+	const { dias, tallas } = datos;
+
+	if (dias.length === 0) {
+		return parametros;
+	}
+
+	let sumNum = 0;
+	let sumDen = 0;
+	for (let i = 0; i < dias.length; i++) {
+		const exponente = Math.max(-20, Math.min(20, -k * (dias[i] - x0)));
+		const g = 1 + Math.exp(exponente);
+		sumNum += tallas[i] / g;
+		sumDen += 1 / (g * g);
+	}
+
+	const L_nuevo = sumDen > 0 ? sumNum / sumDen : parametros.L;
+	return { ...parametros, L: Math.round(L_nuevo * 100) / 100 };
 }

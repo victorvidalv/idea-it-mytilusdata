@@ -16,6 +16,10 @@ export const SERIES_COLORS = [
 	'oklch(0.70 0.12 250)'
 ];
 
+// Colores para curvas de referencia
+export const COLOR_REFERENCIA = 'oklch(0.60 0.10 250)'; // Gris azulado - curva original
+export const COLOR_REFERENCIA_ESCALADA = 'oklch(0.65 0.20 50)'; // Naranja - curva escalada proporcionalmente
+
 /**
  * Crea un mapa estable de tipo.id → color
  */

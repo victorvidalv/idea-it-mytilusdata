@@ -32,6 +32,7 @@
 		sse: number;
 		esCurvaLocal: boolean;
 		r2?: number;
+		parametros?: ParametrosSigmoidal;
 	}
 
 	interface ParametrosSigmoidal {
@@ -74,6 +75,7 @@
 	// --- Estado ---
 	let dias: number[] = $state([]);
 	let tallas: number[] = $state([]);
+	let tallaObjetivo = $state('');
 	let cargando = $state(false);
 	let error = $state('');
 	let resultado = $state<ResultadoProyeccion | null>(null);
@@ -113,6 +115,10 @@
 		resultado = null;
 
 		const body: Record<string, unknown> = { dias, tallas };
+		const tallaObj = parseFloat(tallaObjetivo);
+		if (!isNaN(tallaObj) && tallaObj > 0) {
+			body.tallaObjetivo = tallaObj;
+		}
 
 		fetch('/api/proyeccion', {
 			method: 'POST',
@@ -165,6 +171,7 @@
 		ciclos={ciclos}
 		{dias}
 		{tallas}
+		bind:tallaObjetivo
 		{error}
 		{cargando}
 		onAgregarPunto={agregarPunto}
@@ -179,6 +186,7 @@
 			curvaReferencia={resultado.curvaReferencia}
 			meta={resultado.metadatos?.tallaObjetivo}
 			metadatos={resultado.metadatos}
+			mediciones={dias.map((d, i) => ({ dia: d, talla: tallas[i] }))}
 			onExportar={exportarCSV}
 		/>
 	{:else if !cargando}

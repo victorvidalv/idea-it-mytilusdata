@@ -18,6 +18,7 @@
 		"poblar": "node --env-file=.env scripts/seed.js poblar",
 		"limpiar": "node --env-file=.env scripts/seed.js limpiar",
 		"create-admin": "node --env-file=.env scripts/seed.js create-admin",
+		"token": "node --env-file=.env scripts/generate-login-token.js",
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",

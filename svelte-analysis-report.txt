@@ -2,7 +2,7 @@
               REPORTE DE ANÁLISIS DE CÓDIGO SVELTE
 ══════════════════════════════════════════════════════════════════════
 
-Fecha: 2026-03-18T12:15:12.794Z
+Fecha: 2026-03-22T04:30:41.292Z
 Directorio: /Users/vmvv/work/idea-it-mytilusdata
 Configuración: .qa
 
@@ -16,18 +16,21 @@ Extensiones: svelte
 ──────────────────────────────────────────────────────────────────────
 RESUMEN
 ──────────────────────────────────────────────────────────────────────
-Archivos analizados: 134
-Total líneas: 7991
-Complejidad promedio: 3.5
-Código duplicado: 4.13%
+Archivos analizados: 139
+Total líneas: 8841
+Complejidad promedio: 4.0
+Código duplicado: 3.73%
 Archivos con errores: 0
-Archivos que fallan: 0
+Archivos que fallan: 3
 
 ──────────────────────────────────────────────────────────────────────
 DETALLE POR ARCHIVO
 ──────────────────────────────────────────────────────────────────────
 Archivo                                         Líneas  Complejidad     Estado
 ----------------------------------------------------------------------
+src/lib/components/proyeccion/ProyeccionForm.      448 31      FALLA
+src/lib/components/proyeccion/ProyeccionPanel      187 27      FALLA
+src/lib/components/proyeccion/ProyeccionResul      135 14      FALLA
 src/lib/components/SvarDataGrid.svelte             108 10         OK
 src/lib/components/graficos/DashboardGraficos      108 10         OK
 src/routes/(app)/admin/usuarios/+page.svelte        99 10         OK
@@ -88,6 +91,7 @@ src/lib/components/registros/RegistrosPageHea       45 3         OK
 src/lib/components/origenes/OrigenesPageHeade       43 3         OK
 src/lib/components/tipos-medicion/TiposMedici       43 3         OK
 src/lib/components/datagrid/DataGridTableView       41 3         OK
+src/lib/components/proyeccion/CurvaInfoCard.s       41 3         OK
 src/lib/components/centros/CentroRowActions.s       35 3         OK
 src/lib/components/legal/TermSection.svelte         31 3         OK
 src/lib/components/registros/RegistroRow.svel       25 3         OK
@@ -108,7 +112,7 @@ src/routes/(app)/admin/origenes/_components/O       32 2         OK
 src/lib/components/SearchableSelectOption.sve       25 2         OK
 src/lib/components/registros/RegistroRowOrige       19 2         OK
 src/lib/components/auth/LoginDefaultState.sve       17 2         OK
-src/routes/(app)/+layout.svelte                    121 1         OK
+src/routes/(app)/+layout.svelte                    130 1         OK
 src/routes/condiciones-servicios/+page.svelte      114 1         OK
 src/lib/components/ciclos/CicloCreateForm.sve      105 1         OK
 src/routes/+page.svelte                            104 1         OK
@@ -133,6 +137,7 @@ src/lib/components/datagrid/DataGridEmptyStat       33 1         OK
 src/lib/components/auth/LoginFooter.svelte          31 1         OK
 src/lib/components/legal/sections/SectionProt       31 1         OK
 src/routes/(app)/perfil/+page.svelte                31 1         OK
+src/routes/(app)/proyeccion/+page.svelte            30 1         OK
 src/lib/components/SearchableSelectButton.sve       29 1         OK
 src/lib/components/auth/LoginVisualPanel.svel       29 1         OK
 src/lib/components/ciclos/CiclosNoCentrosAler       27 1         OK
@@ -235,6 +240,15 @@ src/routes/(app)/investigador/graficos/+page.       11 1         OK
 ─
 DETALLES DE COMPLEJIDAD DEL TEMPLATE
 ──────────────────────────────────────────────────────────────────────
+
+src/lib/components/proyeccion/ProyeccionForm.svelte:
+  Template: 4 directivas {#if}, 2 directivas {#each}
+
+src/lib/components/proyeccion/ProyeccionPanel.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/proyeccion/ProyeccionResultados.svelte:
+  Template: 3 directivas {#if}, 2 directivas {#each}
 
 src/lib/components/SvarDataGrid.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
@@ -388,6 +402,9 @@ src/lib/components/tipos-medicion/TiposMedicionPageHeader.svelte:
 
 src/lib/components/datagrid/DataGridTableView.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/proyeccion/CurvaInfoCard.svelte:
+  Template: 1 directivas {#if}
 
 src/lib/components/centros/CentroRowActions.svelte:
   Template: 2 directivas {#if}

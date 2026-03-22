@@ -88,9 +88,10 @@
 		const idxExistente = dias.indexOf(dia);
 		if (idxExistente >= 0) {
 			tallas[idxExistente] = talla;
+			tallas = [...tallas];
 		} else {
-			dias.push(dia);
-			tallas.push(talla);
+			dias = [...dias, dia];
+			tallas = [...tallas, talla];
 		}
 		resultado = null;
 	}
@@ -98,10 +99,16 @@
 	function eliminarPunto(dia: number) {
 		const idx = dias.indexOf(dia);
 		if (idx >= 0) {
-			dias.splice(idx, 1);
-			tallas.splice(idx, 1);
+			dias = dias.filter((_, i) => i !== idx);
+			tallas = tallas.filter((_, i) => i !== idx);
 			resultado = null;
 		}
+	}
+
+	function usarMedicionesCargadas(mediciones: { dia: number; talla: number }[]) {
+		dias = mediciones.map((m) => m.dia);
+		tallas = mediciones.map((m) => m.talla);
+		resultado = null;
 	}
 
 	function ejecutarProyeccion() {
@@ -176,6 +183,7 @@
 		{cargando}
 		onAgregarPunto={agregarPunto}
 		onEliminarPunto={eliminarPunto}
+		onUsarMedicionesCargadas={usarMedicionesCargadas}
 		onEjecutarProyeccion={ejecutarProyeccion}
 	/>
 

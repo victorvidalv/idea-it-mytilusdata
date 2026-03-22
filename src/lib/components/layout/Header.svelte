@@ -1,15 +1,12 @@
 <script lang="ts">
+	import { getRolStyles, ROLES } from '$lib/auth/permissions';
+	import type { Rol } from '$lib/auth/permissions';
+
 	export let data: import('../../../routes/(app)/$types').LayoutData;
 	export let links: { href: string; label: string; icon: string }[];
 	export let investigadorLinks: { href: string; label: string; icon: string }[];
 	export let mobileMenuOpen: boolean;
 	export let toggleMobileMenu: () => void;
-
-	const rolStyle: Record<string, { color: string; label: string }> = {
-		ADMIN: { color: 'text-red-400', label: 'Administrador' },
-		INVESTIGADOR: { color: 'text-teal-glow', label: 'Investigador' },
-		USUARIO: { color: 'text-muted-foreground', label: 'Usuario' }
-	};
 
 	let userMenuOpen = false;
 
@@ -62,11 +59,11 @@
 					>{data.user?.nombre || 'Usuario'}</span
 				>
 				<span
-					class="mt-1 font-body text-[10px] font-semibold tracking-wider uppercase {rolStyle[
-						data.user?.rol ?? ''
-					]?.color || 'text-muted-foreground'} leading-none"
+					class="mt-1 font-body text-[10px] font-semibold tracking-wider uppercase {getRolStyles(
+						(data.user?.rol as Rol) ?? 'USUARIO'
+					).color} leading-none"
 				>
-					{rolStyle[data.user?.rol ?? '']?.label || 'Usuario'}
+					{getRolStyles((data.user?.rol as Rol) ?? 'USUARIO').label}
 				</span>
 			</div>
 			<svg
@@ -150,7 +147,7 @@
 			role="presentation"
 		>
 			<nav class="mt-4 space-y-1">
-				{#if data.user?.rol === 'INVESTIGADOR'}
+				{#if data.user?.rol === ROLES.INVESTIGADOR}
 					{#each investigadorLinks as link (link.href)}
 						<a
 							href={link.href}

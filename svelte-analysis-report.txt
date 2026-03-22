@@ -2,7 +2,7 @@
               REPORTE DE ANÁLISIS DE CÓDIGO SVELTE
 ══════════════════════════════════════════════════════════════════════
 
-Fecha: 2026-03-22T04:30:41.292Z
+Fecha: 2026-03-22T13:27:18.143Z
 Directorio: /Users/vmvv/work/idea-it-mytilusdata
 Configuración: .qa
 
@@ -17,7 +17,7 @@ Extensiones: svelte
 RESUMEN
 ──────────────────────────────────────────────────────────────────────
 Archivos analizados: 139
-Total líneas: 8841
+Total líneas: 8842
 Complejidad promedio: 4.0
 Código duplicado: 3.73%
 Archivos con errores: 0
@@ -29,7 +29,7 @@ DETALLE POR ARCHIVO
 Archivo                                         Líneas  Complejidad     Estado
 ----------------------------------------------------------------------
 src/lib/components/proyeccion/ProyeccionForm.      448 31      FALLA
-src/lib/components/proyeccion/ProyeccionPanel      187 27      FALLA
+src/lib/components/proyeccion/ProyeccionPanel      188 27      FALLA
 src/lib/components/proyeccion/ProyeccionResul      135 14      FALLA
 src/lib/components/SvarDataGrid.svelte             108 10         OK
 src/lib/components/graficos/DashboardGraficos      108 10         OK

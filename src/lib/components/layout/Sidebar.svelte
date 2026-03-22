@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { ROLES } from '$lib/auth/permissions';
 
 	export let data: import('../../../routes/(app)/$types').LayoutData;
 	export let links: { href: string; label: string; icon: string }[];
@@ -52,7 +53,7 @@
 			Principal
 		</p>
 
-		{#if data.user?.rol === 'INVESTIGADOR'}
+		{#if data.user?.rol === ROLES.INVESTIGADOR}
 			{#each investigadorLinks as link (link.href)}
 				<a
 					href={link.href}
@@ -128,7 +129,7 @@
 			{/each}
 		{/if}
 
-		{#if data.user?.rol === 'ADMIN'}
+		{#if data.user?.rol === ROLES.ADMIN}
 			<div class="mt-5 border-t border-white/[0.06] pt-5">
 				<p
 					class="px-3 pb-2 font-body text-[10px] font-semibold tracking-[0.2em] text-white/25 uppercase {sidebarCollapsed

@@ -34,7 +34,7 @@ Muestra 3 curvas: Meta (línea horizontal), Real (datos históricos) y Proyectad
 	let hasDataToPlot = $derived(seriesConDatos.length > 0);
 </script>
 
-<div class="space-y-6">
+<div id="grafico-resultados" class="space-y-6 scroll-mt-8">
 	{#if curvaUsada}
 		<CurvaInfoCard {curvaUsada} {curvaReferencia} {metadatos} {mediciones} />
 	{/if}

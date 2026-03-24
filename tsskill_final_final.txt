@@ -1,0 +1,255 @@
+[36m
+  ╔═════════════════════════════════════════════╗
+  ║         TS / JS  S K I L L  A N A L Y Z E R     ║
+  ╚═════════════════════════════════════════════╝
+[0m
+[90m📁 Analizando: /Users/vmvv/work/idea-it-mytilusdata[0m
+[33m📊 Límites: Complejidad 10, Líneas 200
+[0m
+[34m📄 Analizando 226 archivos...
+[0m
+┌───────────────────────────────────────────────┬────────────┬──────────┬────────────┐
+│ Archivo                                       │ Líneas     │ Compl.   │ Estado     │
+├───────────────────────────────────────────────┼────────────┼──────────┼────────────┤
+│ src/lib/server/biblioteca/similitud-proyeccio │ [32m85[0m         │ [31m[1m13[0m       │ [41m[37m  FALLA  [0m  │
+│ src/lib/components/auth/loginFormState.ts     │ [32m49[0m         │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/lib/components/graficos/filtroRegistros.t │ [32m50[0m         │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/lib/components/datagrid/sort-comparator.t │ [32m48[0m         │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/lib/components/proyeccion/curva-alertas-a │ [32m66[0m         │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-core.ts   │ [32m164[0m        │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-validatio │ [32m43[0m         │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/lib/server/ciclos/mutations.ts            │ [32m112[0m        │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/perfil/+page.server.ts       │ [32m115[0m        │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/login/handlers.ts         │ [32m116[0m        │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/investigador/centros/+page.s │ [32m68[0m         │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/perfil/api-keys/+page.server │ [32m87[0m         │ [32m10[0m       │ [42m[37m   OK    [0m  │
+│ src/lib/server/apiAuth.ts                     │ [32m120[0m        │ [32m9[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/validations/utils.ts                  │ [32m80[0m         │ [32m9[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/auth/turnstile.ts          │ [32m81[0m         │ [32m9[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/extraccion.ts       │ [32m170[0m        │ [32m9[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/centros/transforms.ts          │ [32m52[0m         │ [32m9[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/rate-limiter/rate-limits.ts    │ [32m108[0m        │ [32m9[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/magic-links/core.ts       │ [32m136[0m        │ [32m9[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/handlers/post.ts    │ [32m84[0m         │ [32m9[0m        │ [42m[37m   OK    [0m  │
+│ src/hooks.server.ts                           │ [32m52[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/auth/permissions-checks.ts            │ [32m56[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/graficos/validacionSelecci │ [32m58[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/datagrid/sort-utils.ts     │ [32m52[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/proyeccion/curva-alertas-b │ [32m54[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/proyeccion/proyeccion-sigm │ [32m69[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/audit/log.ts                   │ [32m28[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/permissions.ts            │ [32m118[0m        │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/modelado.ts         │ [32m106[0m        │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-calculo.t │ [32m129[0m        │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/hooks/authorization.ts         │ [32m15[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/rate-limiter/email-cooldown.ts │ [32m72[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/centros/+page.server.ts      │ [32m99[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/ciclos/+page.server.ts       │ [32m94[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/auth/login/+page.server.ts         │ [32m59[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/magic-links/validation.ts │ [32m43[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/biblioteca/page-utils. │ [32m39[0m         │ [32m8[0m        │ [42m[37m   OK    [0m  │
+│ src/__tests__/test-utils.ts                   │ [32m114[0m        │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/captcha.ts                     │ [32m84[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/proyeccion/proyeccionUtils │ [32m112[0m        │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/registros/registro-edit-ut │ [32m57[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/sessions.ts               │ [32m99[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/tipos-medicion/mutations.ts    │ [32m84[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/tipos-medicion/validation.ts   │ [32m69[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/dashboard/+page.server.ts    │ [32m75[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/ciclos/+server.ts              │ [32m69[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/poblar/+server.ts              │ [32m98[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/login/rate-limits.ts      │ [32m44[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/login/validation.ts       │ [32m75[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/investigador/ciclos/+page.se │ [32m56[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/registros/actions/update.ts  │ [32m59[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/handlers/get.ts     │ [32m74[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/validation/request. │ [32m56[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/biblioteca/_components │ [32m66[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/biblioteca/actions/del │ [32m31[0m         │ [32m7[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/pagination.ts                  │ [32m59[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/ciclos/ciclo-utils.ts      │ [32m32[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/datagrid/filter-utils.ts   │ [32m31[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/datagrid/svar-column-conve │ [32m50[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/datagrid/svar-editor-confi │ [32m41[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/registros/registros-page-u │ [32m58[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/api-rate-limiter/utils.ts      │ [32m48[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/centros/mutations.ts           │ [32m93[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/registros/mutations.ts         │ [32m80[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/export-data/+server.ts         │ [32m171[0m        │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/poblar/auth.ts                 │ [32m60[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/investigador/dashboard/+page │ [32m52[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/biblioteca/actions/pob │ [32m45[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/tipos-medicion/actions │ [32m36[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/tipos-medicion/actions │ [32m36[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/tipos-medicion/actions │ [32m36[0m         │ [32m6[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/auth/permissions-ui.ts                │ [32m32[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/centros/centro-form-utils. │ [32m27[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/graficos/dashboardUtils.ts │ [32m80[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/datagrid/svar-grid-api.ts  │ [32m38[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/auth-guard.ts             │ [32m68[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/roles.ts                  │ [32m50[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/modelado-utils.ts   │ [32m128[0m        │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-estadisti │ [32m56[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/origenes/validation.ts         │ [32m60[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/registros/queries.ts           │ [32m95[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/usuarios/+page.server. │ [32m71[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/registros/actions/delete.ts  │ [32m33[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/validation/params.t │ [32m44[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/origenes/actions/creat │ [32m36[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/origenes/actions/delet │ [32m36[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/origenes/actions/updat │ [32m36[0m         │ [32m5[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/searchable-select-utils.ts │ [32m41[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/graficos/filtroEntidades.t │ [32m23[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/api-rate-limiter/result-builde │ [32m59[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/carga.ts            │ [32m112[0m        │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-export.ts │ [32m18[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud.ts        │ [32m52[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/centros/authorization.ts       │ [32m49[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/centros/queries.ts             │ [32m64[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/ciclos/authorization.ts        │ [32m49[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/ciclos/transforms.ts           │ [32m52[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/hooks/apiAuth.ts               │ [32m21[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/origenes/mutations.ts          │ [32m44[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/rate-limiter/utils.ts          │ [32m15[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/registros/authorization.ts     │ [32m49[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/graficos/+page.server.ts     │ [32m64[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/centros/+server.ts             │ [32m61[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/registros/+server.ts           │ [32m70[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/auth/callback/+server.ts           │ [32m33[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/auth/logout/+server.ts             │ [32m147[0m        │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/investigador/graficos/+page. │ [32m69[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/registros/actions/create.ts  │ [32m26[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/investigador/registros/+page │ [32m61[0m         │ [32m4[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/map-utils.ts               │ [32m59[0m         │ [32m3[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/api-rate-limiter/core.ts       │ [32m36[0m         │ [32m3[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/ciclos/queries.ts              │ [32m56[0m         │ [32m3[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/proyeccion/+page.server.ts   │ [32m32[0m         │ [32m3[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/registros/auth-helpers.ts    │ [32m23[0m         │ [32m3[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/magic-links/email.ts      │ [32m52[0m         │ [32m3[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/magic-links/users.ts      │ [32m36[0m         │ [32m3[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/biblioteca/auth-helper │ [32m30[0m         │ [32m3[0m        │ [42m[37m   OK    [0m  │
+│ drizzle.config.ts                             │ [32m12[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/proyeccion/curva-alertas.t │ [32m24[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/usuarios/rolConfig.ts      │ [32m33[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/index.ts                    │ [32m11[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/origenes/queries.ts            │ [32m58[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/rate-limiter/cleanup.ts        │ [32m25[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/registros/seeds.ts             │ [32m30[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/tipos-medicion/queries.ts      │ [32m43[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/registros/load.ts            │ [32m34[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/queries.ts          │ [32m85[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/origenes/auth-helpers. │ [32m16[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/origenes/load.ts       │ [32m15[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/biblioteca/load.ts     │ [32m15[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/tipos-medicion/auth-he │ [32m16[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/tipos-medicion/load.ts │ [32m18[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/validation/auth.ts  │ [32m25[0m         │ [32m2[0m        │ [42m[37m   OK    [0m  │
+│ vite.config.ts                                │ [32m38[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/app.d.ts                                  │ [32m24[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/demo.spec.ts                              │ [32m8[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/index.ts                              │ [32m2[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/utils.ts                              │ [32m14[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/page.svelte.spec.ts                │ [32m14[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/auth/permissions.data.ts              │ [32m152[0m        │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/auth/permissions.ts                   │ [32m55[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/apiRateLimiter.ts              │ [32m5[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/audit.ts                       │ [32m2[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth.ts                        │ [32m3[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/rateLimiter.ts                 │ [32m3[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/validations/index.ts                  │ [32m22[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/validations/schemas.ts                │ [32m55[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/+layout.server.ts            │ [32m8[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/acerca-de/index.ts         │ [32m5[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/dashboard/index.ts         │ [32m32[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/graficos/index.ts          │ [32m38[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/graficos/seriesColors.ts   │ [32m28[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/graficos/types.ts          │ [32m71[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/home/index.ts              │ [32m2[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/datagrid/datagrid-types.ts │ [32m22[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/datagrid/index.ts          │ [32m21[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/legal/index.ts             │ [32m8[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/perfil/index.ts            │ [32m4[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/proyeccion/curva-alertas-t │ [32m19[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/proyeccion/proyeccion-colo │ [32m9[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/proyeccion/proyeccion-tipo │ [32m39[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/registros/registro-row-typ │ [32m37[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/api-rate-limiter/config.ts     │ [32m22[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/api-rate-limiter/helpers.ts    │ [32m37[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/api-rate-limiter/index.ts      │ [32m14[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/api-rate-limiter/types.ts      │ [32m23[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/audit/convenience.ts           │ [32m190[0m        │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/audit/index.ts                 │ [32m15[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/audit/types.ts                 │ [32m25[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/index.ts                  │ [32m23[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/permissions.server.data.t │ [32m141[0m        │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/index.ts            │ [32m21[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/queries.ts          │ [32m85[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-error.ts  │ [32m31[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-math.spec │ [32m68[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-proyeccio │ [32m34[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-tipos.ts  │ [32m58[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-utils.ts  │ [32m49[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/biblioteca/similitud-validatio │ [32m25[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/centros/index.ts               │ [32m45[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/centros/types.ts               │ [32m30[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/ciclos/index.ts                │ [32m43[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/ciclos/types.ts                │ [32m33[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema.ts                   │ [32m3[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/hooks/index.ts                 │ [32m15[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/hooks/routes.ts                │ [32m36[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/hooks/security.ts              │ [32m23[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/origenes/authorization.ts      │ [32m13[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/origenes/index.ts              │ [32m43[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/origenes/types.ts              │ [32m24[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/rate-limiter/index.ts          │ [32m14[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/rate-limiter/types.ts          │ [32m36[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/registros/index.ts             │ [32m41[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/registros/types.ts             │ [32m57[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/tipos-medicion/authorization.t │ [32m21[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/tipos-medicion/index.ts        │ [32m38[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/tipos-medicion/types.ts        │ [32m32[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/registros/+page.server.ts    │ [32m6[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/+server.ts          │ [32m24[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/types.ts            │ [32m89[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/ui/card/index.ts           │ [32m26[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/ui/input/index.ts          │ [32m8[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/ui/button/index.ts         │ [32m18[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/ui/label/index.ts          │ [32m8[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/components/ui/sonner/index.ts         │ [32m2[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/login/index.ts            │ [32m8[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/login/types.ts            │ [32m18[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/magic-links/index.ts      │ [32m5[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/auth/magic-links/types.ts      │ [32m7[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/origenes/+page.server. │ [32m6[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/biblioteca/+page.serve │ [32m6[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/tipos-medicion/+page.s │ [32m6[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema/audit.ts             │ [32m20[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema/auth.ts              │ [32m49[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema/index.ts             │ [32m23[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema/library.ts           │ [32m70[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema/master.ts            │ [32m21[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema/measurements.ts      │ [32m35[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema/productive.ts        │ [32m48[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/lib/server/db/schema/security.ts          │ [32m52[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/registros/actions/index.ts   │ [32m3[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/handlers/index.ts   │ [32m7[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/api/proyeccion/validation/index.ts │ [32m10[0m         │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/origenes/actions/index │ [32m3[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/biblioteca/actions/ind │ [32m7[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+│ src/routes/(app)/admin/tipos-medicion/actions │ [32m3[0m          │ [32m1[0m        │ [42m[37m   OK    [0m  │
+└───────────────────────────────────────────────┴────────────┴──────────┴────────────┘
+[32mJSON report saved to report/jscpd-report.json[39m
+Duplications detection: Found [1m40[22m exact clones with [1m501[22m(4.77%) duplicated lines in [1m215[22m (1 formats) files.
+[36m
+════════════════════════════════════════════════════════════
+📊 RESUMEN FINAL
+════════════════════════════════════════════════════════════[0m
+  Archivos analizados:  226
+  Total líneas:         10816
+  Compl. Promedio:      3.8
+  Código Duplicado:     4.77%
+[31m[1m
+✖ SE DETECTARON 1 FALLOS DE CALIDAD.[0m
+[32m
+✓ Análisis completado.
+[0m

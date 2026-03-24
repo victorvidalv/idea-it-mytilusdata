@@ -2,7 +2,7 @@
               REPORTE DE ANÁLISIS DE CÓDIGO SVELTE
 ══════════════════════════════════════════════════════════════════════
 
-Fecha: 2026-03-24T05:51:07.062Z
+Fecha: 2026-03-24T06:03:39.346Z
 Directorio: /Users/vmvv/work/idea-it-mytilusdata
 Configuración: .qa
 
@@ -16,30 +16,23 @@ Extensiones: svelte
 ──────────────────────────────────────────────────────────────────────
 RESUMEN
 ──────────────────────────────────────────────────────────────────────
-Archivos analizados: 148
-Total líneas: 9799
-Complejidad promedio: 4.4
-Código duplicado: 3.42%
+Archivos analizados: 161
+Total líneas: 9382
+Complejidad promedio: 3.7
+Código duplicado: 3.57%
 Archivos con errores: 0
-Archivos que fallan: 9
+Archivos que fallan: 0
 
 ──────────────────────────────────────────────────────────────────────
 DETALLE POR ARCHIVO
 ──────────────────────────────────────────────────────────────────────
 Archivo                                         Líneas  Complejidad     Estado
 ----------------------------------------------------------------------
-src/lib/components/proyeccion/ProyeccionForm.      452 30      FALLA
-src/lib/components/proyeccion/ProyeccionPanel      204 30      FALLA
-src/lib/components/proyeccion/ProyeccionResul      139 16      FALLA
-src/lib/components/proyeccion/CurvaInformacio       94 16      FALLA
-src/lib/components/proyeccion/ProyeccionLoade      167 15      FALLA
-src/lib/components/proyeccion/CurvaIndicadore       91 15      FALLA
-src/lib/components/proyeccion/CurvaFuncionesA      127 13      FALLA
-src/lib/components/proyeccion/CurvaAnalisisMa      173 12      FALLA
-src/lib/components/proyeccion/CurvaInfoCard.s       58 12      FALLA
 src/lib/components/SvarDataGrid.svelte             108 10         OK
 src/lib/components/graficos/DashboardGraficos      108 10         OK
 src/routes/(app)/admin/usuarios/+page.svelte        99 10         OK
+src/lib/components/proyeccion/ProyeccionLoade       96 10         OK
+src/lib/components/proyeccion/CurvaFuncionesA       90 10         OK
 src/routes/(app)/admin/tipos-medicion/+page.s       77 10         OK
 src/routes/(app)/admin/origenes/+page.svelte        74 10         OK
 src/lib/components/centros/CentroMapSelector.       65 10         OK
@@ -50,6 +43,8 @@ src/lib/components/centros/CentroDeleteButton       52 10         OK
 src/routes/(app)/investigador/ciclos/+page.sv      181 9         OK
 src/lib/components/datagrid/DataGridPaginatio      129 9         OK
 src/lib/components/usuarios/UsuarioRow.svelte      115 9         OK
+src/lib/components/proyeccion/ProyeccionResul       88 9         OK
+src/lib/components/proyeccion/ProyeccionPanel       79 9         OK
 src/lib/components/registros/RegistroRowConte       74 9         OK
 src/lib/components/centros/CentroRowDisplay.s       68 9         OK
 src/lib/components/MapContainer.svelte              61 9         OK
@@ -62,6 +57,7 @@ src/routes/(app)/admin/biblioteca/_components       88 7         OK
 src/lib/components/graficos/GraficoEvolucion.       80 7         OK
 src/routes/auth/login/+page.svelte                  67 7         OK
 src/lib/components/graficos/FiltrosPanelHeade       43 7         OK
+src/lib/components/proyeccion/CurvaInfoParame       28 7         OK
 src/lib/components/graficos/EstadisticasPanel      191 6         OK
 src/routes/(app)/investigador/registros/+page      145 6         OK
 src/lib/components/graficos/FiltrosPanel.svel      104 6         OK
@@ -70,16 +66,23 @@ src/lib/components/registros/RegistroEditForm       77 6         OK
 src/routes/(app)/dashboard/+page.svelte             71 6         OK
 src/lib/components/registros/RegistroFormCont       69 6         OK
 src/lib/components/centros/CentroEditForm.sve       67 6         OK
+src/lib/components/proyeccion/CurvaAnalisisMa       66 6         OK
+src/lib/components/proyeccion/ProyeccionForm.       55 6         OK
 src/lib/components/ui/input/input.svelte            53 6         OK
 src/routes/(app)/admin/biblioteca/+page.svelt       45 6         OK
+src/lib/components/proyeccion/CurvaInfoCard.s       40 6         OK
 src/lib/components/centros/CentroRow.svelte         38 6         OK
+src/lib/components/proyeccion/CurvaIndicadorO       32 6         OK
 src/lib/components/MapMarkers.svelte                20 6         OK
 src/lib/components/centros/CentroCreateForm.s      163 5         OK
 src/lib/components/ciclos/CicloRow.svelte          125 5         OK
 src/routes/(app)/admin/biblioteca/_components      106 5         OK
 src/lib/components/ui/button/button.svelte          83 5         OK
 src/lib/components/datagrid/DataGridGridView.       82 5         OK
+src/lib/components/proyeccion/CurvaIndicadore       50 5         OK
 src/lib/components/ciclos/CiclosPageHeader.sv       41 5         OK
+src/lib/components/proyeccion/CurvaInformacio       27 5         OK
+src/lib/components/proyeccion/ProyeccionFormC      126 4         OK
 src/routes/(app)/registros/+page.svelte             96 4         OK
 src/routes/(app)/investigador/centros/+page.s       95 4         OK
 src/lib/components/registros/RegistroRowActio       70 4         OK
@@ -94,6 +97,7 @@ src/lib/components/perfil/PerfilInfoSection.s      101 3         OK
 src/lib/components/origenes/OrigenRow.svelte       100 3         OK
 src/lib/components/datagrid/DataGridSearchBar       69 3         OK
 src/routes/(app)/perfil/api-keys/_components/       54 3         OK
+src/lib/components/proyeccion/ProyeccionFormT       50 3         OK
 src/lib/components/registros/RegistrosPageHea       45 3         OK
 src/lib/components/origenes/OrigenesPageHeade       43 3         OK
 src/lib/components/tipos-medicion/TiposMedici       43 3         OK
@@ -103,6 +107,7 @@ src/lib/components/legal/TermSection.svelte         31 3         OK
 src/lib/components/proyeccion/CurvaAlertasPan       31 3         OK
 src/lib/components/registros/RegistroRow.svel       25 3         OK
 src/lib/components/auth/LoginFormContent.svel       19 3         OK
+src/lib/components/proyeccion/CurvaInfoBody.s       19 3         OK
 src/lib/components/registros/RegistroRowCentr       14 3         OK
 src/routes/(app)/investigador/dashboard/+page      173 2         OK
 src/lib/components/registros/RegistroFormMedi      111 2         OK
@@ -114,10 +119,13 @@ src/lib/components/ciclos/CiclosGrid.svelte         50 2         OK
 src/lib/components/registros/RegistroEditCont       49 2         OK
 src/lib/components/home/HomeEntitiesSection.s       47 2         OK
 src/lib/components/auth/LoginEmailForm.svelte       45 2         OK
+src/lib/components/proyeccion/ProyeccionResul       40 2         OK
 src/lib/components/auth/LoginRateLimitWarning       34 2         OK
 src/routes/(app)/admin/tipos-medicion/_compon       34 2         OK
 src/routes/(app)/admin/origenes/_components/O       32 2         OK
 src/lib/components/SearchableSelectOption.sve       25 2         OK
+src/lib/components/proyeccion/CurvaInfoModelH       21 2         OK
+src/lib/components/proyeccion/CurvaInfoAjuste       19 2         OK
 src/lib/components/registros/RegistroRowOrige       19 2         OK
 src/lib/components/auth/LoginDefaultState.sve       17 2         OK
 src/routes/(app)/+layout.svelte                    130 1         OK
@@ -131,11 +139,13 @@ src/lib/components/dashboard/DashboardActivit       73 1         OK
 src/lib/components/proyeccion/CurvaCalculoObj       72 1         OK
 src/lib/components/tipos-medicion/TipoMedicio       63 1         OK
 src/lib/components/centros/CentroFormFields.s       62 1         OK
+src/lib/components/proyeccion/ProyeccionFormM       58 1         OK
 src/lib/components/legal/sections/SectionDere       51 1         OK
 src/lib/components/origenes/OrigenCreateForm.       46 1         OK
 src/routes/(app)/perfil/api-keys/_components/       44 1         OK
 src/lib/components/perfil/PerfilExportSection       43 1         OK
 src/lib/components/dashboard/DashboardStatCar       42 1         OK
+src/lib/components/proyeccion/ProyeccionFormC       41 1         OK
 src/routes/(app)/proyeccion/+page.svelte            40 1         OK
 src/lib/components/perfil/PerfilApiKeysSectio       39 1         OK
 src/lib/components/legal/sections/SectionSegu       37 1         OK
@@ -153,6 +163,8 @@ src/lib/components/ciclos/CiclosNoCentrosAler       27 1         OK
 src/lib/components/home/HomeEntityCard.svelte       27 1         OK
 src/lib/components/tipos-medicion/AccessDenie       27 1         OK
 src/lib/components/legal/sections/SectionGobe       26 1         OK
+src/lib/components/proyeccion/CurvaAnalisisMe       26 1         OK
+src/lib/components/proyeccion/CurvaAnalisisMo       26 1         OK
 src/lib/components/legal/sections/SectionProp       25 1         OK
 src/lib/components/auth/LoginCaptchaError.sve       24 1         OK
 src/lib/components/ui/card/card-header.svelte       24 1         OK
@@ -174,6 +186,7 @@ src/routes/+layout.svelte                           18 1         OK
 src/lib/components/acerca-de/SectionPropuesta       17 1         OK
 src/lib/components/auth/LoginHeader.svelte          16 1         OK
 src/lib/components/ui/card/card-content.svelt       16 1         OK
+src/lib/components/proyeccion/ProyeccionFormH       11 1         OK
 src/routes/(app)/graficos/+page.svelte              11 1         OK
 src/routes/(app)/investigador/graficos/+page.       11 1         OK
 
@@ -250,35 +263,17 @@ src/routes/(app)/investigador/graficos/+page.       11 1         OK
 DETALLES DE COMPLEJIDAD DEL TEMPLATE
 ──────────────────────────────────────────────────────────────────────
 
-src/lib/components/proyeccion/ProyeccionForm.svelte:
-  Template: 4 directivas {#if}, 2 directivas {#each}
-
-src/lib/components/proyeccion/ProyeccionPanel.svelte:
-  Template: 1 directivas {#if}
-
-src/lib/components/proyeccion/ProyeccionResultados.svelte:
-  Template: 3 directivas {#if}, 2 directivas {#each}
-
-src/lib/components/proyeccion/CurvaInformacion.svelte:
-  Template: 7 directivas {#if}, 1 directivas {#each}
-
-src/lib/components/proyeccion/ProyeccionLoader.svelte:
-  Template: 1 directivas {#if}, 1 directivas {#each}, 1 directivas {#key}
-
-src/lib/components/proyeccion/CurvaIndicadores.svelte:
-  Template: 3 directivas {#if}
-
-src/lib/components/proyeccion/CurvaFuncionesAjustadas.svelte:
-  Template: 4 directivas {#if}
-
-src/lib/components/proyeccion/CurvaAnalisisMatematico.svelte:
-  Template: 2 directivas {#if}
-
 src/lib/components/SvarDataGrid.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
 
 src/routes/(app)/admin/usuarios/+page.svelte:
   Template: 1 directivas {#each}
+
+src/lib/components/proyeccion/ProyeccionLoader.svelte:
+  Template: 1 directivas {#if}, 1 directivas {#each}, 1 directivas {#key}
+
+src/lib/components/proyeccion/CurvaFuncionesAjustadas.svelte:
+  Template: 4 directivas {#if}
 
 src/routes/(app)/admin/tipos-medicion/+page.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
@@ -307,6 +302,12 @@ src/lib/components/datagrid/DataGridPagination.svelte:
 src/lib/components/usuarios/UsuarioRow.svelte:
   Template: 4 directivas {#if}, 3 directivas {:else/:else if}
 
+src/lib/components/proyeccion/ProyeccionResultados.svelte:
+  Template: 2 directivas {#if}
+
+src/lib/components/proyeccion/ProyeccionPanel.svelte:
+  Template: 1 directivas {#if}
+
 src/lib/components/centros/CentroRowDisplay.svelte:
   Template: 1 directivas {#if}
 
@@ -334,6 +335,9 @@ src/routes/auth/login/+page.svelte:
 src/lib/components/graficos/FiltrosPanelHeader.svelte:
   Template: 3 directivas {#if}, 2 directivas {:else/:else if}, 1 directivas {#each}
 
+src/lib/components/proyeccion/CurvaInfoParametros.svelte:
+  Template: 3 directivas {#if}
+
 src/lib/components/graficos/EstadisticasPanel.svelte:
   Template: 3 directivas {#if}, 2 directivas {#each}
 
@@ -349,6 +353,12 @@ src/routes/(app)/dashboard/+page.svelte:
 src/lib/components/registros/RegistroFormContexto.svelte:
   Template: 1 directivas {#if}
 
+src/lib/components/proyeccion/CurvaAnalisisMatematico.svelte:
+  Template: 2 directivas {#if}
+
+src/lib/components/proyeccion/ProyeccionForm.svelte:
+  Template: 1 directivas {#if}
+
 src/lib/components/ui/input/input.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
 
@@ -357,6 +367,9 @@ src/routes/(app)/admin/biblioteca/+page.svelte:
 
 src/lib/components/centros/CentroRow.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
+
+src/lib/components/proyeccion/CurvaIndicadorObjetivo.svelte:
+  Template: 2 directivas {#if}, 1 directivas {:else/:else if}
 
 src/lib/components/MapMarkers.svelte:
   Template: 1 directivas {#if}, 1 directivas {#each}
@@ -376,8 +389,14 @@ src/lib/components/ui/button/button.svelte:
 src/lib/components/datagrid/DataGridGridView.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
 
+src/lib/components/proyeccion/CurvaIndicadores.svelte:
+  Template: 3 directivas {#if}
+
 src/lib/components/ciclos/CiclosPageHeader.svelte:
   Template: 2 directivas {#if}, 2 directivas {:else/:else if}
+
+src/lib/components/proyeccion/ProyeccionFormCarga.svelte:
+  Template: 2 directivas {#if}, 1 directivas {#each}
 
 src/routes/(app)/registros/+page.svelte:
   Template: 2 directivas {#if}, 1 directivas {#each}
@@ -418,6 +437,9 @@ src/lib/components/datagrid/DataGridSearchBar.svelte:
 src/routes/(app)/perfil/api-keys/_components/ApiKeyEmptyState.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
 
+src/lib/components/proyeccion/ProyeccionFormTabla.svelte:
+  Template: 1 directivas {#if}, 1 directivas {#each}
+
 src/lib/components/registros/RegistrosPageHeader.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
 
@@ -445,6 +467,9 @@ src/lib/components/registros/RegistroRow.svelte:
 src/lib/components/auth/LoginFormContent.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
 
+src/lib/components/proyeccion/CurvaInfoBody.svelte:
+  Template: 2 directivas {#if}
+
 src/lib/components/registros/RegistroRowCentro.svelte:
   Template: 1 directivas {#if}, 1 directivas {:else/:else if}
 
@@ -466,6 +491,9 @@ src/lib/components/ciclos/CiclosGrid.svelte:
 src/lib/components/home/HomeEntitiesSection.svelte:
   Template: 1 directivas {#each}
 
+src/lib/components/proyeccion/ProyeccionResultadosTabla.svelte:
+  Template: 1 directivas {#each}
+
 src/lib/components/auth/LoginRateLimitWarning.svelte:
   Template: 1 directivas {#if}
 
@@ -477,6 +505,12 @@ src/routes/(app)/admin/origenes/_components/OrigenesContent.svelte:
 
 src/lib/components/SearchableSelectOption.svelte:
   Template: 1 directivas {#if}
+
+src/lib/components/proyeccion/CurvaInfoModelHeader.svelte:
+  Template: 1 directivas {#if}
+
+src/lib/components/proyeccion/CurvaInfoAjustes.svelte:
+  Template: 1 directivas {#each}
 
 src/lib/components/registros/RegistroRowOrigen.svelte:
   Template: 1 directivas {#if}

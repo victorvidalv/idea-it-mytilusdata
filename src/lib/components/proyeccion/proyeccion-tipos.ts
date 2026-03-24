@@ -16,7 +16,7 @@ export interface CurvaReferencia {
 export interface PuntoProyeccion {
 	dia: number;
 	talla: number;
-	tipo: 'dato' | 'proyeccion';
+	tipo: 'dato' | 'proyeccion' | 'interpolado' | 'proyectado';
 }
 
 export interface Medicion {

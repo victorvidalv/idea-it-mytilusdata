@@ -9,10 +9,6 @@ export {
 	type CooldownResult
 } from './types';
 
-export {
-	checkRateLimit,
-	logRateLimitAttempt,
-	checkEmailCooldown,
-	updateEmailCooldown,
-	cleanupOldRateLimits
-} from './core';
+export { checkRateLimit, logRateLimitAttempt } from './rate-limits';
+export { checkEmailCooldown, updateEmailCooldown } from './email-cooldown';
+export { cleanupOldRateLimits } from './cleanup';

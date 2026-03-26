@@ -17,7 +17,7 @@ export {
 	verifyTokenAndGetSession,
 	MAGIC_LINK_EXPIRATION_MS,
 	type MagicLinkResult
-} from './magic-links';
+} from './magic-links/index';
 
 // Re-exports de auth-guard
 export { authGuard } from './auth-guard';

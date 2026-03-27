@@ -1,7 +1,7 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { ROLES, type Rol } from '$lib/server/auth';
-import { registroSchema, parseFormData } from '$lib/validations';
+import { registroCreateSchema, registroSchema, parseFormData } from '$lib/validations';
 import {
 	getCentrosByUser,
 	getCiclosByUser,
@@ -34,32 +34,13 @@ export const actions = {
 		const userId = locals.user?.userId as number;
 		if (!userId) return fail(401, { error: true, message: 'No autenticado' });
 
-		const data = await request.formData();
-		const lugarId = Number(data.get('lugarId'));
-		const cicloId = data.get('cicloId') ? Number(data.get('cicloId')) : null;
-		const tipoId = Number(data.get('tipoId'));
-		const origenId = Number(data.get('origenId'));
-		const valor = Number(data.get('valor'));
-		const fechaString = data.get('fechaMedicion') as string;
-		const notas = data.get('notas') as string;
+		const formData = await request.formData();
+		const validated = await parseFormData(registroCreateSchema, formData);
 
-		if (!lugarId || !tipoId || !origenId || isNaN(valor) || !fechaString) {
-			return fail(400, { error: true, message: 'Faltan campos requeridos o valor no válido' });
-		}
+		if (!validated.success) return validated.response;
 
 		try {
-			await createRegistro(
-				{
-					lugarId,
-					cicloId,
-					tipoId,
-					origenId,
-					valor,
-					fechaMedicion: fechaString,
-					notas
-				},
-				userId
-			);
+			await createRegistro(validated.data, userId);
 			return { success: true, message: 'Registro guardado exitosamente' };
 		} catch {
 			return fail(500, { error: true, message: 'Error interno guardando la medición' });

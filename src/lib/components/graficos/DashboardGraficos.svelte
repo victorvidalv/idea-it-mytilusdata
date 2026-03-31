@@ -3,7 +3,7 @@
 	import FiltrosPanel from './FiltrosPanel.svelte';
 	import GraficoEvolucion from './GraficoEvolucion.svelte';
 	import EstadisticasPanel from './EstadisticasPanel.svelte';
-	import { buildTipoColorMap, filterCentrosByUser, filterCiclosByCentro, filterRegistros, isCentroValido, isCicloValido } from './filtroUtils';
+	import { buildTipoColorMap, filterCentrosByUser, filterCiclosByCentro, filterRegistros, isCentroValido, isCicloValido } from './index';
 	import type { DashboardData, ChartSeriesItem, Stats, Registro, TipoRegistro, TipoEstadistica } from './types';
 
 	// --- Props del componente ---

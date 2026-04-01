@@ -2,6 +2,7 @@ import { fail } from '@sveltejs/kit';
 import { createMagicLink } from '$lib/server/auth';
 import { verifyTurnstile } from '$lib/server/captcha';
 import { logMagicLinkSent, logLoginFailed } from '$lib/server/audit';
+import { validateRegistrationData } from './validation';
 import type { LoginContext, ExistingUser } from './types';
 
 /**
@@ -40,51 +41,6 @@ export async function handleExistingUserLogin(user: ExistingUser, ctx: LoginCont
 }
 
 /**
- * Validar los datos de registro de un nuevo usuario.
- * Retorna un mensaje de error si la validación falla, o null si es válida.
- */
-function validateRegistrationData(
-	nombre: FormDataEntryValue | null,
-	terms: FormDataEntryValue | null,
-	email: string
-) {
-	// Sin nombre: mostrar formulario de registro
-	if (!nombre) {
-		return { valid: false, error: { requiresRegistration: true, email } };
-	}
-
-	// Validar nombre
-	if (typeof nombre !== 'string' || nombre.length < 2) {
-		return {
-			valid: false,
-			error: fail(400, {
-				email,
-				nombre,
-				requiresRegistration: true,
-				missing: true,
-				message: 'Nombre es requerido'
-			})
-		};
-	}
-
-	// Validar aceptación de términos
-	if (terms !== 'on' && terms !== 'true') {
-		return {
-			valid: false,
-			error: fail(400, {
-				email,
-				nombre,
-				requiresRegistration: true,
-				missing: true,
-				message: 'Debes aceptar las condiciones del servicio'
-			})
-		};
-	}
-
-	return { valid: true };
-}
-
-/**
  * Manejar el registro de un nuevo usuario.
  * Valida los datos, verifica CAPTCHA, y envía magic link.
  */
@@ -94,13 +50,15 @@ export async function handleNewUserRegistration(
 	turnstileToken: FormDataEntryValue | null,
 	ctx: LoginContext
 ) {
-	// Validar datos de registro
 	const validation = validateRegistrationData(nombre, terms, ctx.email);
-	if (!validation.valid && validation.error) {
-		// Si el error indica que requiere registro sin datos de email, agregar el email
-		if ('requiresRegistration' in validation.error && !('status' in validation.error)) {
-			return { requiresRegistration: true, email: ctx.email };
-		}
+
+	// Caso: requiere mostrar formulario de registro
+	if (!validation.valid && 'requiresRegistration' in validation && !('error' in validation)) {
+		return { requiresRegistration: true, email: ctx.email };
+	}
+
+	// Caso: error de validación
+	if (!validation.valid && 'error' in validation) {
 		return validation.error;
 	}
 

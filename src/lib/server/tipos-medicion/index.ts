@@ -11,6 +11,8 @@ export type {
 	MutationResult
 } from './types';
 
+export type { ParseResult } from './validation';
+
 // Constantes
 export { TIPOS_MEDICION_SEED } from './types';
 
@@ -27,3 +29,10 @@ export {
 	updateTipoMedicion,
 	deleteTipoMedicion
 } from './mutations';
+
+// Validación
+export {
+	parseCreateFormData,
+	parseUpdateFormData,
+	parseDeleteFormData
+} from './validation';

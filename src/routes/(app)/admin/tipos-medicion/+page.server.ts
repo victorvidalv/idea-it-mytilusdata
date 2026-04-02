@@ -7,7 +7,10 @@ import {
 	ensureTiposRegistroSeeded,
 	createTipoMedicion,
 	updateTipoMedicion,
-	deleteTipoMedicion
+	deleteTipoMedicion,
+	parseCreateFormData,
+	parseUpdateFormData,
+	parseDeleteFormData
 } from '$lib/server/tipos-medicion';
 
 /** Cargar tipos de medición, asegurando que existen los básicos si la tabla está vacía */
@@ -34,15 +37,14 @@ export const actions = {
 			return fail(403, { error: true, message: 'No tiene permisos' });
 		}
 
-		const data = await request.formData();
-		const codigo = data.get('codigo') as string;
-		const unidadBase = data.get('unidadBase') as string;
+		const formData = await request.formData();
+		const parsed = parseCreateFormData(formData);
 
-		if (!codigo || !unidadBase) {
-			return fail(400, { error: true, message: 'Código y unidad son requeridos' });
+		if (!parsed.success) {
+			return fail(400, { error: true, message: parsed.error });
 		}
 
-		const result = await createTipoMedicion({ codigo, unidadBase });
+		const result = await createTipoMedicion(parsed.data);
 
 		if (!result.success) {
 			return fail(result.status, { error: true, message: result.message });
@@ -58,16 +60,14 @@ export const actions = {
 			return fail(403, { error: true, message: 'No tiene permisos' });
 		}
 
-		const data = await request.formData();
-		const id = Number(data.get('id'));
-		const codigo = data.get('codigo') as string;
-		const unidadBase = data.get('unidadBase') as string;
+		const formData = await request.formData();
+		const parsed = parseUpdateFormData(formData);
 
-		if (!id || !codigo || !unidadBase) {
-			return fail(400, { error: true, message: 'Todos los campos son requeridos' });
+		if (!parsed.success) {
+			return fail(400, { error: true, message: parsed.error });
 		}
 
-		const result = await updateTipoMedicion(id, { codigo, unidadBase });
+		const result = await updateTipoMedicion(parsed.id, parsed.data);
 
 		if (!result.success) {
 			return fail(result.status, { error: true, message: result.message });
@@ -83,14 +83,14 @@ export const actions = {
 			return fail(403, { error: true, message: 'No tiene permisos' });
 		}
 
-		const data = await request.formData();
-		const id = Number(data.get('id'));
+		const formData = await request.formData();
+		const parsed = parseDeleteFormData(formData);
 
-		if (!id) {
-			return fail(400, { error: true, message: 'ID no proporcionado' });
+		if (!parsed.success) {
+			return fail(400, { error: true, message: parsed.error });
 		}
 
-		const result = await deleteTipoMedicion(id);
+		const result = await deleteTipoMedicion(parsed.id);
 
 		if (!result.success) {
 			return fail(result.status, { error: true, message: result.message });

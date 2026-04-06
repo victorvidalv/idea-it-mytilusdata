@@ -10,6 +10,20 @@ import { canModifyCiclo, canDeleteCiclo } from './authorization';
 import { getCicloById, getLugarById } from './queries';
 import type { CicloFormData, MutationResult } from './types';
 
+// --- Helpers de resultado ---
+
+/** Construye un resultado de error */
+function errorResult(message: string, status: number): MutationResult {
+	return { success: false, error: true, message, status };
+}
+
+/** Construye un resultado de éxito */
+function successResult(message: string): MutationResult {
+	return { success: true, message };
+}
+
+// --- Mutaciones ---
+
 /**
  * Crea un nuevo ciclo productivo.
  * Verifica que el lugar existe y el usuario tiene permisos sobre él.
@@ -22,13 +36,13 @@ export async function createCiclo(
 	// Verificar que el centro existe
 	const lugar = await getLugarById(data.lugarId);
 	if (!lugar) {
-		return { success: false, error: true, message: 'Centro de cultivo no encontrado', status: 404 };
+		return errorResult('Centro de cultivo no encontrado', 404);
 	}
 
 	// Verificar permisos sobre el centro
 	const isAdmin = userRol === ROLES.ADMIN;
 	if (lugar.userId !== userId && !isAdmin) {
-		return { success: false, error: true, message: 'No tiene permisos sobre este centro', status: 403 };
+		return errorResult('No tiene permisos sobre este centro', 403);
 	}
 
 	await db.insert(ciclos).values({
@@ -39,7 +53,7 @@ export async function createCiclo(
 		activo: true
 	});
 
-	return { success: true, message: 'Ciclo productivo creado exitosamente' };
+	return successResult('Ciclo productivo creado exitosamente');
 }
 
 /**
@@ -52,27 +66,26 @@ export async function toggleCicloActive(
 	userRol: Rol
 ): Promise<MutationResult> {
 	const ciclo = await getCicloById(cicloId);
-
 	if (!ciclo) {
-		return { success: false, error: true, message: 'Ciclo no encontrado', status: 404 };
+		return errorResult('Ciclo no encontrado', 404);
 	}
 
 	if (!canModifyCiclo(ciclo.userId, userId, userRol)) {
-		return { success: false, error: true, message: 'No tiene permisos sobre este ciclo', status: 403 };
+		return errorResult('No tiene permisos sobre este ciclo', 403);
 	}
 
-	const updateData: { activo: boolean; fechaFinalizacion?: Date | null } = { activo: newActive };
-
-	// Registrar fecha de finalización al desactivar
-	if (!newActive) {
-		updateData.fechaFinalizacion = new Date();
-	} else {
-		updateData.fechaFinalizacion = null;
-	}
-
+	const updateData = buildToggleUpdateData(newActive);
 	await db.update(ciclos).set(updateData).where(eq(ciclos.id, cicloId));
 
-	return { success: true, message: newActive ? 'Ciclo reactivado' : 'Ciclo finalizado' };
+	return successResult(newActive ? 'Ciclo reactivado' : 'Ciclo finalizado');
+}
+
+/** Construye los datos de actualización para toggle de activo */
+function buildToggleUpdateData(newActive: boolean): { activo: boolean; fechaFinalizacion: Date | null } {
+	return {
+		activo: newActive,
+		fechaFinalizacion: newActive ? null : new Date()
+	};
 }
 
 /**
@@ -85,16 +98,15 @@ export async function deleteCiclo(
 	userRol: Rol
 ): Promise<MutationResult> {
 	const ciclo = await getCicloById(cicloId);
-
 	if (!ciclo) {
-		return { success: false, error: true, message: 'Ciclo no encontrado', status: 404 };
+		return errorResult('Ciclo no encontrado', 404);
 	}
 
 	if (!canDeleteCiclo(ciclo.userId, userId, userRol)) {
-		return { success: false, error: true, message: 'No tiene permisos para eliminar este ciclo', status: 403 };
+		return errorResult('No tiene permisos para eliminar este ciclo', 403);
 	}
 
 	await db.delete(ciclos).where(eq(ciclos.id, cicloId));
 
-	return { success: true, message: 'Ciclo eliminado exitosamente' };
+	return successResult('Ciclo eliminado exitosamente');
 }

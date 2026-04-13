@@ -73,126 +73,10 @@
 
 		<!-- Contenido Principal -->
 		<div class="space-y-8">
-			<!-- Eje Técnico -->
-			<section
-				class="group rounded-3xl border border-border/30 bg-card/40 p-6 shadow-sm backdrop-blur-lg transition-all hover:border-border/60 hover:bg-card/60 sm:p-10"
-			>
-				<div class="mb-6 flex items-center gap-4">
-					<div
-						class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
-					>
-						<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-							/>
-						</svg>
-					</div>
-					<h2 class="font-display text-xl font-semibold tracking-tight sm:text-2xl">Eje Técnico</h2>
-				</div>
-				<div class="space-y-4 text-muted-foreground sm:text-lg sm:leading-relaxed">
-					<p>
-						La solución integra tres módulos operativos: un sistema de registro de datos
-						estandarizado, un motor de modelado predictivo basado en <em>machine learning</em> y funciones
-						sigmoidales (con precisión superior al 85%), y un panel de análisis interactivo para la visualización
-						de tendencias y simulación de escenarios. Incluye además una API REST para garantizar la interoperabilidad
-						con sistemas externos.
-					</p>
-				</div>
-			</section>
-
-			<!-- Eje Operativo -->
-			<section
-				class="group rounded-3xl border border-border/30 bg-card/40 p-6 shadow-sm backdrop-blur-lg transition-all hover:border-border/60 hover:bg-card/60 sm:p-10"
-			>
-				<div class="mb-6 flex items-center gap-4">
-					<div
-						class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-ocean-light/10 text-ocean-mid"
-					>
-						<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-							/>
-						</svg>
-					</div>
-					<h2 class="font-display text-xl font-semibold tracking-tight sm:text-2xl">
-						Eje Operativo
-					</h2>
-				</div>
-				<div class="space-y-4 text-muted-foreground sm:text-lg sm:leading-relaxed">
-					<p>
-						Implementa un protocolo de monitoreo sistemático que estandariza la captura de variables
-						críticas como talla, biomasa y densidad. Esto permite a los productores pasar de una
-						gestión basada en muestreos limitados a una planificación de cosechas basada en datos
-						dinámicos y proyecciones de crecimiento valvar.
-					</p>
-				</div>
-			</section>
-
-			<!-- Eje Económico -->
-			<section
-				class="group rounded-3xl border border-border/30 bg-card/40 p-6 shadow-sm backdrop-blur-lg transition-all hover:border-border/60 hover:bg-card/60 sm:p-10"
-			>
-				<div class="mb-6 flex items-center gap-4">
-					<div
-						class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-green-500/10 text-green-600 dark:text-green-500"
-					>
-						<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-							/>
-						</svg>
-					</div>
-					<h2 class="font-display text-xl font-semibold tracking-tight sm:text-2xl">
-						Eje Económico
-					</h2>
-				</div>
-				<div class="space-y-4 text-muted-foreground sm:text-lg sm:leading-relaxed">
-					<p>
-						El sistema busca reducir la incertidumbre financiera mediante la identificación del
-						momento óptimo de cosecha, maximizando el rendimiento en carne y la estandarización del
-						producto final según los calibres demandados por los mercados internacionales. Se
-						orienta especialmente a mejorar la competitividad de las PYMES mitilicultoras mediante
-						un modelo de acceso democratizado.
-					</p>
-				</div>
-			</section>
-
-			<!-- Propuesta de Valor -->
-			<section
-				class="group rounded-3xl border border-border/30 bg-primary/5 p-6 shadow-sm backdrop-blur-lg transition-all hover:border-primary/30 hover:bg-primary/10 sm:p-10"
-			>
-				<div class="mb-6 flex items-center gap-4">
-					<div
-						class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/20 text-primary"
-					>
-						<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-							/>
-						</svg>
-					</div>
-					<h2 class="font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-						Propuesta de Valor
-					</h2>
-				</div>
-				<p class="text-foreground/90 sm:text-lg sm:leading-relaxed">
-					La solución permite a productores e investigadores colaborar en un entorno seguro y
-					encriptado, facilitando la toma de decisiones informadas para elevar los estándares de
-					sostenibilidad y trazabilidad de la industria acuícola chilena.
-				</p>
-			</section>
+			<SectionEjeTecnico />
+			<SectionEjeOperativo />
+			<SectionEjeEconomico />
+			<SectionPropuestaValor />
 		</div>
 
 		<!-- Footer / Action Area -->
@@ -207,3 +91,12 @@
 		</div>
 	</div>
 </div>
+
+<script lang="ts">
+	import {
+		SectionEjeTecnico,
+		SectionEjeOperativo,
+		SectionEjeEconomico,
+		SectionPropuestaValor
+	} from '$lib/components/acerca-de';
+</script>

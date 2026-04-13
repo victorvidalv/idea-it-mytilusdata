@@ -1,4 +1,6 @@
-<script lang="ts"></script>
+<script lang="ts">
+	import HomeEntitiesSection from '$lib/components/home/HomeEntitiesSection.svelte';
+</script>
 
 <svelte:head>
 	<title>MytilusData — Mitilicultura Inteligente</title>
@@ -92,114 +94,7 @@
 			</a>
 		</div>
 
-		<!-- Entidades Participantes -->
-		<div class="animate-fade-up mt-20 w-full max-w-6xl delay-500">
-			<div class="mx-auto mb-10 flex items-center justify-center gap-3">
-				<div class="h-px flex-1 bg-gradient-to-r from-transparent to-white/20"></div>
-				<h2 class="font-body text-xs font-semibold tracking-[0.2em] text-white/60 uppercase">
-					Entidades Participantes
-				</h2>
-				<div class="h-px flex-1 bg-gradient-to-l from-transparent to-white/20"></div>
-			</div>
-
-			<div class="flex flex-wrap justify-center gap-4">
-				<div
-					class="group w-full rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-left backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
-				>
-					<h3
-						class="font-display text-lg font-medium text-white/90 transition-colors group-hover:text-white"
-					>
-						Universidad Santo Tomás
-					</h3>
-					<p
-						class="mt-1 font-body text-xs font-semibold tracking-wider text-teal-glow/80 uppercase"
-					>
-						Beneficiario
-					</p>
-					<p
-						class="mt-3 font-body text-sm leading-relaxed text-white/50 transition-colors group-hover:text-white/70"
-					>
-						Generador de tecnología a través del Centro de Investigación CAPIA.
-					</p>
-				</div>
-				<div
-					class="group w-full rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-left backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
-				>
-					<h3
-						class="font-display text-lg font-medium text-white/90 transition-colors group-hover:text-white"
-					>
-						AmiChile
-					</h3>
-					<p
-						class="mt-1 font-body text-xs font-semibold tracking-wider text-teal-glow/80 uppercase"
-					>
-						Asociado / Mandante
-					</p>
-					<p
-						class="mt-3 font-body text-sm leading-relaxed text-white/50 transition-colors group-hover:text-white/70"
-					>
-						Aporta pertinencia sectorial y vinculación para la masificación.
-					</p>
-				</div>
-				<div
-					class="group w-full rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-left backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
-				>
-					<h3
-						class="font-display text-lg font-medium text-white/90 transition-colors group-hover:text-white"
-					>
-						Sudmaris Chile S.A.
-					</h3>
-					<p
-						class="mt-1 font-body text-xs font-semibold tracking-wider text-teal-glow/80 uppercase"
-					>
-						Asociado Piloto
-					</p>
-					<p
-						class="mt-3 font-body text-sm leading-relaxed text-white/50 transition-colors group-hover:text-white/70"
-					>
-						Suma centros de cultivo reales para validación operacional y datos.
-					</p>
-				</div>
-				<div
-					class="group w-full rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-left backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
-				>
-					<h3
-						class="font-display text-lg font-medium text-white/90 transition-colors group-hover:text-white"
-					>
-						Pesquera Apiao S.A.
-					</h3>
-					<p
-						class="mt-1 font-body text-xs font-semibold tracking-wider text-teal-glow/80 uppercase"
-					>
-						Asociado Piloto
-					</p>
-					<p
-						class="mt-3 font-body text-sm leading-relaxed text-white/50 transition-colors group-hover:text-white/70"
-					>
-						Provee centros a gran escala para pruebas de rendimiento de plataforma.
-					</p>
-				</div>
-				<div
-					class="group w-full rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-left backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.04] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-1rem)]"
-				>
-					<h3
-						class="font-display text-lg font-medium text-white/90 transition-colors group-hover:text-white"
-					>
-						INTEMIT
-					</h3>
-					<p
-						class="mt-1 font-body text-xs font-semibold tracking-wider text-teal-glow/80 uppercase"
-					>
-						Usuario Operador
-					</p>
-					<p
-						class="mt-3 font-body text-sm leading-relaxed text-white/50 transition-colors group-hover:text-white/70"
-					>
-						Entidad que prestará el servicio a nivel industrial a futuro.
-					</p>
-				</div>
-			</div>
-		</div>
+		<HomeEntitiesSection />
 	</div>
 
 	<!-- Borde degradado inferior -->

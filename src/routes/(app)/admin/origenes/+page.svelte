@@ -3,6 +3,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import toast from 'svelte-french-toast';
+	import AccessDenied from '$lib/components/tipos-medicion/AccessDenied.svelte';
+	import OrigenCreateForm from '$lib/components/origenes/OrigenCreateForm.svelte';
+	import OrigenRow from '$lib/components/origenes/OrigenRow.svelte';
 
 	import type { SubmitFunction } from '@sveltejs/kit';
 
@@ -12,8 +15,6 @@
 	let showForm = false;
 	let editingId: number | null = null;
 	let editNombre = '';
-
-	let newNombre = '';
 
 	function startEdit(origen: { id: number; nombre: string }) {
 		editingId = origen.id;
@@ -30,7 +31,6 @@
 				toast.success(result.data?.message || 'Operación exitosa');
 				showForm = false;
 				editingId = null;
-				newNombre = '';
 				await update();
 			} else if (result.type === 'failure') {
 				toast.error(result.data?.message || 'Ocurrió un error');
@@ -38,7 +38,6 @@
 		};
 	};
 
-	// Restablecer form si viene del server con error y se había mostrado (fallback visual)
 	$: if (form?.error) {
 		toast.error(form.message);
 	}
@@ -49,29 +48,7 @@
 </svelte:head>
 
 {#if !data.authorized}
-	<div
-		class="animate-fade-up flex min-h-[400px] flex-col items-center justify-center space-y-4 text-center"
-	>
-		<div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
-			<svg class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="1.5"
-					d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-				/>
-			</svg>
-		</div>
-		<div>
-			<h2 class="font-display text-xl font-medium text-foreground">Acceso Denegado</h2>
-			<p class="mx-auto mt-2 max-w-[300px] font-body text-sm text-muted-foreground">
-				Solo los administradores tienen acceso a la configuración técnica del sistema.
-			</p>
-		</div>
-		<Button href="/dashboard" variant="outline" class="mt-4 rounded-xl font-body text-sm">
-			Volver al Inicio
-		</Button>
-	</div>
+	<AccessDenied />
 {:else}
 	<div class="space-y-6">
 		<div class="animate-fade-up flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -113,47 +90,10 @@
 			</Button>
 		</div>
 
-		<!-- Formulario Agregar -->
 		{#if showForm}
-			<div class="animate-fade-up">
-				<Card.Root class="border-border/50">
-					<Card.Content class="pt-6">
-						<form
-							method="POST"
-							action="?/create"
-							use:enhance={handleAction}
-							class="flex flex-col items-end gap-4 sm:flex-row"
-						>
-							<div class="w-full space-y-2 sm:flex-1">
-								<label
-									for="new_nombre"
-									class="block font-body text-[10px] font-medium tracking-wider text-muted-foreground uppercase"
-									>Nombre del origen (Ej: API Externa, Satélite)</label
-								>
-								<input
-									id="new_nombre"
-									name="nombre"
-									type="text"
-									bind:value={newNombre}
-									placeholder="Nombre del nuevo origen..."
-									required
-									class="h-10 w-full rounded-lg border border-border/60 bg-background px-3 font-body text-sm transition-all focus:border-ocean-light focus:ring-2 focus:ring-ocean-light/20 focus:outline-none"
-								/>
-							</div>
-							<button
-								type="submit"
-								disabled={!newNombre.trim()}
-								class="h-10 w-full rounded-lg bg-ocean-mid px-6 font-body text-sm font-medium text-white transition-all hover:bg-ocean-deep disabled:opacity-50 sm:w-auto"
-							>
-								Guardar
-							</button>
-						</form>
-					</Card.Content>
-				</Card.Root>
-			</div>
+			<OrigenCreateForm onSubmit={handleAction} />
 		{/if}
 
-		<!-- Tabla de Tipos -->
 		<div class="animate-fade-up delay-100">
 			<Card.Root class="overflow-hidden border-border/50">
 				<div class="overflow-x-auto">
@@ -183,110 +123,14 @@
 								</tr>
 							{:else}
 								{#each data.origenes as origen (origen.id)}
-									{#if editingId === origen.id}
-										<!-- Modo Edición -->
-										<tr class="border-b border-border/20 bg-ocean-light/[0.03]">
-											<td colspan="3" class="px-4 py-3">
-												<form
-													method="POST"
-													action="?/update"
-													use:enhance={handleAction}
-													class="flex flex-wrap items-end gap-3"
-												>
-													<input type="hidden" name="id" value={origen.id} />
-													<div class="flex w-12 items-center px-2 text-xs text-muted-foreground">
-														#{origen.id}
-													</div>
-
-													<div class="block min-w-[150px] flex-1 space-y-1">
-														<input
-															name="nombre"
-															type="text"
-															bind:value={editNombre}
-															required
-															class="h-9 w-full rounded-lg border border-border/60 bg-background px-3 font-body text-sm focus:border-ocean-light focus:ring-2 focus:ring-ocean-light/20 focus:outline-none"
-														/>
-													</div>
-
-													<div class="ml-auto flex gap-1.5">
-														<button
-															type="submit"
-															class="h-9 rounded-lg bg-ocean-mid px-3 font-body text-xs font-medium text-white transition-all hover:bg-ocean-deep"
-															>Guardar</button
-														>
-														<button
-															type="button"
-															onclick={cancelEdit}
-															class="h-9 rounded-lg border border-border/60 px-3 font-body text-xs transition-all hover:bg-secondary"
-															>Cancelar</button
-														>
-													</div>
-												</form>
-											</td>
-										</tr>
-									{:else}
-										<!-- Modo Vista -->
-										<tr
-											class="group border-b border-border/20 transition-colors hover:bg-secondary/20"
-										>
-											<td class="w-16 px-4 py-3 text-muted-foreground tabular-nums">#{origen.id}</td
-											>
-											<td class="px-4 py-3 text-[13px] font-medium tracking-wide text-foreground"
-												>{origen.nombre}</td
-											>
-											<td class="px-4 py-3">
-												<div
-													class="flex items-center justify-end gap-1 opacity-60 transition-opacity group-hover:opacity-100"
-												>
-													<button
-														type="button"
-														onclick={() => startEdit(origen)}
-														class="rounded-md p-1.5 text-muted-foreground transition-all hover:bg-ocean-light/10 hover:text-ocean-light"
-														title="Editar"
-													>
-														<svg
-															class="h-4 w-4"
-															fill="none"
-															viewBox="0 0 24 24"
-															stroke="currentColor"
-															><path
-																stroke-linecap="round"
-																stroke-linejoin="round"
-																stroke-width="2"
-																d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-															/></svg
-														>
-													</button>
-													<form
-														method="POST"
-														action="?/delete"
-														use:enhance={handleAction}
-														class="inline"
-													>
-														<input type="hidden" name="id" value={origen.id} />
-														<button
-															type="submit"
-															class="rounded-md p-1.5 text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-500"
-															title="Eliminar"
-														>
-															<svg
-																class="h-4 w-4"
-																fill="none"
-																viewBox="0 0 24 24"
-																stroke="currentColor"
-																><path
-																	stroke-linecap="round"
-																	stroke-linejoin="round"
-																	stroke-width="2"
-																	d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-																/></svg
-															>
-														</button>
-													</form>
-												</div>
-											</td>
-										</tr>
-									{/if}
+									<OrigenRow
+										{origen}
+										isEditing={editingId === origen.id}
+										editNombre={editNombre}
+										onStartEdit={startEdit}
+										onCancelEdit={cancelEdit}
+										onSubmit={handleAction}
+									/>
 								{/each}
 							{/if}
 						</tbody>

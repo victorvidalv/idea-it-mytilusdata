@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validarDatosUsuario } from '../similitud-validation';
+import { validarDatosUsuario } from './similitud-validation';
 
 describe('validarDatosUsuario', () => {
 	it('retorna null para datos válidos', () => {

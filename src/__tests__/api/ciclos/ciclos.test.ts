@@ -1,7 +1,6 @@
 // @ts-nocheck — Los tipos de ruta generados por SvelteKit crean incompatibilidades en mocks de test
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-
 // Create all mock functions with vi.hoisted
 const mockSelect = vi.hoisted(() => vi.fn());
 const mockFrom = vi.hoisted(() => vi.fn());
@@ -26,6 +25,7 @@ vi.mock('$lib/server/db/schema', () => ({
 
 vi.mock('drizzle-orm', () => ({
 	eq: vi.fn((_, value) => ({ eq: value })),
+	and: vi.fn((...conditions: unknown[]) => conditions.filter(Boolean)),
 	sql: vi.fn(),
 	desc: vi.fn()
 }));

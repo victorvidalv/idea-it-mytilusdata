@@ -17,3 +17,42 @@ export function isCicloValido(ciclosFiltrados: Ciclo[], cicloId: number): boolea
 	if (!cicloId) return false;
 	return ciclosFiltrados.some((c) => c.id === cicloId);
 }
+
+/**
+ * Resultado de la validación de selecciones
+ */
+export interface ResultadoValidacion {
+	resetCentro: boolean;
+	resetCiclo: boolean;
+}
+
+/**
+ * Valida las selecciones actuales contra las listas filtradas
+ * y determina si deben resetearse
+ */
+export function validarSelecciones(
+	centrosFiltrados: Centro[],
+	ciclosFiltrados: Ciclo[],
+	selectedUserId: string,
+	selectedCentroId: number,
+	selectedCicloId: number
+): ResultadoValidacion {
+	// Si no hay usuario seleccionado, no hay nada que validar
+	if (!selectedUserId) {
+		return { resetCentro: false, resetCiclo: false };
+	}
+
+	// Verificar si el centro seleccionado sigue siendo válido
+	const centroInvalido = selectedCentroId && !isCentroValido(centrosFiltrados, selectedCentroId);
+	if (centroInvalido) {
+		return { resetCentro: true, resetCiclo: true };
+	}
+
+	// Verificar si el ciclo seleccionado sigue siendo válido
+	const cicloInvalido = selectedCentroId && !isCicloValido(ciclosFiltrados, selectedCicloId);
+	if (cicloInvalido) {
+		return { resetCentro: false, resetCiclo: true };
+	}
+
+	return { resetCentro: false, resetCiclo: false };
+}

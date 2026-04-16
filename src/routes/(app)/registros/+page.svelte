@@ -1,11 +1,11 @@
 <script lang="ts">
-	import toast from 'svelte-french-toast';
 	import * as Card from '$lib/components/ui/card';
 	import SvarDataGrid from '$lib/components/SvarDataGrid.svelte';
 	import RegistroCreateForm from '$lib/components/registros/RegistroCreateForm.svelte';
 	import RegistroRow from '$lib/components/registros/RegistroRow.svelte';
 	import RegistrosNoCentrosAlert from '$lib/components/registros/RegistrosNoCentrosAlert.svelte';
 	import RegistrosPageHeader from '$lib/components/registros/RegistrosPageHeader.svelte';
+	import { formatDateTime, createRegistrosActionHandler } from '$lib/components/registros/registros-page-utils';
 
 	import type { SubmitFunction } from '@sveltejs/kit';
 
@@ -14,30 +14,11 @@
 	let showForm = false;
 	let editingId: number | null = null;
 
-	const handleAction: SubmitFunction = () => {
-		return async ({ result, update }) => {
-			if (result.type === 'success') {
-				toast.success(result.data?.message || 'Operación exitosa');
-				showForm = false;
-				editingId = null;
-				await update();
-			} else if (result.type === 'failure') {
-				toast.error(result.data?.message || 'Ocurrió un error');
-			}
-		};
-	};
-
-	function formatDateTime(dateInput: string | Date | null) {
-		if (!dateInput) return '—';
-		const date = new Date(dateInput);
-		return date.toLocaleString('es-CL', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit'
-		});
-	}
+	// Manejador de acciones que limpia el estado de edición al éxito
+	const handleAction: SubmitFunction = createRegistrosActionHandler(() => {
+		showForm = false;
+		editingId = null;
+	});
 
 	function startEdit(reg: unknown) {
 		const r = reg as { id: number };
@@ -47,6 +28,13 @@
 	function cancelEdit() {
 		editingId = null;
 	}
+
+	// Estado de edición agrupado para el componente RegistroRow
+	const editState = {
+		get editingId() { return editingId; },
+		onEdit: startEdit,
+		onCancel: cancelEdit
+	};
 </script>
 
 <svelte:head>
@@ -96,12 +84,10 @@
 				{#each items as reg (reg.id)}
 					<RegistroRow
 						{reg}
-						{editingId}
 						{data}
+						{editState}
 						{formatDateTime}
 						{handleAction}
-						onEdit={startEdit}
-						onCancel={cancelEdit}
 					/>
 				{/each}
 			</SvarDataGrid>

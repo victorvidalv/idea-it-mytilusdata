@@ -3,7 +3,7 @@
 	import FiltrosPanel from './FiltrosPanel.svelte';
 	import GraficoEvolucion from './GraficoEvolucion.svelte';
 	import EstadisticasPanel from './EstadisticasPanel.svelte';
-	import { buildTipoColorMap, filterCentrosByUser, filterCiclosByCentro, filterRegistros, isCentroValido, isCicloValido } from './index';
+	import { buildTipoColorMap, filterCentrosByUser, filterCiclosByCentro, filterRegistros, validarSelecciones } from './index';
 	import { buildChartSeries, calculateStats } from './dashboardUtils';
 	import type { DashboardData, ChartSeriesItem, Stats, Registro, TipoRegistro } from './types';
 
@@ -18,50 +18,56 @@
 	let selectedTipoIds = new SvelteSet<number>();
 
 	// --- Mapa de colores estable ---
-	$: tipoColorMap = buildTipoColorMap(data.tipos);
+	let tipoColorMap = $derived(buildTipoColorMap(data.tipos));
 
 	function getColorForTipo(tipoId: number): string {
 		return tipoColorMap.get(tipoId) ?? 'oklch(0.55 0.18 200)';
 	}
 
 	// --- Datos filtrados en cascada ---
-	$: centrosFiltrados = filterCentrosByUser(data.centros, selectedUserId);
-	$: ciclosFiltrados = filterCiclosByCentro(data.ciclos, selectedCentroId);
+	let centrosFiltrados = $derived(filterCentrosByUser(data.centros, selectedUserId));
+	let ciclosFiltrados = $derived(filterCiclosByCentro(data.ciclos, selectedCentroId));
 
 	// --- Validación y reset de selecciones inválidas ---
-	$: if (selectedUserId) {
-		if (selectedCentroId && !isCentroValido(centrosFiltrados, selectedCentroId)) {
+	$effect(() => {
+		const resultado = validarSelecciones(
+			centrosFiltrados,
+			ciclosFiltrados,
+			selectedUserId,
+			selectedCentroId,
+			selectedCicloId
+		);
+
+		if (resultado.resetCentro) {
 			selectedCentroId = 0;
 			selectedCicloId = 0;
+		} else if (resultado.resetCiclo) {
+			selectedCicloId = 0;
 		}
-	}
-
-	$: if (selectedCentroId && !isCicloValido(ciclosFiltrados, selectedCicloId)) {
-		selectedCicloId = 0;
-	}
+	});
 
 	// --- Filtrar registros ---
-	$: registrosFiltrados = filterRegistros(data.registros, {
+	let registrosFiltrados = $derived(filterRegistros(data.registros, {
 		selectedUserId,
 		selectedCentroId,
 		selectedCicloId,
 		selectedTipoIds
-	});
+	}));
 
 	// --- Preparar datos para el gráfico ---
-	$: tiposActivos = data.tipos.filter((t: TipoRegistro) => selectedTipoIds.has(t.id));
+	let tiposActivos = $derived(data.tipos.filter((t: TipoRegistro) => selectedTipoIds.has(t.id)));
 
-	$: chartSeries = buildChartSeries(tiposActivos, registrosFiltrados, tipoColorMap);
+	let chartSeries = $derived(buildChartSeries(tiposActivos, registrosFiltrados, tipoColorMap));
 
-	$: hayDatos = chartSeries.length > 0 && chartSeries.some((s) => s.data.length > 0);
+	let hayDatos = $derived(chartSeries.length > 0 && chartSeries.some((s: ChartSeriesItem) => s.data.length > 0));
 
 	// --- Estadísticas rápidas ---
-	$: stats = calculateStats(registrosFiltrados, tiposActivos);
+	let stats = $derived(calculateStats(registrosFiltrados, tiposActivos));
 
 	// --- Última medición ---
-	$: ultimaMedicion = registrosFiltrados.length > 0 
+	let ultimaMedicion = $derived(registrosFiltrados.length > 0 
 		? registrosFiltrados[registrosFiltrados.length - 1] 
-		: null;
+		: null);
 </script>
 
 <div class="space-y-6">

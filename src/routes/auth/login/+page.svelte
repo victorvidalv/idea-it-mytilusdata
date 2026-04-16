@@ -4,16 +4,13 @@
 	import LoginFooter from '$lib/components/auth/LoginFooter.svelte';
 	import LoginHeader from '$lib/components/auth/LoginHeader.svelte';
 	import LoginBackLink from '$lib/components/auth/LoginBackLink.svelte';
-	import LoginSuccessState from '$lib/components/auth/LoginSuccessState.svelte';
-	import LoginRegistrationForm from '$lib/components/auth/LoginRegistrationForm.svelte';
-	import LoginEmailForm from '$lib/components/auth/LoginEmailForm.svelte';
-	import LoginRateLimitWarning from '$lib/components/auth/LoginRateLimitWarning.svelte';
+	import LoginFormContent from '$lib/components/auth/LoginFormContent.svelte';
 	import { turnstileEnabled, initTurnstileCallback, resetTurnstile } from '$lib/components/auth/turnstile';
+	import { hasFormError } from '$lib/components/auth/loginFormState';
 
 	export let form: import('./$types').ActionData;
 
 	let loading = false;
-	let turnstileLoaded = false;
 	let turnstileWidgetId: string | undefined;
 
 	// Inicializar callback global de Turnstile
@@ -23,14 +20,9 @@
 	$: if (form?.success) {
 		toast.success('¡Enlace enviado! Revisa tu bandeja de entrada para acceder a la plataforma.');
 		loading = false;
-	} else if (
-		form?.error ||
-		form?.missing ||
-		form?.rateLimited ||
-		form?.cooldownActive ||
-		form?.captchaError
-	) {
-		toast.error('Error: ' + (form?.message || 'Hubo un error al procesar tu solicitud.'));
+	} else if (hasFormError(form)) {
+		const errorMsg = form?.message || 'Hubo un error al procesar tu solicitud.';
+		toast.error('Error: ' + errorMsg);
 		loading = false;
 		resetTurnstile(turnstileWidgetId);
 	}
@@ -62,24 +54,12 @@
 		<div class="animate-fade-up mt-8 w-full max-w-sm sm:mt-0">
 			<LoginHeader />
 
-			{#if form?.success}
-				<LoginSuccessState onReset={handleResetForm} />
-			{:else if form?.requiresRegistration}
-				<LoginRegistrationForm
-					{form}
-					{loading}
-					{turnstileLoaded}
-				/>
-			{:else}
-				{#if form?.rateLimited || form?.cooldownActive}
-					<LoginRateLimitWarning
-						message={form?.message}
-						remainingSeconds={form?.remainingSeconds}
-					/>
-				{/if}
-
-				<LoginEmailForm {form} {loading} />
-			{/if}
+			<LoginFormContent
+				{form}
+				{loading}
+				turnstileLoaded={true}
+				onReset={handleResetForm}
+			/>
 
 			<LoginFooter />
 		</div>

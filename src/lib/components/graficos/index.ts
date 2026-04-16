@@ -16,7 +16,8 @@ export { filterCentrosByUser, filterCiclosByCentro } from './filtroEntidades';
 export { filterRegistros } from './filtroRegistros';
 
 // Validación de selecciones
-export { isCentroValido, isCicloValido } from './validacionSelecciones';
+export { isCentroValido, isCicloValido, validarSelecciones } from './validacionSelecciones';
+export type { ResultadoValidacion } from './validacionSelecciones';
 
 // Utilidades del dashboard
 export { buildChartSeries, calculateStats } from './dashboardUtils';

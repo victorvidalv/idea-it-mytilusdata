@@ -13,6 +13,8 @@ export type LoginFormState = {
 	email?: string;
 	nombre?: string;
 	captchaError?: boolean;
+	error?: boolean;
+	missing?: boolean;
 } | null;
 
 /**
@@ -43,11 +45,5 @@ export function isRateLimited(form: LoginFormState): boolean {
  */
 export function hasFormError(form: LoginFormState): boolean {
 	if (!form) return false;
-	return !!(
-		form.error ||
-		form.missing ||
-		form.rateLimited ||
-		form.cooldownActive ||
-		form.captchaError
-	);
+	return !!(form.error || form.missing || isRateLimited(form) || form.captchaError);
 }

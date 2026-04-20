@@ -3,6 +3,7 @@ export { default as DashboardGraficos } from './DashboardGraficos.svelte';
 export { default as FiltrosPanel } from './FiltrosPanel.svelte';
 export { default as FiltrosPanelHeader } from './FiltrosPanelHeader.svelte';
 export { default as GraficoEvolucion } from './GraficoEvolucion.svelte';
+export { default as GraficoEmptyState } from './GraficoEmptyState.svelte';
 export { default as EstadisticasPanel } from './EstadisticasPanel.svelte';
 export { default as TipoMedicionButton } from './TipoMedicionButton.svelte';
 

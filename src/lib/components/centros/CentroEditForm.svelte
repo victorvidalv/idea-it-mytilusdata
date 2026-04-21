@@ -1,30 +1,40 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { browser } from '$app/environment';
+	import { processMapCoordinates, DEFAULT_LATITUDE, DEFAULT_LONGITUDE } from '$lib/components/map-utils';
 
-	export let centro: {
+	interface Centro {
 		id: number;
 		nombre: string;
 		latitud?: number | null;
 		longitud?: number | null;
-	};
-	export let onCancel: () => void;
-	export let onSuccess: (msg: string) => void;
-	export let onError: (msg: string) => void;
+	}
 
-	let editNombre = centro.nombre;
-	let editLat = centro.latitud?.toString() ?? '';
-	let editLng = centro.longitud?.toString() ?? '';
-	let showMap = false;
+	interface Props {
+		centro: Centro;
+		onCancel: () => void;
+		onSuccess: (msg: string) => void;
+		onError: (msg: string) => void;
+	}
+
+	let { centro, onCancel, onSuccess, onError }: Props = $props();
+
+	let editNombre = $state(centro.nombre);
+	let editLat = $state(centro.latitud?.toString() ?? '');
+	let editLng = $state(centro.longitud?.toString() ?? '');
+	let showMap = $state(false);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let MapComponent: any = null;
+	let MapComponent: any = $state(null);
+
+	// Valores derivados para coordenadas del centro
+	let centroLat = $derived(centro.latitud ?? DEFAULT_LATITUDE);
+	let centroLng = $derived(centro.longitud ?? DEFAULT_LONGITUDE);
 
 	function handleMapSelect(coords: { lat: number; lng: number }) {
-		const lat = Math.round(coords.lat * 10000) / 10000;
-		const lng = Math.round(coords.lng * 10000) / 10000;
-		editLat = lat.toString();
-		editLng = lng.toString();
+		const formatted = processMapCoordinates(coords);
+		editLat = formatted.lat;
+		editLng = formatted.lng;
 	}
 
 	function toggleMap() {
@@ -33,6 +43,18 @@
 			import('$lib/components/MapLibreMap.svelte').then((mod) => {
 				MapComponent = mod.default;
 			});
+		}
+	}
+
+	// Manejador del resultado del formulario
+	function handleFormResult(result: { type: string; data?: { message?: string } }) {
+		if (result.type === 'success') {
+			// @ts-expect-error - message comes from action result
+			onSuccess(result.data?.message || 'Centro actualizado');
+			showMap = false;
+		} else if (result.type === 'failure') {
+			// @ts-expect-error - message comes from action result
+			onError(result.data?.message || 'Error al actualizar');
 		}
 	}
 </script>
@@ -44,14 +66,7 @@
 			action="?/update"
 			use:enhance={() => {
 				return async ({ result, update }) => {
-					if (result.type === 'success') {
-						// @ts-expect-error - message comes from action result
-						onSuccess(result.data?.message || 'Centro actualizado');
-						showMap = false;
-					} else if (result.type === 'failure') {
-						// @ts-expect-error - message comes from action result
-						onError(result.data?.message || 'Error al actualizar');
-					}
+					handleFormResult(result as { type: string; data?: { message?: string } });
 					await update();
 				};
 			}}
@@ -139,11 +154,10 @@
 
 				{#if showMap && MapComponent}
 					<div class="mt-3">
-						<svelte:component
-							this={MapComponent}
+						<MapComponent
 							height="280px"
-							latitude={centro.latitud ?? -41.4689}
-							longitude={centro.longitud ?? -72.9411}
+							latitude={centroLat}
+							longitude={centroLng}
 							onselect={handleMapSelect}
 						/>
 						<p class="mt-1.5 font-body text-[11px] text-muted-foreground">

@@ -8,6 +8,27 @@ export const DEFAULT_LATITUDE = -41.4689;
 export const DEFAULT_LONGITUDE = -72.9411;
 
 /**
+ * Formatea coordenadas a 4 decimales de precisión
+ * Usado al seleccionar coordenadas desde el mapa
+ */
+export function formatCoordinate(value: number): string {
+	return (Math.round(value * 10000) / 10000).toString();
+}
+
+/**
+ * Procesa coordenadas del mapa y retorna strings formateados
+ */
+export function processMapCoordinates(coords: { lat: number; lng: number }): {
+	lat: string;
+	lng: string;
+} {
+	return {
+		lat: formatCoordinate(coords.lat),
+		lng: formatCoordinate(coords.lng)
+	};
+}
+
+/**
  * Determina si las coordenadas son personalizadas (diferentes del default)
  */
 export function hasCustomCoordinates(lat: number, lng: number): boolean {

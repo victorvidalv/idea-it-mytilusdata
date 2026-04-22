@@ -8,8 +8,12 @@
 	import type { DashboardData, ChartSeriesItem, Stats, Registro, TipoRegistro } from './types';
 
 	// --- Props del componente ---
-	export let data: DashboardData;
-	export let isInvestigador: boolean = false;
+	interface Props {
+		data: DashboardData;
+		isInvestigador?: boolean;
+	}
+
+	let { data, isInvestigador = false }: Props = $props();
 
 	// --- Estado de filtros ---
 	let selectedUserId: string = isInvestigador ? '' : 'all';

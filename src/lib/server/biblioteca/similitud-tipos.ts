@@ -26,6 +26,24 @@ export interface PuntoProyectado {
 }
 
 /**
+ * Datos de incertidumbre del bootstrap paramétrico.
+ */
+export interface IncertidumbreProyeccionBackend {
+	dias: number[];
+	mediana: number[];
+	limiteInferior: number[];
+	limiteSuperior: number[];
+}
+
+/**
+ * Datos de degradación temporal (walk-forward).
+ */
+export interface DegradacionRMSEBackend {
+	meses: number[];
+	rmse: number[];
+}
+
+/**
  * Resultado completo de la proyección.
  */
 export interface ResultadoProyeccion {
@@ -53,5 +71,9 @@ export interface ResultadoProyeccion {
 		diaObjetivo?: number;
 		totalPuntos: number;
 	};
+	/** Incertidumbre calculada vía bootstrap paramétrico (solo ajuste local) */
+	incertidumbre?: IncertidumbreProyeccionBackend;
+	/** Degradación temporal walk-forward */
+	degradacionRMSE?: DegradacionRMSEBackend;
 	error?: string;
 }

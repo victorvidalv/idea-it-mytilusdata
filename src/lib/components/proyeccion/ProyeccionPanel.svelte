@@ -70,6 +70,8 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 			meta={resultado!.metadatos?.tallaObjetivo}
 			metadatos={resultado!.metadatos}
 			mediciones={dias.map((d, i) => ({ dia: d, talla: tallas[i] }))}
+			incertidumbre={resultado!.incertidumbre}
+			degradacionRMSE={resultado!.degradacionRMSE}
 			onExportar={() => Actions.exportarCSV(resultado!)}
 		/>
 	{:else if !cargando}

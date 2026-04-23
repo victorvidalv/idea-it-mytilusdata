@@ -1,29 +1,41 @@
 // Utilidades para la proyección de crecimiento (Principal)
-import { 
-	COLOR_META, 
-	COLOR_REAL, 
-	COLOR_PROYECTADO, 
-	COLOR_REFERENCIA, 
-	COLOR_REFERENCIA_ESCALADA 
+import {
+	COLOR_META,
+	COLOR_REAL,
+	COLOR_PROYECTADO,
+	COLOR_REFERENCIA,
+	COLOR_REFERENCIA_ESCALADA
 } from './proyeccion-colores';
-import type { 
-	ParametrosSigmoidal, 
-	CurvaReferencia, 
-	PuntoProyeccion, 
-	Medicion, 
-	SerieData, 
-	TablaDato 
+import type {
+	ParametrosSigmoidal,
+	CurvaReferencia,
+	PuntoProyeccion,
+	Medicion,
+	SerieData,
+	TablaDato
 } from './proyeccion-tipos';
 import type { IncertidumbreProyeccion } from './ProyeccionComponentTypes';
-import { 
-	evaluarSigmoidal, 
-	generarCurvaSigmoidal, 
-	calcularLEscalado 
+import {
+	evaluarSigmoidal,
+	generarCurvaSigmoidal,
+	calcularLEscalado
 } from './proyeccion-sigmoidal';
 
 // Re-exportar para conveniencia
 export type { ParametrosSigmoidal, CurvaReferencia, PuntoProyeccion, Medicion, SerieData, TablaDato };
 export { evaluarSigmoidal, generarCurvaSigmoidal, calcularLEscalado };
+
+// Paleta premium para modo incertidumbre
+const PALETA = {
+	real: COLOR_REAL, // oklch(0.55 0.18 200) — azul oceánico
+	mediana: 'oklch(0.55 0.16 65)', // ámbar profundo, alto contraste frente al azul
+	bandaFill: 'rgba(251, 191, 36, 0.14)', // ámbar-400 al 14%
+	bandaStroke: 'rgba(217, 119, 6, 0.55)', // ámbar-600 al 55%
+	bandaStrokeLight: 'rgba(217, 119, 6, 0.30)', // ámbar-600 al 30%
+	meta: COLOR_META,
+	referencia: COLOR_REFERENCIA,
+	referenciaEscalada: COLOR_REFERENCIA_ESCALADA
+};
 
 /**
  * Construye las series de datos para el gráfico de proyección.
@@ -43,11 +55,15 @@ export function construirSeriesProyeccion(
 	// Meta: línea horizontal
 	if (meta != null) {
 		series.push({
-			key: 'meta', label: 'Meta',
-			data: [{ dia: 0, talla: meta }, { dia: maxDia, talla: meta }],
-			color: COLOR_META,
+			key: 'meta',
+			label: 'Meta',
+			data: [
+				{ dia: 0, talla: meta },
+				{ dia: maxDia, talla: meta }
+			],
+			color: PALETA.meta,
 			value: 'talla',
-			props: { line: { color: COLOR_META }, fill: 'transparent' }
+			props: { line: { color: PALETA.meta, strokeWidth: 1.5 }, fill: 'transparent' }
 		});
 	}
 
@@ -55,10 +71,12 @@ export function construirSeriesProyeccion(
 	if (curvaRef) {
 		const diasRef = generarCurvaSigmoidal(curvaRef.parametros, 0, maxDia);
 		series.push({
-			key: 'referencia', label: `Ref: ${curvaRef.codigoReferencia}`,
-			data: diasRef, color: COLOR_REFERENCIA,
+			key: 'referencia',
+			label: `Ref: ${curvaRef.codigoReferencia}`,
+			data: diasRef,
+			color: PALETA.referencia,
 			value: 'talla',
-			props: { line: { color: COLOR_REFERENCIA }, fill: 'transparent' }
+			props: { line: { color: PALETA.referencia, strokeWidth: 1.5 }, fill: 'transparent' }
 		});
 
 		// Curva ESCALADA para ajustarse a los datos del usuario
@@ -72,9 +90,10 @@ export function construirSeriesProyeccion(
 			series.push({
 				key: 'referencia-escalada',
 				label: `Ref esc: ${curvaRef.codigoReferencia} (L=${L_escalado.toFixed(1)})`,
-				data: diasEscalado, color: COLOR_REFERENCIA_ESCALADA,
+				data: diasEscalado,
+				color: PALETA.referenciaEscalada,
 				value: 'talla',
-				props: { line: { color: COLOR_REFERENCIA_ESCALADA }, fill: 'transparent' }
+				props: { line: { color: PALETA.referenciaEscalada, strokeWidth: 1.5 }, fill: 'transparent' }
 			});
 		}
 	}
@@ -82,14 +101,16 @@ export function construirSeriesProyeccion(
 	// Real y Proyectado
 	if (mediciones.length > 0) {
 		series.push({
-			key: 'real', label: 'Real',
-			data: mediciones.map((m) => ({ dia: m.dia, talla: m.talla })), color: COLOR_REAL,
+			key: 'real',
+			label: 'Real',
+			data: mediciones.map((m) => ({ dia: m.dia, talla: m.talla })),
+			color: PALETA.real,
 			value: 'talla',
-			props: { line: { color: COLOR_REAL }, fill: 'transparent' }
+			props: { line: { color: PALETA.real, strokeWidth: 2 }, fill: 'transparent' }
 		});
 	}
 
-	// Incertidumbre: banda + mediana (renderizadas con AreaChart)
+	// Incertidumbre: banda + límites punteados + mediana
 	if (incertidumbre && incertidumbre.dias.length > 0) {
 		const datosBanda = incertidumbre.dias.map((dia, i) => ({
 			dia,
@@ -99,38 +120,69 @@ export function construirSeriesProyeccion(
 			mediana: incertidumbre.mediana[i]
 		}));
 
-		// Banda de confianza (renderizada primero para quedar detrás)
+		// 1. Relleno de la banda (sin borde, solo área)
 		series.push({
 			key: 'banda',
 			label: 'Intervalo de confianza (95%)',
 			data: datosBanda,
-			color: 'rgba(59, 130, 246, 0.25)',
+			color: PALETA.bandaStroke,
 			value: 'limiteSuperior',
 			props: {
 				y0: (d: { limiteInferior: number }) => d.limiteInferior,
 				stroke: 'none',
-				fill: 'rgba(59, 130, 246, 0.2)'
+				fill: PALETA.bandaFill,
+				line: false
 			}
 		});
 
-		// Mediana sobre la banda
+		// 2. Límite inferior punteado
+		series.push({
+			key: 'limite-inferior',
+			label: '',
+			data: datosBanda,
+			color: PALETA.bandaStrokeLight,
+			value: 'limiteInferior',
+			props: {
+				line: { color: PALETA.bandaStrokeLight, strokeWidth: 1 },
+				fill: 'transparent',
+				strokeDasharray: '4 4'
+			}
+		});
+
+		// 3. Límite superior punteado
+		series.push({
+			key: 'limite-superior',
+			label: '',
+			data: datosBanda,
+			color: PALETA.bandaStroke,
+			value: 'limiteSuperior',
+			props: {
+				line: { color: PALETA.bandaStroke, strokeWidth: 1.5 },
+				fill: 'transparent',
+				strokeDasharray: '4 4'
+			}
+		});
+
+		// 4. Mediana: línea gruesa sólida con color ámbar de alto contraste
 		series.push({
 			key: 'proyectado',
 			label: 'Proyectado (mediana)',
 			data: datosBanda,
-			color: COLOR_PROYECTADO,
+			color: PALETA.mediana,
 			value: 'mediana',
 			props: {
-				line: { color: COLOR_PROYECTADO, strokeWidth: 2.5 },
+				line: { color: PALETA.mediana, strokeWidth: 3.5 },
 				fill: 'transparent'
 			}
 		});
 	} else if (proyeccion.length > 0) {
 		series.push({
-			key: 'proyectado', label: 'Proyectado',
-			data: proyeccion.map((p) => ({ dia: p.dia, talla: p.talla })), color: COLOR_PROYECTADO,
+			key: 'proyectado',
+			label: 'Proyectado',
+			data: proyeccion.map((p) => ({ dia: p.dia, talla: p.talla })),
+			color: COLOR_PROYECTADO,
 			value: 'talla',
-			props: { line: { color: COLOR_PROYECTADO }, fill: 'transparent' }
+			props: { line: { color: COLOR_PROYECTADO, strokeWidth: 2.5 }, fill: 'transparent' }
 		});
 	}
 
@@ -154,7 +206,10 @@ export function construirTablaDatos(
 /**
  * Genera descripción para el gráfico.
  */
-export function generarDescripcionGrafico(mediciones: Medicion[], proyeccion: PuntoProyeccion[]): string {
+export function generarDescripcionGrafico(
+	mediciones: Medicion[],
+	proyeccion: PuntoProyeccion[]
+): string {
 	if (mediciones.length > 0) {
 		return `${mediciones.length} reales + ${proyeccion.length} proyectados`;
 	}

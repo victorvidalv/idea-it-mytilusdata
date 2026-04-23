@@ -62,10 +62,10 @@ export interface Ajuste {
 }
 
 export interface IncertidumbreProyeccion {
+	dias: number[];
 	mediana: number[];
 	limiteInferior: number[];
 	limiteSuperior: number[];
-	dias: number[];
 }
 
 export interface DegradacionRMSE {

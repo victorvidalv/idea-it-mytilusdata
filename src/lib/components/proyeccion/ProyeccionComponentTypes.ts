@@ -61,12 +61,26 @@ export interface Ajuste {
 	descripcion: string;
 }
 
+export interface IncertidumbreProyeccion {
+	mediana: number[];
+	limiteInferior: number[];
+	limiteSuperior: number[];
+	dias: number[];
+}
+
+export interface DegradacionRMSE {
+	meses: number[];
+	rmse: number[];
+}
+
 export interface ResultadoProyeccion {
 	success: boolean;
 	proyeccion?: PuntoProyeccion[];
 	curvaUsada?: CurvaUsada;
 	curvaReferencia?: CurvaReferencia;
 	metadatos?: Metadatos;
+	incertidumbre?: IncertidumbreProyeccion;
+	degradacionRMSE?: DegradacionRMSE;
 	error?: string;
 }
 

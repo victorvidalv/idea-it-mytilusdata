@@ -70,6 +70,7 @@
 		"layerchart": "^2.0.0-next.46",
 		"lucide-svelte": "^0.577.0",
 		"maplibre-gl": "^5.20.1",
+		"ml-levenberg-marquardt": "^5.0.0",
 		"mode-watcher": "^1.1.0",
 		"resend": "^6.9.3",
 		"svelte-french-toast": "^1.2.0",

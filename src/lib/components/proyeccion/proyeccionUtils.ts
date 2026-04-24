@@ -131,35 +131,8 @@ export function construirSeriesProyeccion(
 				y0: (d: { limiteInferior: number }) => d.limiteInferior,
 				stroke: 'none',
 				fill: PALETA.bandaFill,
+				fillOpacity: 1,
 				line: false
-			}
-		});
-
-		// 2. Límite inferior punteado
-		series.push({
-			key: 'limite-inferior',
-			label: '',
-			data: datosBanda,
-			color: PALETA.bandaStrokeLight,
-			value: 'limiteInferior',
-			props: {
-				line: { color: PALETA.bandaStrokeLight, strokeWidth: 1 },
-				fill: 'transparent',
-				strokeDasharray: '4 4'
-			}
-		});
-
-		// 3. Límite superior punteado
-		series.push({
-			key: 'limite-superior',
-			label: '',
-			data: datosBanda,
-			color: PALETA.bandaStroke,
-			value: 'limiteSuperior',
-			props: {
-				line: { color: PALETA.bandaStroke, strokeWidth: 1.5 },
-				fill: 'transparent',
-				strokeDasharray: '4 4'
 			}
 		});
 

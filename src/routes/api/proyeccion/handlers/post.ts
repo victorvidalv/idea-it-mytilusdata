@@ -1,10 +1,10 @@
 /**
- * Handler para POST /api/proyeccion.
+ * Handler compartido para POST /api/proyectar-sigmoides y compatibilidad /api/proyeccion.
  */
 
 import { json } from '@sveltejs/kit';
-import { ejecutarProyeccion } from '$lib/server/biblioteca/similitud';
-import type { RequestEvent } from './$types';
+import { ejecutarProyeccion } from '$lib/server/calculo-sigmoides-similares';
+import type { RequestEvent } from '@sveltejs/kit';
 import type { ProyeccionRequest } from '../types';
 import {
 	verificarAutenticacion,
@@ -36,7 +36,7 @@ function validarRequest(body: Partial<ProyeccionRequest>): { valido: boolean; er
 }
 
 /**
- * POST /api/proyeccion
+ * POST /api/proyectar-sigmoides
  * Ejecuta la proyección de crecimiento usando el servicio de similitud.
  * Requiere autenticación.
  */
@@ -79,7 +79,7 @@ export async function handlePostProyeccion({ request, locals }: RequestEvent): P
 			degradacionRMSE: resultado.degradacionRMSE
 		});
 	} catch (error) {
-		console.error('Error en POST /api/proyeccion:', error);
+		console.error('Error en POST /api/proyectar-sigmoides:', error);
 		return json({ error: 'Error interno del servidor' }, { status: 500 });
 	}
 }

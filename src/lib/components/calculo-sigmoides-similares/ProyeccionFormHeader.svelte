@@ -5,6 +5,6 @@
 <Card.Header>
 	<Card.Title class="font-display text-lg">Ingresa tus mediciones</Card.Title>
 	<Card.Description class="mt-1 font-body text-xs">
-		Agrega los datos de tus mediciones día a día. Mínimo 3 puntos para proyectar.
+		Agrega pares día-talla. Se requieren al menos 5 mediciones para un ajuste técnicamente estable.
 	</Card.Description>
 </Card.Header>

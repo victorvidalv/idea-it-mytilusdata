@@ -1,16 +1,21 @@
 import type { ParametrosSigmoidal } from './proyeccion-tipos';
 
+const L_MIN_BIOLOGICO = 40;
+const L_MAX_BIOLOGICO = 110;
+const MARGEN_ASINTOTA_OBSERVADA = 1.02;
+
+function limitar(valor: number, minimo: number, maximo: number): number {
+	return Math.min(maximo, Math.max(minimo, valor));
+}
+
 // Evaluar la función sigmoidal en un punto x dado los parámetros
 // Fórmula: f(x) = L / (1 + exp(-k * (x - x0)))
-export function evaluarSigmoidal(
-	x: number,
-	params: ParametrosSigmoidal
-): number {
+export function evaluarSigmoidal(x: number, params: ParametrosSigmoidal): number {
 	const { L, k, x0 } = params;
 	const exponent = -k * (x - x0);
 	// Evitar overflow en exp
-	if (exponent > 700) return L;
-	if (exponent < -700) return 0;
+	if (exponent > 700) return 0;
+	if (exponent < -700) return L;
 	return L / (1 + Math.exp(exponent));
 }
 
@@ -33,8 +38,11 @@ export function generarCurvaSigmoidal(
 
 /**
  * Calcular L escalado óptimamente para ajustar la curva de referencia a los datos del usuario.
- * Mantiene k y x0 (la forma de la curva), solo ajusta L.
- * Usa mínimos cuadrados ponderados para dar menos peso a puntos cerca de la asíntota.
+ * Mantiene k y x0 (la forma temporal), solo ajusta L.
+ *
+ * La solución cerrada minimiza SSE(L) = Σ(y_i - L·a_i)^2, con
+ * a_i = 1 / (1 + exp(-k(t_i - x0))). Luego se proyecta al intervalo
+ * biológicamente admisible y se exige que la asíntota supere las tallas observadas.
  */
 export function calcularLEscalado(
 	datos: { dias: number[]; tallas: number[] },
@@ -54,15 +62,22 @@ export function calcularLEscalado(
 	for (let i = 0; i < dias.length; i++) {
 		const exponent = -k * (dias[i] - x0);
 		const clippedExp = Math.max(-20, Math.min(20, exponent));
-		const g = 1 + Math.exp(clippedExp);
-		// L_opt = ∑(y_i / g_i) / ∑(1 / g_i²)
-		sumaNumerador += tallas[i] / g;
-		sumaDenominador += 1 / (g * g);
+		const factorForma = 1 / (1 + Math.exp(clippedExp));
+		// L_opt = ∑(y_i·a_i) / ∑(a_i²)
+		sumaNumerador += tallas[i] * factorForma;
+		sumaDenominador += factorForma * factorForma;
 	}
 
 	if (sumaDenominador === 0) {
 		return curva.L;
 	}
 
-	return sumaNumerador / sumaDenominador;
+	const lSinRestriccion = sumaNumerador / sumaDenominador;
+	const tallaMaximaObservada = Math.max(...tallas);
+	const limiteInferior = Math.min(
+		L_MAX_BIOLOGICO,
+		Math.max(L_MIN_BIOLOGICO, tallaMaximaObservada * MARGEN_ASINTOTA_OBSERVADA)
+	);
+
+	return limitar(lSinRestriccion, limiteInferior, L_MAX_BIOLOGICO);
 }

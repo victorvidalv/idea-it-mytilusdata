@@ -1,31 +1,6 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getLugaresByUser, getCiclosByUser } from '$lib/server/ciclos';
-import { type Rol } from '$lib/server/auth';
 
-/** Cargar lugares y ciclos para el formulario de proyección */
-export const load: PageServerLoad = async ({ locals }) => {
-	const userId = locals.user?.userId;
-	const userRol = locals.user?.rol as Rol;
-
-	if (!userId) {
-		return {
-			lugares: [],
-			ciclos: []
-		};
-	}
-
-	try {
-		// Obtener lugares y ciclos en paralelo
-		const [lugares, ciclos] = await Promise.all([
-			getLugaresByUser(userId, userRol),
-			getCiclosByUser(userId, userRol)
-		]);
-
-		return {
-			lugares,
-			ciclos
-		};
-	} catch (error) {
-		throw error;
-	}
+export const load: PageServerLoad = () => {
+	throw redirect(308, '/proyectar-sigmoides');
 };

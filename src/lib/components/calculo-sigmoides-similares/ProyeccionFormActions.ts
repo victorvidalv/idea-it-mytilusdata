@@ -17,7 +17,7 @@ export async function fetchLugares(): Promise<Lugar[]> {
 }
 
 export async function fetchMediciones(cicloId: number): Promise<MedicionCargada[]> {
-	const res = await fetch(`/api/proyeccion?cicloId=${cicloId}`, {
+	const res = await fetch(`/api/proyectar-sigmoides?cicloId=${cicloId}`, {
 		credentials: 'include'
 	});
 	const data = await res.json();

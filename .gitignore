@@ -35,3 +35,6 @@ test-results
 
 # Scripts (contiene credenciales de prueba)
 /scripts
+!/scripts/
+/scripts/*
+!/scripts/validar-proyeccion.ts

@@ -5,12 +5,15 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 <script lang="ts">
 	import ProyeccionForm from './ProyeccionForm.svelte';
 	import ProyeccionResultados from './ProyeccionResultados.svelte';
-	import GraficoEmptyState from '$lib/components/graficos/GraficoEmptyState.svelte';
+	import ProyeccionEstadoInicial from './ProyeccionEstadoInicial.svelte';
 	import * as Actions from './ProyeccionPanelActions';
-    import { agregarPunto, eliminarPunto } from './ProyeccionPanelState';
-    import type { Lugar, Ciclo, ResultadoProyeccion } from './ProyeccionComponentTypes';
+	import { agregarPunto, eliminarPunto } from './ProyeccionPanelState';
+	import type { Lugar, Ciclo, ResultadoProyeccion } from './ProyeccionComponentTypes';
 
-	interface Props { lugares: Lugar[]; ciclos: Ciclo[]; }
+	interface Props {
+		lugares: Lugar[];
+		ciclos: Ciclo[];
+	}
 
 	let { lugares, ciclos }: Props = $props();
 
@@ -21,17 +24,20 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	let error = $state('');
 	let resultado = $state<ResultadoProyeccion | null>(null);
 
+	const MIN_PUNTOS_PROYECCION = 5;
 	let hayProyeccion = $derived(!!(resultado?.success && resultado.proyeccion?.length));
 
 	function handleAgregarPunto(dia: number, talla: number) {
-        const res = agregarPunto(dias, tallas, dia, talla);
-		dias = res.dias; tallas = res.tallas;
+		const res = agregarPunto(dias, tallas, dia, talla);
+		dias = res.dias;
+		tallas = res.tallas;
 		resultado = null;
 	}
 
 	function handleEliminarPunto(dia: number) {
-        const res = eliminarPunto(dias, tallas, dia);
-		dias = res.dias; tallas = res.tallas;
+		const res = eliminarPunto(dias, tallas, dia);
+		dias = res.dias;
+		tallas = res.tallas;
 		resultado = null;
 	}
 
@@ -42,20 +48,34 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 	}
 
 	async function handleEjecutarProyeccion() {
-		if (dias.length < 3) { error = 'Se requieren al menos 3 puntos de datos'; return; }
-		cargando = true; error = '';
+		if (dias.length < MIN_PUNTOS_PROYECCION) {
+			const faltantes = MIN_PUNTOS_PROYECCION - dias.length;
+			error = `Se requieren al menos ${MIN_PUNTOS_PROYECCION} mediciones para proyectar. Faltan ${faltantes}.`;
+			resultado = null;
+			return;
+		}
+		cargando = true;
+		error = '';
 		try {
 			resultado = await Actions.ejecutarProyeccion(dias, tallas, tallaObjetivo);
 			if (!resultado.success) error = resultado.error || 'Error en proyección';
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error de conexión';
-		} finally { cargando = false; }
+		} finally {
+			cargando = false;
+		}
 	}
 </script>
 
 <div class="space-y-6">
 	<ProyeccionForm
-		{lugares} {ciclos} {dias} {tallas} bind:tallaObjetivo {error} {cargando}
+		{lugares}
+		{ciclos}
+		{dias}
+		{tallas}
+		bind:tallaObjetivo
+		{error}
+		{cargando}
 		onAgregarPunto={handleAgregarPunto}
 		onEliminarPunto={handleEliminarPunto}
 		onUsarMedicionesCargadas={handleUsarMediciones}
@@ -75,6 +95,10 @@ Refactorizado a nivel atómico para cumplir con svelteqa (Complexity < 10).
 			onExportar={() => Actions.exportarCSV(resultado!)}
 		/>
 	{:else if !cargando}
-		<GraficoEmptyState isInvestigador={false} />
+		<ProyeccionEstadoInicial
+			totalPuntos={dias.length}
+			minimoPuntos={MIN_PUNTOS_PROYECCION}
+			{error}
+		/>
 	{/if}
 </div>

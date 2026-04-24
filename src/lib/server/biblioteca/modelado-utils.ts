@@ -109,7 +109,7 @@ export function validarDatosEntrada(dias: number[], tallas: number[]): boolean {
  */
 export function calcularValoresIniciales(dias: number[], tallas: number[]): number[] {
 	return [
-		Math.max(...tallas), // L: máximo de las tallas observadas
+		Math.min(MAX_VALUES[0], Math.max(MIN_VALUES[0], Math.max(...tallas))), // L dentro de bounds
 		0.02, // k: valor medio de tasa de crecimiento
 		dias[Math.floor(dias.length / 2)] // x0: mediana de los días
 	];

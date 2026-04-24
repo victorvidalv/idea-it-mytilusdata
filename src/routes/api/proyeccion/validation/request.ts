@@ -44,10 +44,10 @@ export function validarLongitudArrays(body: ProyeccionRequest): ValidacionResult
  * Validar cantidad mínima de puntos para proyección.
  */
 export function validarMinimoPuntos(body: ProyeccionRequest): ValidacionResult {
-	if (body.dias.length < 3) {
+	if (body.dias.length < 5) {
 		return {
 			valido: false,
-			error: 'Se requieren al menos 3 puntos de datos para proyectar'
+			error: 'Se requieren al menos 5 mediciones para ejecutar una proyección estable'
 		};
 	}
 

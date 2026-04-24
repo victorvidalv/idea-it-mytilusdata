@@ -27,7 +27,13 @@ export interface Medicion {
 export interface SerieData {
 	key: string;
 	label: string;
-	data: { dia: number; talla: number; limiteInferior?: number; limiteSuperior?: number }[];
+	data: {
+		dia: number;
+		talla: number;
+		limiteInferior?: number;
+		limiteSuperior?: number;
+		mediana?: number;
+	}[];
 	color: string;
 	value?: string;
 	props?: Record<string, unknown>;

@@ -8,10 +8,10 @@
 
 ## 1. Resumen Ejecutivo
 
-**MytilusData** es una plataforma SaaS (Software as a Service) diseñada para optimizar la toma de decisiones en el cultivo de *Mytilus chilensis* (chorito/mejillón) en la Región de Los Lagos, Chile. El proyecto combina:
+**MytilusData** es una plataforma SaaS (Software as a Service) diseñada para optimizar la toma de decisiones en el cultivo de _Mytilus chilensis_ (chorito/mejillón) en la Región de Los Lagos, Chile. El proyecto combina:
 
 - **Captura estandarizada de datos** de muestreo (talla, peso, densidad) y variables ambientales
-- **Modelado predictivo sigmoidal** (Gompertz, Logística, von Bertalanffy) para proyecciones de biomasa
+- **Modelado predictivo de crecimiento** para proyecciones de talla y biomasa
 - **Visualización interactiva** de tendencias y comparativas entre centros de cultivo
 - **API RESTful** para integración con sistemas externos
 
@@ -31,62 +31,62 @@ El proyecto surge como respuesta a la brecha tecnológica en el sector mitilicul
 
 ### 2.1 Framework y Runtime
 
-| Componente | Tecnología | Versión |
-|------------|------------|---------|
-| Framework | SvelteKit | 2.55.0 |
-| Runtime | Node.js | - |
-| Lenguaje | TypeScript | 5.9.3 |
-| UI Framework | Svelte 5 | 5.53.12 |
+| Componente   | Tecnología | Versión |
+| ------------ | ---------- | ------- |
+| Framework    | SvelteKit  | 2.55.0  |
+| Runtime      | Node.js    | -       |
+| Lenguaje     | TypeScript | 5.9.3   |
+| UI Framework | Svelte 5   | 5.53.12 |
 
 ### 2.2 Base de Datos
 
-| Componente | Tecnología | Propósito |
-|------------|------------|-----------|
-| Base de datos | PostgreSQL (Neon Serverless) | Almacenamiento principal |
-| Extensión espacial | PostGIS | Operaciones geográficas |
-| ORM | Drizzle ORM | Mapeo objeto-relacional |
-| Migraciones | Drizzle Kit | Control de versiones de esquema |
+| Componente         | Tecnología                   | Propósito                       |
+| ------------------ | ---------------------------- | ------------------------------- |
+| Base de datos      | PostgreSQL (Neon Serverless) | Almacenamiento principal        |
+| Extensión espacial | PostGIS                      | Operaciones geográficas         |
+| ORM                | Drizzle ORM                  | Mapeo objeto-relacional         |
+| Migraciones        | Drizzle Kit                  | Control de versiones de esquema |
 
 ### 2.3 Frontend y UI
 
-| Componente | Tecnología | Propósito |
-|------------|------------|-----------|
-| Estilos | Tailwind CSS 4 | Framework de utilidades CSS |
-| Componentes UI | bits-ui | Componentes primitivos accesibles |
-| Iconos | Lucide Svelte | Sistema de iconos |
-| Gráficos | LayerChart | Visualización de datos |
-| Mapas | MapLibre GL + svelte-maplibre | Visualización geoespacial |
-| Data Grid | wx-svelte-grid | Tablas de datos editables |
-| Notificaciones | svelte-sonner | Toast notifications |
-| Tema | mode-watcher | Modo claro/oscuro |
+| Componente     | Tecnología                    | Propósito                         |
+| -------------- | ----------------------------- | --------------------------------- |
+| Estilos        | Tailwind CSS 4                | Framework de utilidades CSS       |
+| Componentes UI | bits-ui                       | Componentes primitivos accesibles |
+| Iconos         | Lucide Svelte                 | Sistema de iconos                 |
+| Gráficos       | LayerChart                    | Visualización de datos            |
+| Mapas          | MapLibre GL + svelte-maplibre | Visualización geoespacial         |
+| Data Grid      | wx-svelte-grid                | Tablas de datos editables         |
+| Notificaciones | svelte-sonner                 | Toast notifications               |
+| Tema           | mode-watcher                  | Modo claro/oscuro                 |
 
 ### 2.4 Servicios y APIs
 
-| Componente | Tecnología | Propósito |
-|------------|------------|-----------|
-| Email | Resend | Envío de magic links |
-| Autenticación | JWT (jsonwebtoken) | Sesiones stateless |
-| Validación | Zod | Validación de esquemas |
-| Exportación | ExcelJS | Generación de archivos Excel |
-| Modelado ML | ml-levenberg-marquardt | Ajuste de curvas sigmoidales |
+| Componente    | Tecnología             | Propósito                       |
+| ------------- | ---------------------- | ------------------------------- |
+| Email         | Resend                 | Envío de magic links            |
+| Autenticación | JWT (jsonwebtoken)     | Sesiones stateless              |
+| Validación    | Zod                    | Validación de esquemas          |
+| Exportación   | ExcelJS                | Generación de archivos Excel    |
+| Modelado ML   | ml-levenberg-marquardt | Ajuste no lineal de crecimiento |
 
 ### 2.5 Herramientas de Desarrollo y Testing
 
-| Componente | Tecnología | Propósito |
-|------------|------------|-----------|
-| Build | Vite 8 | Bundler y servidor de desarrollo |
-| Testing Unitario | Vitest 4 | Tests de componentes y lógica |
-| Testing E2E | Playwright | Tests de integración |
-| Linting | ESLint | Calidad de código |
-| Formateo | Prettier | Estilo de código |
-| Type Checking | svelte-check | Verificación de tipos Svelte |
+| Componente       | Tecnología   | Propósito                        |
+| ---------------- | ------------ | -------------------------------- |
+| Build            | Vite 8       | Bundler y servidor de desarrollo |
+| Testing Unitario | Vitest 4     | Tests de componentes y lógica    |
+| Testing E2E      | Playwright   | Tests de integración             |
+| Linting          | ESLint       | Calidad de código                |
+| Formateo         | Prettier     | Estilo de código                 |
+| Type Checking    | svelte-check | Verificación de tipos Svelte     |
 
 ### 2.6 Despliegue
 
-| Componente | Tecnología | Propósito |
-|------------|------------|-----------|
-| Plataforma | Vercel | Hosting y serverless functions |
-| Adapter | @sveltejs/adapter-vercel | Optimización para Vercel |
+| Componente | Tecnología               | Propósito                      |
+| ---------- | ------------------------ | ------------------------------ |
+| Plataforma | Vercel                   | Hosting y serverless functions |
+| Adapter    | @sveltejs/adapter-vercel | Optimización para Vercel       |
 
 ---
 
@@ -338,42 +338,42 @@ src/
 
 #### Autenticación y Usuarios
 
-| Tabla | Propósito |
-|-------|-----------|
-| `usuarios` | Usuarios del sistema con roles (ADMIN, INVESTIGADOR, USUARIO) |
-| `sesiones` | Sesiones activas con JWT, permite invalidación |
-| `magic_link_tokens` | Tokens para autenticación passwordless vía email |
-| `api_keys` | Claves API para acceso programático (una por usuario) |
+| Tabla               | Propósito                                                     |
+| ------------------- | ------------------------------------------------------------- |
+| `usuarios`          | Usuarios del sistema con roles (ADMIN, INVESTIGADOR, USUARIO) |
+| `sesiones`          | Sesiones activas con JWT, permite invalidación                |
+| `magic_link_tokens` | Tokens para autenticación passwordless vía email              |
+| `api_keys`          | Claves API para acceso programático (una por usuario)         |
 
 #### Estructura Productiva
 
-| Tabla | Propósito |
-|-------|-----------|
-| `lugares` | Centros de cultivo con ubicación geográfica (PostGIS) |
-| `ciclos` | Períodos de cultivo desde siembra hasta cosecha |
+| Tabla        | Propósito                                             |
+| ------------ | ----------------------------------------------------- |
+| `lugares`    | Centros de cultivo con ubicación geográfica (PostGIS) |
+| `ciclos`     | Períodos de cultivo desde siembra hasta cosecha       |
 | `mediciones` | Datos de muestreo (talla, biomasa, temperatura, etc.) |
 
 #### Tablas Maestras
 
-| Tabla | Propósito |
-|-------|-----------|
+| Tabla            | Propósito                                     |
+| ---------------- | --------------------------------------------- |
 | `tipos_registro` | Catálogo de tipos de medición con unidad base |
-| `origen_datos` | Origen de los datos (Manual, Satelital, PSMB) |
+| `origen_datos`   | Origen de los datos (Manual, Satelital, PSMB) |
 
 #### Modelado Predictivo
 
-| Tabla | Propósito |
-|-------|-----------|
-| `biblioteca` | Parámetros de curvas sigmoidales ajustadas por ciclo |
+| Tabla        | Propósito                                     |
+| ------------ | --------------------------------------------- |
+| `biblioteca` | Parámetros de crecimiento ajustados por ciclo |
 
 #### Seguridad
 
-| Tabla | Propósito |
-|-------|-----------|
+| Tabla             | Propósito                                |
+| ----------------- | ---------------------------------------- |
 | `consentimientos` | Registro legal de aceptación de términos |
-| `rate_limit_logs` | Control de intentos de login |
-| `email_cooldowns` | Prevención de spam de magic links |
-| `audit_logs` | Trazabilidad de acciones del sistema |
+| `rate_limit_logs` | Control de intentos de login             |
+| `email_cooldowns` | Prevención de spam de magic links        |
+| `audit_logs`      | Trazabilidad de acciones del sistema     |
 
 ---
 
@@ -382,6 +382,7 @@ src/
 ### 5.1 Autenticación
 
 Todos los endpoints API requieren autenticación mediante:
+
 - **Sesión activa** (cookie JWT), o
 - **API Key** (header `Authorization: Bearer <api_key>`)
 
@@ -400,27 +401,29 @@ Todos los endpoints API requieren autenticación mediante:
 | `limit` | int | 10 | Registros por página (max 100) |
 
 **Response:**
+
 ```json
 {
-  "data": [
-    {
-      "id": 1,
-      "nombre": "Centro Norte",
-      "latitud": -41.1234,
-      "longitud": -72.5678,
-      "createdAt": "2025-01-15T10:00:00Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 25,
-    "totalPages": 3
-  }
+	"data": [
+		{
+			"id": 1,
+			"nombre": "Centro Norte",
+			"latitud": -41.1234,
+			"longitud": -72.5678,
+			"createdAt": "2025-01-15T10:00:00Z"
+		}
+	],
+	"pagination": {
+		"page": 1,
+		"limit": 10,
+		"total": 25,
+		"totalPages": 3
+	}
 }
 ```
 
 **Headers de Rate Limiting:**
+
 - `X-RateLimit-Limit`: Límite total
 - `X-RateLimit-Remaining`: Solicitudes restantes
 - `X-RateLimit-Reset`: Timestamp de reset
@@ -436,6 +439,7 @@ Todos los endpoints API requieren autenticación mediante:
 **Query Parameters:** Igual que `/api/centros`
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -463,6 +467,7 @@ Todos los endpoints API requieren autenticación mediante:
 **Query Parameters:** Igual que `/api/centros`
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -490,6 +495,7 @@ Todos los endpoints API requieren autenticación mediante:
 **Autenticación:** Solo sesión (no API Key)
 
 **Response:** Archivo Excel (.xlsx) con tres hojas:
+
 1. **Centros de Cultivo:** Lugares con coordenadas
 2. **Ciclos Productivos:** Períodos de cultivo
 3. **Registros:** Mediciones con joins a tablas maestras
@@ -508,13 +514,13 @@ Todos los endpoints API requieren autenticación mediante:
 
 ### 5.3 Códigos de Error
 
-| Código | Descripción |
-|--------|-------------|
-| 400 | Solicitud mal formada |
-| 401 | No autenticado |
-| 403 | Sin permisos |
-| 429 | Rate limit excedido |
-| 500 | Error interno del servidor |
+| Código | Descripción                |
+| ------ | -------------------------- |
+| 400    | Solicitud mal formada      |
+| 401    | No autenticado             |
+| 403    | Sin permisos               |
+| 429    | Rate limit excedido        |
+| 500    | Error interno del servidor |
 
 ---
 
@@ -637,14 +643,14 @@ src/lib/components/
 
 ### 6.3 Librerías de UI Utilizadas
 
-| Librería | Uso |
-|----------|-----|
-| bits-ui | Componentes primitivos (Button, Dialog, Dropdown, etc.) |
-| wx-svelte-grid | Tablas de datos editables |
-| LayerChart | Gráficos de líneas y visualizaciones |
-| svelte-maplibre | Mapas interactivos |
-| svelte-sonner | Notificaciones toast |
-| lucide-svelte | Iconos |
+| Librería        | Uso                                                     |
+| --------------- | ------------------------------------------------------- |
+| bits-ui         | Componentes primitivos (Button, Dialog, Dropdown, etc.) |
+| wx-svelte-grid  | Tablas de datos editables                               |
+| LayerChart      | Gráficos de líneas y visualizaciones                    |
+| svelte-maplibre | Mapas interactivos                                      |
+| svelte-sonner   | Notificaciones toast                                    |
+| lucide-svelte   | Iconos                                                  |
 
 ---
 
@@ -688,39 +694,34 @@ src/lib/components/
 
 ### 7.2 Sistema de Roles (RBAC)
 
-| Rol | Nivel | Permisos |
-|-----|-------|----------|
-| USUARIO | 0 | Gestión de sus propios datos |
-| INVESTIGADOR | 1 | Acceso a gráficos y análisis |
-| ADMIN | 2 | Acceso completo, gestión de usuarios |
+| Rol          | Nivel | Permisos                             |
+| ------------ | ----- | ------------------------------------ |
+| USUARIO      | 0     | Gestión de sus propios datos         |
+| INVESTIGADOR | 1     | Acceso a gráficos y análisis         |
+| ADMIN        | 2     | Acceso completo, gestión de usuarios |
 
 ### 7.3 Protección de Rutas
 
 ```typescript
 // Rutas protegidas por rol
 const PROTECTED_ROUTES = {
-  '/admin': 'ADMIN',
-  '/investigador': 'INVESTIGADOR'
+	'/admin': 'ADMIN',
+	'/investigador': 'INVESTIGADOR'
 };
 
 // Rutas públicas
-const PUBLIC_ROUTES = [
-  '/',
-  '/auth/login',
-  '/acerca-de',
-  '/condiciones-servicios'
-];
+const PUBLIC_ROUTES = ['/', '/auth/login', '/acerca-de', '/condiciones-servicios'];
 ```
 
 ### 7.4 Rate Limiting
 
-| Tipo | Límite | Ventana |
-|------|--------|---------|
-| Login por IP | 10 intentos | 15 minutos |
-| Login por email | 5 intentos | 15 minutos |
-| API general | 100 solicitudes | 1 minuto |
-| Exportación | 5 solicitudes | 1 hora |
-| Email cooldown | 1 email | 60 segundos |
+| Tipo            | Límite          | Ventana     |
+| --------------- | --------------- | ----------- |
+| Login por IP    | 10 intentos     | 15 minutos  |
+| Login por email | 5 intentos      | 15 minutos  |
+| API general     | 100 solicitudes | 1 minuto    |
+| Exportación     | 5 solicitudes   | 1 hora      |
+| Email cooldown  | 1 email         | 60 segundos |
 
 ---
 
@@ -752,35 +753,35 @@ src/__tests__/
 
 ### 8.2 Cobertura de Tests
 
-| Módulo | Tipo de Test | Framework |
-|--------|--------------|-----------|
+| Módulo             | Tipo de Test       | Framework           |
+| ------------------ | ------------------ | ------------------- |
 | Componentes Svelte | Unitario + Browser | Vitest + Playwright |
-| Lógica de servidor | Unitario | Vitest |
-| API endpoints | Integración | Vitest |
-| E2E | End-to-end | Playwright |
+| Lógica de servidor | Unitario           | Vitest              |
+| API endpoints      | Integración        | Vitest              |
+| E2E                | End-to-end         | Playwright          |
 
 ### 8.3 Configuración de Testing
 
 ```typescript
 // vite.config.ts
 test: {
-  projects: [
-    {
-      name: 'client',
-      browser: {
-        enabled: true,
-        provider: playwright(),
-        instances: [{ browser: 'chromium', headless: true }]
-      },
-      include: ['src/**/*.svelte.{test,spec}.{js,ts}']
-    },
-    {
-      name: 'server',
-      environment: 'node',
-      include: ['src/**/*.{test,spec}.{js,ts}'],
-      exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
-    }
-  ]
+	projects: [
+		{
+			name: 'client',
+			browser: {
+				enabled: true,
+				provider: playwright(),
+				instances: [{ browser: 'chromium', headless: true }]
+			},
+			include: ['src/**/*.svelte.{test,spec}.{js,ts}']
+		},
+		{
+			name: 'server',
+			environment: 'node',
+			include: ['src/**/*.{test,spec}.{js,ts}'],
+			exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
+		}
+	];
 }
 ```
 
@@ -853,16 +854,16 @@ test: {
 
 ### 11.2 Riesgos Técnicos
 
-| Riesgo | Impacto | Mitigación |
-|--------|---------|------------|
-| Dependencia de Neon Serverless | Alto si hay interrupción | Considerar multi-cloud |
-| Rate limiting en memoria | Medio en serverless | Ya implementado con DB |
-| Sin offline support | Alto para usuarios en terreno | Considerar PWA |
-| ETL Python separado | Medio mantenimiento | Integrar en el pipeline |
+| Riesgo                         | Impacto                       | Mitigación              |
+| ------------------------------ | ----------------------------- | ----------------------- |
+| Dependencia de Neon Serverless | Alto si hay interrupción      | Considerar multi-cloud  |
+| Rate limiting en memoria       | Medio en serverless           | Ya implementado con DB  |
+| Sin offline support            | Alto para usuarios en terreno | Considerar PWA          |
+| ETL Python separado            | Medio mantenimiento           | Integrar en el pipeline |
 
 ### 11.3 Vacíos de Información
 
-- No se encontró documentación sobre el motor de modelado predictivo sigmoidal
+- La documentación consolidada del modelo predictivo se mantiene en `fundamentos-modelo-predictivo.md`
 - No está claro el flujo de integración con datos satelitales
 - No hay documentación sobre el proceso de ETL desde PSMB
 
@@ -870,10 +871,11 @@ test: {
 
 ## 12. Conclusión
 
-MytilusData es una plataforma bien arquitecturada con un stack tecnológico moderno y apropiado para el contexto de uso. La separación de responsabilidades, el multi-tenancy y las medidas de seguridad son sólidas. 
+MytilusData es una plataforma bien arquitecturada con un stack tecnológico moderno y apropiado para el contexto de uso. La separación de responsabilidades, el multi-tenancy y las medidas de seguridad son sólidas.
 
 Las principales áreas de mejora están en:
-1. Completar la integración del motor predictivo
+
+1. Completar la integración operativa del modelo predictivo
 2. Mejorar la cobertura de documentación
 3. Implementar soporte offline para usuarios en terreno
 4. Consolidar los scripts de migración y ETL

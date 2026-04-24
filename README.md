@@ -22,11 +22,11 @@ Plataforma web especializada para la gestión de datos de mitilicultura (cultivo
 
 ## Requisitos
 
-| Software       | Versión Mínima |
-| -------------- | -------------- |
-| Node.js        | 20.x           |
-| npm            | 10.x           |
-| PostgreSQL     | 15.x           |
+| Software   | Versión Mínima |
+| ---------- | -------------- |
+| Node.js    | 20.x           |
+| npm        | 10.x           |
+| PostgreSQL | 15.x           |
 
 ## Inicio Rápido
 
@@ -55,62 +55,62 @@ La aplicación estará disponible en `http://localhost:5173`.
 
 ### Variables de Entorno Requeridas
 
-| Variable          | Descripción                              |
-| ----------------- | ---------------------------------------- |
-| `DATABASE_URL`    | URL de conexión a PostgreSQL             |
-| `RESEND_API_KEY`  | API Key de Resend para envío de emails   |
-| `JWT_SECRET`      | Secreto para JWT (mínimo 32 caracteres)  |
-| `EMAIL_FROM`      | Email remitente para Magic Links         |
+| Variable         | Descripción                             |
+| ---------------- | --------------------------------------- |
+| `DATABASE_URL`   | URL de conexión a PostgreSQL            |
+| `RESEND_API_KEY` | API Key de Resend para envío de emails  |
+| `JWT_SECRET`     | Secreto para JWT (mínimo 32 caracteres) |
+| `EMAIL_FROM`     | Email remitente para Magic Links        |
 
 ### Variables Opcionales
 
-| Variable                    | Descripción                    |
-| --------------------------- | ------------------------------ |
-| `TURNSTILE_SECRET_KEY`      | Clave secreta de Cloudflare    |
-| `PUBLIC_TURNSTILE_SITE_KEY` | Clave pública de Cloudflare    |
+| Variable                    | Descripción                     |
+| --------------------------- | ------------------------------- |
+| `TURNSTILE_SECRET_KEY`      | Clave secreta de Cloudflare     |
+| `PUBLIC_TURNSTILE_SITE_KEY` | Clave pública de Cloudflare     |
 | `INITIAL_ADMIN_EMAIL`       | Email del administrador inicial |
 
 ## Comandos Disponibles
 
 ### Desarrollo
 
-| Comando           | Descripción                              |
-| ----------------- | ---------------------------------------- |
-| `npm run dev`     | Servidor de desarrollo (localhost:5173)  |
-| `npm run build`   | Compilar para producción                 |
-| `npm run preview` | Previsualizar build de producción        |
+| Comando           | Descripción                             |
+| ----------------- | --------------------------------------- |
+| `npm run dev`     | Servidor de desarrollo (localhost:5173) |
+| `npm run build`   | Compilar para producción                |
+| `npm run preview` | Previsualizar build de producción       |
 
 ### Calidad de Código
 
-| Comando               | Descripción                       |
-| --------------------- | --------------------------------- |
-| `npm run check`       | Verificación de tipos             |
-| `npm run lint`        | ESLint y Prettier                 |
-| `npm run format`      | Formatear código                  |
+| Comando          | Descripción           |
+| ---------------- | --------------------- |
+| `npm run check`  | Verificación de tipos |
+| `npm run lint`   | ESLint y Prettier     |
+| `npm run format` | Formatear código      |
 
 ### Testing
 
-| Comando             | Descripción                |
-| ------------------- | -------------------------- |
-| `npm run test:unit` | Tests unitarios (Vitest)   |
-| `npm run test:e2e`  | Tests E2E (Playwright)     |
+| Comando             | Descripción              |
+| ------------------- | ------------------------ |
+| `npm run test:unit` | Tests unitarios (Vitest) |
+| `npm run test:e2e`  | Tests E2E (Playwright)   |
 
 ### Base de Datos
 
-| Comando               | Descripción                        |
-| --------------------- | ---------------------------------- |
-| `npm run db:push`     | Sincronizar esquema (desarrollo)   |
-| `npm run db:generate` | Generar migraciones                |
-| `npm run db:migrate`  | Aplicar migraciones                |
-| `npm run db:studio`   | Abrir Drizzle Studio               |
+| Comando               | Descripción                      |
+| --------------------- | -------------------------------- |
+| `npm run db:push`     | Sincronizar esquema (desarrollo) |
+| `npm run db:generate` | Generar migraciones              |
+| `npm run db:migrate`  | Aplicar migraciones              |
+| `npm run db:studio`   | Abrir Drizzle Studio             |
 
 ### Utilidades
 
-| Comando                | Descripción                  |
-| ---------------------- | ---------------------------- |
-| `npm run poblar`       | Poblar BD con datos de prueba|
-| `npm run limpiar`      | Limpiar datos de prueba      |
-| `npm run create-admin` | Asignar rol ADMIN a usuario  |
+| Comando                | Descripción                   |
+| ---------------------- | ----------------------------- |
+| `npm run poblar`       | Poblar BD con datos de prueba |
+| `npm run limpiar`      | Limpiar datos de prueba       |
+| `npm run create-admin` | Asignar rol ADMIN a usuario   |
 
 ## Tecnologías
 
@@ -131,31 +131,31 @@ La documentación completa está organizada en [`docs/README.md`](./docs/README.
 
 ### Documentación Técnica
 
-| Documento | Descripción |
-| --------- | ----------- |
-| [Visión General](./docs/overview.md) | Propósito y funcionalidades del sistema |
-| [Instalación](./docs/installation.md) | Guía detallada de instalación y configuración |
-| [Arquitectura](./docs/architecture.md) | Arquitectura técnica del sistema |
-| [Base de Datos](./docs/database.md) | Esquema y migraciones de base de datos |
-| [API REST](./docs/api.md) | Documentación de endpoints |
-| [Seguridad](./docs/security.md) | Arquitectura de seguridad y autenticación |
-| [Componentes](./docs/components.md) | Catálogo de componentes UI reutilizables |
-| [Testing](./docs/testing.md) | Guía de testing unitario y E2E |
+| Documento                              | Descripción                                   |
+| -------------------------------------- | --------------------------------------------- |
+| [Visión General](./docs/overview.md)   | Propósito y funcionalidades del sistema       |
+| [Instalación](./docs/installation.md)  | Guía detallada de instalación y configuración |
+| [Arquitectura](./docs/architecture.md) | Arquitectura técnica del sistema              |
+| [Base de Datos](./docs/database.md)    | Esquema y migraciones de base de datos        |
+| [API REST](./docs/api.md)              | Documentación de endpoints                    |
+| [Seguridad](./docs/security.md)        | Arquitectura de seguridad y autenticación     |
+| [Componentes](./docs/components.md)    | Catálogo de componentes UI reutilizables      |
+| [Testing](./docs/testing.md)           | Guía de testing unitario y E2E                |
 
 ### Documentación Operativa
 
-| Documento | Descripción |
-| --------- | ----------- |
-| [Guía de Usuario](./docs/user-guide.md) | Manual para operadores |
-| [Runbook](./docs/runbook.md) | Guía de operación y troubleshooting |
-| [FAQ](./docs/faq.md) | Preguntas frecuentes |
+| Documento                               | Descripción                         |
+| --------------------------------------- | ----------------------------------- |
+| [Guía de Usuario](./docs/user-guide.md) | Manual para operadores              |
+| [Runbook](./docs/runbook.md)            | Guía de operación y troubleshooting |
+| [FAQ](./docs/faq.md)                    | Preguntas frecuentes                |
 
 ### Documentación de Negocio
 
-| Documento | Descripción |
-| --------- | ----------- |
-| [Modelo de Negocio](./docs/business-model.md) | Contexto de mercado, modelo de negocio y estrategia del proyecto |
-| [Modelo Predictivo](./docs/modelado-predictivo.md) | Documentación del modelo de predicción de crecimiento |
+| Documento                                                                    | Descripción                                                      |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [Modelo de Negocio](./docs/business-model.md)                                | Contexto de mercado, modelo de negocio y estrategia del proyecto |
+| [Fundamentos del Modelo Predictivo](./docs/fundamentos-modelo-predictivo.md) | Documentación del modelo de predicción de crecimiento            |
 
 ## Estructura del Proyecto
 

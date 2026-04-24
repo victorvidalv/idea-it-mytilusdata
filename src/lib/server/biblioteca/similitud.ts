@@ -7,6 +7,7 @@
 
 import { MIN_PUNTOS, calcularProyeccionBootstrap } from './modelado-utils';
 import { validarDegradacionTemporal } from './modelado';
+import { calcularIncertidumbreResidual } from './similitud-incertidumbre';
 import { validarDatosUsuario, crearResultadoError } from './similitud-utils';
 import { intentarAjusteLocal, buscarEnBiblioteca } from './similitud-core';
 import type {
@@ -58,6 +59,15 @@ async function enriquecerResultado(
 				limiteSuperior: boot.limiteSuperior
 			};
 		}
+	}
+
+	if (!incertidumbre && resultado.curvaUsada.parametros) {
+		incertidumbre = calcularIncertidumbreResidual(
+			datos,
+			resultado.curvaUsada.parametros,
+			resultado.proyeccion,
+			resultado.curvaUsada.esCurvaLocal
+		);
 	}
 
 	// 2. Degradación temporal walk-forward (sobre datos proporcionados)

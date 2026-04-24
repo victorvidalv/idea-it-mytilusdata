@@ -2,8 +2,6 @@
  * Validación de autenticación para el endpoint de proyección.
  */
 
-import type { AppLocals } from '../../app.d';
-
 /**
  * Resultado de una validación.
  */
@@ -16,7 +14,7 @@ export interface ValidacionResult {
  * Verificar que el usuario está autenticado.
  * @returns userId si está autenticado, null si no lo está
  */
-export function verificarAutenticacion(locals: AppLocals): number | null {
+export function verificarAutenticacion(locals: App.Locals): number | null {
 	if (!locals.user) {
 		return null;
 	}

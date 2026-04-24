@@ -120,13 +120,13 @@ ADMIN > INVESTIGADOR > USUARIO
 
 ### Framework y Runtime
 
-| Tecnología     | Versión  | Propósito                |
-| -------------- | -------- | ------------------------ |
-| **SvelteKit**  | 2.55.0   | Framework web full-stack |
-| **Svelte**     | 5.53.12  | UI reactiva              |
-| **TypeScript** | 5.9.3    | Tipado estático          |
-| **Vite**       | 8.0.0    | Build tool y dev server  |
-| **Node.js**    | 20+      | Runtime                  |
+| Tecnología     | Versión | Propósito                |
+| -------------- | ------- | ------------------------ |
+| **SvelteKit**  | 2.55.0  | Framework web full-stack |
+| **Svelte**     | 5.53.12 | UI reactiva              |
+| **TypeScript** | 5.9.3   | Tipado estático          |
+| **Vite**       | 8.0.0   | Build tool y dev server  |
+| **Node.js**    | 20+     | Runtime                  |
 
 ### Base de Datos y ORM
 
@@ -146,12 +146,12 @@ ADMIN > INVESTIGADOR > USUARIO
 
 ### Visualización y Mapas
 
-| Tecnología       | Versión       | Propósito                  |
-| ---------------- | ------------- | -------------------------- |
-| **MapLibre GL**  | 5.20.1        | Mapas interactivos vectoriales |
-| **svelte-maplibre** | 1.2.6     | Integración Svelte para MapLibre |
-| **LayerChart**   | 2.0.0-next.46 | Gráficos                   |
-| **D3 Scale**     | 4.0.2         | Escalas para visualización |
+| Tecnología          | Versión       | Propósito                        |
+| ------------------- | ------------- | -------------------------------- |
+| **MapLibre GL**     | 5.20.1        | Mapas interactivos vectoriales   |
+| **svelte-maplibre** | 1.2.6         | Integración Svelte para MapLibre |
+| **LayerChart**      | 2.0.0-next.46 | Gráficos                         |
+| **D3 Scale**        | 4.0.2         | Escalas para visualización       |
 
 ### Servicios Externos
 
@@ -169,12 +169,12 @@ ADMIN > INVESTIGADOR > USUARIO
 
 ### Validación y Utilidades
 
-| Tecnología       | Versión | Propósito                    |
-| ---------------- | ------- | ---------------------------- |
-| **Zod**          | 3.24.4  | Validación de esquemas       |
-| **ExcelJS**      | 4.4.0   | Generación de Excel          |
-| **jsonwebtoken** | 9.0.3   | Manejo de JWT                |
-| **mode-watcher** | 1.1.0   | Tema claro/oscuro            |
+| Tecnología       | Versión | Propósito              |
+| ---------------- | ------- | ---------------------- |
+| **Zod**          | 3.24.4  | Validación de esquemas |
+| **ExcelJS**      | 4.4.0   | Generación de Excel    |
+| **jsonwebtoken** | 9.0.3   | Manejo de JWT          |
+| **mode-watcher** | 1.1.0   | Tema claro/oscuro      |
 
 ## Estructura de Directorios
 
@@ -318,11 +318,11 @@ Para continuar con la implementación o configuración:
 
 ## Documentación Adicional
 
-| Documento | Descripción |
-| --------- | ----------- |
-| [components.md](./components.md) | Catálogo de componentes reutilizables |
-| [testing.md](./testing.md) | Guía de testing unitario y E2E |
-| [user-guide.md](./user-guide.md) | Manual de usuario para operadores |
-| [faq.md](./faq.md) | Preguntas frecuentes |
-| [runbook.md](./runbook.md) | Guía de operación y troubleshooting |
-| [modelado-predictivo.md](./modelado-predictivo.md) | Documentación del modelo predictivo |
+| Documento                                                              | Descripción                           |
+| ---------------------------------------------------------------------- | ------------------------------------- |
+| [components.md](./components.md)                                       | Catálogo de componentes reutilizables |
+| [testing.md](./testing.md)                                             | Guía de testing unitario y E2E        |
+| [user-guide.md](./user-guide.md)                                       | Manual de usuario para operadores     |
+| [faq.md](./faq.md)                                                     | Preguntas frecuentes                  |
+| [runbook.md](./runbook.md)                                             | Guía de operación y troubleshooting   |
+| [fundamentos-modelo-predictivo.md](./fundamentos-modelo-predictivo.md) | Documentación del modelo predictivo   |

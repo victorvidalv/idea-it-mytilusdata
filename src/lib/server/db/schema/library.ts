@@ -14,7 +14,7 @@ export type PuntosTalla = Record<string, number>;
  * Tipo para los parámetros calculados del modelo sigmoidal
  */
 export type ParametrosSigmoidal = {
-	L: number; // Asíntota superior (talla máxima)
+	L: number; // Asíntota superior (talla máxima en mm)
 	k: number; // Tasa de crecimiento
 	x0: number; // Punto de inflexión (día de crecimiento medio)
 	r2: number; // Coeficiente de determinación

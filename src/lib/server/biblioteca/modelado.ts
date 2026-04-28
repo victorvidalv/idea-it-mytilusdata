@@ -4,8 +4,15 @@
  * el algoritmo Levenberg-Marquardt.
  */
 
-import { levenbergMarquardt, type ParameterizedFunction } from 'ml-levenberg-marquardt';
 import type { ParametrosSigmoidal, PuntosTalla } from '$lib/server/db/schema';
+import {
+	calcularR2,
+	calcularValoresIniciales,
+	ejecutarAjuste,
+	formatearResultado,
+	UMBRAL_R2,
+	validarDatosEntrada
+} from './modelado-utils';
 
 /**
  * Resultado del ajuste de un ciclo individual.
@@ -27,133 +34,42 @@ export interface DatosCiclo {
 }
 
 /**
- * Modelo logístico sigmoidal: f(t) = L / (1 + exp(-k * (t - x0)))
- * 
- * Parámetros:
- * - L: asíntota superior (talla máxima)
- * - k: tasa de crecimiento
- * - x0: punto de inflexión (día de crecimiento medio)
- */
-function crearModeloLogistico(parametros: number[]): (x: number) => number {
-	const [L, k, x0] = parametros;
-	return (x: number) => {
-		// Clip para evitar overflow en exp (igual que en Python)
-		const exponente = Math.max(-20, Math.min(20, -k * (x - x0)));
-		return L / (1 + Math.exp(exponente));
-	};
-}
-
-/**
- * Calcula el coeficiente de determinación R².
- */
-function calcularR2(
-	dias: number[],
-	tallas: number[],
-	parametros: number[]
-): number {
-	const modelo = crearModeloLogistico(parametros);
-	const yPred = dias.map((t) => modelo(t));
-	const yMean = tallas.reduce((a, b) => a + b, 0) / tallas.length;
-
-	const ssRes = tallas.reduce((sum, y, i) => sum + (y - yPred[i]) ** 2, 0);
-	const ssTot = tallas.reduce((sum, y) => sum + (y - yMean) ** 2, 0);
-
-	return ssTot !== 0 ? 1 - ssRes / ssTot : 0;
-}
-
-/**
- * Restricciones biológicas para los parámetros (bounds).
- * Igual que en el ETL.py:
- * - L: [40, 110] mm (talla máxima de mitilidos)
- * - k: [0.005, 0.06] 1/día (tasa de crecimiento)
- * - x0: [0, 500] días (punto de inflexión)
- */
-const MIN_VALUES = [40, 0.005, 0];
-const MAX_VALUES = [110, 0.06, 500];
-
-/**
- * Umbral mínimo de R² para aceptar el ajuste.
- */
-const UMBRAL_R2 = 0.85;
-
-/**
- * Mínimo de puntos requeridos para un ajuste estable.
- */
-const MIN_PUNTOS = 5;
-
-/**
  * Ajusta el modelo sigmoidal a los datos de un ciclo.
- * 
+ *
  * @param datos - Datos del ciclo (días y tallas)
  * @returns Parámetros ajustados o null si el ajuste falla
  */
 export function ajustarCiclo(datos: DatosCiclo): ParametrosSigmoidal | null {
 	const { dias, tallas } = datos;
 
-	// Validar mínimo de puntos
-	if (dias.length < MIN_PUNTOS || tallas.length < MIN_PUNTOS) {
-		return null;
-	}
-
-	// Validar que tengan la misma longitud
-	if (dias.length !== tallas.length) {
+	if (!validarDatosEntrada(dias, tallas)) {
 		return null;
 	}
 
 	try {
-		// Semillas iniciales (initial guess) - igual que en Python
-		const initialValues = [
-			Math.max(...tallas), // L: máximo de las tallas observadas
-			0.02, // k: valor medio de tasa de crecimiento
-			dias[Math.floor(dias.length / 2)] // x0: mediana de los días
-		];
+		const initialValues = calcularValoresIniciales(dias, tallas);
+		const parametros = ejecutarAjuste(dias, tallas, initialValues);
 
-		// Ejecutar Levenberg-Marquardt
-		const resultado = levenbergMarquardt(
-			{ x: dias, y: tallas },
-			crearModeloLogistico as ParameterizedFunction,
-			{
-				initialValues,
-				minValues: MIN_VALUES,
-				maxValues: MAX_VALUES,
-				maxIterations: 100,
-				gradientDifference: 1e-4,
-				damping: 1.5,
-				errorTolerance: 1e-8
-			}
-		);
-
-		// Verificar convergencia
-		if (!resultado.parameterValues || resultado.parameterValues.length !== 3) {
+		if (!parametros) {
 			return null;
 		}
 
-		const [L, k, x0] = resultado.parameterValues;
+		const [L, k, x0] = parametros;
+		const r2 = calcularR2(dias, tallas, parametros);
 
-		// Calcular R²
-		const r2 = calcularR2(dias, tallas, resultado.parameterValues);
-
-		// Verificar calidad del ajuste
 		if (r2 < UMBRAL_R2) {
 			return null;
 		}
 
-		// Redondear como en Python
-		return {
-			L: Math.round(L * 100) / 100,
-			k: Math.round(k * 10000) / 10000,
-			x0: Math.round(x0 * 100) / 100,
-			r2: Math.round(r2 * 10000) / 10000
-		};
+		return formatearResultado(L, k, x0, r2);
 	} catch {
-		// Error en el ajuste (igual que en Python que retorna None)
 		return null;
 	}
 }
 
 /**
  * Procesa todos los ciclos y genera la biblioteca de parámetros.
- * 
+ *
  * @param datosPorCiclo - Mapa de cicloId a sus datos de días y tallas
  * @returns Array de resultados de ajuste por ciclo
  */

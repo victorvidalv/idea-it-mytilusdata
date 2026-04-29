@@ -2,6 +2,8 @@
 
 Esta documentación describe los endpoints de la API REST disponibles en MytilusData para acceso programático a los datos.
 
+> **Nota**: La especificación OpenAPI (Swagger) está pendiente de implementación. Esta documentación proporciona la referencia completa de los endpoints disponibles.
+
 ## Información General
 
 ### URL Base
@@ -25,6 +27,8 @@ Authorization: Bearer tu-api-key-aqui
 ```
 
 > **Nota**: El endpoint de exportación requiere sesión de usuario autenticado (no API Key).
+
+Para detalles sobre el sistema de autenticación y seguridad, consultar [security.md](./security.md).
 
 ### Formato de Respuesta
 

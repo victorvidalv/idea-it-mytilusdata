@@ -1,5 +1,11 @@
 # MytilusData
 
+[![SvelteKit](https://img.shields.io/badge/SvelteKit-2.55-FF3E00?style=flat&logo=svelte)](https://kit.svelte.dev/)
+[![Svelte](https://img.shields.io/badge/Svelte-5-FF3E00?style=flat&logo=svelte)](https://svelte.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=flat&logo=postgresql)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/License-Privado-red)](LICENSE)
+
 Plataforma web especializada para la gestión de datos de mitilicultura (cultivo de mejillones). Permite a investigadores y administradores registrar, visualizar y exportar datos de centros de cultivo, ciclos productivos y mediciones ambientales y biológicas.
 
 ## Características Principales
@@ -108,22 +114,48 @@ La aplicación estará disponible en `http://localhost:5173`.
 
 ## Tecnologías
 
-- **Framework**: SvelteKit 2 + Svelte 5
-- **Lenguaje**: TypeScript 5
+- **Framework**: SvelteKit 2.55 + Svelte 5
+- **Lenguaje**: TypeScript 5.9
 - **Base de datos**: PostgreSQL (Neon) + Drizzle ORM
 - **UI**: TailwindCSS 4 + shadcn-svelte
-- **Visualización**: Leaflet + LayerChart
+- **Mapas**: MapLibre GL + svelte-maplibre
+- **Visualización**: LayerChart
 - **Email**: Resend
 - **Testing**: Vitest + Playwright
 
 ## Documentación
 
-| Documento                                   | Descripción                     |
-| ------------------------------------------- | ------------------------------- |
-| [Visión General](./docs/overview.md)        | Propósito y funcionalidades     |
-| [Instalación](./docs/installation.md)       | Guía detallada de instalación   |
-| [Arquitectura](./docs/architecture.md)      | Arquitectura técnica del sistema|
-| [API REST](./docs/api.md)                   | Documentación de endpoints      |
+### Índice Central
+
+La documentación completa está organizada en [`docs/README.md`](./docs/README.md), que incluye navegación por audiencia, tema y nivel.
+
+### Documentación Técnica
+
+| Documento | Descripción |
+| --------- | ----------- |
+| [Visión General](./docs/overview.md) | Propósito y funcionalidades del sistema |
+| [Instalación](./docs/installation.md) | Guía detallada de instalación y configuración |
+| [Arquitectura](./docs/architecture.md) | Arquitectura técnica del sistema |
+| [Base de Datos](./docs/database.md) | Esquema y migraciones de base de datos |
+| [API REST](./docs/api.md) | Documentación de endpoints |
+| [Seguridad](./docs/security.md) | Arquitectura de seguridad y autenticación |
+| [Componentes](./docs/components.md) | Catálogo de componentes UI reutilizables |
+| [Testing](./docs/testing.md) | Guía de testing unitario y E2E |
+
+### Documentación Operativa
+
+| Documento | Descripción |
+| --------- | ----------- |
+| [Guía de Usuario](./docs/user-guide.md) | Manual para operadores |
+| [Runbook](./docs/runbook.md) | Guía de operación y troubleshooting |
+| [FAQ](./docs/faq.md) | Preguntas frecuentes |
+
+### Documentación de Negocio
+
+| Documento | Descripción |
+| --------- | ----------- |
+| [Modelo de Negocio](./docs/business-model.md) | Contexto de mercado, modelo de negocio y estrategia del proyecto |
+| [Modelo Predictivo](./docs/modelado-predictivo.md) | Documentación del modelo de predicción de crecimiento |
 
 ## Estructura del Proyecto
 

@@ -379,6 +379,66 @@ rm -rf node_modules npm-lock.yaml
 npm install
 ```
 
+## Scripts de Utilidad
+
+El proyecto incluye scripts en el directorio [`scripts/`](../scripts/) para tareas de mantenimiento y prueba.
+
+### seed.js
+
+**Propósito:** Poblar la base de datos con datos de ejemplo y crear tablas maestras.
+
+**Uso:**
+```bash
+npm run poblar
+```
+
+**Acciones:**
+- Crea tipos de registro (talla, biomasa, temperatura, etc.)
+- Crea orígenes de datos (manual, satelital, PSMB)
+- Crea usuario administrador de prueba
+- Genera datos de ejemplo para pruebas
+
+**Limpieza:**
+```bash
+npm run limpiar
+```
+
+Elimina todos los datos de prueba manteniendo la estructura de tablas.
+
+### add_profiles.js, add_profiles_part2.js, add_profiles_part3.js
+
+**Propósito:** Scripts de migración incremental para agregar perfiles de usuario.
+
+**Uso:**
+```bash
+node scripts/add_profiles.js
+node scripts/add_profiles_part2.js
+node scripts/add_profiles_part3.js
+```
+
+**Nota:** Estos scripts son para migraciones específicas y no se usan en el flujo normal de desarrollo.
+
+### create-admin
+
+**Propósito:** Asignar rol ADMIN a un usuario existente.
+
+**Uso:**
+```bash
+npm run create-admin
+```
+
+**Requisitos:**
+- La variable `INITIAL_ADMIN_EMAIL` debe estar configurada en `.env`
+- El usuario debe haberse registrado previamente en la aplicación
+
+**Flujo recomendado:**
+1. Configurar `INITIAL_ADMIN_EMAIL` con el email deseado
+2. Registrar el usuario en la aplicación
+3. Ejecutar `npm run create-admin`
+4. El usuario debe cerrar y volver a iniciar sesión
+
+---
+
 ## Próximos Pasos
 
 Después de completar la instalación:

@@ -31,7 +31,7 @@ Proporcionar una herramienta centralizada para la recopilación, análisis y exp
 ### Módulo de Centros de Cultivo
 
 - Registro de ubicaciones con coordenadas geográficas (latitud/longitud)
-- Visualización en mapa interactivo (Leaflet)
+- Visualización en mapa interactivo vectorial (MapLibre GL)
 - Multi-tenancy: cada usuario ve solo sus propios centros
 
 ### Módulo de Ciclos Productivos
@@ -120,13 +120,13 @@ ADMIN > INVESTIGADOR > USUARIO
 
 ### Framework y Runtime
 
-| Tecnología     | Versión | Propósito                |
-| -------------- | ------- | ------------------------ |
-| **SvelteKit**  | 2.50.2  | Framework web full-stack |
-| **Svelte**     | 5.51.0  | UI reactiva              |
-| **TypeScript** | 5.9.3   | Tipado estático          |
-| **Vite**       | 7.3.1   | Build tool y dev server  |
-| **Node.js**    | 24+     | Runtime                  |
+| Tecnología     | Versión  | Propósito                |
+| -------------- | -------- | ------------------------ |
+| **SvelteKit**  | 2.55.0   | Framework web full-stack |
+| **Svelte**     | 5.53.12  | UI reactiva              |
+| **TypeScript** | 5.9.3    | Tipado estático          |
+| **Vite**       | 8.0.0    | Build tool y dev server  |
+| **Node.js**    | 20+      | Runtime                  |
 
 ### Base de Datos y ORM
 
@@ -146,11 +146,12 @@ ADMIN > INVESTIGADOR > USUARIO
 
 ### Visualización y Mapas
 
-| Tecnología     | Versión       | Propósito                  |
-| -------------- | ------------- | -------------------------- |
-| **Leaflet**    | 1.9.4         | Mapas interactivos         |
-| **LayerChart** | 2.0.0-next.46 | Gráficos                   |
-| **D3 Scale**   | 4.0.2         | Escalas para visualización |
+| Tecnología       | Versión       | Propósito                  |
+| ---------------- | ------------- | -------------------------- |
+| **MapLibre GL**  | 5.20.1        | Mapas interactivos vectoriales |
+| **svelte-maplibre** | 1.2.6     | Integración Svelte para MapLibre |
+| **LayerChart**   | 2.0.0-next.46 | Gráficos                   |
+| **D3 Scale**     | 4.0.2         | Escalas para visualización |
 
 ### Servicios Externos
 
@@ -312,3 +313,16 @@ Para continuar con la implementación o configuración:
 1. Consultar [installation.md](./installation.md) para instrucciones de instalación
 2. Revisar [architecture.md](./architecture.md) para entender la arquitectura del sistema
 3. Ver [api.md](./api.md) para documentación de la API REST
+4. Consultar [database.md](./database.md) para detalles del esquema de base de datos
+5. Revisar [security.md](./security.md) para aspectos de seguridad
+
+## Documentación Adicional
+
+| Documento | Descripción |
+| --------- | ----------- |
+| [components.md](./components.md) | Catálogo de componentes reutilizables |
+| [testing.md](./testing.md) | Guía de testing unitario y E2E |
+| [user-guide.md](./user-guide.md) | Manual de usuario para operadores |
+| [faq.md](./faq.md) | Preguntas frecuentes |
+| [runbook.md](./runbook.md) | Guía de operación y troubleshooting |
+| [modelado-predictivo.md](./modelado-predictivo.md) | Documentación del modelo predictivo |

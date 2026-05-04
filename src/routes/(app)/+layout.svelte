@@ -2,6 +2,7 @@
 	import type { LayoutData } from './$types';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import Header from '$lib/components/layout/Header.svelte';
+	import Footer from '$lib/components/layout/Footer.svelte';
 
 	export let data: LayoutData;
 
@@ -116,5 +117,8 @@
 		<div class="flex-1 overflow-auto p-5 md:p-8 lg:p-10">
 			<slot />
 		</div>
+
+		<!-- Footer con enlaces legales -->
+		<Footer />
 	</main>
 </div>

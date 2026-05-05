@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { ciclos } from '$lib/server/db/schema';
-import { eq, sql, desc } from 'drizzle-orm';
+import { eq, and, sql, desc } from 'drizzle-orm';
 import { validateApiKeyAndRateLimit } from '$lib/server/apiAuth';
 import { parsePaginationParams, buildPaginationMeta } from '$lib/server/pagination';
 
@@ -21,13 +21,21 @@ export async function GET({ request, getClientAddress, url }: RequestEvent) {
 
 	const { userId, rateLimitResult } = authResult;
 	const pagination = parsePaginationParams(url.searchParams);
+	const lugarIdParam = url.searchParams.get('lugarId');
+	const lugarId = lugarIdParam ? parseInt(lugarIdParam, 10) : null;
+
+	// Construir condiciones de filtrado
+	const condiciones = [eq(ciclos.userId, userId)];
+	if (lugarId !== null && !isNaN(lugarId)) {
+		condiciones.push(eq(ciclos.lugarId, lugarId));
+	}
 
 	try {
 		// Contar total de registros para metadatos de paginación
 		const [countResult] = await db
 			.select({ count: sql<number>`count(*)::int` })
 			.from(ciclos)
-			.where(eq(ciclos.userId, userId));
+			.where(and(...condiciones));
 
 		const total = countResult?.count ?? 0;
 
@@ -35,7 +43,7 @@ export async function GET({ request, getClientAddress, url }: RequestEvent) {
 		const userCiclos = await db
 			.select()
 			.from(ciclos)
-			.where(eq(ciclos.userId, userId))
+			.where(and(...condiciones))
 			.orderBy(desc(ciclos.fechaSiembra))
 			.limit(pagination.limit)
 			.offset(pagination.offset);

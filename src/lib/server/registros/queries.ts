@@ -37,6 +37,18 @@ export async function getTiposRegistro(): Promise<TipoRegistro[]> {
 }
 
 /**
+ * Obtiene un registro de medición por su ID.
+ */
+export async function getRegistroById(id: number): Promise<{ id: number; userId: number } | null> {
+	return db
+		.select({ id: mediciones.id, userId: mediciones.userId })
+		.from(mediciones)
+		.where(eq(mediciones.id, id))
+		.limit(1)
+		.then((rows) => rows[0] ?? null);
+}
+
+/**
  * Obtiene los registros con información relacionada y permisos calculados.
  * ADMIN e INVESTIGADOR ven todos, USUARIO solo los propios.
  */

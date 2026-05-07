@@ -13,7 +13,7 @@ Muestra 3 curvas: Meta (línea horizontal), Real (datos históricos) y Proyectad
 
 	interface Props {
 		proyeccion: { dia: number; talla: number; tipo: 'dato' | 'proyeccion' }[];
-		curvaUsada?: { id: number; codigoReferencia: string; sse: number; esCurvaLocal: boolean; r2?: number };
+		curvaUsada?: { id: number; codigoReferencia: string; sse: number; esCurvaLocal: boolean; r2?: number; parametros?: { L: number; k: number; x0: number } };
 		curvaReferencia?: CurvaReferencia;
 		metadatos?: { rangoDias: string; rangoTallas: string; tallaObjetivo?: number; diaObjetivo?: number; totalPuntos: number };
 		mediciones?: { dia: number; talla: number }[];
@@ -26,13 +26,17 @@ Muestra 3 curvas: Meta (línea horizontal), Real (datos históricos) y Proyectad
 	let chartSeriesData = $derived(construirSeriesProyeccion(proyeccion, mediciones, meta, curvaReferencia));
 	let tablaDatos = $derived(construirTablaDatos(proyeccion, mediciones));
 	let chartDescription = $derived(generarDescripcionGrafico(mediciones, proyeccion));
-	let hasMultipleSeries = $derived(chartSeriesData.length > 1);
-	let hasMediciones = $derived(mediciones.length > 0);
+
+	// Determinar si hay múltiples series con datos para mostrar
+	let seriesConDatos = $derived(chartSeriesData.filter((s) => s.data && s.data.length > 0));
+	let hasMultipleSeries = $derived(seriesConDatos.length > 1);
+	// Hay datos para graficar si hay al menos una serie con datos
+	let hasDataToPlot = $derived(seriesConDatos.length > 0);
 </script>
 
 <div class="space-y-6">
 	{#if curvaUsada}
-		<CurvaInfoCard {curvaUsada} />
+		<CurvaInfoCard {curvaUsada} {curvaReferencia} {metadatos} {mediciones} />
 	{/if}
 
 	<Card.Root class="border-border/50">
@@ -55,13 +59,13 @@ Muestra 3 curvas: Meta (línea horizontal), Real (datos históricos) y Proyectad
 		<Card.Content>
 			<div class="h-[400px] w-full">
 				<LineChart
-					data={hasMultipleSeries ? chartSeriesData[0].data : chartSeriesData[0]?.data ?? []}
+					data={hasDataToPlot ? seriesConDatos[0].data : []}
 					x="dia"
 					xScale={scaleLinear()}
 					y="talla"
 					yScale={scaleLinear()}
 					series={hasMultipleSeries
-						? chartSeriesData.map((s) => ({ key: s.key, label: s.label, data: s.data, color: s.color, value: 'talla' }))
+						? seriesConDatos.map((s) => ({ key: s.key, label: s.label, data: s.data, color: s.color, value: 'talla' }))
 						: undefined}
 					axis
 					grid

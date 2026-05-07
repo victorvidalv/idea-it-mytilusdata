@@ -1,11 +1,12 @@
 // Utilidades para la proyección de crecimiento
-import { SERIES_COLORS } from '$lib/components/graficos/seriesColors';
+import { SERIES_COLORS, COLOR_REFERENCIA as COLOR_REFERENCIA_BASE, COLOR_REFERENCIA_ESCALADA as COLOR_REFERENCIA_ESCALADA_BASE } from '$lib/components/graficos/seriesColors';
 
 // Colores para las series
 export const COLOR_META = 'oklch(0.60 0.20 60)';
 export const COLOR_REAL = SERIES_COLORS[0];
 export const COLOR_PROYECTADO = 'oklch(0.72 0.15 185)';
-export const COLOR_REFERENCIA = 'oklch(0.60 0.10 250)'; // Gris azulado para curva de referencia
+export const COLOR_REFERENCIA = COLOR_REFERENCIA_BASE; // Gris azulado para curva original
+export const COLOR_REFERENCIA_ESCALADA = COLOR_REFERENCIA_ESCALADA_BASE; // Naranja para curva escalada
 
 // Parámetros sigmoidales para curva de referencia
 export interface ParametrosSigmoidal {
@@ -51,6 +52,42 @@ export function generarCurvaSigmoidal(
 		puntos.push({ dia, talla });
 	}
 	return puntos;
+}
+
+/**
+ * Calcular L escalado óptimamente para ajustar la curva de referencia a los datos del usuario.
+ * Mantiene k y x0 (la forma de la curva), solo ajusta L.
+ * Usa mínimos cuadrados ponderados para dar menos peso a puntos cerca de la asíntota.
+ */
+export function calcularLEscalado(
+	datos: { dias: number[]; tallas: number[] },
+	curva: ParametrosSigmoidal
+): number {
+	const { dias, tallas } = datos;
+	const { k, x0 } = curva;
+
+	// Evitar división por cero si todos los días son iguales
+	if (dias.length === 0 || tallas.length === 0) {
+		return curva.L;
+	}
+
+	let sumaNumerador = 0;
+	let sumaDenominador = 0;
+
+	for (let i = 0; i < dias.length; i++) {
+		const exponent = -k * (dias[i] - x0);
+		const clippedExp = Math.max(-20, Math.min(20, exponent));
+		const g = 1 + Math.exp(clippedExp);
+		// L_opt = ∑(y_i / g_i) / ∑(1 / g_i²)
+		sumaNumerador += tallas[i] / g;
+		sumaDenominador += 1 / (g * g);
+	}
+
+	if (sumaDenominador === 0) {
+		return curva.L;
+	}
+
+	return sumaNumerador / sumaDenominador;
 }
 
 export interface PuntoProyeccion {
@@ -115,6 +152,22 @@ export function construirSeriesProyeccion(
 			data: diasRef,
 			color: COLOR_REFERENCIA
 		});
+
+		// Curva ESCALADA para ajustarse a los datos del usuario
+		if (mediciones.length > 0) {
+			const L_escalado = calcularLEscalado(
+				{ dias: mediciones.map((m) => m.dia), tallas: mediciones.map((m) => m.talla) },
+				curvaRef.parametros
+			);
+			const parametrosEscalados = { ...curvaRef.parametros, L: L_escalado };
+			const diasEscalado = generarCurvaSigmoidal(parametrosEscalados, 0, maxDia, 100);
+			series.push({
+				key: 'referencia-escalada',
+				label: `Ref esc: ${curvaRef.codigoReferencia} (L=${L_escalado.toFixed(1)})`,
+				data: diasEscalado,
+				color: COLOR_REFERENCIA_ESCALADA
+			});
+		}
 	}
 
 	// Real: puntos de mediciones históricas

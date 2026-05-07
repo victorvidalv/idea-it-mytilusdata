@@ -14,7 +14,8 @@ import {
 	calcularR2,
 	calcularDiaObjetivo,
 	generarProyeccion,
-	crearResultadoError
+	crearResultadoError,
+	escalarParametros
 } from './similitud-utils';
 
 /**
@@ -223,9 +224,11 @@ async function buscarEnBiblioteca(
 		};
 	}
 
-	const proyeccion = generarProyeccion(mejorCurva.parametros, datos, config);
+	// Escalar L de la curva de biblioteca para ajustarse a los datos del usuario
+	const parametrosEscalados = escalarParametros(mejorCurva.parametros, datos);
+	const proyeccion = generarProyeccion(parametrosEscalados, datos, config);
 	const diaObjetivo = config.tallaObjetivo
-		? calcularDiaObjetivo(mejorCurva.parametros, config.tallaObjetivo)
+		? calcularDiaObjetivo(parametrosEscalados, config.tallaObjetivo)
 		: undefined;
 
 	return {
@@ -236,7 +239,7 @@ async function buscarEnBiblioteca(
 			codigoReferencia: mejorCurva.codigoReferencia,
 			sse: Math.round(mejorCurva.sse * 100) / 100,
 			esCurvaLocal: false,
-			parametros: mejorCurva.parametros
+			parametros: parametrosEscalados
 		},
 		curvaReferencia: {
 			id: mejorCurva.bibliotecaId,

@@ -35,6 +35,7 @@ Soporta ingreso manual y carga desde ciclo existente.
 		tallaObjetivo?: string;
 		onAgregarPunto: (dia: number, talla: number) => void;
 		onEliminarPunto: (dia: number) => void;
+		onUsarMedicionesCargadas: (mediciones: MedicionCargada[]) => void;
 		onEjecutarProyeccion: () => void;
 		error: string;
 		cargando: boolean;
@@ -48,6 +49,7 @@ Soporta ingreso manual y carga desde ciclo existente.
 		tallaObjetivo = $bindable(''),
 		onAgregarPunto,
 		onEliminarPunto,
+		onUsarMedicionesCargadas,
 		onEjecutarProyeccion,
 		error,
 		cargando
@@ -137,17 +139,9 @@ Soporta ingreso manual y carga desde ciclo existente.
 
 	// --- Funciones para usar datos cargados ---
 	function usarMedicionesCargadas() {
-		// Limpiar datos existentes
-		dias.length = 0;
-		tallas.length = 0;
-
-		// Agregar cada medición cargada
-		for (const m of medicionesCargadas) {
-			dias.push(m.dia);
-			tallas.push(m.talla);
-		}
-
-		// Limpiar mediciones cargadas
+		// Delegar al callback del padre para mantener inmutabilidad de props
+		onUsarMedicionesCargadas(medicionesCargadas);
+		// Limpiar mediciones cargadas localmente
 		medicionesCargadas = [];
 		selectedCicloId = null;
 	}

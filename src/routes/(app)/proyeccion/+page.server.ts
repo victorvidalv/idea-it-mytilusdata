@@ -14,14 +14,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 		};
 	}
 
-	// Obtener lugares y ciclos en paralelo
-	const [lugares, ciclos] = await Promise.all([
-		getLugaresByUser(userId, userRol),
-		getCiclosByUser(userId, userRol)
-	]);
+	try {
+		// Obtener lugares y ciclos en paralelo
+		const [lugares, ciclos] = await Promise.all([
+			getLugaresByUser(userId, userRol),
+			getCiclosByUser(userId, userRol)
+		]);
 
-	return {
-		lugares,
-		ciclos
-	};
+		return {
+			lugares,
+			ciclos
+		};
+	} catch (error) {
+		throw error;
+	}
 };

@@ -18,7 +18,8 @@ RUN echo "DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/place
     echo "RESEND_API_KEY=placeholder-resend-key" >> .env && \
     echo "EMAIL_FROM=noreply@mytilusdata.cl" >> .env && \
     echo "INITIAL_ADMIN_EMAIL=admin@mytilusdata.cl" >> .env && \
-    echo "PREDICTION_API_URL=http://localhost:8000" >> .env
+    echo "PREDICTION_API_URL=http://localhost:8000" >> .env && \
+    echo "PREDICTION_API_KEY=dev-api-key-placeholder" >> .env
 
 # Build the application
 RUN npm run build

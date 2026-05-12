@@ -6,6 +6,7 @@
 import { env } from '$env/dynamic/private';
 
 const PREDICTION_API_URL = env.PREDICTION_API_URL || 'https://t2g-apipython.v6qptm.easypanel.host';
+const PREDICTION_API_KEY = env.PREDICTION_API_KEY || '';
 const PREDICTION_TIMEOUT_MS = 10_000;
 
 /** Feature adicional para modelos multivariables */
@@ -133,6 +134,15 @@ function clasificarError(error: unknown, statusCode?: number): PredictionService
 	return new PredictionServiceError(message, 'DESCONOCIDO', statusCode);
 }
 
+function buildHeaders(extra: Record<string, string> = {}): Record<string, string> {
+	return {
+		'Content-Type': 'application/json',
+		Accept: 'application/json',
+		...(PREDICTION_API_KEY ? { 'X-API-Key': PREDICTION_API_KEY } : {}),
+		...extra
+	};
+}
+
 /**
  * Obtener la lista de modelos disponibles desde la API externa.
  */
@@ -142,7 +152,7 @@ export async function obtenerModelosDisponibles(): Promise<PredictionModel[]> {
 			`${PREDICTION_API_URL}/config/models`,
 			{
 				method: 'GET',
-				headers: { Accept: 'application/json' }
+				headers: buildHeaders()
 			},
 			PREDICTION_TIMEOUT_MS
 		);
@@ -181,10 +191,7 @@ export async function llamarApiPrediccion(input: PredictionApiInput): Promise<Pr
 			`${PREDICTION_API_URL}/predict`,
 			{
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json'
-				},
+				headers: buildHeaders(),
 				body: JSON.stringify(input)
 			},
 			PREDICTION_TIMEOUT_MS
@@ -222,10 +229,7 @@ export async function validarCompatibilidadPrediccion(input: PredictionApiInput)
 			`${PREDICTION_API_URL}/predict/validate`,
 			{
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json'
-				},
+				headers: buildHeaders(),
 				body: JSON.stringify(input)
 			},
 			PREDICTION_TIMEOUT_MS
